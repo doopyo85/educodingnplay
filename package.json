@@ -1,0 +1,11 @@
+{
+  "name": "codingnacademy",
+  "version": "1.0.0",
+  "description": "코딩앤아카데미_교육사이트",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
