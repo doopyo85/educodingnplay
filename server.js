@@ -10,6 +10,9 @@ var authCheck = require('./lib_login/authCheck.js');
 const app = express();
 const port = 3000;
 
+// 세션 파일을 저장할 디렉토리 경로 설정
+const sessionStore = new FileStore({ path: path.join(__dirname, 'sessions') });
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret: 'your-secret-key',
