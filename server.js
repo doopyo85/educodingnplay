@@ -62,6 +62,16 @@ app.get('/scratch', (req, res) => {
   res.redirect(scratchGuiUrl);
 });
 
+// 로그아웃 엔드포인트
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).send('로그아웃 실패');
+    }
+    res.redirect('/auth/login');
+  });
+});
+
 // Static files serving
 app.use(express.static(path.join(__dirname, 'public')));
 
