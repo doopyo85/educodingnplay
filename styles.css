@@ -1,115 +1,90 @@
-/* styles.css */
-/* styles.css */
-
-/* 스타일링 */
 body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* 스크롤 숨김 */
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #AAA2C2;
+    margin: 50px;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 5px;
+.background {
+    background-color: white;
+    height: auto;
+    width: 90%;
+    max-width: 450px;
+    padding: 10px;
+    margin: 0 auto;
+    border-radius: 5px;
+    box-shadow: 0px 40px 30px -20px rgba(0, 0, 0, 0.3);
     text-align: center;
+}
+
+form {
     display: flex;
-    justify-content: space-between;
-    position: relative;
+    padding: 30px;
+    flex-direction: column;
 }
 
-nav {
-    position: fixed;
-    float: left;
-    width: 250px;
-    height: 100%;
-    background-color: #f2f2f2;
+.login {
+    border: none;
+    border-bottom: 2px solid #D1D1D4;
+    background: none;
     padding: 10px;
-    z-index: 0;
-    overflow-y: auto; /* 스크롤 가능하게 설정 */
+    font-weight: 700;
+    transition: .2s;
+    width: 75%;
 }
 
-nav ul {
-    list-style: none;
-    float: left;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    margin-bottom: 50px;
+.login:active,
+.login:focus,
+.login:hover {
+    outline: none;
+    border-bottom-color: #6A679E;
 }
 
-nav ul li {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #ccc;
-}
-
-nav ul li:hover,
-nav ul li.active {
-    background-color: #ddd;
-}
-
-nav ul li.active {
-    font-weight: bold;
-}
-
-.content-view {
-    margin-left: 270px;
-    margin-bottom: 820px;
-    padding: 10px;
-    height: calc(100% - 80px);
-    overflow: auto;
-}
-
-.has-sub-menu .arrow {
-    margin-left: 5px;
-}
-
-.arrow-up::before {
-    content: "▲";
-}
-
-.arrow-down::before {
-    content: "▼";
-}
-
-.sub-menu {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-in-out;
-}
-
-.has-sub-menu.active .sub-menu {
-    max-height: 1000px; /* 충분히 큰 값으로 설정 */
-}
-
-iframe {
-    width: 100%;
-    height: 820px;
-}
-
-h2 {
-    font-size: 36px;
-}
-
-p {
-    font-size: 16px;
-    line-height: 0.5;
-}
-
-footer {
-    background-color: #333;
+.btn {            
+    border: none;
+    width: 75%;
+    background-color: #6A679E;
     color: white;
-    padding: 20px 0;
-    padding-left: 20px;
-    padding-bottom: 20px; /* 하단 여백 크기 조절 */
-    line-height: 1;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    padding: 15px 0;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: .2s;
 }
+
+.btn:hover {
+    background-color: #595787;
+}
+
+#sidebar {
+    float: left;
+    width: 20%;
+    background-color: #f1f1f1;
+    padding: 10px;
+}
+
+#content {
+    float: left;
+    width: 75%;
+    margin-left: 5%;
+}
+
+#userEmail {
+    text-align: left; /* 왼쪽 정렬 */
+}
+
+.arrow {
+    margin-left: 10px;
+}
+
+.arrow-down::after {
+    content: '▼';
+}
+
+.arrow-up::after {
+    content: '▲';
+}
+
+
 
 /*! normalize.css v2.1.0 | MIT License | git.io/normalize */article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,video{display:inline-block}audio:not([controls]){display:none;height:0}[hidden]{display:none}html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}body{margin:0}a:focus{outline:thin dotted}a:active,a:hover{outline:0}h1{font-size:2em;margin:.67em 0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:700}dfn{font-style:italic}hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}mark{background:#ff0;color:#000}code,kbd,pre,samp{font-family:monospace,serif;font-size:1em}pre{white-space:pre-wrap}q{quotes:"\201C" "\201D" "\2018" "\2019"}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:0}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{border:0;padding:0}button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}button,input{line-height:normal}button,select{text-transform:none}button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=search]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}textarea{overflow:auto;vertical-align:top}table{border-collapse:collapse;border-spacing:0}.link-inherit{color:inherit}.link-inherit:focus,.link-inherit:hover{color:inherit}.hidden{display:none}.alert{padding:15px;margin-bottom:20px;color:#444;background:#eee;border-bottom:5px solid #ddd}.alert-success{background:#dff0d8;border-color:#d6e9c6;color:#3c763d}.alert-info{background:#d9edf7;border-color:#bce8f1;color:#31708f}.alert-danger{background:#f2dede;border-color:#ebccd1;color:#a94442}.alert-warning{background:#fcf8e3;border-color:#faebcc;color:#8a6d3b}/*!
  *  Font Awesome 4.6.3 by @davegandy - http://fontawesome.io - @fontawesome

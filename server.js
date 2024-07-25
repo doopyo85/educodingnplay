@@ -2,12 +2,10 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
-const fs = require('fs');
 const path = require('path');
 
 var authRouter = require('./lib_login/auth');
 var authCheck = require('./lib_login/authCheck.js');
-var template = require('./lib_login/template.js');
 
 const app = express();
 const port = 3000;
@@ -43,15 +41,7 @@ app.get('/main', (req, res) => {
     res.redirect('/auth/login');
     return false;
   }
-  
-  fs.readFile(path.join(__dirname, 'educodingnplay.html'), 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).send('Internal Server Error');
-      return;
-    }
-    var html = data.replace('로그인정보미확인', `${req.session.nickname}님 환영합니다`);
-    res.send(html);
-  });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/get-user', (req, res) => {
@@ -71,6 +61,9 @@ app.get('/scratch', (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
   res.redirect(scratchGuiUrl);
 });
+
+// Static files serving
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
