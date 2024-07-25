@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
+const fs = require('fs');
+const path = require('path');
 
 var authRouter = require('./lib_login/auth');
 var authCheck = require('./lib_login/authCheck.js');
@@ -18,6 +20,12 @@ app.use(session({
   store: new FileStore(),
 }));
 
+// Content Security Policy 헤더 설정
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
+  return next();
+});
+
 app.get('/', (req, res) => {
   if (!authCheck.isOwner(req, res)) {
     res.redirect('/auth/login');
@@ -29,7 +37,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authRouter);
-
 
 app.get('/main', (req, res) => {
   if (!authCheck.isOwner(req, res)) {
