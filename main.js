@@ -30,18 +30,39 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRouter);
 
+
 app.get('/main', (req, res) => {
   if (!authCheck.isOwner(req, res)) {
     res.redirect('/auth/login');
     return false;
   }
-  var html = template.HTML('Welcome',
-    `<hr>
-        <h2>메인 페이지에 오신 것을 환영합니다</h2>
-        <p>로그인에 성공하셨습니다.</p>`,
-    authCheck.statusUI(req, res)
-  );
-  res.send(html);
+  
+  fs.readFile(path.join(__dirname, 'educodingnplay.html'), 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+    var html = data.replace('로그인정보미확인', `${req.session.nickname}님 환영합니다`);
+    res.send(html);
+  });
+});
+
+app.get('/get-user', (req, res) => {
+  if (!authCheck.isOwner(req, res)) {
+    res.json({ email: '로그인정보미확인' });
+  } else {
+    res.json({ email: req.session.nickname });
+  }
+});
+
+app.get('/scratch', (req, res) => {
+  if (!authCheck.isOwner(req, res)) {
+    res.redirect('/auth/login');
+    return false;
+  }
+  
+  const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
+  res.redirect(scratchGuiUrl);
 });
 
 app.listen(port, () => {
