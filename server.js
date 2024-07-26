@@ -23,9 +23,10 @@ app.use(session({
 
 // Content Security Policy 헤더 설정
 app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline'");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;");
   return next();
 });
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
