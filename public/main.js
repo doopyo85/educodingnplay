@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     fetchUserData();
     loadMenuData();
-
     document.getElementById("logoutBtn").addEventListener("click", function() {
         window.location.href = '/auth/logout';
     });
@@ -24,68 +23,72 @@ function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
     const range = 'A2:C';
 
-    gapi.load('client', () => {
-        gapi.client.init({
-            apiKey: apiKey,
-            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-        }).then(() => {
-            return gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: spreadsheetId,
-                range: range,
-            });
-        }).then((response) => {
-            const data = response.result.values;
-            if (data) {
-                const navList = document.getElementById('navList');
-                const contentView = document.getElementById('content');
-
-                const topLevelMenus = new Map();
-                data.forEach(function(row) {
-                    const topLevelMenu = row[0];
-                    const subMenu = row[1];
-                    const url = row[2];
-
-                    if (!topLevelMenus.has(topLevelMenu)) {
-                        topLevelMenus.set(topLevelMenu, []);
-                    }
-
-                    topLevelMenus.get(topLevelMenu).push({ subMenu, url });
+    if (typeof gapi !== 'undefined') {
+        gapi.load('client', () => {
+            gapi.client.init({
+                apiKey: apiKey,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(() => {
+                return gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: spreadsheetId,
+                    range: range,
                 });
+            }).then((response) => {
+                const data = response.result.values;
+                if (data) {
+                    const navList = document.getElementById('navList');
+                    const contentView = document.getElementById('content');
 
-                topLevelMenus.forEach(function(subMenus, topLevelMenu) {
-                    const topLevelMenuItem = document.createElement('li');
-                    topLevelMenuItem.textContent = topLevelMenu;
-                    topLevelMenuItem.classList.add('has-sub-menu');
+                    const topLevelMenus = new Map();
+                    data.forEach(function(row) {
+                        const topLevelMenu = row[0];
+                        const subMenu = row[1];
+                        const url = row[2];
 
-                    const arrow = document.createElement('span');
-                    arrow.classList.add('arrow', 'arrow-down');
-                    topLevelMenuItem.appendChild(arrow);
+                        if (!topLevelMenus.has(topLevelMenu)) {
+                            topLevelMenus.set(topLevelMenu, []);
+                        }
 
-                    topLevelMenuItem.addEventListener('click', function() {
-                        toggleSubMenu(topLevelMenuItem);
+                        topLevelMenus.get(topLevelMenu).push({ subMenu, url });
                     });
 
-                    const subMenuItems = document.createElement('ul');
-                    subMenuItems.className = 'sub-menu';
-                    topLevelMenuItem.appendChild(subMenuItems);
+                    topLevelMenus.forEach(function(subMenus, topLevelMenu) {
+                        const topLevelMenuItem = document.createElement('li');
+                        topLevelMenuItem.textContent = topLevelMenu;
+                        topLevelMenuItem.classList.add('has-sub-menu');
 
-                    subMenus.forEach(function(subMenuData) {
-                        const subMenuItem = document.createElement('li');
-                        subMenuItem.textContent = subMenuData.subMenu;
+                        const arrow = document.createElement('span');
+                        arrow.classList.add('arrow', 'arrow-down');
+                        topLevelMenuItem.appendChild(arrow);
 
-                        subMenuItem.addEventListener('click', function() {
-                            showPageContent(subMenuData.url, contentView);
-                            applySubMenuHighlight(subMenuItem);
+                        topLevelMenuItem.addEventListener('click', function() {
+                            toggleSubMenu(topLevelMenuItem);
                         });
 
-                        subMenuItems.appendChild(subMenuItem);
-                    });
+                        const subMenuItems = document.createElement('ul');
+                        subMenuItems.className = 'sub-menu';
+                        topLevelMenuItem.appendChild(subMenuItems);
 
-                    navList.appendChild(topLevelMenuItem);
-                });
-            }
-        }).catch(error => console.error('Error loading menu data:', error));
-    });
+                        subMenus.forEach(function(subMenuData) {
+                            const subMenuItem = document.createElement('li');
+                            subMenuItem.textContent = subMenuData.subMenu;
+
+                            subMenuItem.addEventListener('click', function() {
+                                showPageContent(subMenuData.url, contentView);
+                                applySubMenuHighlight(subMenuItem);
+                            });
+
+                            subMenuItems.appendChild(subMenuItem);
+                        });
+
+                        navList.appendChild(topLevelMenuItem);
+                    });
+                }
+            }).catch(error => console.error('Error loading menu data:', error));
+        });
+    } else {
+        console.error('Google API not loaded');
+    }
 }
 
 function toggleSubMenu(topLevelMenuItem) {
