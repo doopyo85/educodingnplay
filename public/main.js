@@ -4,6 +4,18 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Google API not loaded');
     }
+
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    menuItems.forEach(item => {
+        item.addEventListener('mouseover', () => {
+            item.classList.add('highlight');
+        });
+
+        item.addEventListener('mouseout', () => {
+            item.classList.remove('highlight');
+        });
+    });
 });
 
 function initClient() {
