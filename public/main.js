@@ -4,23 +4,11 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Google API not loaded');
     }
-
-    const menuItems = document.querySelectorAll('.menu-item');
-
-    menuItems.forEach(item => {
-        item.addEventListener('mouseover', () => {
-            item.classList.add('highlight');
-        });
-
-        item.addEventListener('mouseout', () => {
-            item.classList.remove('highlight');
-        });
-    });
 });
 
 function initClient() {
     gapi.client.init({
-        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
+        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk', // 실제 API 키
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
         fetchUserData();
@@ -41,7 +29,7 @@ function fetchUserData() {
 }
 
 function loadMenuData() {
-    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok'; // 실제 스프레드시트 ID
     const range = 'A2:C';
 
     gapi.client.sheets.spreadsheets.values.get({
@@ -69,6 +57,7 @@ function loadMenuData() {
             topLevelMenus.forEach(function(subMenus, topLevelMenu) {
                 const topLevelMenuItem = document.createElement('li');
                 topLevelMenuItem.textContent = topLevelMenu;
+                topLevelMenuItem.classList.add('menu-item');
                 topLevelMenuItem.classList.add('has-sub-menu');
 
                 const arrow = document.createElement('span');
@@ -86,8 +75,10 @@ function loadMenuData() {
                 subMenus.forEach(function(subMenuData) {
                     const subMenuItem = document.createElement('li');
                     subMenuItem.textContent = subMenuData.subMenu;
+                    subMenuItem.classList.add('menu-item');
 
-                    subMenuItem.addEventListener('click', function() {
+                    subMenuItem.addEventListener('click', function(event) {
+                        event.stopPropagation(); // 이벤트 버블링 방지
                         showPageContent(subMenuData.url, contentView);
                         applySubMenuHighlight(subMenuItem);
                     });

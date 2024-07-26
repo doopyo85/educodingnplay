@@ -4,27 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>코딩앤플레이 교육사이트 - 쉽게 배우는 프로그래밍</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- 기존 스타일 -->
+    <link rel="stylesheet" href="main.css"> <!-- 메인 스타일 추가 -->
     <script src="https://apis.google.com/js/api.js"></script>
     <script defer src="main.js"></script>
-    
 </head>
 <body>
-    <header>
-        <h2>TCP/COS/COSpro 자격증 준비하기 (기출/샘플문제)</h2>
-        <div>
-            <span id="userEmail">로그인 정보 확인 중...</span>
-            <a href="/logout">로그아웃</a>
+    <header class="top-header">
+        <div class="header-content">
+            <h1>TCP/COS/COSpro 자격증 준비하기 (기출/샘플문제)</h1>
+            <div class="user-info">
+                <span id="userEmail">로그인 정보 확인 중...</span>
+                <a href="/logout">로그아웃</a>
+                <img src="profile-thumbnail.jpg" alt="Profile" id="profileIcon" class="profile-icon">
+            </div>
         </div>
     </header>
-    <div id="sidebar">
-        <!-- Sidebar content will be dynamically inserted here -->
+    <div class="profile-menu" id="profileMenu">
+        <ul>
+            <li><a href="/profile">프로필</a></li>
+            <li><a href="/settings">세팅</a></li>
+            <li><a href="/logout">사인아웃</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="/cookies">Cookies</a></li>
+        </ul>
     </div>
-    <nav class="list-view">
-        <ul id="navList"></ul>
-    </nav>
-    <div class="content-view">
-        <div id="content" style="width:100%; height:100%; border:none;"></div>
+    <div class="sidebar">
+        <ul id="navList">
+            <!-- 동적으로 메뉴 항목이 추가될 곳 -->
+        </ul>
+    </div>
+    <div class="content">
+        <!-- 기타 컨텐츠 -->
     </div>
 </body>
 </html>
