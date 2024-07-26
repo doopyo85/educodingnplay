@@ -1,10 +1,20 @@
 document.addEventListener("DOMContentLoaded", function() {
-    fetchUserData();
-    loadMenuData();
-    document.getElementById("logoutBtn").addEventListener("click", function() {
-        window.location.href = '/auth/logout';
-    });
+    if (typeof gapi !== 'undefined') {
+        gapi.load('client', initClient);
+    } else {
+        console.error('Google API not loaded');
+    }
 });
+
+function initClient() {
+    gapi.client.init({
+        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    }).then(() => {
+        fetchUserData();
+        loadMenuData();
+    }).catch(error => console.error('Error initializing Google API client', error));
+}
 
 function fetchUserData() {
     fetch('/get-user')
@@ -19,76 +29,64 @@ function fetchUserData() {
 }
 
 function loadMenuData() {
-    const apiKey = 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk';
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
     const range = 'A2:C';
 
-    if (typeof gapi !== 'undefined') {
-        gapi.load('client', () => {
-            gapi.client.init({
-                apiKey: apiKey,
-                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-            }).then(() => {
-                return gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: spreadsheetId,
-                    range: range,
-                });
-            }).then((response) => {
-                const data = response.result.values;
-                if (data) {
-                    const navList = document.getElementById('navList');
-                    const contentView = document.getElementById('content');
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: range,
+    }).then((response) => {
+        const data = response.result.values;
+        if (data) {
+            const navList = document.getElementById('navList');
+            const contentView = document.getElementById('content');
 
-                    const topLevelMenus = new Map();
-                    data.forEach(function(row) {
-                        const topLevelMenu = row[0];
-                        const subMenu = row[1];
-                        const url = row[2];
+            const topLevelMenus = new Map();
+            data.forEach(function(row) {
+                const topLevelMenu = row[0];
+                const subMenu = row[1];
+                const url = row[2];
 
-                        if (!topLevelMenus.has(topLevelMenu)) {
-                            topLevelMenus.set(topLevelMenu, []);
-                        }
-
-                        topLevelMenus.get(topLevelMenu).push({ subMenu, url });
-                    });
-
-                    topLevelMenus.forEach(function(subMenus, topLevelMenu) {
-                        const topLevelMenuItem = document.createElement('li');
-                        topLevelMenuItem.textContent = topLevelMenu;
-                        topLevelMenuItem.classList.add('has-sub-menu');
-
-                        const arrow = document.createElement('span');
-                        arrow.classList.add('arrow', 'arrow-down');
-                        topLevelMenuItem.appendChild(arrow);
-
-                        topLevelMenuItem.addEventListener('click', function() {
-                            toggleSubMenu(topLevelMenuItem);
-                        });
-
-                        const subMenuItems = document.createElement('ul');
-                        subMenuItems.className = 'sub-menu';
-                        topLevelMenuItem.appendChild(subMenuItems);
-
-                        subMenus.forEach(function(subMenuData) {
-                            const subMenuItem = document.createElement('li');
-                            subMenuItem.textContent = subMenuData.subMenu;
-
-                            subMenuItem.addEventListener('click', function() {
-                                showPageContent(subMenuData.url, contentView);
-                                applySubMenuHighlight(subMenuItem);
-                            });
-
-                            subMenuItems.appendChild(subMenuItem);
-                        });
-
-                        navList.appendChild(topLevelMenuItem);
-                    });
+                if (!topLevelMenus.has(topLevelMenu)) {
+                    topLevelMenus.set(topLevelMenu, []);
                 }
-            }).catch(error => console.error('Error loading menu data:', error));
-        });
-    } else {
-        console.error('Google API not loaded');
-    }
+
+                topLevelMenus.get(topLevelMenu).push({ subMenu, url });
+            });
+
+            topLevelMenus.forEach(function(subMenus, topLevelMenu) {
+                const topLevelMenuItem = document.createElement('li');
+                topLevelMenuItem.textContent = topLevelMenu;
+                topLevelMenuItem.classList.add('has-sub-menu');
+
+                const arrow = document.createElement('span');
+                arrow.classList.add('arrow', 'arrow-down');
+                topLevelMenuItem.appendChild(arrow);
+
+                topLevelMenuItem.addEventListener('click', function() {
+                    toggleSubMenu(topLevelMenuItem);
+                });
+
+                const subMenuItems = document.createElement('ul');
+                subMenuItems.className = 'sub-menu';
+                topLevelMenuItem.appendChild(subMenuItems);
+
+                subMenus.forEach(function(subMenuData) {
+                    const subMenuItem = document.createElement('li');
+                    subMenuItem.textContent = subMenuData.subMenu;
+
+                    subMenuItem.addEventListener('click', function() {
+                        showPageContent(subMenuData.url, contentView);
+                        applySubMenuHighlight(subMenuItem);
+                    });
+
+                    subMenuItems.appendChild(subMenuItem);
+                });
+
+                navList.appendChild(topLevelMenuItem);
+            });
+        }
+    }).catch(error => console.error('Error loading menu data:', error));
 }
 
 function toggleSubMenu(topLevelMenuItem) {
