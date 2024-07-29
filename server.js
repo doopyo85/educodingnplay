@@ -29,6 +29,7 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
+    "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "frame-src 'self' https://content-sheets.googleapis.com; " +
@@ -38,13 +39,9 @@ app.use((req, res, next) => {
   return next();
 });
 
-// 라우팅 설정
+// 루트 경로를 /public으로 리다이렉트
 app.get('/', (req, res) => {
-  if (!authCheck.isOwner(req, res)) {
-    res.redirect('/auth/login');
-    return;
-  }
-  res.redirect('/main');
+  res.redirect('/public/');
 });
 
 app.use('/auth', authRouter);

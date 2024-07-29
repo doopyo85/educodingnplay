@@ -4,19 +4,8 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Google API not loaded');
     }
-});
 
-function initClient() {
-    gapi.client.init({
-        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
-        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-    }).then(() => {
-        fetchUserData();
-        loadMenuData();
-    }).catch(error => console.error('Error initializing Google API client', error));
-}
-
-function fetchUserData() {
+    // 세션 유지
     fetch('/get-user')
         .then(response => response.json())
         .then(data => {
@@ -26,6 +15,15 @@ function fetchUserData() {
             console.error('Error fetching user data:', error);
             document.getElementById("userEmail").innerText = "로그인 정보 미확인";
         });
+});
+
+function initClient() {
+    gapi.client.init({
+        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    }).then(() => {
+        loadMenuData();
+    }).catch(error => console.error('Error initializing Google API client', error));
 }
 
 function loadMenuData() {
