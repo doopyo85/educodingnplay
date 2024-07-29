@@ -34,7 +34,8 @@ app.use((req, res, next) => {
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
-    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com;"
+    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
   );
   return next();
 });
@@ -47,6 +48,9 @@ function isLoggedIn(req, res, next) {
     res.redirect('/auth/login');
   }
 }
+
+// 보호된 경로에 로그인 확인 미들웨어 적용
+app.use('/public', isLoggedIn);
 
 // 루트 경로를 /public으로 리다이렉트
 app.get('/', (req, res) => {

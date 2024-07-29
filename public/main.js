@@ -54,15 +54,13 @@ function loadMenuData() {
             data.forEach(function(row) {
                 const topLevelMenu = row[0];
                 const subMenu = row[1];
-                const url = row[2];
-
-                const s3Url = `https://educodingnplaycontents.s3.amazonaws.com/${url}`;
+                const url = row[2]; // 이미 완전한 URL을 사용
 
                 if (!topLevelMenus.has(topLevelMenu)) {
                     topLevelMenus.set(topLevelMenu, []);
                 }
 
-                topLevelMenus.get(topLevelMenu).push({ subMenu, url: s3Url });
+                topLevelMenus.get(topLevelMenu).push({ subMenu, url }); // URL을 그대로 사용
             });
 
             topLevelMenus.forEach(function(subMenus, topLevelMenu) {
@@ -90,7 +88,7 @@ function loadMenuData() {
                     const icon = document.createElement('i');
                     icon.classList.add('bi', 'bi-file-text');
                     subMenuItem.appendChild(icon);
-                    
+
                     const text = document.createElement('span');
                     text.textContent = subMenuData.subMenu;
                     subMenuItem.appendChild(text);
@@ -111,6 +109,7 @@ function loadMenuData() {
         console.error('Error loading menu data:', error);
     });
 }
+
 
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
