@@ -8,10 +8,7 @@ var authRouter = require('./lib_login/auth');
 var authCheck = require('./lib_login/authCheck.js');
 
 const app = express();
-const port = 3000;
-
-// 세션 파일을 저장할 디렉토리 경로 설정
-const sessionStore = new FileStore({ path: path.join(__dirname, 'sessions') });
+const port = 3000; // 필요한 포트 번호
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
@@ -27,8 +24,8 @@ app.use((req, res, next) => {
   return next();
 });
 
+// 정적 파일 서빙 설정
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 app.get('/', (req, res) => {
   if (!authCheck.isOwner(req, res)) {
@@ -68,7 +65,6 @@ app.get('/scratch', (req, res) => {
   res.redirect(scratchGuiUrl);
 });
 
-// 로그아웃 엔드포인트
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -77,9 +73,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/auth/login');
   });
 });
-
-// Static files serving
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
