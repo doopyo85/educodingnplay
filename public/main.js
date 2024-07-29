@@ -15,6 +15,15 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Error fetching user data:', error);
             document.getElementById("userEmail").innerText = "로그인 정보 미확인";
         });
+
+    // 로그아웃 버튼 클릭 이벤트
+    document.getElementById("logoutButton").addEventListener("click", function() {
+        fetch('/logout', { method: 'POST' })
+            .then(() => {
+                document.getElementById("userEmail").innerText = "알 수 없음";
+            })
+            .catch(error => console.error('Error logging out:', error));
+    });
 });
 
 function initClient() {
@@ -91,14 +100,6 @@ function loadMenuData() {
                         applySubMenuHighlight(subMenuItem);
                     });
 
-                    subMenuItem.addEventListener('mouseover', function(event) {
-                        applySubMenuHighlight(subMenuItem);
-                    });
-
-                    subMenuItem.addEventListener('mouseout', function(event) {
-                        removeSubMenuHighlight(subMenuItem);
-                    });
-
                     subMenuItems.appendChild(subMenuItem);
                 });
 
@@ -156,12 +157,10 @@ function showPageContent(url, contentView) {
 function applySubMenuHighlight(selectedSubMenu) {
     const allSubMenus = document.querySelectorAll('.sub-menu li');
     allSubMenus.forEach(function(item) {
-        item.classList.remove('hover');
+        item.classList.remove('selected-item');
     });
 
-    selectedSubMenu.classList.add('hover');
+    selectedSubMenu.classList.add('selected-item');
 }
 
-function removeSubMenuHighlight(selectedSubMenu) {
-    selectedSubMenu.classList.remove('hover');
-}
+// Hover 관련 함수 삭제
