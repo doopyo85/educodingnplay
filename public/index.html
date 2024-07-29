@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="Content-Security-Policy" content="
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com;
-        script-src 'self' 'unsafe-inline' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://stackpath.bootstrapcdn.com;
-        font-src 'self' https://cdnjs.cloudflare.com data:;
-        frame-src 'self' https://content-sheets.googleapis.com;
-        ">      
-        <title>콘텐츠 선택 페이지</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
-        <link rel="stylesheet" href="styles.css">
-    </head>
+        style-src 'self' 'unsafe-inline';
+        style-src-elem 'self' 'unsafe-inline';
+        script-src 'self' 'unsafe-inline';
+        script-src-elem 'self' 'unsafe-inline';
+        font-src 'self' data:;
+        frame-src 'self';
+    ">
+    <title>콘텐츠 선택 페이지</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="public/styles.css">
+</head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">나에게 맞는 학습 기회를 찾아보세요!</h1>
@@ -22,7 +24,7 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="card" onclick="location.href='scratch.html'">
-                    <img src="path_to_image/scratch.png" class="card-img-top" alt="스크래치">
+                    <img src="public/path_to_image/scratch.png" class="card-img-top" alt="스크래치">
                     <div class="card-body">
                         <h5 class="card-title">스크래치</h5>
                         <p class="card-text">스크래치를 사용하여 창의적이고 재미있는 프로젝트를 만들어보세요.</p>
@@ -32,7 +34,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card" onclick="location.href='entry.html'">
-                    <img src="path_to_image/entry.png" class="card-img-top" alt="엔트리">
+                    <img src="public/path_to_image/entry.png" class="card-img-top" alt="엔트리">
                     <div class="card-body">
                         <h5 class="card-title">엔트리</h5>
                         <p class="card-text">엔트리로 코딩을 시작하고 다양한 프로젝트를 경험해보세요.</p>
@@ -42,7 +44,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card" onclick="location.href='test.html'">
-                    <img src="path_to_image/exam.png" class="card-img-top" alt="기출문제풀이">
+                    <img src="public/path_to_image/exam.png" class="card-img-top" alt="기출문제풀이">
                     <div class="card-body">
                         <h5 class="card-title">기출문제풀이</h5>
                         <p class="card-text">기출문제를 통해 실력을 테스트하고 향상시켜보세요.</p>
@@ -52,8 +54,8 @@
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+    <script src="node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

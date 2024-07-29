@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com;
-        script-src 'self' 'unsafe-inline' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://stackpath.bootstrapcdn.com;
-        font-src 'self' https://cdnjs.cloudflare.com data:;
-        frame-src 'self' https://content-sheets.googleapis.com;
-    ">    
+        style-src 'self' 'unsafe-inline';
+        style-src-elem 'self' 'unsafe-inline';
+        script-src 'self' 'unsafe-inline';
+        script-src-elem 'self' 'unsafe-inline';
+        font-src 'self' data:;
+        frame-src 'self';
+    ">
     <title>Scratch 콘텐츠 선택</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -96,8 +98,8 @@
             <!-- SB2 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+    <script src="node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
