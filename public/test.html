@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        style-src 'self' 'unsafe-inline';
-        style-src-elem 'self' 'unsafe-inline';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com;
-        script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com;
-        font-src 'self' data:;
+        style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net;
+        script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net;
+        font-src 'self' data: https://cdnjs.cloudflare.com;
         frame-src 'self' https://content-sheets.googleapis.com;
     ">
     <title>코딩앤플레이 교육사이트 - 쉽게 배우는 프로그래밍</title>
-    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/scratch.css">
     <link rel="stylesheet" href="/public/style.css">
     <script src="https://apis.google.com/js/api.js"></script>
@@ -52,7 +51,7 @@
         <!-- 기타 컨텐츠 -->
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
-    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
