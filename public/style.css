@@ -65,19 +65,28 @@ nav {
     border-radius: 8px;
 }
 
-.menu-item:hover {
-    background-color: #e9ecef;
-    color: #000;
-}
-
 .sub-menu {
     display: none;
-    margin-left: 15px;
+    margin-left: 0px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
 }
 
 .sub-menu .menu-item {
     padding: 8px 10px;
+    margin-left: 0px;
 }
+
+.sub-menu .menu-item:hover {
+    background-color: #dcdcdc; /* 원하는 롤오버 색상으로 변경 */
+    color: #000;
+}
+
+.sub-menu .menu-item.active {
+    background-color: #e9ecef;
+    color: #000;
+}
+
 
 .menu-item.active .sub-menu {
     display: block;
@@ -98,4 +107,108 @@ nav {
 
 .arrow-up::after {
     content: '▲';
+}
+
+
+.container {
+    margin-top: 50px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    cursor: pointer; /* 포인터 커서 추가 */
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.btn-primary {
+    background-color: #6f42c1;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #563d7c;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 50px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    cursor: pointer; /* 포인터 커서 추가 */
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.btn-primary, .btn-secondary {
+    margin: 5px;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #563d7c;
 }

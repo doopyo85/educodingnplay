@@ -3,44 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>코딩앤플레이 교육사이트 - 쉽게 배우는 프로그래밍</title>
+    <title>콘텐츠 선택 페이지</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="scratch.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script defer src="main.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="logo.png" alt="Logo" style="width: 40px; height: 40px;">
-                <span class="ms-2">코딩앤아카데미</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <form class="d-flex mx-auto" style="max-width: 400px;">
-                    <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search">
-                </form>
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-brightness-high me-3" style="font-size: 1.5rem;"></i>
-                    <i class="bi bi-bell me-3" style="font-size: 1.5rem;"></i>
-                    <i class="bi bi-grid me-3" style="font-size: 1.5rem;"></i>
-                    <img src="profile-thumbnail.jpg" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
+    <div class="container mt-5">
+        <h1 class="text-center">나에게 맞는 학습 기회를 찾아보세요!</h1>
+        <p class="text-center">논리길을 끄는 비디오, 자기 주도형 튜토리얼, 프로그래밍 활동 등을 통해 컴퓨터 과학의 세계를 탐구해보세요!</p>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card" onclick="location.href='scratch.html'">
+                    <img src="path_to_image/scratch.png" class="card-img-top" alt="스크래치">
+                    <div class="card-body">
+                        <h5 class="card-title">스크래치</h5>
+                        <p class="card-text">스크래치를 사용하여 창의적이고 재미있는 프로젝트를 만들어보세요.</p>
+                        <a href="scratch.html" class="btn btn-primary">스크래치 학습 살펴보기</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" onclick="location.href='entry.html'">
+                    <img src="path_to_image/entry.png" class="card-img-top" alt="엔트리">
+                    <div class="card-body">
+                        <h5 class="card-title">엔트리</h5>
+                        <p class="card-text">엔트리로 코딩을 시작하고 다양한 프로젝트를 경험해보세요.</p>
+                        <a href="entry.html" class="btn btn-primary">엔트리 학습 살펴보기</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" onclick="location.href='test.html'">
+                    <img src="path_to_image/exam.png" class="card-img-top" alt="기출문제풀이">
+                    <div class="card-body">
+                        <h5 class="card-title">기출문제풀이</h5>
+                        <p class="card-text">기출문제를 통해 실력을 테스트하고 향상시켜보세요.</p>
+                        <a href="test.html" class="btn btn-primary">기출문제풀이 학습 살펴보기</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </header>
-    <nav>
-        <ul id="navList">
-            <!-- 동적으로 메뉴 항목이 추가될 곳 -->
-        </ul>
-    </nav>
-    <div id="content" class="container">
-        <!-- 기타 컨텐츠 -->
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

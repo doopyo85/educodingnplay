@@ -36,6 +36,7 @@ function loadMenuData() {
         spreadsheetId: spreadsheetId,
         range: range,
     }).then((response) => {
+        console.log('Response from Google Sheets:', response);
         const data = response.result.values;
         if (data) {
             const navList = document.getElementById('navList');
@@ -47,7 +48,6 @@ function loadMenuData() {
                 const subMenu = row[1];
                 const url = row[2];
 
-                // S3 버킷 URL로 변경
                 const s3Url = `https://educodingnplaycontents.s3.amazonaws.com/${url}`;
 
                 if (!topLevelMenus.has(topLevelMenu)) {
@@ -77,13 +77,28 @@ function loadMenuData() {
 
                 subMenus.forEach(function(subMenuData) {
                     const subMenuItem = document.createElement('li');
-                    subMenuItem.textContent = subMenuData.subMenu;
                     subMenuItem.classList.add('menu-item');
+
+                    const icon = document.createElement('i');
+                    icon.classList.add('bi', 'bi-file-text');
+                    subMenuItem.appendChild(icon);
+                    
+                    const text = document.createElement('span');
+                    text.textContent = subMenuData.subMenu;
+                    subMenuItem.appendChild(text);
 
                     subMenuItem.addEventListener('click', function(event) {
                         event.stopPropagation();
                         showPageContent(subMenuData.url, contentView);
                         applySubMenuHighlight(subMenuItem);
+                    });
+
+                    subMenuItem.addEventListener('mouseover', function(event) {
+                        applySubMenuHighlight(subMenuItem);
+                    });
+
+                    subMenuItem.addEventListener('mouseout', function(event) {
+                        removeSubMenuHighlight(subMenuItem);
                     });
 
                     subMenuItems.appendChild(subMenuItem);
@@ -92,7 +107,9 @@ function loadMenuData() {
                 navList.appendChild(topLevelMenuItem);
             });
         }
-    }).catch(error => console.error('Error loading menu data:', error));
+    }).catch(error => {
+        console.error('Error loading menu data:', error);
+    });
 }
 
 function toggleSubMenu(topLevelMenuItem) {
@@ -100,9 +117,18 @@ function toggleSubMenu(topLevelMenuItem) {
     const arrow = topLevelMenuItem.querySelector('.arrow');
 
     const allSubMenuItems = document.querySelectorAll('.sub-menu');
+    const allArrows = document.querySelectorAll('.arrow');
+
     allSubMenuItems.forEach(function(item) {
         if (item !== subMenu) {
             item.style.maxHeight = '0px';
+            item.style.display = 'none';
+        }
+    });
+
+    allArrows.forEach(function(item) {
+        if (item !== arrow) {
+            toggleArrow(item, false);
         }
     });
 
@@ -132,8 +158,12 @@ function showPageContent(url, contentView) {
 function applySubMenuHighlight(selectedSubMenu) {
     const allSubMenus = document.querySelectorAll('.sub-menu li');
     allSubMenus.forEach(function(item) {
-        item.classList.remove('active');
+        item.classList.remove('hover');
     });
 
-    selectedSubMenu.classList.add('active');
+    selectedSubMenu.classList.add('hover');
+}
+
+function removeSubMenuHighlight(selectedSubMenu) {
+    selectedSubMenu.classList.remove('hover');
 }
