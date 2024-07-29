@@ -8,7 +8,7 @@ var authRouter = require('./lib_login/auth');
 var authCheck = require('./lib_login/authCheck.js');
 
 const app = express();
-const port = 3000; // 필요한 포트 번호
+const port = 3000; // 포트를 3000번으로 설정
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
@@ -17,6 +17,19 @@ app.use(session({
   saveUninitialized: true,
   store: new FileStore(),
 }));
+
+// 정적 파일 서빙을 위한 경로 설정
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/resource', express.static(path.join(__dirname, 'resource')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
 
 // Content Security Policy 헤더 설정
 app.use((req, res, next) => {

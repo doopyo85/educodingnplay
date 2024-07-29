@@ -2,7 +2,7 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
+    background-color: #f8f9fa;
     min-height: 100vh;
 }
 
@@ -87,7 +87,6 @@ nav {
     color: #000;
 }
 
-
 .menu-item.active .sub-menu {
     display: block;
 }
@@ -109,7 +108,6 @@ nav {
     content: '▲';
 }
 
-
 .container {
     margin-top: 50px;
 }
@@ -129,6 +127,10 @@ p {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 카드 내부의 콘텐츠를 위아래로 나누어 배치 */
 }
 
 .card:hover {
@@ -146,59 +148,27 @@ p {
     color: #6c757d;
 }
 
-.btn-primary {
-    background-color: #6f42c1;
-    border: none;
-    border-radius: 30px;
-    padding: 10px 20px;
-    transition: background-color 0.3s;
+.card-img-top {
+    width: 100%;
+    max-height: 60%;
+    object-fit: contain;
+    padding: 10px;
 }
 
-.btn-primary:hover {
-    background-color: #563d7c;
+.card-img-entry {
+    width: 80%; /* entry 이미지 80%로 축소 */
+    max-height: 60%;
+    object-fit: contain;
+    padding: 10px;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    margin-top: 50px;
-}
-
-h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-}
-
-p {
-    font-size: 1.1rem;
-    color: #6c757d;
-}
-
-.card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: scale(1.05);
-    cursor: pointer; /* 포인터 커서 추가 */
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
-.card-text {
-    font-size: 1rem;
-    color: #6c757d;
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 텍스트와 버튼을 아래쪽에 정렬 */
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
 }
 
 .btn-primary, .btn-secondary {
@@ -207,8 +177,8 @@ p {
     border-radius: 30px;
     padding: 10px 20px;
     transition: background-color 0.3s;
+    align-self: stretch;
 }
-
 .btn-primary:hover, .btn-secondary:hover {
     background-color: #563d7c;
 }
