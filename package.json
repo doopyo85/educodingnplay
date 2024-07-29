@@ -9,7 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "bootstrap": "^5.3.3",
+=======
+>>>>>>> 108089e (Resolve merge conflict in package.json and package-lock.json)
     "bootstrap-icons": "^1.11.3",
     "body-parser": "^1.20.2",
     "express": "^4.19.2",
@@ -18,3 +21,4 @@
     "session-file-store": "^1.5.0"
   }
 }
+
