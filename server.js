@@ -39,6 +39,15 @@ app.use((req, res, next) => {
   return next();
 });
 
+// 로그인 확인 미들웨어 추가
+function isLoggedIn(req, res, next) {
+  if (req.session.is_logined) {
+    return next();
+  } else {
+    res.redirect('/auth/login');
+  }
+}
+
 // 루트 경로를 /public으로 리다이렉트
 app.get('/', (req, res) => {
   res.redirect('/public/');
@@ -46,28 +55,15 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRouter);
 
-app.get('/main', (req, res) => {
-  if (!authCheck.isOwner(req, res)) {
-    res.redirect('/auth/login');
-    return;
-  }
+app.get('/main', isLoggedIn, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/get-user', (req, res) => {
-  if (!authCheck.isOwner(req, res)) {
-    res.json({ email: '로그인정보미확인' });
-  } else {
-    res.json({ email: req.session.nickname });
-  }
+app.get('/get-user', isLoggedIn, (req, res) => {
+  res.json({ email: req.session.nickname });
 });
 
-app.get('/scratch', (req, res) => {
-  if (!authCheck.isOwner(req, res)) {
-    res.redirect('/auth/login');
-    return;
-  }
-  
+app.get('/scratch', isLoggedIn, (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
   res.redirect(scratchGuiUrl);
 });

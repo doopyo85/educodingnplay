@@ -18,9 +18,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 로그아웃 버튼 클릭 이벤트
     document.getElementById("logoutButton").addEventListener("click", function() {
-        fetch('/logout', { method: 'POST' })
+        fetch('/auth/logout', { method: 'GET' })
             .then(() => {
-                document.getElementById("userEmail").innerText = "알 수 없음";
+                window.location.href = '/auth/login'; // 로그아웃 후 로그인 페이지로 리디렉션
             })
             .catch(error => console.error('Error logging out:', error));
     });
@@ -34,6 +34,7 @@ function initClient() {
         loadMenuData();
     }).catch(error => console.error('Error initializing Google API client', error));
 }
+
 
 function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';

@@ -43,7 +43,7 @@ router.post('/login_process', function (request, response) {
 
 router.get('/logout', function (request, response) {
     request.session.destroy(function (err) {
-        response.redirect('/');
+        response.redirect('/auth/login'); // 로그인 페이지로 리디렉션
     });
 });
 
