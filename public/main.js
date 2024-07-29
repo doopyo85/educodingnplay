@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function initClient() {
     gapi.client.init({
-        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk', // 실제 API 키
+        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
         fetchUserData();
@@ -29,7 +29,7 @@ function fetchUserData() {
 }
 
 function loadMenuData() {
-    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok'; // 실제 스프레드시트 ID
+    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
     const range = 'A2:C';
 
     gapi.client.sheets.spreadsheets.values.get({
@@ -47,11 +47,14 @@ function loadMenuData() {
                 const subMenu = row[1];
                 const url = row[2];
 
+                // S3 버킷 URL로 변경
+                const s3Url = `https://educodingnplaycontents.s3.amazonaws.com/${url}`;
+
                 if (!topLevelMenus.has(topLevelMenu)) {
                     topLevelMenus.set(topLevelMenu, []);
                 }
 
-                topLevelMenus.get(topLevelMenu).push({ subMenu, url });
+                topLevelMenus.get(topLevelMenu).push({ subMenu, url: s3Url });
             });
 
             topLevelMenus.forEach(function(subMenus, topLevelMenu) {
@@ -78,7 +81,7 @@ function loadMenuData() {
                     subMenuItem.classList.add('menu-item');
 
                     subMenuItem.addEventListener('click', function(event) {
-                        event.stopPropagation(); // 이벤트 버블링 방지
+                        event.stopPropagation();
                         showPageContent(subMenuData.url, contentView);
                         applySubMenuHighlight(subMenuItem);
                     });

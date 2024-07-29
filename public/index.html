@@ -4,39 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>코딩앤플레이 교육사이트 - 쉽게 배우는 프로그래밍</title>
-    <link rel="stylesheet" href="styles.css"> <!-- 기존 스타일 -->
-    <link rel="stylesheet" href="main.css"> <!-- 메인 스타일 추가 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="scratch.css">
+    <link rel="stylesheet" href="style.css">
     <script src="https://apis.google.com/js/api.js"></script>
     <script defer src="main.js"></script>
 </head>
 <body>
-    <header class="top-header">
-        <div class="header-content">
-            <h1>TCP/COS/COSpro 자격증 준비하기 (기출/샘플문제)</h1>
-            <div class="user-info">
-                <span id="userEmail">로그인 정보 확인 중...</span>
-                <a href="/logout">로그아웃</a>
-                <img src="profile-thumbnail.jpg" alt="Profile" id="profileIcon" class="profile-icon">
+    <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo.png" alt="Logo" style="width: 40px; height: 40px;">
+                <span class="ms-2">코딩앤아카데미</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <form class="d-flex mx-auto" style="max-width: 400px;">
+                    <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search">
+                </form>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-brightness-high me-3" style="font-size: 1.5rem;"></i>
+                    <i class="bi bi-bell me-3" style="font-size: 1.5rem;"></i>
+                    <i class="bi bi-grid me-3" style="font-size: 1.5rem;"></i>
+                    <img src="profile-thumbnail.jpg" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
+                </div>
             </div>
         </div>
     </header>
-    <div class="profile-menu" id="profileMenu">
-        <ul>
-            <li><a href="/profile">프로필</a></li>
-            <li><a href="/settings">세팅</a></li>
-            <li><a href="/logout">사인아웃</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/terms">Terms</a></li>
-            <li><a href="/cookies">Cookies</a></li>
-        </ul>
-    </div>
-    <div class="sidebar">
+    <nav>
         <ul id="navList">
             <!-- 동적으로 메뉴 항목이 추가될 곳 -->
         </ul>
-    </div>
-    <div class="content">
+    </nav>
+    <div id="content" class="container">
         <!-- 기타 컨텐츠 -->
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
