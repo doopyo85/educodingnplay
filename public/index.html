@@ -3,8 +3,14 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com;
+        script-src 'self' 'unsafe-inline' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://stackpath.bootstrapcdn.com;
+        font-src 'self' https://cdnjs.cloudflare.com data:;
+        frame-src 'self' https://content-sheets.googleapis.com;
+        ">      
         <title>콘텐츠 선택 페이지</title>
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://stackpath.bootstrapcdn.com;">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
         <link rel="stylesheet" href="styles.css">
