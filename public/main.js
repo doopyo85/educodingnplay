@@ -35,7 +35,6 @@ function initClient() {
     }).catch(error => console.error('Error initializing Google API client', error));
 }
 
-
 function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
     const range = 'A2:C';
@@ -48,19 +47,19 @@ function loadMenuData() {
         const data = response.result.values;
         if (data) {
             const navList = document.getElementById('navList');
-            const contentView = document.getElementById('content');
+            const contentView = document.getElementById('iframeContent');
 
             const topLevelMenus = new Map();
             data.forEach(function(row) {
                 const topLevelMenu = row[0];
                 const subMenu = row[1];
-                const url = row[2]; // 이미 완전한 URL을 사용
+                const url = row[2];
 
                 if (!topLevelMenus.has(topLevelMenu)) {
                     topLevelMenus.set(topLevelMenu, []);
                 }
 
-                topLevelMenus.get(topLevelMenu).push({ subMenu, url }); // URL을 그대로 사용
+                topLevelMenus.get(topLevelMenu).push({ subMenu, url });
             });
 
             topLevelMenus.forEach(function(subMenus, topLevelMenu) {
@@ -110,7 +109,6 @@ function loadMenuData() {
     });
 }
 
-
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('.arrow');
@@ -151,7 +149,7 @@ function toggleArrow(arrow, isOpen) {
 }
 
 function showPageContent(url, contentView) {
-    contentView.innerHTML = `<iframe src="${url}" width="100%" height="100%"></iframe>`;
+    contentView.src = url;
 }
 
 function applySubMenuHighlight(selectedSubMenu) {
@@ -162,5 +160,3 @@ function applySubMenuHighlight(selectedSubMenu) {
 
     selectedSubMenu.classList.add('selected-item');
 }
-
-// Hover 관련 함수 삭제
