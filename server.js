@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,  // 변경: 초기화되지 않은 세션을 저장하지 않음
   store: new FileStore({
     path: path.join(__dirname, 'sessions')  // 세션 파일 경로 설정
   }),
