@@ -2,9 +2,10 @@
   "name": "codingnacademy",
   "version": "1.0.0",
   "description": "코딩앤아카데미_교육사이트",
-  "main": "index.js",
+  "main": "dist/scratch-gui.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js" // 빌드 스크립트 추가
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +17,9 @@
     "express-session": "^1.18.0",
     "mysql": "^2.18.1",
     "session-file-store": "^1.5.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.50.0", // 웹팩 추가
+    "webpack-cli": "^4.8.0"
   }
 }
