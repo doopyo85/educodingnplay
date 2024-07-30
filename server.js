@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 
-var authRouter = require('./lib_login/auth');
-var authCheck = require('./lib_login/authCheck.js');
+const authRouter = require('./lib_login/auth');
+const authCheck = require('./lib_login/authCheck.js');
 
 const app = express();
 const DEFAULT_PORT = 3000;
@@ -27,6 +27,12 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// auth 라우터 설정
+app.use('/auth', authRouter);
+
+// 보호된 경로에 로그인 확인 미들웨어 적용
+app.use('/public', isLoggedIn);
+
 // 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
@@ -35,12 +41,6 @@ app.get('/', (req, res) => {
     res.redirect('/auth/login');
   }
 });
-
-// auth 라우터 설정
-app.use('/auth', authRouter);
-
-// 보호된 경로에 로그인 확인 미들웨어 적용
-app.use('/public', isLoggedIn);
 
 app.get('/main', isLoggedIn, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -102,6 +102,4 @@ function startServer(port) {
   });
 }
 
-//서버 순서 변경
 startServer(DEFAULT_PORT);
-
