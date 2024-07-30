@@ -1,4 +1,3 @@
-// header.js
 document.addEventListener("DOMContentLoaded", function() {
     // 세션 유지
     fetch('/get-user')
