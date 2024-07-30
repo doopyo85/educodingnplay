@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 
-const authRouter = require('./lib_login/auth');
+const authRouter = require('./lib_login/auth'); // auth 라우터 경로
 const authCheck = require('./lib_login/authCheck.js');
 
 const app = express();
