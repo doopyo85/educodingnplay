@@ -12,11 +12,16 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
     // 로그아웃 버튼 클릭 이벤트
-    document.getElementById("logoutButton").addEventListener("click", function() {
-        fetch('/auth/logout', { method: 'GET' })
-            .then(() => {
-                window.location.href = '/auth/login'; // 로그아웃 후 로그인 페이지로 리디렉션
-            })
-            .catch(error => console.error('Error logging out:', error));
-    });
+    const logoutButton = document.getElementById("logoutButton");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function() {
+            fetch('/auth/logout', { method: 'GET' })
+                .then(() => {
+                    window.location.href = '/auth/login'; // 로그아웃 후 로그인 페이지로 리디렉션
+                })
+                .catch(error => console.error('Error logging out:', error));
+        });
+    } else {
+        console.error("Logout button not found");
+    }
 });

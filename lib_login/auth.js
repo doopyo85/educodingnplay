@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const template = require('./template.js');
 const db = require('./db');
 
