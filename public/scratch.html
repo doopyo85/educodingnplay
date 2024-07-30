@@ -13,75 +13,145 @@
     frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;
     ">
 
-    <title>코딩앤플레이 교육사이트 - 쉽게 배우는 프로그래밍</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Scratch 콘텐츠 선택</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/public/scratch.css">
-    <link rel="stylesheet" href="/public/style.css">
+    <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            gapi.load('client', initClient);
+        });
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(() => {
+                loadSB2Data();
+            }).catch(error => console.error('Error initializing Google API client', error));
+        }
+
+        function loadSB2Data() {
+            const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+            const range = 'sb2!A2:C';
+
+            gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: spreadsheetId,
+                range: range,
+            }).then((response) => {
+                const data = response.result.values;
+                if (data) {
+                    const projects = groupByProject(data);
+                    displayProjects(projects);
+                }
+            }).catch(error => console.error('Error loading SB2 data', error));
+        }
+
+        function groupByProject(data) {
+            const projects = {};
+            data.forEach(row => {
+                const [name, url, ctElement] = row;
+                const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\))/, '').trim();
+                if (!projects[baseName]) {
+                    projects[baseName] = { ctElement: ctElement, basic: '', ext1: '', ext2: '' };
+                }
+                if (name.includes('(기본)')) {
+                    projects[baseName].basic = url;
+                } else if (name.includes('(확장1)')) {
+                    projects[baseName].ext1 = url;
+                } else if (name.includes('(확장2)')) {
+                    projects[baseName].ext2 = url;
+                }
+            });
+            return projects;
+        }
+
+        function displayProjects(projects) {
+            const container = document.getElementById('content-container');
+            Object.keys(projects).forEach(projectName => {
+                if (projectName === '새로 시작하기') return;
+
+                const project = projects[projectName];
+                const card = document.createElement('div');
+                card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+                const cardContent = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">${projectName}</h5>
+                            <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
+                            <p class="card-text">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요.</p>
+                            ${project.basic ? `<button class="btn btn-primary load-sb2" data-url="${project.basic}">기본</button>` : ''}
+                            ${project.ext1 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext1}">확장1</button>` : ''}
+                            ${project.ext2 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext2}">확장2</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                card.innerHTML = cardContent;
+                container.appendChild(card);
+            });
+        }
+    </script>
 </head>
 <body>
     <!-- Include header.html -->
-    <div id="header-placeholder"></div>
+    <div id="headerContainer"></div>
 
-    <div class="main-content">
-        <nav class="nav-container">
-            <ul id="navList">
-                <!-- 동적으로 메뉴 항목이 추가될 곳 -->
-            </ul>
-        </nav>
-        <div class="content-container">
-            <div class="iframe-container">
-                <iframe id="iframeContent" src="about:blank"></iframe>
-            </div>
-            <div class="divider" id="divider"></div>
-            <div class="ide-container">
-                <div class="ide-controls">
-                    <button onclick="runCode()">Run</button>
-                </div>
-                <textarea id="ide" placeholder="Type your Python code here..."></textarea>
-            </div>
+    <div class="container mt-5">
+        <h1 class="text-center">Scratch 콘텐츠 선택</h1>
+        <div class="text-center mb-4">
+            <button id="newStartButton" class="btn btn-success">새로 시작하기</button>
+        </div>
+        <div class="row" id="content-container">
+            <!-- SB2 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/header.js"></script>
     <script>
-        function runCode() {
-            const code = document.getElementById('ide').value;
-            console.log('Running code:', code);
-            // Python 실행을 위한 로직 추가
-            // Pyodide 같은 라이브러리를 사용할 수 있음
-        }
+        $(function(){
+            $("#headerContainer").load("/public/header.html", function() {
+                initializeHeader(); // header.html이 로드된 후에 초기화 함수 실행
+            });
 
-        const divider = document.getElementById('divider');
-        const iframeContainer = document.querySelector('.iframe-container');
-        const ideContainer = document.querySelector('.ide-container');
+            // "새로 시작하기" 버튼 클릭 시 :8601로 전환
+            $("#newStartButton").click(function() {
+                window.location.href = "http://localhost:8601";
+            });
 
-        let isDragging = false;
-
-        divider.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            document.addEventListener('mousemove', resizeContainers);
-            document.addEventListener('mouseup', stopDragging);
+            // 기본/확장1/확장2 버튼 클릭 시 :8601로 전환하고 sb2 파일 불러오기
+            $(document).on("click", ".load-sb2", function() {
+                const sb2Url = $(this).data("url");
+                window.location.href = `http://localhost:8601#${sb2Url}`;
+            });
         });
 
-        function resizeContainers(e) {
-            if (isDragging) {
-                let containerWidth = iframeContainer.parentElement.clientWidth;
-                let leftWidth = e.clientX / containerWidth * 100;
-                let rightWidth = 100 - leftWidth;
-                iframeContainer.style.flex = `0 0 ${leftWidth}%`;
-                ideContainer.style.flex = `0 0 ${rightWidth}%`;
-            }
-        }
+        function initializeHeader() {
+            // 세션 유지
+            fetch('/get-user')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("userEmail").innerText = data.email || "로그인 정보 미확인";
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    document.getElementById("userEmail").innerText = "로그인 정보 미확인";
+                });
 
-        function stopDragging(e) {
-            if (isDragging) {
-                isDragging = false;
-                document.removeEventListener('mousemove', resizeContainers);
-                document.removeEventListener('mouseup', stopDragging);
+            // 로그아웃 버튼 클릭 이벤트
+            const logoutButton = document.getElementById("logoutButton");
+            if (logoutButton) {
+                logoutButton.addEventListener("click", function() {
+                    fetch('/auth/logout', { method: 'GET' })
+                        .then(() => {
+                            window.location.href = '/auth/login'; // 로그아웃 후 로그인 페이지로 리디렉션
+                        })
+                        .catch(error => console.error('Error logging out:', error));
+                });
+            } else {
+                console.error("Logout button not found");
             }
         }
     </script>
