@@ -49,13 +49,13 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
+app.get('/', (req, res) => {
+  res.redirect('/auth/login');
+});
+
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
-
-// 루트 경로를 /public으로 리다이렉트
-app.get('/', (req, res) => {
-  res.redirect('/public/');
-});
 
 app.use('/auth', authRouter);
 
