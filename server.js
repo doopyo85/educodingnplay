@@ -15,7 +15,9 @@ app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: true,
-  store: new FileStore(),
+  store: new FileStore({
+    path: path.join(__dirname, 'sessions')  // 세션 파일 경로 설정
+  }),
 }));
 
 // 로그인 확인 미들웨어 추가
