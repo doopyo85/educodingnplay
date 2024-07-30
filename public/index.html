@@ -24,22 +24,24 @@
             height: 100%;
         }
         .card-img-box {
-            flex: 0 0 60%;
+            flex: 0 0 50%;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 10px; /* 이미지 사방에 패딩 추가 */
         }
         .card-text-box {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
         }
         .card-img-top {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: cover;
+            max-height: 80%; /* 이미지 크기 80%로 축소 */
+            max-width: 80%;  /* 이미지 크기 80%로 축소 */
+            object-fit: contain; /* 이미지 비율 유지하며 맞춤 */
         }
     </style>
 </head>
@@ -60,7 +62,7 @@
                     <div class="card-text-box">
                         <h5 class="card-title">컴퓨터 기초활용</h5>
                         <p class="card-text">컴퓨터 기초 지식을 배우고 실생활에서 활용하는 방법을 익혀보세요.</p>
-                        <a href="computer_basic.html" class="btn btn-primary">컴퓨터 기초활용 살펴보기</a>
+                        <a href="computer_basic.html" class="btn btn-primary">컴퓨터 기초활용 학습</a>
                     </div>
                 </div>
             </div>
@@ -73,7 +75,7 @@
                     <div class="card-text-box">
                         <h5 class="card-title">스크래치</h5>
                         <p class="card-text">스크래치를 사용하여 창의적이고 재미있는 프로젝트를 만들어보세요.</p>
-                        <a href="scratch.html" class="btn btn-primary">스크래치 학습 살펴보기</a>
+                        <a href="scratch.html" class="btn btn-primary">스크래치 학습하기</a>
                     </div>
                 </div>
             </div>
@@ -86,7 +88,7 @@
                     <div class="card-text-box">
                         <h5 class="card-title">엔트리</h5>
                         <p class="card-text">엔트리로 코딩을 시작하고 다양한 프로젝트를 경험해보세요.</p>
-                        <a href="entry.html" class="btn btn-primary">엔트리 학습 살펴보기</a>
+                        <a href="entry.html" class="btn btn-primary">엔트리 학습하기</a>
                     </div>
                 </div>
             </div>
@@ -99,7 +101,7 @@
                     <div class="card-text-box">
                         <h5 class="card-title">기출문제풀이</h5>
                         <p class="card-text">기출문제를 통해 실력을 테스트하고 향상시켜보세요.</p>
-                        <a href="test.html" class="btn btn-primary">기출문제풀이 학습 살펴보기</a>
+                        <a href="test.html" class="btn btn-primary">기출문제 풀이하기</a>
                     </div>
                 </div>
             </div>
