@@ -102,4 +102,5 @@ function startServer(port) {
   });
 }
 
+//서버 순서 변경
 startServer(DEFAULT_PORT);
