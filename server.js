@@ -61,6 +61,7 @@ app.get('/', (req, res) => {
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
 
+// auth 라우터 설정
 app.use('/auth', authRouter);
 
 app.get('/main', isLoggedIn, (req, res) => {
