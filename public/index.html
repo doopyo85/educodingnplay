@@ -11,8 +11,7 @@
     script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net;
     font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com;
     frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;
-">
-
+    ">
 
     <title>콘텐츠 선택 페이지</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -20,6 +19,9 @@
     <link rel="stylesheet" href="/public/styles.css">
 </head>
 <body>
+    <!-- 헤더 추가 -->
+    <div id="header-placeholder"></div>
+
     <div class="container mt-5">
         <h1 class="text-center">나에게 맞는 학습 기회를 찾아보세요!</h1>
         <p class="text-center">논리길을 끄는 비디오, 자기 주도형 튜토리얼, 프로그래밍 활동 등을 통해 컴퓨터 과학의 세계를 탐구해보세요!</p>
@@ -59,5 +61,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#header-placeholder").load("/public/header.html");
+        });
+    </script>
 </body>
 </html>
