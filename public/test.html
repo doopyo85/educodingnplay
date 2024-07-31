@@ -94,7 +94,7 @@
 </head>
 <body>
     <!-- Include header.html -->
-    <div id="headerContainer"></div>
+    <div id="header-placeholder"></div>
 
     <div class="main-content">
         <nav class="nav-container">
@@ -118,13 +118,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/header.js"></script>
     <script>
-        $(function(){
-            $("#headerContainer").load("/public/header.html", function() {
-                initializeHeader(); // header.html이 로드된 후에 초기화 함수 실행
-            });
-        });
-
         function runCode() {
             const code = document.getElementById('ide').value;
             console.log('Running code:', code);
@@ -159,33 +154,6 @@
                 isDragging = false;
                 document.removeEventListener('mousemove', resizeContainers);
                 document.removeEventListener('mouseup', stopDragging);
-            }
-        }
-
-        function initializeHeader() {
-            // 세션 유지
-            fetch('/get-user')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("userEmail").innerText = data.email || "로그인 정보 미확인";
-                })
-                .catch(error => {
-                    console.error('Error fetching user data:', error);
-                    document.getElementById("userEmail").innerText = "로그인 정보 미확인";
-                });
-
-            // 로그아웃 버튼 클릭 이벤트
-            const logoutButton = document.getElementById("logoutButton");
-            if (logoutButton) {
-                logoutButton.addEventListener("click", function() {
-                    fetch('/auth/logout', { method: 'GET' })
-                        .then(() => {
-                            window.location.href = '/auth/login'; // 로그아웃 후 로그인 페이지로 리디렉션
-                        })
-                        .catch(error => console.error('Error logging out:', error));
-                });
-            } else {
-                console.error("Logout button not found");
             }
         }
     </script>
