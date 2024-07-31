@@ -39,7 +39,7 @@
 
         function initClient() {
             gapi.client.init({
-                apiKey: 'API_KEY',
+                apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
                 discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
             }).then(() => {
                 loadSB2Data();
@@ -47,7 +47,7 @@
         }
 
         function loadSB2Data() {
-            const spreadsheetId = 'SPREADSHEET_ID';
+            const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
             const range = 'sb2!A2:C';
 
             gapi.client.sheets.spreadsheets.values.get({
