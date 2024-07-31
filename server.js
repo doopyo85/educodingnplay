@@ -55,6 +55,7 @@ app.get('/get-user', isLoggedIn, (req, res) => {
 // (기존 코드 유지)
 app.get('/scratch', isLoggedIn, (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
+  console.log('세션 ID 전달:', req.sessionID); // 세션 ID를 콘솔에 출력
   res.redirect(scratchGuiUrl);
 });
 
