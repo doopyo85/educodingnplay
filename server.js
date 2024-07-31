@@ -58,6 +58,29 @@ app.get('/scratch', isLoggedIn, (req, res) => {
   res.redirect(scratchGuiUrl);
 });
 
+app.get('/get-user-session', (req, res) => {
+  const sessionId = req.query.sessionId;
+  if (!sessionId) {
+    return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
+  }
+
+  // 세션 스토어에서 세션 ID로 사용자 정보 가져오기
+  const sessionStore = new FileStore();
+  sessionStore.get(sessionId, (err, session) => {
+    if (err || !session) {
+      return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
+    }
+
+    if (session.is_logined) {
+      res.json({ success: true, user: { email: session.nickname } });
+    } else {
+      res.status(401).json({ success: false, error: '로그인되지 않은 세션입니다.' });
+    }
+  });
+});
+
+
+
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
