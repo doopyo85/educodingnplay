@@ -118,13 +118,13 @@
 
             // "새로 시작하기" 버튼 클릭 시 :8601로 전환
             $("#newStartButton").click(function() {
-                window.location.href = "http://localhost:8601";
+                window.location.href = "http://3.34.127.154:8601";
             });
 
             // 기본/확장1/확장2 버튼 클릭 시 :8601로 전환하고 sb2 파일 불러오기
             $(document).on("click", ".load-sb2", function() {
                 const sb2Url = $(this).data("url");
-                window.location.href = `http://localhost:8601#${sb2Url}`;
+                window.location.href = `http://3.34.127.154:8601#${sb2Url}`;
             });
         });
 

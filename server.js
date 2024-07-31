@@ -52,6 +52,7 @@ app.get('/get-user', isLoggedIn, (req, res) => {
   res.json({ email: req.session.nickname });
 });
 
+// (기존 코드 유지)
 app.get('/scratch', isLoggedIn, (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
   res.redirect(scratchGuiUrl);
