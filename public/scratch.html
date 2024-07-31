@@ -18,14 +18,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="/public/header.js"></script>
+    <style>
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin: 2px;
+            border-radius: 10px; /* 둥근네모 버튼 스타일 */
+        }
+    </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             gapi.load('client', initClient);
+            $("#headerContainer").load("/public/header.html");
         });
 
         function initClient() {
             gapi.client.init({
-                apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
+                apiKey: 'API_KEY',
                 discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
             }).then(() => {
                 loadSB2Data();
@@ -33,7 +47,7 @@
         }
 
         function loadSB2Data() {
-            const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+            const spreadsheetId = 'SPREADSHEET_ID';
             const range = 'sb2!A2:C';
 
             gapi.client.sheets.spreadsheets.values.get({
@@ -95,17 +109,6 @@
             });
         }
     </script>
-    <style>
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .btn-group .btn {
-            flex: 1;
-            margin: 2px;
-        }
-    </style>
 </head>
 <body>
     <!-- Include header.html -->
@@ -123,11 +126,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/header.js"></script>
     <script>
-        $(function(){
-            $("#headerContainer").load("/public/header.html");
-
+        $(function() {
             // "새로 시작하기" 버튼 클릭 시 :8601로 전환
             $("#newStartButton").click(function() {
                 window.location.href = "http://3.34.127.154:8601";
