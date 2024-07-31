@@ -1,5 +1,9 @@
 <FilesMatch "\.(css)$">
     ForceType text/css
 </FilesMatch>
+# .htaccess 파일에 추가
+<IfModule mod_mime.c>
+    AddType text/css .css
+</IfModule>
 
 Header set Content-Security-Policy "default-src 'self'; img-src 'self' data:;"
