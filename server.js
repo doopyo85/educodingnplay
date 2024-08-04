@@ -4,7 +4,9 @@ const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 
-const authRouter = require('./lib_login/auth'); // auth 라우터 경로
+const sessionStore = new FileStore();
+
+const authRouter = require('./lib_login/auth');
 const authCheck = require('./lib_login/authCheck.js');
 
 const app = express();
@@ -14,9 +16,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
-  saveUninitialized: false,  // 변경: 초기화되지 않은 세션을 저장하지 않음
+  saveUninitialized: false,
   store: new FileStore({
-    path: path.join(__dirname, 'sessions')  // 세션 파일 경로 설정
+    path: path.join(__dirname, 'sessions')
   }),
 }));
 
@@ -52,10 +54,9 @@ app.get('/get-user', isLoggedIn, (req, res) => {
   res.json({ email: req.session.nickname });
 });
 
-// (기존 코드 유지)
 app.get('/scratch', isLoggedIn, (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
-  console.log('세션 ID 전달:', req.sessionID); // 세션 ID를 콘솔에 출력
+  console.log('세션 ID 전달:', req.sessionID);
   res.redirect(scratchGuiUrl);
 });
 
@@ -65,8 +66,6 @@ app.get('/get-user-session', (req, res) => {
     return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
   }
 
-  // 세션 스토어에서 세션 ID로 사용자 정보 가져오기
-  const sessionStore = new FileStore();
   sessionStore.get(sessionId, (err, session) => {
     if (err || !session) {
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
@@ -79,8 +78,6 @@ app.get('/get-user-session', (req, res) => {
     }
   });
 });
-
-
 
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
