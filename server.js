@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
+const cors = require('cors');
 const path = require('path');
 
 const sessionStore = new FileStore();
@@ -12,8 +13,14 @@ const authCheck = require('./lib_login/authCheck.js');
 const app = express();
 const DEFAULT_PORT = 3000;
 
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser()); // 쿠키 파서 추가
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(session({
@@ -25,15 +32,13 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
-   }
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction // true for HTTPS, false for HTTP
+  }
 }));
 
-const cors = require('cors');
 
-app.use(cors({
-  origin: 'http://3.34.127.154:8601',
-  credentials: true
-}));
+
 
 
 
