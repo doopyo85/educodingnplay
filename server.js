@@ -119,9 +119,8 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " + // 추가된 지시문
     "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
@@ -129,6 +128,7 @@ app.use((req, res, next) => {
   );
   return next();
 });
+
 
 function startServer(port) {
   app.listen(port, (err) => {
