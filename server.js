@@ -20,6 +20,9 @@ app.use(session({
   store: new FileStore({
     path: path.join(__dirname, 'sessions')
   }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 // 1시간
+  }
 }));
 
 // 로그인 확인 미들웨어 추가
@@ -36,6 +39,12 @@ app.use('/auth', authRouter);
 
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
+
+// 세션 생성 확인 로그
+app.use((req, res, next) => {
+  console.log('세션 정보:', req.session);
+  next();
+});
 
 // 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
 app.get('/', (req, res) => {
