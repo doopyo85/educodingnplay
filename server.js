@@ -12,10 +12,26 @@ const authRouter = require('./lib_login/auth');
 const authCheck = require('./lib_login/authCheck.js');
 const DEFAULT_PORT = 3000;
 
-app.use(cors({
-  origin: 'http://3.34.127.154:8601', // 정확한 도메인으로 설정
+const allowedOrigins = [
+  'http://3.34.127.154',
+  'http://3.34.127.154:8601',
+  'http://3.34.127.154:8602',
+  'http://3.34.127.154:8603'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser()); // 쿠키 파서 추가
