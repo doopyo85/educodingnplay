@@ -1,24 +1,21 @@
 const express = require('express');
-const session = require('express-session');
+const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const FileStore = require('session-file-store')(session);
+const session = require('express-session');
 const cors = require('cors');
-const path = require('path');
+const app = express();
 
+const FileStore = require('session-file-store')(session);
 const sessionStore = new FileStore();
-
 const authRouter = require('./lib_login/auth');
 const authCheck = require('./lib_login/authCheck.js');
-
-const app = express();
 const DEFAULT_PORT = 3000;
 
 app.use(cors({
   origin: 'http://3.34.127.154:8601', // 정확한 도메인으로 설정
   credentials: true
 }));
-
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser()); // 쿠키 파서 추가
@@ -38,12 +35,6 @@ app.use(session({
     secure: false // HTTP 환경에서는 false, 나중에 HTTPS로 변경 시 true로 변경
   }
 }));
-
-
-
-
-
-
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
