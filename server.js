@@ -31,8 +31,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser()); // 쿠키 파서 추가
 
