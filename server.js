@@ -14,6 +14,8 @@ const DEFAULT_PORT = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser()); // 쿠키 파서 추가
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -22,11 +24,20 @@ app.use(session({
     path: path.join(__dirname, 'sessions')
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 // 1시간
-    sameSite: 'none',
-    secure: false
+    maxAge: 1000 * 60 * 60, // 1시간
+    secure: isProduction ? true : false // HTTPS 환경에서만 true로 설정
+    // sameSite: 'none' // 주석 처리하여 테스트
   }
 }));
+
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://3.34.127.154:8601',
+  credentials: true
+}));
+
+
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
@@ -104,17 +115,6 @@ app.get('/logout', (req, res) => {
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
-
-
-// 쿠키를 다른 포트에도 전달하기 위한 CORS설정
-const cors = require('cors');
-
-app.use(cors({
-  origin: 'http://3.34.127.154:8601',
-  credentials: true
-}));
-
-
 
 // Content Security Policy 헤더 설정
 app.use((req, res, next) => {
