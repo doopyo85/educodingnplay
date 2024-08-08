@@ -48,9 +48,12 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
     sameSite: 'lax', // 개발 단계에서는 lax로 설정
-    secure: false // HTTP 환경에서는 false, 나중에 HTTPS로 변경 시 true로 변경
+    secure: false, // HTTP 환경에서는 false, 나중에 HTTPS로 변경 시 true로 변경
+    domain: '3.34.127.154', // 도메인 설정
+    path: '/' // 경로 설정
   }
 }));
+
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
