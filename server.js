@@ -23,6 +23,8 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 // 1시간
+    sameSite: 'none',
+    secure: true
   }
 }));
 
@@ -102,6 +104,17 @@ app.get('/logout', (req, res) => {
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
+
+
+// 쿠키를 다른 포트에도 전달하기 위한 CORS설정
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://3.34.127.154:8601',
+  credentials: true
+}));
+
+
 
 // Content Security Policy 헤더 설정
 app.use((req, res, next) => {
