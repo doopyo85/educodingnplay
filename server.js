@@ -13,6 +13,7 @@ const app = express();
 const DEFAULT_PORT = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser()); // 쿠키 파서 추가
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
