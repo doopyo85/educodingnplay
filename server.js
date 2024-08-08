@@ -25,9 +25,7 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
-    secure: isProduction ? true : false // HTTPS 환경에서만 true로 설정
-    // sameSite: 'none' // 주석 처리하여 테스트
-  }
+   }
 }));
 
 const cors = require('cors');
