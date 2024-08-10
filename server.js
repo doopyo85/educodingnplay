@@ -167,11 +167,6 @@ app.use((req, res, next) => {
 app.post('/run-python', (req, res) => {
   const { code } = req.body;
 
-  if (!code) {
-      console.error('Python code is undefined or empty.');
-      return res.status(400).json({ error: 'Python code is required.' });
-  }
-
   exec(`python3 -c "${code.replace(/"/g, '\\"')}"`, (error, stdout, stderr) => {
       if (error) {
           console.error('Error executing Python code:', error);
