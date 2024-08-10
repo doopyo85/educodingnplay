@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(error => console.error('Error loading dynamic content:', error));
 
-
     // 세션 유지
     fetch('/get-user')
         .then(response => response.json())
@@ -22,25 +21,28 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Error fetching user data:', error);
             document.getElementById("userEmail").innerText = "로그인 정보 미확인";
         });
-
-});
-
-document.addEventListener("DOMContentLoaded", async function() {
-    let pyodide = await loadPyodide();
-    console.log('Pyodide loaded.');
-
-    document.getElementById('runCodeBtn').addEventListener('click', async function() {
+    
+    document.getElementById('runCodeBtn').addEventListener('click', function() {
         const code = document.getElementById('ide').value;
-        console.log('Running code:', code);
-        try {
-            let output = await pyodide.runPythonAsync(code);
-            document.getElementById('output').innerText = output;
-        } catch (error) {
-            document.getElementById('output').innerText = error;
-        }
+
+        fetch('/run-python', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('output').innerText = `Error: ${data.error}`;
+            } else {
+                document.getElementById('output').innerText = data.output;
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
 });
-
 
 function initClient() {
     gapi.client.init({

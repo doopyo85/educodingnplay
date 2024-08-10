@@ -9,6 +9,7 @@ const redis = require('redis');
 const cors = require('cors');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const app = express();
+const { exec } = require('child_process');
 
 // AWS S3 설정
 const s3 = new AWS.S3({
@@ -162,6 +163,19 @@ app.use((req, res, next) => {
   );
   return next();
 });
+
+app.post('/run-python', (req, res) => {
+  const { code } = req.body;
+
+  // 입력된 파이썬 코드를 실행
+  exec(`python3 -c "${code.replace(/"/g, '\\"')}"`, (error, stdout, stderr) => {
+      if (error) {
+          return res.json({ error: stderr });
+      }
+      res.json({ output: stdout });
+  });
+});
+
 
 const DEFAULT_PORT = 3000;
 
