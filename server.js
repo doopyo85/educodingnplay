@@ -3,56 +3,41 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const redis = require('redis');
 const cors = require('cors');
-const RedisStore = require('connect-redis')(session);  // RedisStore 추가
-const redis = require('redis');  // redis 클라이언트 추가
 const app = express();
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient({
-  host: 'localhost',
+  host: '127.0.0.1',
   port: 6379
 });
 
-// Redis 연결 에러 핸들링
-redisClient.on('error', (err) => {
-  console.error('Redis error:', err);
-});
-
-const authRouter = require('./lib_login/auth');
-const authCheck = require('./lib_login/authCheck.js');
-const DEFAULT_PORT = 3000;
-
-const allowedOrigins = [
-  'http://3.34.127.154',
-  'http://3.34.127.154:8601',
-  'http://3.34.127.154:8602',
-  'http://3.34.127.154:8603'
-];
-
-const corsOptions = {
-  origin: 'http://3.34.127.154', // 특정 도메인으로 제한
+// CORS 설정
+app.use(cors({
+  origin: 'http://3.34.127.154:8601', 
   credentials: true
-};
+}));
 
-app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser()); // 쿠키 파서 추가
+app.use(cookieParser());
 
-const isProduction = process.env.NODE_ENV === 'production';
-
+// 세션 설정
 app.use(session({
+  store: new RedisStore({ client: redisClient }),
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: new RedisStore({ client: redisClient }),  // RedisStore를 세션 스토어로 사용
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
-    sameSite: 'none', // cross-site 요청을 허용
-    secure: false, // HTTPS 환경에서는 true로 설정
-    path: '/' // 경로 설정
+    sameSite: 'lax',
+    secure: false // HTTPS를 사용하지 않는 환경에서는 false
   }
 }));
+
+// 나머지 라우팅 및 설정 코드는 기존과 동일합니다.
+
 
 // 이하 기존 코드 동일
 
