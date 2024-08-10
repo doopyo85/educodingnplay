@@ -1,4 +1,5 @@
 const express = require('express');
+const AWS = require('aws-sdk');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -9,6 +10,16 @@ const cors = require('cors');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const app = express();
 
+// AWS S3 설정
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: 'ap-northeast-2' // 예: 'us-west-2'
+});
+
+const BUCKET_NAME = 'educodingnplaycontents';
+
+// Redis 설정
 const redisClient = redis.createClient({
   url: 'redis://localhost:6379'
 });
@@ -70,6 +81,7 @@ app.get('/', (req, res) => {
   }
 });
 
+
 app.get('/main', isLoggedIn, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -82,6 +94,24 @@ app.get('/scratch', isLoggedIn, (req, res) => {
   const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
   console.log('세션 ID 전달:', req.sessionID);
   res.redirect(scratchGuiUrl);
+});
+
+app.get('/test', async (req, res) => {
+  try {
+      const params = {
+          Bucket: BUCKET_NAME,
+          Key: 'http://3.34.127.154/public/test.html'
+      };
+
+      const data = await s3.getObject(params).promise();
+      const htmlContent = data.Body.toString('utf-8');
+      
+      // 필요한 경우, 데이터에 변화를 줄 수 있음
+      res.send(htmlContent);
+  } catch (error) {
+      console.error('Error fetching from S3:', error);
+      res.status(500).send('Error fetching page');
+  }
 });
 
 app.get('/get-user-session', (req, res) => {

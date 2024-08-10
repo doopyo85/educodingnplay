@@ -4,7 +4,14 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error('Google API not loaded');
     }
+    fetch('/test')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('dynamic-content').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading dynamic content:', error));
 
+        
     // 세션 유지
     fetch('/get-user')
         .then(response => response.json())
