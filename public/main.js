@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(error => console.error('Error loading dynamic content:', error));
 
-        
+
     // 세션 유지
     fetch('/get-user')
         .then(response => response.json())
@@ -24,6 +24,23 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
 });
+
+document.addEventListener("DOMContentLoaded", async function() {
+    let pyodide = await loadPyodide();
+    console.log('Pyodide loaded.');
+
+    document.getElementById('runCodeBtn').addEventListener('click', async function() {
+        const code = document.getElementById('ide').value;
+        console.log('Running code:', code);
+        try {
+            let output = await pyodide.runPythonAsync(code);
+            document.getElementById('output').innerText = output;
+        } catch (error) {
+            document.getElementById('output').innerText = error;
+        }
+    });
+});
+
 
 function initClient() {
     gapi.client.init({
