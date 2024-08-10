@@ -3,9 +3,10 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const RedisStore = require('connect-redis').default;  // 여기서 .default를 사용
+const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const cors = require('cors');
+const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const app = express();
 
 const redisClient = redis.createClient({
@@ -39,7 +40,7 @@ app.use(session({
   }
 }));
 
-
+// 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
   if (req.session.is_logined) {
     return next();
@@ -48,14 +49,19 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// auth 라우터 설정
 app.use('/auth', authRouter);
+
+// 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
 
+// 세션 생성 확인 로그
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
   next();
 });
 
+// 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
     res.redirect('/public');
@@ -84,7 +90,7 @@ app.get('/get-user-session', (req, res) => {
     return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
   }
 
-  sessionStore.get(sessionId, (err, session) => {
+  store.get(sessionId, (err, session) => {
     if (err || !session) {
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
     }
@@ -106,17 +112,19 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
 
+// Content Security Policy 헤더 설정
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " + 
+    "style-src-elem 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
@@ -125,7 +133,7 @@ app.use((req, res, next) => {
   return next();
 });
 
-// 서버 포트 설정
+const DEFAULT_PORT = 3000;
 
 function startServer(port) {
   app.listen(port, (err) => {
@@ -143,5 +151,4 @@ function startServer(port) {
   });
 }
 
-const DEFAULT_PORT = 3000;
 startServer(DEFAULT_PORT);
