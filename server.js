@@ -20,13 +20,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: 'http://3.34.127.154', // 특정 도메인으로 제한
   credentials: true
 };
 
@@ -45,9 +39,8 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
-    sameSite: 'lax', // 개발 단계에서는 lax로 설정
-    secure: false, // HTTP 환경에서는 false, 나중에 HTTPS로 변경 시 true로 변경
-    domain: '3.34.127.154', // 도메인 설정
+    sameSite: 'none', // cross-site 요청을 허용
+    secure: false, // HTTPS 환경에서는 true로 설정
     path: '/' // 경로 설정
   }
 }));
