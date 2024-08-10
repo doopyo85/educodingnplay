@@ -3,46 +3,40 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
+const RedisStore = require('connect-redis');  
 const redis = require('redis');
 const cors = require('cors');
 const app = express();
 
-// Redis 클라이언트 설정
 const redisClient = redis.createClient({
-  host: '127.0.0.1',
+  host: 'localhost',
   port: 6379
 });
 
-// CORS 설정
+const store = new RedisStore({
+  client: redisClient
+});
+
 app.use(cors({
-  origin: 'http://3.34.127.154:8601', 
+  origin: 'http://3.34.127.154:8601',
   credentials: true
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// 세션 설정
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
+  store: store,
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60, // 1시간
+    maxAge: 1000 * 60 * 60,
     sameSite: 'lax',
-    secure: false // HTTPS를 사용하지 않는 환경에서는 false
+    secure: false
   }
 }));
 
-// 나머지 라우팅 및 설정 코드는 기존과 동일합니다.
-
-
-// 이하 기존 코드 동일
-
-
-// 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
   if (req.session.is_logined) {
     return next();
@@ -51,19 +45,14 @@ function isLoggedIn(req, res, next) {
   }
 }
 
-// auth 라우터 설정
 app.use('/auth', authRouter);
-
-// 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
 
-// 세션 생성 확인 로그
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
   next();
 });
 
-// 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
     res.redirect('/public');
@@ -114,19 +103,17 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
 
-// Content Security Policy 헤더 설정
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
     "style-src 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " + // 추가된 지시문
+    "style-src-elem 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " + 
     "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
@@ -135,14 +122,15 @@ app.use((req, res, next) => {
   return next();
 });
 
-
+// 서버 포트 설정
+const DEFAULT_PORT = 3000;
 
 function startServer(port) {
   app.listen(port, (err) => {
     if (err) {
       if (err.code === 'EADDRINUSE') {
         console.log(`Port ${port} is in use, trying another port...`);
-        startServer(port + 1);  // 다른 포트를 시도
+        startServer(port + 1);
       } else {
         console.error(err);
         process.exit(1);
