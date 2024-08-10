@@ -3,18 +3,20 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const RedisStore = require('connect-redis');  
+const RedisStore = require('connect-redis').default;  // 여기서 .default를 사용
 const redis = require('redis');
 const cors = require('cors');
 const app = express();
 
 const redisClient = redis.createClient({
-  host: 'localhost',
-  port: 6379
+  url: 'redis://localhost:6379'
 });
 
+redisClient.connect().catch(console.error);
+
 const store = new RedisStore({
-  client: redisClient
+  client: redisClient,
+  prefix: 'sess:'
 });
 
 app.use(cors({
@@ -36,6 +38,7 @@ app.use(session({
     secure: false
   }
 }));
+
 
 function isLoggedIn(req, res, next) {
   if (req.session.is_logined) {
@@ -123,7 +126,6 @@ app.use((req, res, next) => {
 });
 
 // 서버 포트 설정
-const DEFAULT_PORT = 3000;
 
 function startServer(port) {
   app.listen(port, (err) => {
@@ -141,4 +143,5 @@ function startServer(port) {
   });
 }
 
+const DEFAULT_PORT = 3000;
 startServer(DEFAULT_PORT);
