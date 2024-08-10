@@ -4,10 +4,21 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
+const RedisStore = require('connect-redis')(session);  // RedisStore 추가
+const redis = require('redis');  // redis 클라이언트 추가
 const app = express();
 
-const FileStore = require('session-file-store')(session);
-const sessionStore = new FileStore();
+// Redis 클라이언트 설정
+const redisClient = redis.createClient({
+  host: 'localhost',
+  port: 6379
+});
+
+// Redis 연결 에러 핸들링
+redisClient.on('error', (err) => {
+  console.error('Redis error:', err);
+});
+
 const authRouter = require('./lib_login/auth');
 const authCheck = require('./lib_login/authCheck.js');
 const DEFAULT_PORT = 3000;
@@ -34,9 +45,7 @@ app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: new FileStore({
-    path: path.join(__dirname, 'sessions')
-  }),
+  store: new RedisStore({ client: redisClient }),  // RedisStore를 세션 스토어로 사용
   cookie: {
     maxAge: 1000 * 60 * 60, // 1시간
     sameSite: 'none', // cross-site 요청을 허용
@@ -44,6 +53,8 @@ app.use(session({
     path: '/' // 경로 설정
   }
 }));
+
+// 이하 기존 코드 동일
 
 
 // 로그인 확인 미들웨어 추가
