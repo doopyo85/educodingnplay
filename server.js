@@ -167,14 +167,15 @@ app.use((req, res, next) => {
 app.post('/run-python', (req, res) => {
   const { code } = req.body;
 
-  // 입력된 파이썬 코드를 실행
   exec(`python3 -c "${code.replace(/"/g, '\\"')}"`, (error, stdout, stderr) => {
       if (error) {
+          console.error('Error executing Python code:', error);
           return res.json({ error: stderr });
       }
       res.json({ output: stdout });
   });
 });
+
 
 
 const DEFAULT_PORT = 3000;
