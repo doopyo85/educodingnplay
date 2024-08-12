@@ -33,7 +33,7 @@ const store = new RedisStore({
 });
 
 app.use(cors({
-  origin: 'http://3.34.127.154:8601',
+  origin: 'https://codingnplay.site',
   credentials: true
 }));
 
