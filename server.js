@@ -82,6 +82,9 @@ app.get('/', (req, res) => {
   }
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.get('/main', isLoggedIn, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
