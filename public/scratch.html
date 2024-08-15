@@ -130,15 +130,16 @@
         $(function() {
             // "새로 시작하기" 버튼 클릭 시 :8601로 전환
             $("#newStartButton").click(function() {
-                window.location.href = "https://codingnplay.site:8601/";
+                window.location.href = "http://codingnplay.site:8601/scratch";
             });
         
             // 기본/확장1/확장2 버튼 클릭 시 :8601로 전환하고 sb2 파일 불러오기
             $(document).on("click", ".load-sb2", function() {
-                const sb2Url = encodeURIComponent($(this).data("url"));
-                window.location.href = `https://codingnplay.site:8601/scratch.html?sb2Url=${sb2Url}`;
+                const sb2Url = $(this).data("url");
+                window.location.href = `http://codingnplay.site:8601/scratch#${sb2Url}`;
             });
         });
+        
               
     </script>
 </body>
