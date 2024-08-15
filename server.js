@@ -46,9 +46,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60,
-    sameSite: 'lax',
-    secure: false
+    path: '/',
+    _expires: new Date(Date.now() + 60 * 60 * 1000), // 1시간 후 만료
+    originalMaxAge: 60 * 60 * 1000, // 1시간 후 만료
+    httpOnly: true,
+    sameSite: 'none', // HTTPS에서는 'none'으로 설정
+    secure: true // HTTPS 환경에서는 true로 설정
   }
 }));
 
