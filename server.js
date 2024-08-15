@@ -73,14 +73,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// 루트 경로에 접속했을 때 로그인 화면으로 리디렉트
 app.get('/', (req, res) => {
-  if (req.session.is_logined) {
+  if (req.originalUrl === '/' && req.session.is_logined) {
     res.redirect('/public');
-  } else {
+  } else if (req.originalUrl === '/') {
     res.redirect('/auth/login');
+  } else {
+    // /scratch 경로는 리디렉션하지 않음
+    if (req.originalUrl.startsWith('/scratch')) {
+      res.sendFile(path.join(__dirname, 'public', 'scratch.html'));
+    } else {
+      res.redirect('/');
+    }
   }
 });
+
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
