@@ -39,6 +39,8 @@ app.use(cors({
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1); 
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(session({
     store: store,
     secret: 'your-secret-key',
@@ -74,9 +76,6 @@ app.use((req, res, next) => {
   console.log('쿠키 정보:', req.headers.cookie); // 클라이언트 쿠키 정보 로그
   next();
 });
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 app.get('/', (req, res) => {
   if (req.originalUrl === '/' && req.session.is_logined) {
