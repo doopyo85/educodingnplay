@@ -11,6 +11,7 @@ const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 �
 const app = express();
 const { exec } = require('child_process');
 
+
 // AWS S3 설정
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -34,10 +35,10 @@ const store = new RedisStore({
 
 // CORS 설정
 app.use(cors({
-  origin: 'https://codingnplay.site', // 허용할 도메인
-  credentials: true, // 쿠키와 인증 헤더 전송 허용
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 허용할 HTTP 메서드
-  allowedHeaders: ['Content-Type', 'Authorization'] // 허용할 헤더
+  origin: 'https://codingnplay.site', // HTTPS로 변경
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -49,12 +50,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-      path: '/',
-      _expires: new Date(Date.now() + 30 * 60 * 1000), // 30분 후 만료
-      originalMaxAge: 30 * 60 * 1000, // 30분 후 만료
-      httpOnly: true,
-      sameSite: 'none', // HTTPS에서는 'none'으로 설정
-      secure: true // HTTPS 환경에서는 true로 설정
+    path: '/',
+    maxAge: 30 * 60 * 1000, // 30분
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true // HTTPS 환경에서는 true로 설정
   }
 }));
 
@@ -198,8 +198,6 @@ app.post('/run-python', (req, res) => {
       res.json({ output: stdout });
   });
 });
-
-
 
 const DEFAULT_PORT = 3000;
 
