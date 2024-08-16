@@ -105,7 +105,7 @@ app.get('/get-user', isLoggedIn, (req, res) => {
 });
 
 app.get('/scratch', isLoggedIn, (req, res) => {
-  const scratchGuiUrl = `http://3.34.127.154:8601?scratchSession=${req.sessionID}`;
+  const scratchGuiUrl = `https://3.34.127.154:8601?scratchSession=${req.sessionID}`;
   console.log('세션 ID 전달:', req.sessionID);
   res.redirect(scratchGuiUrl);
 });
@@ -114,7 +114,7 @@ app.get('/test', async (req, res) => {
   try {
       const params = {
           Bucket: BUCKET_NAME,
-          Key: 'http://3.34.127.154/public/test.html'
+          Key: 'https://3.34.127.154/public/test.html'
       };
 
       const data = await s3.getObject(params).promise();
@@ -167,8 +167,8 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' http://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
@@ -209,7 +209,7 @@ function startServer(port) {
         process.exit(1);
       }
     } else {
-      console.log(`Server is running on http://localhost:${port}`);
+      console.log(`Server is running on https://localhost:${port}`);
     }
   });
 }
