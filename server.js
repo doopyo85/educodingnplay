@@ -42,16 +42,17 @@ app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-    store: store,
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: true,             // HTTPS 환경에서만 전송
-        httpOnly: true,           // 클라이언트 측에서 쿠키를 조작할 수 없음
-        sameSite: 'none',         // 쿠키가 cross-site 요청에서 전송되도록 허용
-        maxAge: 60 * 60 * 1000    // 1시간 후 쿠키 만료
-    }
+  store: store,
+  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 60 * 60 * 1000
+  }
 }));
 
 // 로그인 확인 미들웨어 추가
