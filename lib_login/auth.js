@@ -20,21 +20,32 @@ router.get('/login', (request, response) => {
 router.post('/login_process', (request, response) => {
     const username = request.body.username;
     const password = request.body.pwd;
+
+    console.log('로그인 시도:', { username, password });
+    console.log('요청된 쿠키:', request.cookies);
+
     if (username && password) {
         db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
-            if (error) throw error;
+            if (error) {
+                console.error('DB 조회 중 오류:', error);
+                throw error;
+            }
             if (results.length > 0) {
+                console.log('로그인 성공:', { username });
                 request.session.is_logined = true;
                 request.session.nickname = username;
                 request.session.save(() => {
+                    console.log('세션 저장 완료:', request.session);
                     response.redirect(`/`);
                 });
             } else {
+                console.log('로그인 실패: 정보 불일치');
                 response.send(`<script type="text/javascript">alert("로그인 정보가 일치하지 않습니다."); 
                 document.location.href="/auth/login";</script>`);
             }
         });
     } else {
+        console.log('로그인 실패: 아이디 또는 비밀번호 누락');
         response.send(`<script type="text/javascript">alert("아이디와 비밀번호를 입력하세요!"); 
         document.location.href="/auth/login";</script>`);
     }
@@ -42,6 +53,10 @@ router.post('/login_process', (request, response) => {
 
 router.get('/logout', (request, response) => {
     request.session.destroy(err => {
+        if (err) {
+            console.error('로그아웃 중 오류:', err);
+        }
+        console.log('로그아웃 완료');
         response.redirect('/auth/login'); // 로그인 페이지로 리디렉션
     });
 });
@@ -66,24 +81,36 @@ router.post('/register_process', (request, response) => {
     const password = request.body.pwd;
     const password2 = request.body.pwd2;
 
+    console.log('회원가입 시도:', { username });
+
     if (username && password && password2) {
         db.query('SELECT * FROM userTable WHERE username = ?', [username], (error, results) => {
-            if (error) throw error;
+            if (error) {
+                console.error('DB 조회 중 오류:', error);
+                throw error;
+            }
             if (results.length <= 0 && password == password2) {
                 db.query('INSERT INTO userTable (username, password) VALUES(?,?)', [username, password], (error) => {
-                    if (error) throw error;
+                    if (error) {
+                        console.error('DB 삽입 중 오류:', error);
+                        throw error;
+                    }
+                    console.log('회원가입 성공:', { username });
                     response.send(`<script type="text/javascript">alert("회원가입이 완료되었습니다!");
                     document.location.href="/";</script>`);
                 });
             } else if (password != password2) {
+                console.log('회원가입 실패: 비밀번호 불일치');
                 response.send(`<script type="text/javascript">alert("입력된 비밀번호가 서로 다릅니다."); 
                 document.location.href="/auth/register";</script>`);
             } else {
+                console.log('회원가입 실패: 이미 존재하는 아이디');
                 response.send(`<script type="text/javascript">alert("이미 존재하는 아이디 입니다."); 
                 document.location.href="/auth/register";</script>`);
             }
         });
     } else {
+        console.log('회원가입 실패: 입력되지 않은 정보');
         response.send(`<script type="text/javascript">alert("입력되지 않은 정보가 있습니다."); 
         document.location.href="/auth/register";</script>`);
     }
