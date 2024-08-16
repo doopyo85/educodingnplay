@@ -32,9 +32,12 @@ const store = new RedisStore({
   prefix: 'sess:'
 });
 
+// CORS 설정
 app.use(cors({
-  origin: 'https://codingnplay.site',
-  credentials: true
+  origin: 'https://codingnplay.site', // 허용할 도메인
+  credentials: true, // 쿠키와 인증 헤더 전송 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 허용할 HTTP 메서드
+  allowedHeaders: ['Content-Type', 'Authorization'] // 허용할 헤더
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
