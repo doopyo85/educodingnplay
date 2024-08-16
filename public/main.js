@@ -12,15 +12,20 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => console.error('Error loading dynamic content:', error));
 
     // 세션 유지
-    fetch('/get-user')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("userEmail").innerText = data.email || "로그인 정보 미확인";
-        })
-        .catch(error => {
-            console.error('Error fetching user data:', error);
-            document.getElementById("userEmail").innerText = "로그인 정보 미확인";
-        });
+    fetch('/get-user', { credentials: 'include' })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("userEmail").innerText = data.email || "로그인 정보 미확인";
+    })
+    .catch(error => {
+        console.error('Error fetching user data:', error);
+        document.getElementById("userEmail").innerText = "로그인 정보 미확인";
+    });
     
     document.getElementById('runCodeBtn').addEventListener('click', function() {
         const code = document.getElementById('ide').value;
