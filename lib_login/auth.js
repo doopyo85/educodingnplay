@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
-const db = require('./db');
+const db = require('./db'); // db.js 파일을 가져옵니다.
 
 router.get('/login', (request, response) => {
     const title = '로그인';
@@ -17,37 +17,32 @@ router.get('/login', (request, response) => {
     response.send(html);
 });
 
-router.post('/login_process', (request, response) => {
-    const username = request.body.username;
-    const password = request.body.pwd;
+// 로그인 처리
+router.post('/login_process', async (req, res) => {
+    try {
+        const username = req.body.username || ''; // username이 undefined일 경우 빈 문자열로 설정
+        const password = req.body.password || ''; // password도 동일하게 처리
 
-    console.log('로그인 시도:', { username, password });
-    console.log('요청된 쿠키:', request.cookies);
+        console.log('로그인 시도:', { username, password }); // 요청 데이터 로그
 
-    if (username && password) {
-        db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
-            if (error) {
-                console.error('DB 조회 중 오류:', error);
-                throw error;
-            }
-            if (results.length > 0) {
-                console.log('로그인 성공:', { username });
-                request.session.is_logined = true;
-                request.session.nickname = username;
-                request.session.save(() => {
-                    console.log('세션 저장 완료:', request.session);
-                    response.redirect(`/`);
-                });
-            } else {
-                console.log('로그인 실패: 정보 불일치');
-                response.send(`<script type="text/javascript">alert("로그인 정보가 일치하지 않습니다."); 
-                document.location.href="/auth/login";</script>`);
-            }
-        });
-    } else {
-        console.log('로그인 실패: 아이디 또는 비밀번호 누락');
-        response.send(`<script type="text/javascript">alert("아이디와 비밀번호를 입력하세요!"); 
-        document.location.href="/auth/login";</script>`);
+        if (!username || !password) {
+            return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
+        }
+
+        const user = await db.getUserByUsernameAndPassword(username, password);
+        
+        if (user) {
+            req.session.is_logined = true;
+            req.session.nickname = user.nickname;
+            console.log('로그인 성공:', user.nickname);
+            res.redirect('/public');
+        } else {
+            console.log('로그인 실패: 사용자 정보를 찾을 수 없음');
+            res.redirect('/auth/login');
+        }
+    } catch (error) {
+        console.error('로그인 처리 중 오류 발생:', error);
+        res.status(500).send('서버 오류');
     }
 });
 
