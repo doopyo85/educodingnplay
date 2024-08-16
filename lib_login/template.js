@@ -7,7 +7,7 @@ module.exports = {
       <title>Login TEST - ${title}</title>
       <meta charset="utf-8">
       <style>
-        @import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+        @import url(https://fonts.googleapis.com/earlyaccess/notosanskr.css);
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
