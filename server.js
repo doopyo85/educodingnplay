@@ -1,16 +1,16 @@
 const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+const RedisStore = require('connect-redis').default;
+const redis = require('redis');
+const app = express();
+
 const AWS = require('aws-sdk');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const RedisStore = require('connect-redis').default;
-const redis = require('redis');
-const cors = require('cors');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
-const app = express();
 const { exec } = require('child_process');
-
 
 // AWS S3 설정
 const s3 = new AWS.S3({
@@ -21,17 +21,12 @@ const s3 = new AWS.S3({
 
 const BUCKET_NAME = 'educodingnplaycontents';
 
-// Redis 설정
-const redisClient = redis.createClient({
-  url: 'redis://localhost:6379'
-});
-
+// Redis 클라이언트 설정
+const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 
-const store = new RedisStore({
-  client: redisClient,
-  prefix: 'sess:'
-});
+// 세션 스토어 설정
+const store = new RedisStore({ client: redisClient });
 
 // CORS 설정
 app.use(cors({
@@ -41,26 +36,25 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+// Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
+app.set('trust proxy', 1); 
 
 app.use(session({
-  store: store,
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    path: '/',
-    maxAge: 30 * 60 * 1000, // 30분
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true // HTTPS 환경에서는 true로 설정
-  }
+    store: store,
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: true,             // HTTPS 환경에서만 전송
+        httpOnly: true,           // 클라이언트 측에서 쿠키를 조작할 수 없음
+        sameSite: 'none',         // 쿠키가 cross-site 요청에서 전송되도록 허용
+        maxAge: 60 * 60 * 1000    // 1시간 후 쿠키 만료
+    }
 }));
-
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
+  console.log('로그인 상태 확인:', req.session);  // 세션 정보 로그
   if (req.session.is_logined) {
     return next();
   } else {
@@ -77,8 +71,12 @@ app.use('/public', isLoggedIn);
 // 세션 생성 확인 로그
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
+  console.log('쿠키 정보:', req.headers.cookie); // 클라이언트 쿠키 정보 로그
   next();
 });
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
   if (req.originalUrl === '/' && req.session.is_logined) {
@@ -94,7 +92,6 @@ app.get('/', (req, res) => {
     }
   }
 });
-
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
@@ -160,7 +157,6 @@ app.get('/logout', (req, res) => {
   });
 });
 
-
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -212,7 +208,7 @@ function startServer(port) {
         process.exit(1);
       }
     } else {
-      console.log(`Server is running on https://localhost:${port}`);
+      console.log(`Server is running on http://localhost:${port}`);
     }
   });
 }
