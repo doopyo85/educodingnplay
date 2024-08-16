@@ -24,3 +24,26 @@
     </div>
 </header>
 <script src="/public/header.js"></script>
+<script>
+    let idleTime = 0;
+
+    function resetIdleTimer() {
+        idleTime = 0;
+    }
+
+    function checkIdleTime() {
+        idleTime += 1;
+        if (idleTime >= 30) { // 30분 동안 활동이 없으면
+            alert("일정시간동안 활동이 없어, 로그아웃되었습니다.");
+            window.location.href = '/logout'; // 로그아웃 URL로 리디렉션
+        }
+    }
+
+    // 마우스 움직임이나 키보드 입력 시 타이머 리셋
+    window.onload = function() {
+        document.onmousemove = resetIdleTimer;
+        document.onkeypress = resetIdleTimer;
+    };
+
+    setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
+</script>

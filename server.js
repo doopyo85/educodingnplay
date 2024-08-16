@@ -46,14 +46,15 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    path: '/',
-    _expires: new Date(Date.now() + 60 * 60 * 1000), // 1시간 후 만료
-    originalMaxAge: 60 * 60 * 1000, // 1시간 후 만료
-    httpOnly: true,
-    sameSite: 'none', // HTTPS에서는 'none'으로 설정
-    secure: true // HTTPS 환경에서는 true로 설정
+      path: '/',
+      _expires: new Date(Date.now() + 30 * 60 * 1000), // 30분 후 만료
+      originalMaxAge: 30 * 60 * 1000, // 30분 후 만료
+      httpOnly: true,
+      sameSite: 'none', // HTTPS에서는 'none'으로 설정
+      secure: true // HTTPS 환경에서는 true로 설정
   }
 }));
+
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
@@ -155,6 +156,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/auth/login');
   });
 });
+
 
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
