@@ -77,14 +77,25 @@ router.post('/login_process', async (req, res) => {
 // 사용자 정보를 데이터베이스에서 가져오는 함수
 async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Users WHERE username = ? AND password = ?', [username, password], (error, results) => {
+        const query = 'SELECT * FROM Users WHERE username = ? AND password = ?';
+        
+        // 쿼리 실행 전 로그 출력
+        console.log(`Executing query: ${query}`);
+        console.log(`With values: username = ${username}, password = ${password}`);
+
+        db.query(query, [username, password], (error, results) => {
             if (error) {
+                // 쿼리 실행 중 에러 발생 시 로그 출력
+                console.error('DB Query Error:', error);
                 reject(error);
             } else {
+                // 쿼리 실행 결과 로그 출력
+                console.log('DB Query Result:', results);
                 resolve(results.length > 0 ? results[0] : null);
             }
         });
     });
 }
+
 
 module.exports = router;

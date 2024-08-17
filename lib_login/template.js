@@ -69,13 +69,7 @@ router.get('/auth/register', (req, res) => {
                 <option value="principal">원장</option>
             </select>
 
-            <label for="captcha">봇 방지 확인 (CAPTCHA)</label>
-            <div>
-                <!-- CAPTCHA API를 통해 봇 방지 기능 구현 -->
-                <input type="text" name="captcha" required>
-            </div>
-
-            <button type="submit">가입하기</button>
+             <button type="submit">가입하기</button>
         </form>
     `;
     res.send(html);
