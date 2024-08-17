@@ -87,6 +87,10 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// 기타 미들웨어 설정
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
 
