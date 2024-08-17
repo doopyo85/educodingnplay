@@ -1,12 +1,14 @@
 const express = require('express');
 const session = require('express-session');
-const cors = require('cors');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
+const db = require('./db'); // MySQL 연결 설정 파일
+
 const app = express();
 
 const AWS = require('aws-sdk');
 const path = require('path');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
@@ -156,10 +158,8 @@ app.get('/api/check-login', (req, res) => {
   }
 });
 
-// 로그인 처리 예시
+// 로그인 처리 API
 app.post('/login', (req, res) => {
-  // 로그인 로직
-  // 로그인 성공 시 세션에 사용자 정보 저장
   req.session.user = { id: 'user-id', name: 'user-name' };
   res.json({ success: true });
 });
