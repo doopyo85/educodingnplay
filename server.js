@@ -167,21 +167,16 @@ app.post('/login', (req, res) => {
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
   console.log('Session ID:', req.sessionID);
-  const sessionId = req.query.sessionId;
-  
-  if (!sessionId) {
-    console.error('세션 ID가 전달되지 않았습니다.');
-    return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
-  }
+  console.log('Cookies:', req.cookies);
 
-  store.get(sessionId, (err, session) => {
+  store.get(req.sessionID, (err, session) => {
     if (err) {
       console.error('Redis에서 세션을 가져오는 중 오류 발생:', err);
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
     }
 
     if (!session) {
-      console.warn('세션을 찾을 수 없습니다. 세션 ID:', sessionId);
+      console.warn('세션을 찾을 수 없습니다. 세션 ID:', req.sessionID);
       return res.status(404).json({ success: false, error: '세션을 찾을 수 없습니다.' });
     }
 
@@ -189,12 +184,11 @@ app.get('/get-user-session', (req, res) => {
       console.log('세션이 유효합니다. 닉네임:', session.nickname);
       res.json({ success: true, user: { email: session.nickname } });
     } else {
-      console.warn('로그인되지 않은 세션입니다. 세션 ID:', sessionId);
+      console.warn('로그인되지 않은 세션입니다. 세션 ID:', req.sessionID);
       res.status(401).json({ success: false, error: '로그인되지 않은 세션입니다.' });
     }
   });
 });
-
 
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
