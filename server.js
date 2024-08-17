@@ -13,15 +13,9 @@ const { exec } = require('child_process');
 
 const app = express();
 
-// AWS S3 설정
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2' // 예: 'us-west-2'
-});
-
-const BUCKET_NAME = 'educodingnplaycontents';
+// auth 라우터 설정
+app.use('/auth', authRouter);
+app.use('/auth', authRoutes);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
@@ -51,7 +45,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/auth', authRoutes);
+// AWS S3 설정
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: 'ap-northeast-2' // 예: 'us-west-2'
+});
+const BUCKET_NAME = 'educodingnplaycontents';
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1); 
@@ -85,9 +86,6 @@ function isLoggedIn(req, res, next) {
     res.redirect('/auth/login');
   }
 }
-
-// auth 라우터 설정
-app.use('/auth', authRouter);
 
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
