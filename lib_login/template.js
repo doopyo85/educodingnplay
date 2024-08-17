@@ -93,3 +93,68 @@ router.post('/auth/register_process', async (req, res) => {
 });
 
 module.exports = router;
+
+// template.js
+module.exports = {
+    HTML: function (title, body, authStatusUI) {
+        return `
+    <!doctype html>
+    <html>
+    <head>
+      <title>Join Us - ${title}</title>
+      <meta charset="utf-8">
+      <style>
+        /* 여기에 스타일을 추가 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], input[type="password"], input[type="email"], input[type="date"] {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px;
+            background-color: #5cb85c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        ${authStatusUI || ''}
+        <h1>${title}</h1>
+        ${body}
+      </div>
+    </body>
+    </html>
+        `;
+    }
+};
