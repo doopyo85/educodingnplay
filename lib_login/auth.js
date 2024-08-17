@@ -77,7 +77,7 @@ router.post('/login_process', async (req, res) => {
 // 사용자 정보를 데이터베이스에서 가져오는 함수
 async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
+        db.query('SELECT * FROM Users WHERE username = ? AND password = ?', [username, password], (error, results) => {
             if (error) {
                 reject(error);
             } else {
