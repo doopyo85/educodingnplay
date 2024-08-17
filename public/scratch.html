@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
-    <script src="/public/header.js"></script>
     <style>
         .btn-group {
             display: flex;
@@ -31,10 +30,31 @@
             border-radius: 10px; /* 둥근네모 버튼 스타일 */
         }
     </style>
+</head>
+<body>
+    <!-- Include header.html -->
+    <div id="headerContainer"></div>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Scratch 콘텐츠 선택</h1>
+        <div class="text-center mb-4">
+            <button id="newStartButton" class="btn btn-success">새로 시작하기</button>
+        </div>
+        <div class="row" id="content-container">
+            <!-- SB2 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+        // 헤더 및 header.js 로드 후 초기화
         document.addEventListener("DOMContentLoaded", function() {
-            gapi.load('client', initClient);
-            $("#headerContainer").load("/public/header.html");
+            $("#headerContainer").load("/public/header.html", function() {
+                $.getScript("/public/header.js");
+            });
         });
 
         function initClient() {
@@ -108,40 +128,19 @@
                 container.appendChild(card);
             });
         }
-    </script>
-</head>
-<body>
-    <!-- Include header.html -->
-    <div id="headerContainer"></div>
 
-    <div class="container mt-5">
-        <h1 class="text-center">Scratch 콘텐츠 선택</h1>
-        <div class="text-center mb-4">
-            <button id="newStartButton" class="btn btn-success">새로 시작하기</button>
-        </div>
-        <div class="row" id="content-container">
-            <!-- SB2 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
         $(function() {
             // "새로 시작하기" 버튼 클릭 시 :8601로 전환
             $("#newStartButton").click(function() {
                 window.location.href = "https://codingnplay.site/scratch";
             });
-        
+
             // 기본/확장1/확장2 버튼 클릭 시 :8601로 전환하고 sb2 파일 불러오기
             $(document).on("click", ".load-sb2", function() {
                 const sb2Url = $(this).data("url");
                 window.location.href = `https://codingnplay.site/scratch#${sb2Url}`;
             });
         });
-        
-        
-              
     </script>
 </body>
 </html>

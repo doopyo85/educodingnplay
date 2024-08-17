@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
         gapi.load('client', initClient);
-    } ealse {
+    } else {
         console.error('Google API not loaded');
     }
     fetch('/test')
