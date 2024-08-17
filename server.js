@@ -166,6 +166,7 @@ app.post('/login', (req, res) => {
 
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
+  console.log('Session ID:', req.sessionID);
   const sessionId = req.query.sessionId;
   
   if (!sessionId) {
