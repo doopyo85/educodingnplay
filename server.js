@@ -36,11 +36,29 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Content Security Policy 헤더 설정
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", 
+    "default-src 'self'; " +
+    "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "frame-src 'self' https://content-sheets.googleapis.com; " +
+    "img-src 'self' data:; " +
+    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
+  );
+  return next();
+});
+
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1); 
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// 세션 설정
 app.use(session({
   store: store,
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
@@ -129,6 +147,24 @@ app.get('/test', async (req, res) => {
   }
 });
 
+// 로그인 상태 확인 API
+app.get('/api/check-login', (req, res) => {
+  if (req.session && req.session.user) {
+      res.json({ loggedIn: true });
+  } else {
+      res.json({ loggedIn: false });
+  }
+});
+
+// 로그인 처리 예시
+app.post('/login', (req, res) => {
+  // 로그인 로직
+  // 로그인 성공 시 세션에 사용자 정보 저장
+  req.session.user = { id: 'user-id', name: 'user-name' };
+  res.json({ success: true });
+});
+
+// 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
   const sessionId = req.query.sessionId;
   if (!sessionId) {
@@ -161,22 +197,6 @@ app.get('/logout', (req, res) => {
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
-
-// Content Security Policy 헤더 설정
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", 
-    "default-src 'self'; " +
-    "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "frame-src 'self' https://content-sheets.googleapis.com; " +
-    "img-src 'self' data:; " +
-    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
-  );
-  return next();
-});
 
 app.post('/run-python', (req, res) => {
   const { code } = req.body;
