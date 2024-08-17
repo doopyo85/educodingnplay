@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
 const db = require('./db');
-const bcrypt = require('bcrypt'); // bcrypt 추가
+const bcrypt = require('bcrypt');
 
+// 로그인 페이지 라우팅
 router.get('/login', (request, response) => {
     const title = '로그인';
     const html = template.HTML(title, `
@@ -40,6 +41,7 @@ router.get('/login', (request, response) => {
     response.send(html);
 });
 
+// 로그인 처리 라우팅
 router.post('/login_process', async (req, res) => {
     try {
         const username = req.body.username;
@@ -79,31 +81,26 @@ async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
         const query = 'SELECT * FROM Users WHERE username = ?';
         
-        // 쿼리 실행 전 로그 출력
         console.log(`Executing query: ${query}`);
         console.log(`With values: username = ${username}`);
 
-        db.query(query, [username], async (error, results) => {
+        db.query(query, [username], (error, results) => {
             if (error) {
-                // 쿼리 실행 중 에러 발생 시 로그 출력
                 console.error('DB Query Error:', error);
                 reject(error);
-            } else {
-                if (results.length > 0) {
-                    const user = results[0];
-                    // 비밀번호 해시 비교
-                    const match = await bcrypt.compare(password, user.password);
-                    if (match) {
-                        console.log('비밀번호 일치');
+            } else if (results.length > 0) {
+                const user = results[0];
+                bcrypt.compare(password, user.password, (err, isMatch) => {
+                    if (err) {
+                        reject(err);
+                    } else if (isMatch) {
                         resolve(user);
                     } else {
-                        console.log('비밀번호 불일치');
                         resolve(null);
                     }
-                } else {
-                    console.log('사용자 정보를 찾을 수 없음');
-                    resolve(null);
-                }
+                });
+            } else {
+                resolve(null);
             }
         });
     });
