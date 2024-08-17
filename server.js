@@ -25,7 +25,9 @@ const BUCKET_NAME = 'educodingnplaycontents';
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
-redisClient.connect().catch(console.error);
+redisClient.connect()
+  .then(() => console.log('Redis 연결 성공'))
+  .catch((err) => console.error('Redis 연결 실패:', err));
 
 // 세션 스토어 설정
 const store = new RedisStore({ client: redisClient });
@@ -167,22 +169,33 @@ app.post('/login', (req, res) => {
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
   const sessionId = req.query.sessionId;
+  
   if (!sessionId) {
+    console.error('세션 ID가 전달되지 않았습니다.');
     return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
   }
 
   store.get(sessionId, (err, session) => {
-    if (err || !session) {
+    if (err) {
+      console.error('Redis에서 세션을 가져오는 중 오류 발생:', err);
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
     }
 
+    if (!session) {
+      console.warn('세션을 찾을 수 없습니다. 세션 ID:', sessionId);
+      return res.status(404).json({ success: false, error: '세션을 찾을 수 없습니다.' });
+    }
+
     if (session.is_logined) {
+      console.log('세션이 유효합니다. 닉네임:', session.nickname);
       res.json({ success: true, user: { email: session.nickname } });
     } else {
+      console.warn('로그인되지 않은 세션입니다. 세션 ID:', sessionId);
       res.status(401).json({ success: false, error: '로그인되지 않은 세션입니다.' });
     }
   });
 });
+
 
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
