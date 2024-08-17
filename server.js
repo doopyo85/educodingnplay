@@ -42,15 +42,14 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "frame-src 'self' https://content-sheets.googleapis.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
     "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
   );
   return next();
 });
+
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1); 

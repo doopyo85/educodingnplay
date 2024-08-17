@@ -6,7 +6,6 @@ const db = require('./db');
 router.get('/login', (request, response) => {
     const title = '로그인';
     const html = template.HTML(title, `
-        <h2>로그인</h2>
         <form id="loginForm">
             <p><input class="login" type="text" name="username" placeholder="아이디"></p>
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
