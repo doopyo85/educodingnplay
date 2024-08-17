@@ -4,7 +4,7 @@ const db = require('./db'); // DB 연결 파일
 const bcrypt = require('bcrypt');
 
 // 개인정보 제공 동의 화면 라우팅
-router.get('/auth/terms', (req, res) => {
+router.get('/terms', (req, res) => {
     const html = `
         <h1>이용약관과 개인정보 수집 및 이용에 모두 동의합니다.</h1>
         <div>
@@ -38,7 +38,7 @@ router.get('/auth/terms', (req, res) => {
 });
 
 // 회원정보 입력 폼 라우팅
-router.get('/auth/register', (req, res) => {
+router.get('/register', (req, res) => {
     const html = `
         <h1>회원가입</h1>
         <form action="/auth/register_process" method="post">
@@ -74,7 +74,7 @@ router.get('/auth/register', (req, res) => {
 });
 
 // 회원가입 처리 라우팅
-router.post('/auth/register_process', async (req, res) => {
+router.post('/register_process', async (req, res) => {
     const { username, name, email, password, birthdate, role } = req.body;
 
     // 비밀번호 해시화
