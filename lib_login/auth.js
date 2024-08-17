@@ -25,10 +25,12 @@ router.get('/login', (request, response) => {
                     success: function(response) {
                         if (response.success) {
                             window.location.href = response.redirect;
+                        } else {
+                            alert('로그인 실패: ' + response.error);
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert(xhr.responseJSON.error);
+                        alert('오류: ' + xhr.responseJSON.error);
                     }
                 });
             });
@@ -72,7 +74,7 @@ router.post('/login_process', async (req, res) => {
     }
 });
 
-// getUserByUsernameAndPassword 함수 추가
+// 사용자 정보를 데이터베이스에서 가져오는 함수
 async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
         db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {

@@ -3,10 +3,6 @@ const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const db = require('./lib_login/db'); // MySQL 연결 설정 파일
-
-const app = express();
-
-const AWS = require('aws-sdk');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -14,7 +10,10 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const { exec } = require('child_process');
 
+const app = express();
+
 // AWS S3 설정
+const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -24,13 +23,10 @@ const s3 = new AWS.S3({
 const BUCKET_NAME = 'educodingnplaycontents';
 
 // Redis 클라이언트 설정
-const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
+const redisClient = redis.createClient();
 redisClient.connect()
   .then(() => console.log('Redis 연결 성공'))
   .catch((err) => console.error('Redis 연결 실패:', err));
-
-// 세션 스토어 설정
-const store = new RedisStore({ client: redisClient });
 
 // CORS 설정
 app.use(cors({
@@ -63,8 +59,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // 세션 설정
+const store = new RedisStore({ client: redisClient }); // 세션 스토어 설정
 app.use(session({
   store: store,
+  secret: 'your-secret-key',
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
   resave: false,
   saveUninitialized: false,
@@ -206,7 +204,7 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 정적 파일 서빙을 위한 경로 설정
+// 정적 파일 제공
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
