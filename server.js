@@ -8,6 +8,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
+const authRoutes = require('./lib_login/template.js');
 const { exec } = require('child_process');
 
 const app = express();
@@ -50,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
+app.use('/auth', authRoutes);
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1); 

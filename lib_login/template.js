@@ -38,7 +38,7 @@ router.get('/auth/terms', (req, res) => {
 });
 
 // 회원정보 입력 폼 라우팅
-router.get('/auth/register', (req, res) => {
+router.get('/register', (req, res) => {
     const html = `
         <h1>회원가입</h1>
         <form action="/auth/register_process" method="post">
