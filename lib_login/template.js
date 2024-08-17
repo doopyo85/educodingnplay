@@ -94,7 +94,6 @@ router.post('/register_process', async (req, res) => {
 
 module.exports = router;
 
-// template.js
 module.exports = {
     HTML: function (title, body, authStatusUI) {
         return `
@@ -157,4 +156,4 @@ module.exports = {
     </html>
         `;
     }
-};
+}
