@@ -1,3 +1,4 @@
+//authCheck.js
 module.exports = {
     isOwner: function (request) {
         if (request.session && request.session.is_logined) {
