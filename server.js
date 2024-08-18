@@ -7,6 +7,8 @@ const db = require('./lib_login/db'); // MySQL 연결 설정 파일
 const path = require('path');
 const cors = require('cors');
 const { exec } = require('child_process');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -88,9 +90,6 @@ function isLoggedIn(req, res, next) {
 }
 
 // 기타 미들웨어 설정
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
