@@ -92,23 +92,23 @@ router.post('/register_process', async (req, res) => {
     });
 });
 
-module.exports = router;
-
-module.exports = {
-    router: router,
-    HTML: function(title, body, authStatusUI = '') {
-      return `
-        <!doctype html>
-        <html>
-        <head>
-          <title>${title}</title>
-          <meta charset="utf-8">
-        </head>
-        <body>
-          ${authStatusUI}
-          ${body}
-        </body>
-        </html>
-      `;
-    }
-};
+function HTML(title, body, authStatusUI = '') {
+    return `
+      <!doctype html>
+      <html>
+      <head>
+        <title>${title}</title>
+        <meta charset="utf-8">
+      </head>
+      <body>
+        ${authStatusUI}
+        ${body}
+      </body>
+      </html>
+    `;
+  }
+  
+  module.exports = {
+      router: router,
+      HTML: HTML
+  };

@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 // 로그인 페이지 라우팅
 router.get('/login', (req, res) => {
     const title = '로그인';
-    const html = template.HTML(title, `
+    const html = templateModule.HTML(title, `
         <form id="loginForm">
             <p><input class="login" type="text" name="username" placeholder="아이디"></p>
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
@@ -40,6 +40,7 @@ router.get('/login', (req, res) => {
     `, '');
     res.send(html);
 });
+
 
 // 로그인 처리 라우팅
 router.post('/login_process', async (req, res) => {
