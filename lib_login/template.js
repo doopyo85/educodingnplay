@@ -109,6 +109,8 @@ function HTML(title, body, authStatusUI = '') {
     `;
 }
 
+// 내보내기
 module.exports = {
-    router: router
+    router: router,
+    HTML: HTML
 };
