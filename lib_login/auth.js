@@ -14,7 +14,7 @@ router.get('/login', (req, res) => {
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
             <p><input class="btn" type="submit" value="로그인"></p>
         </form>
-        <p>계정이 없으신가요? <a href="/template/register">회원가입</a></p>
+        <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
         $(document).ready(function() {
