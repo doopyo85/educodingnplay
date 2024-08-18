@@ -30,7 +30,7 @@ router.get('/terms', (req, res) => {
             }
 
             document.getElementById('continueSignup').addEventListener('click', () => {
-                window.location.href = '/template/register';
+                window.location.href = '/register';
             });
         </script>
     `;
@@ -41,7 +41,7 @@ router.get('/terms', (req, res) => {
 router.get('/register', (req, res) => {
     const html = `
         <h1>회원가입</h1>
-        <form action="/template/register_process" method="post">
+        <form action="/register/register_process" method="post">
             <label for="username">아이디 (필수)</label>
             <input type="text" name="username" required minlength="3" maxlength="30">
 

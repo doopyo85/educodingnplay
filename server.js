@@ -43,7 +43,7 @@ app.use((req, res, next) => {
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
     "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
-  );
+  );  
   next();
 });
 
