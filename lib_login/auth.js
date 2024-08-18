@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
-const db = require('./db');
+const bcrypt = require('bcrypt');
+const db = require('./db'); // db.js 파일을 불러옵니다.
+
 
 router.get('/login', (request, response) => {
     const title = '로그인';
@@ -121,16 +123,24 @@ async function getUserByUsernameAndPassword(username, password) {
     });
 }
 
-async function createUser(username, password, email, name, phone, birthdate, role) {
+async function createUser(username, password, email, name, phone, birthdate, role = 'student') {
     return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO Users (username, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        const values = [username, password, email, name, phone, birthdate, role];
-        db.query(query, values, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
+        // 비밀번호를 해싱합니다.
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+            if (err) {
+                return reject(err);
             }
+
+            const query = 'INSERT INTO Users (username, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const values = [username, hashedPassword, email, name, phone, birthdate, role];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    return reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
         });
     });
 }
