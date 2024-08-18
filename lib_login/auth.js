@@ -111,7 +111,7 @@ router.post('/register_process', async (req, res) => {
 
 async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
+        db.query('SELECT * FROM Users WHERE username = ? AND password = ?', [username, password], (error, results) => {
             if (error) {
                 reject(error);
             } else {
@@ -121,18 +121,17 @@ async function getUserByUsernameAndPassword(username, password) {
     });
 }
 
-async function createUser(username, password, email, nickname) {
+async function createUser(username, password, email, name, phone, birthdate, role) {
     return new Promise((resolve, reject) => {
-        db.query('INSERT INTO userTable (username, password, email, nickname) VALUES (?, ?, ?, ?)', 
-            [username, password, email, nickname], 
-            (error, results) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results);
-                }
+        const query = 'INSERT INTO Users (username, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const values = [username, password, email, name, phone, birthdate, role];
+        db.query(query, values, (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
             }
-        );
+        });
     });
 }
 
