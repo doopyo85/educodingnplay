@@ -72,7 +72,43 @@ router.post('/login_process', async (req, res) => {
     }
 });
 
-// getUserByUsernameAndPassword 함수 추가
+// 새로 추가된 회원가입 라우트
+router.get('/register', (req, res) => {
+    const title = '회원가입';
+    const html = template.HTML(title, `
+        <h2>회원가입</h2>
+        <form action="/auth/register_process" method="post">
+            <p><input class="login" type="text" name="username" placeholder="아이디" required></p>
+            <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
+            <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
+            <p><input class="login" type="text" name="nickname" placeholder="닉네임" required></p>
+            <p><input class="btn" type="submit" value="가입하기"></p>
+        </form>
+        <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+    `, '');
+    res.send(html);
+});
+
+// 회원가입 처리 라우트
+router.post('/register_process', async (req, res) => {
+    try {
+        const { username, password, email, nickname } = req.body;
+
+        // 간단한 유효성 검사
+        if (!username || !password || !email || !nickname) {
+            return res.status(400).json({ error: '모든 필드를 입력해주세요.' });
+        }
+
+        // 사용자 생성
+        await createUser(username, password, email, nickname);
+
+        res.redirect('/auth/login');
+    } catch (error) {
+        console.error('회원가입 처리 중 오류 발생:', error);
+        res.status(500).json({ error: '서버 오류' });
+    }
+});
+
 async function getUserByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => {
         db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
@@ -82,6 +118,21 @@ async function getUserByUsernameAndPassword(username, password) {
                 resolve(results.length > 0 ? results[0] : null);
             }
         });
+    });
+}
+
+async function createUser(username, password, email, nickname) {
+    return new Promise((resolve, reject) => {
+        db.query('INSERT INTO userTable (username, password, email, nickname) VALUES (?, ?, ?, ?)', 
+            [username, password, email, nickname], 
+            (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            }
+        );
     });
 }
 
