@@ -13,7 +13,7 @@ const app = express();
 
 // 라우터 설정
 const authRouter = require('./lib_login/auth');
-const templateRouter = require('./lib_login/template').router;
+const templateRouter = require('./lib_login/template');
 
 app.use('/auth', authRouter);
 app.use('/register', templateRouter);
