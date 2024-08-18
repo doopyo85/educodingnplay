@@ -1,3 +1,4 @@
+// template.js
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
@@ -76,8 +77,6 @@ router.get('/register', (req, res) => {
 // 회원가입 처리 라우팅
 router.post('/register_process', async (req, res) => {
     const { username, name, email, password, birthdate, role } = req.body;
-
-    // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(password, 10);
 
     db.query(`
@@ -106,9 +105,9 @@ function HTML(title, body, authStatusUI = '') {
       </body>
       </html>
     `;
-  }
-  
-  module.exports = {
-      router: router,
-      HTML: HTML
-  };
+}
+
+module.exports = {
+    router: router,
+    HTML: HTML
+};

@@ -1,8 +1,11 @@
-const { HTML: template } = require('./template.js');
+// auth.js
 const express = require('express');
 const router = express.Router();
+const templateModule = require('./template');  // templateModule에 대한 참조 수정
 const db = require('./db');
 const bcrypt = require('bcrypt');
+const authCheck = require('./authCheck');
+
 
 // 로그인 페이지 라우팅
 router.get('/login', (req, res) => {
@@ -14,33 +17,9 @@ router.get('/login', (req, res) => {
             <p><input class="btn" type="submit" value="로그인"></p>
         </form>
         <p>계정이 없으신가요? <a href="/template/register">회원가입</a></p>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-        $(document).ready(function() {
-            $('#loginForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '/auth/login_process',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = response.redirect;
-                        } else {
-                            alert('로그인 실패: ' + response.error);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        alert('오류: ' + xhr.responseJSON.error);
-                    }
-                });
-            });
-        });
-        </script>
-    `, '');
+    `, authCheck.statusUI(req, res));
     res.send(html);
 });
-
 
 // 로그인 처리 라우팅
 router.post('/login_process', async (req, res) => {
