@@ -1,4 +1,4 @@
-const template = require('./template.js');
+const template = require('./template.js').HTML;
 const express = require('express');
 const router = express.Router();
 const db = require('./db');

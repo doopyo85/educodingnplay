@@ -18,7 +18,7 @@ const templateRouter = require('./lib_login/template');
 app.use('/auth', authRouter);
 
 // template.js는 /register 경로만 처리하도록 설정
-app.use('/register', templateRouter);
+app.use('/template', templateRouter.router);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
