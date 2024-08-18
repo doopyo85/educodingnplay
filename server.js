@@ -8,14 +8,13 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
-const authRoutes = require('./lib_login/template.js');
+// const authRoutes = require('./lib_login/template.js'); // 중복되는 라우터 제거
 const { exec } = require('child_process');
 
 const app = express();
 
 // auth 라우터 설정
 app.use('/auth', authRouter);
-app.use('/auth', authRoutes);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
@@ -44,6 +43,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
 
 // AWS S3 설정
 const AWS = require('aws-sdk');

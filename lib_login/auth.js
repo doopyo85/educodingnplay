@@ -5,7 +5,7 @@ const db = require('./db');
 const bcrypt = require('bcrypt');
 
 // 로그인 페이지 라우팅
-router.get('/login', (request, response) => {
+router.get('/login', (req, res) => {
     const title = '로그인';
     const html = template.HTML(title, `
         <form id="loginForm">
