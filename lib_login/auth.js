@@ -6,7 +6,6 @@ const db = require('./db');
 const bcrypt = require('bcrypt');
 const authCheck = require('./authCheck');
 
-
 // 로그인 페이지 라우팅
 router.get('/login', (req, res) => {
     const title = '로그인';
@@ -16,8 +15,8 @@ router.get('/login', (req, res) => {
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
             <p><input class="btn" type="submit" value="로그인"></p>
         </form>
-        <p>계정이 없으신가요? <a href="/template/register">회원가입</a></p>
-    `, authCheck.statusUI(req, res));
+        <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+    `, authCheck.statusUI(req));
     res.send(html);
 });
 
