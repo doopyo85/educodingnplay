@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 
 // 회원정보 입력 폼 라우팅
 router.get('/register', (req, res) => {
+    console.log('Register route hit');
     const html = templateModule.HTML(
         '회원가입', 
         `
