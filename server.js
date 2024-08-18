@@ -17,8 +17,8 @@ const templateRouter = require('./lib_login/template');
 // auth.js는 /auth 경로를 처리
 app.use('/auth', authRouter);
 
-// template.js는 /register 경로만 처리하도록 설정
-app.use('/register', registerRouter);
+// template.js는 /template 경로만 처리하도록 설정
+app.use('/template', templateRouter);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
@@ -47,7 +47,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
 
 // AWS S3 설정
 const AWS = require('aws-sdk');
