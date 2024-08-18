@@ -1,3 +1,4 @@
+// server.js 파일은 Express 서버를 생성하고 실행하는 역할을 합니다.
 const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
@@ -11,13 +12,11 @@ const { exec } = require('child_process');
 
 const app = express();
 
-const authRouter = require('./lib_login/auth').router; // 수정
-const templateRouter = require('./lib_login/template').router; // 수정
+// 라우터 설정
+const authRouter = require('./lib_login/auth');
+const { router: templateRouter } = require('./lib_login/template');
 
-// auth.js는 /auth 경로를 처리
 app.use('/auth', authRouter);
-
-// template.js는 /template 경로만 처리하도록 설정
 app.use('/template', templateRouter);
 
 // Redis 클라이언트 설정
