@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
 const bcrypt = require('bcrypt');
-const db = require('./db'); // db.js 파일을 불러옵니다.
-
+const db = require('./db'); // db.js 파일을 불러옵니다
 
 router.get('/login', (request, response) => {
     const title = '로그인';
@@ -51,19 +50,26 @@ router.post('/login_process', async (req, res) => {
             return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
         }
 
-        const user = await getUserByUsernameAndPassword(username, password);
+        const user = await getUserByUsername(username);
         
         if (user) {
-            req.session.is_logined = true;
-            req.session.nickname = user.nickname;
-            req.session.save(err => {
-                if (err) {
-                    console.error('세션 저장 오류:', err);
-                    return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
-                }
-                console.log('로그인 성공:', user.nickname);
-                res.json({ success: true, redirect: '/public' });
-            });
+            // 비밀번호 비교
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch) {
+                req.session.is_logined = true;
+                req.session.nickname = user.username;
+                req.session.save(err => {
+                    if (err) {
+                        console.error('세션 저장 오류:', err);
+                        return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
+                    }
+                    console.log('로그인 성공:', user.username);
+                    res.json({ success: true, redirect: '/public' });
+                });
+            } else {
+                console.log('로그인 실패: 비밀번호가 일치하지 않음');
+                res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+            }
         } else {
             console.log('로그인 실패: 사용자 정보를 찾을 수 없음');
             res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
@@ -111,9 +117,10 @@ router.post('/register_process', async (req, res) => {
     }
 });
 
-async function getUserByUsernameAndPassword(username, password) {
+// 사용자 이름으로 사용자 가져오기
+async function getUserByUsername(username) {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Users WHERE username = ? AND password = ?', [username, password], (error, results) => {
+        db.query('SELECT * FROM Users WHERE username = ?', [username], (error, results) => {
             if (error) {
                 reject(error);
             } else {
