@@ -1,20 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const templateModule = require('./template');
+const template = require('./template.js');
 const db = require('./db');
-const bcrypt = require('bcrypt');
-const authCheck = require('./authCheck');
 
-// 로그인 화면 라우팅
-router.get('/login', (req, res) => {
+router.get('/login', (request, response) => {
     const title = '로그인';
-    const html = templateModule.HTML(title, `
+    const html = template.HTML(title, `
+        <h2>로그인</h2>
         <form id="loginForm">
             <p><input class="login" type="text" name="username" placeholder="아이디"></p>
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
             <p><input class="btn" type="submit" value="로그인"></p>
         </form>
-        <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+        <p>계정이 없으신가요? <a href="/auth/register">회원가입</a></p>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
         $(document).ready(function() {
@@ -27,61 +25,64 @@ router.get('/login', (req, res) => {
                     success: function(response) {
                         if (response.success) {
                             window.location.href = response.redirect;
-                        } else {
-                            alert('로그인 실패: ' + response.error);
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert('오류: ' + xhr.responseJSON.error);
+                        alert(xhr.responseJSON.error);
                     }
                 });
             });
         });
         </script>
-    `, authCheck.statusUI(req, res));
-    res.send(html);
+    `, '');
+    response.send(html);
 });
 
-// 로그인 처리
 router.post('/login_process', async (req, res) => {
     try {
-        const { username, pwd } = req.body;
+        const username = req.body.username;
+        const password = req.body.pwd;
 
-        if (!username || !pwd) {
+        console.log('로그인 시도:', { username, password });
+
+        if (!username || !password) {
             return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
         }
 
-        const user = await new Promise((resolve, reject) => {
-            const query = 'SELECT * FROM Users WHERE username = ?';
-            db.query(query, [username], async (error, results) => {
-                if (error) return reject(error);
-                if (results.length === 0) return resolve(null);
-
-                const user = results[0];
-                const match = await bcrypt.compare(pwd, user.password);
-                if (match) {
-                    resolve(user);
-                } else {
-                    resolve(null);
-                }
-            });
-        });
-
+        const user = await getUserByUsernameAndPassword(username, password);
+        
         if (user) {
             req.session.is_logined = true;
             req.session.nickname = user.nickname;
             req.session.save(err => {
                 if (err) {
+                    console.error('세션 저장 오류:', err);
                     return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
                 }
+                console.log('로그인 성공:', user.nickname);
                 res.json({ success: true, redirect: '/public' });
             });
         } else {
+            console.log('로그인 실패: 사용자 정보를 찾을 수 없음');
             res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
         }
     } catch (error) {
+        console.error('로그인 처리 중 오류 발생:', error);
         res.status(500).json({ error: '서버 오류' });
     }
 });
+
+// getUserByUsernameAndPassword 함수 추가
+async function getUserByUsernameAndPassword(username, password) {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM userTable WHERE username = ? AND password = ?', [username, password], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+}
 
 module.exports = router;

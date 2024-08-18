@@ -1,42 +1,34 @@
 const express = require('express');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
-const RedisStore = require('connect-redis')(session);
+const RedisStore = require('connect-redis').default;
 const redis = require('redis');
-const db = require('./lib_login/db'); // MySQL 연결 설정 파일
-const path = require('path');
-const cors = require('cors');
-const { exec } = require('child_process');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth');
+const db = require('./db'); // MySQL 연결 설정 파일
 
 const app = express();
 
+const AWS = require('aws-sdk');
+const path = require('path');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
+const { exec } = require('child_process');
+
+// AWS S3 설정
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: 'ap-northeast-2' // 예: 'us-west-2'
+});
+
+const BUCKET_NAME = 'educodingnplaycontents';
+
 // Redis 클라이언트 설정
-const redisClient = redis.createClient();
-redisClient.connect()
-  .then(() => console.log('Redis 연결 성공'))
-  .catch((err) => console.error('Redis 연결 실패:', err));
+const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
+redisClient.connect().catch(console.error);
 
-// MySQL 세션 저장 설정
-const sessionStore = new MySQLStore({}, db);
-
-// 세션 설정 (RedisStore와 MySQLStore 중 하나를 선택)
-app.use(session({
-  store: sessionStore,  // MySQLStore 사용
-  // store: new RedisStore({ client: redisClient }),  // RedisStore 사용 시 주석 해제
-  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 60 * 60 * 1000
-  }
-}));
+// 세션 스토어 설정
+const store = new RedisStore({ client: redisClient });
 
 // CORS 설정
 app.use(cors({
@@ -52,28 +44,36 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "frame-src 'self' https://content-sheets.googleapis.com; " +
     "img-src 'self' data:; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
     "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
-  );  
-  next();
+  );
+  return next();
 });
-
-// AWS S3 설정
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2' // 예: 'us-west-2'
-});
-const BUCKET_NAME = 'educodingnplaycontents';
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
-app.set('trust proxy', 1);
+app.set('trust proxy', 1); 
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// 세션 설정
+app.use(session({
+  store: store,
+  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 60 * 60 * 1000
+  }
+}));
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
@@ -85,11 +85,8 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// auth 라우터 설정
 app.use('/auth', authRouter);
-
-// 기타 미들웨어 설정
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // 보호된 경로에 로그인 확인 미들웨어 적용
 app.use('/public', isLoggedIn);
@@ -169,25 +166,19 @@ app.post('/login', (req, res) => {
 
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Cookies:', req.cookies);
+  const sessionId = req.query.sessionId;
+  if (!sessionId) {
+    return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
+  }
 
-  sessionStore.get(req.sessionID, (err, session) => {
-    if (err) {
-      console.error('Redis에서 세션을 가져오는 중 오류 발생:', err);
+  store.get(sessionId, (err, session) => {
+    if (err || !session) {
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
     }
 
-    if (!session) {
-      console.warn('세션을 찾을 수 없습니다. 세션 ID:', req.sessionID);
-      return res.status(404).json({ success: false, error: '세션을 찾을 수 없습니다.' });
-    }
-
     if (session.is_logined) {
-      console.log('세션이 유효합니다. 닉네임:', session.nickname);
       res.json({ success: true, user: { email: session.nickname } });
     } else {
-      console.warn('로그인되지 않은 세션입니다. 세션 ID:', req.sessionID);
       res.status(401).json({ success: false, error: '로그인되지 않은 세션입니다.' });
     }
   });
@@ -202,7 +193,7 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 정적 파일 제공
+// 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
