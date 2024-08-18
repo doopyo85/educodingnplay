@@ -1,3 +1,4 @@
+// header.js 파일은 헤더를 로드하는 스크립트 파일입니다.
 document.addEventListener("DOMContentLoaded", function () {
     // 헤더 로드
     $("#header-placeholder").load("/public/header.html", function () {
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(data => {
                     if (data.loggedIn) {
-                        userEmailElement.innerText = data.nickname || "로그인 정보 미확인";
+                        userEmailElement.innerText = data.username || "로그인 정보 미확인";
                     } else {
                         userEmailElement.innerText = "로그인 정보 미확인";
                     }

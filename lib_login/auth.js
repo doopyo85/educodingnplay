@@ -1,3 +1,4 @@
+// auth.js 파일은 로그인과 관련된 라우트를 정의합니다.
 const express = require('express');
 const router = express.Router();
 const template = require('./template.js');

@@ -1,3 +1,4 @@
+// server.js 파일은 Express 서버를 생성하고 실행하는 코드를 작성하는 파일입니다.
 const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
