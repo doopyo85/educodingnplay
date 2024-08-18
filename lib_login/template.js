@@ -110,6 +110,5 @@ function HTML(title, body, authStatusUI = '') {
 }
 
 module.exports = {
-    router: router,
-    HTML: HTML
+    router: router
 };

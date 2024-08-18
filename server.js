@@ -13,10 +13,10 @@ const app = express();
 
 // 라우터 설정
 const authRouter = require('./lib_login/auth');
-const template = require('./lib_login/template');
+const templateRouter = require('./lib_login/template');
 
 app.use('/auth', authRouter);
-app.use('/register', template.router);
+app.use('/register', templateRouter.router); // 라우터 연결 수정
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
