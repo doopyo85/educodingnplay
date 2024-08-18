@@ -11,8 +11,8 @@ const { exec } = require('child_process');
 
 const app = express();
 
-const authRouter = require('./lib_login/auth');
-const templateRouter = require('./lib_login/template');
+const authRouter = require('./lib_login/auth').router; // 수정
+const templateRouter = require('./lib_login/template').router; // 수정
 
 // auth.js는 /auth 경로를 처리
 app.use('/auth', authRouter);
