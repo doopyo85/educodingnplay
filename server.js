@@ -7,14 +7,18 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
-// const authRoutes = require('./lib_login/template.js'); // 중복되는 라우터 제거
 const { exec } = require('child_process');
 
 const app = express();
 
-// auth 라우터 설정
+const authRouter = require('./lib_login/auth');
+const templateRouter = require('./lib_login/template');
+
+// auth.js는 /auth 경로를 처리
 app.use('/auth', authRouter);
+
+// template.js는 /register 경로만 처리하도록 설정
+app.use('/register', templateRouter);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
