@@ -166,22 +166,12 @@ app.post('/login', (req, res) => {
 
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
-  const sessionId = req.query.sessionId;
-  if (!sessionId) {
-    return res.status(400).json({ success: false, error: '세션 ID가 필요합니다.' });
+  console.log('Session in /get-user-session:', req.session);
+  if (req.session && req.session.is_logined) {
+    res.json({ loggedIn: true, username: req.session.nickname });
+  } else {
+    res.status(401).json({ loggedIn: false, error: '로그인되지 않은 세션입니다.' });
   }
-
-  store.get(sessionId, (err, session) => {
-    if (err || !session) {
-      return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
-    }
-
-    if (session.is_logined) {
-      res.json({ success: true, user: { email: session.nickname } });
-    } else {
-      res.status(401).json({ success: false, error: '로그인되지 않은 세션입니다.' });
-    }
-  });
 });
 
 app.get('/logout', (req, res) => {

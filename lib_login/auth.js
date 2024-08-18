@@ -45,7 +45,7 @@ router.post('/login_process', async (req, res) => {
         const username = req.body.username;
         const password = req.body.pwd;
 
-        console.log('로그인 시도:', { username, password });
+        console.log('로그인 시도:', { username });
 
         if (!username || !password) {
             return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
@@ -90,7 +90,14 @@ router.get('/register', (req, res) => {
             <p><input class="login" type="text" name="username" placeholder="아이디" required></p>
             <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
             <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
-            <p><input class="login" type="text" name="nickname" placeholder="닉네임" required></p>
+            <p><input class="login" type="text" name="name" placeholder="이름" required></p>
+            <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
+            <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
+            <p><select class="login" name="role">
+                <option value="student">학생</option>
+                <option value="teacher">선생님</option>
+                <option value="principal">원장님</option>
+            </select></p>
             <p><input class="btn" type="submit" value="가입하기"></p>
         </form>
         <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
@@ -101,20 +108,20 @@ router.get('/register', (req, res) => {
 // 회원가입 처리 라우트
 router.post('/register_process', async (req, res) => {
     try {
-        const { username, password, email, nickname } = req.body;
+        const { username, password, email, name, phone, birthdate, role } = req.body;
 
         // 간단한 유효성 검사
-        if (!username || !password || !email || !nickname) {
-            return res.status(400).json({ error: '모든 필드를 입력해주세요.' });
+        if (!username || !password || !email || !name) {
+            return res.status(400).json({ error: '필수 필드를 모두 입력해주세요.' });
         }
 
         // 사용자 생성
-        await createUser(username, password, email, nickname);
+        await createUser(username, password, email, name, phone, birthdate, role);
 
         res.redirect('/auth/login');
     } catch (error) {
         console.error('회원가입 처리 중 오류 발생:', error);
-        res.status(500).json({ error: '서버 오류' });
+        res.status(500).json({ error: '서버 오류', details: error.message });
     }
 });
 
