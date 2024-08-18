@@ -3,6 +3,20 @@ const router = express.Router();
 const db = require('./db'); // DB 연결 파일
 const bcrypt = require('bcrypt');
 
+app.use((req, res, next) => {
+    res.setHeader("Content-Security-Policy", 
+      "default-src 'self'; " +
+      "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+      "img-src 'self' data:; " +
+      "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com; " +
+      "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com;"
+    );
+    next();
+  });
+  
+
 // 개인정보 제공 동의 화면 라우팅
 router.get('/terms', (req, res) => {
     const html = `
