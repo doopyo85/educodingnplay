@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
-const db = require('./db'); // MySQL 연결 설정 파일
+const db = require('./lib_login/db'); // MySQL 연결 설정 파일
 
 const app = express();
 
