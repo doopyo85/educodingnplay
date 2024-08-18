@@ -17,7 +17,7 @@ const authRouter = require('./lib_login/auth');
 const templateRouter = require('./lib_login/template');
 
 app.use('/auth', authRouter);
-app.use('/register', templateRouter); // 라우터 연결 수정
+app.use('/register', templateRouter.router); // 라우터 연결 수정
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
