@@ -38,7 +38,7 @@ router.get('/login', (req, res) => {
         });
         </script>
     `, '');
-    response.send(html);
+    res.send(html);
 });
 
 // 로그인 처리 라우팅
