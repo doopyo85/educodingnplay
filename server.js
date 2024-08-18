@@ -3,7 +3,6 @@ const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
-const db = require('./lib_login/db'); // MySQL 연결 설정 파일
 const path = require('path');
 const cors = require('cors');
 const { exec } = require('child_process');
@@ -14,7 +13,7 @@ const app = express();
 
 // 라우터 설정
 const authRouter = require('./lib_login/auth');
-const templateRouter = require('./lib_login/template');
+const templateRouter = require('./lib_login/template').router;
 
 app.use('/auth', authRouter);
 app.use('/register', templateRouter);
