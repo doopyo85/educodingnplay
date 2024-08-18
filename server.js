@@ -1,7 +1,7 @@
-// server.js 파일은 Express 서버를 생성하고 실행하는 역할을 합니다.
 const express = require('express');
 const session = require('express-session');
-const RedisStore = require('connect-redis').default;
+const MySQLStore = require('express-mysql-session')(session);
+const RedisStore = require('connect-redis')(session);
 const redis = require('redis');
 const db = require('./lib_login/db'); // MySQL 연결 설정 파일
 const path = require('path');
@@ -9,21 +9,34 @@ const cors = require('cors');
 const { exec } = require('child_process');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const authRouter = require('./lib_login/auth');
 
 const app = express();
-
-// 라우터 설정
-const authRouter = require('./lib_login/auth');
-const { router: templateRouter } = require('./lib_login/template');
-
-app.use('/auth', authRouter);
-app.use('/register', templateRouter);
 
 // Redis 클라이언트 설정
 const redisClient = redis.createClient();
 redisClient.connect()
   .then(() => console.log('Redis 연결 성공'))
   .catch((err) => console.error('Redis 연결 실패:', err));
+
+// MySQL 세션 저장 설정
+const sessionStore = new MySQLStore({}, db);
+
+// 세션 설정 (RedisStore와 MySQLStore 중 하나를 선택)
+app.use(session({
+  store: sessionStore,  // MySQLStore 사용
+  // store: new RedisStore({ client: redisClient }),  // RedisStore 사용 시 주석 해제
+  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 60 * 60 * 1000
+  }
+}));
 
 // CORS 설정
 app.use(cors({
@@ -57,27 +70,10 @@ const s3 = new AWS.S3({
 const BUCKET_NAME = 'educodingnplaycontents';
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
-app.set('trust proxy', 1); 
+app.set('trust proxy', 1);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-// 세션 설정
-const store = new RedisStore({ client: redisClient }); // 세션 스토어 설정
-app.use(session({
-  store: store,
-  secret: 'your-secret-key',
-  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 60 * 60 * 1000
-  }
-}));
 
 // 로그인 확인 미들웨어 추가
 function isLoggedIn(req, res, next) {
@@ -88,6 +84,8 @@ function isLoggedIn(req, res, next) {
     res.redirect('/auth/login');
   }
 }
+
+app.use('/auth', authRouter);
 
 // 기타 미들웨어 설정
 app.use(express.json());
@@ -174,7 +172,7 @@ app.get('/get-user-session', (req, res) => {
   console.log('Session ID:', req.sessionID);
   console.log('Cookies:', req.cookies);
 
-  store.get(req.sessionID, (err, session) => {
+  sessionStore.get(req.sessionID, (err, session) => {
     if (err) {
       console.error('Redis에서 세션을 가져오는 중 오류 발생:', err);
       return res.status(500).json({ success: false, error: '세션 정보를 가져오지 못했습니다.' });
