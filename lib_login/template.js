@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const templateModule = require('./template.js');
 const db = require('./db');
 const bcrypt = require('bcrypt');
 
@@ -39,7 +40,9 @@ router.get('/terms', (req, res) => {
 
 // 회원정보 입력 폼 라우팅
 router.get('/register', (req, res) => {
-    const html = `
+    const html = templateModule.HTML(
+        '회원가입', 
+        `
         <h1>회원가입</h1>
         <form action="/register/register_process" method="post">
             <label for="username">아이디 (필수)</label>
@@ -69,7 +72,7 @@ router.get('/register', (req, res) => {
 
              <button type="submit">가입하기</button>
         </form>
-    `;
+    `);
     res.send(html);
 });
 

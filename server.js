@@ -14,7 +14,7 @@ const app = express();
 
 // 라우터 설정
 const authRouter = require('./lib_login/auth');
-const { router: templateRouter } = require('./lib_login/template');
+const templateRouter = require('./lib_login/template');
 
 app.use('/auth', authRouter);
 app.use('/register', templateRouter);
