@@ -8,24 +8,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (userEmailElement) {
             // 세션 정보를 가져오는 API 호출
-            fetch('/get-user-session', { credentials: 'include' })
-                .then(response => {
-                    if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.loggedIn) {
-                    userEmailElement.innerText = data.username || "로그인 정보 미확인";
-                    } else {
+            fetch('/get-user-session', {
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${document.cookie.split('token=')[1]?.split(';')[0] || ''}`
+                }
+                
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    userEmailElement.innerText = data.username;
+                } else {
                     userEmailElement.innerText = "로그인 정보 미확인";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching session data:', error);
-                    userEmailElement.innerText = "로그인 정보 미확인";
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching session data:', error);
+                userEmailElement.innerText = "로그인 정보 미확인";
+            });
         }
 
         if (logoutButtonElement) {

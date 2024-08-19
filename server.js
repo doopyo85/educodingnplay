@@ -1,12 +1,9 @@
-// server.js 파일은 Express 서버를 생성하고 실행하는 코드를 작성하는 파일입니다.
 const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const db = require('./lib_login/db'); // MySQL 연결 설정 파일
-
-const app = express();
-
+const jwt = require('jsonwebtoken');
 const AWS = require('aws-sdk');
 const path = require('path');
 const cors = require('cors');
@@ -15,11 +12,16 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const { exec } = require('child_process');
 
+// JWT 비밀키 설정
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+const app = express();
+
 // AWS S3 설정
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2' // 예: 'us-west-2'
+  region: 'ap-northeast-2'
 });
 
 const BUCKET_NAME = 'educodingnplaycontents';
@@ -53,9 +55,8 @@ app.use((req, res, next) => {
   return next();
 });
 
-
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
-app.set('trust proxy', 1); 
+app.set('trust proxy', 1);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -68,48 +69,48 @@ app.use(session({
   saveUninitialized: false,
   proxy: true,
   cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 60 * 60 * 1000
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 60 * 60 * 1000
   }
 }));
 
-// 로그인 확인 미들웨어 추가
-function isLoggedIn(req, res, next) {
-  console.log('로그인 상태 확인:', req.session);  // 세션 정보 로그
-  if (req.session.is_logined) {
-    return next();
+// JWT 및 세션 인증 미들웨어
+const authenticateUser = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(401).json({ loggedIn: false, error: '유효하지 않은 토큰입니다.' });
+      }
+      req.user = user;
+      next();
+    });
+  } else if (req.session && req.session.is_logined) {
+    next();
   } else {
-    res.redirect('/auth/login');
+    res.status(401).json({ loggedIn: false, error: '로그인이 필요합니다.' });
   }
-}
+};
 
 // auth 라우터 설정
 app.use('/auth', authRouter);
 
-// 보호된 경로에 로그인 확인 미들웨어 적용
-app.use('/public', isLoggedIn);
-
 // 세션 생성 확인 로그
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
-  console.log('쿠키 정보:', req.headers.cookie); // 클라이언트 쿠키 정보 로그
+  console.log('쿠키 정보:', req.headers.cookie);
   next();
 });
 
+// 메인 라우트
 app.get('/', (req, res) => {
-  if (req.originalUrl === '/' && req.session.is_logined) {
+  if (req.session.is_logined) {
     res.redirect('/public');
-  } else if (req.originalUrl === '/') {
-    res.redirect('/auth/login');
   } else {
-    // /scratch 경로는 리디렉션하지 않음
-    if (req.originalUrl.startsWith('/scratch')) {
-      res.sendFile(path.join(__dirname, 'public', 'scratch.html'));
-    } else {
-      res.redirect('/');
-    }
+    res.redirect('/auth/login');
   }
 });
 
@@ -117,91 +118,108 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.get('/main', isLoggedIn, (req, res) => {
+// 메인 페이지
+app.get('/main', authenticateUser, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/get-user', isLoggedIn, (req, res) => {
+// 사용자 정보 조회
+app.get('/get-user', authenticateUser, (req, res) => {
   res.json({ email: req.session.nickname });
 });
 
-app.get('/scratch', isLoggedIn, (req, res) => {
+// Scratch 페이지 리디렉션
+app.get('/scratch', authenticateUser, (req, res) => {
   const scratchGuiUrl = `https://3.34.127.154:8601?scratchSession=${req.sessionID}`;
-  console.log('세션 ID 전달:', req.sessionID);
   res.redirect(scratchGuiUrl);
 });
 
+// S3에서 파일 가져오기
 app.get('/test', async (req, res) => {
   try {
-      const params = {
-          Bucket: BUCKET_NAME,
-          Key: 'https://3.34.127.154/public/test.html'
-      };
-
-      const data = await s3.getObject(params).promise();
-      const htmlContent = data.Body.toString('utf-8');
-      
-      // 필요한 경우, 데이터에 변화를 줄 수 있음
-      res.send(htmlContent);
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: 'https://3.34.127.154/public/test.html'
+    };
+    const data = await s3.getObject(params).promise();
+    res.send(data.Body.toString('utf-8'));
   } catch (error) {
-      console.error('Error fetching from S3:', error);
-      res.status(500).send('Error fetching page');
+    console.error('Error fetching from S3:', error);
+    res.status(500).send('Error fetching page');
   }
 });
 
 // 로그인 상태 확인 API
 app.get('/api/check-login', (req, res) => {
-  if (req.session && req.session.user) {
-      res.json({ loggedIn: true });
+  if (req.session && req.session.is_logined) {
+    res.json({ loggedIn: true });
   } else {
-      res.json({ loggedIn: false });
+    res.json({ loggedIn: false });
   }
 });
 
 // 로그인 처리 API
 app.post('/login', (req, res) => {
-  req.session.user = { id: 'user-id', name: 'user-name' };
-  res.json({ success: true });
+  const user = { id: 'user-id', username: 'user-name' };
+  
+  req.session.is_logined = true;
+  req.session.nickname = user.username;
+
+  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.codingnplay.site',
+    maxAge: 3600000 // 1시간
+  });
+
+  res.json({ success: true, username: user.username });
 });
 
-// 세션 정보 가져오기 API
-app.get('/get-user-session', (req, res) => {
-  console.log('Session in /get-user-session:', req.session);
-  if (req.session && req.session.is_logined) {
-    res.json({ loggedIn: true, username: req.session.nickname });
+// 유저세션전달 라우트
+app.get('/get-user-session', authenticateUser, (req, res) => {
+  if (req.user) {
+    res.json({ username: req.user.username });
+  } else if (req.session && req.session.is_logined) {
+    res.json({ username: req.session.nickname });
   } else {
-    res.status(401).json({ loggedIn: false, error: '로그인되지 않은 세션입니다.' });
+    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
 });
 
+// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
       return res.status(500).send('로그아웃 실패');
     }
+    res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
     res.redirect('/auth/login');
   });
 });
+
+// 보호된 경로에 통합된 인증 미들웨어 적용
+app.use('/public', authenticateUser);
 
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
 
+// Python 코드 실행
 app.post('/run-python', (req, res) => {
   const { code } = req.body;
 
   if (!code) {
-      console.error('Python code is undefined or empty.');
-      return res.status(400).json({ error: 'Python code is required.' });
+    return res.status(400).json({ error: 'Python code is required.' });
   }
 
   exec(`python3 -c "${code.replace(/"/g, '\\"')}"`, (error, stdout, stderr) => {
-      if (error) {
-          console.error('Error executing Python code:', error);
-          return res.json({ error: stderr });
-      }
-      res.json({ output: stdout });
+    if (error) {
+      return res.json({ error: stderr });
+    }
+    res.json({ output: stdout });
   });
 });
 
