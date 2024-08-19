@@ -166,13 +166,11 @@ app.post('/login', (req, res) => {
 
 // 세션 정보 가져오기 API
 app.get('/get-user-session', (req, res) => {
-  if (req.session && req.session.user) {
-    res.json({ 
-      loggedIn: true, 
-      username: req.session.user.username 
-    });
+  console.log('Session in /get-user-session:', req.session);
+  if (req.session && req.session.is_logined) {
+    res.json({ loggedIn: true, username: req.session.nickname });
   } else {
-    res.json({ loggedIn: false });
+    res.status(401).json({ loggedIn: false, error: '로그인되지 않은 세션입니다.' });
   }
 });
 
