@@ -24,7 +24,6 @@ app.get('/config', (req, res) => {
       apiKey: process.env.GOOGLE_API_KEY,
       discoveryDocs: [process.env.DISCOVERY_DOCS],
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: process.env.RANGE
   });
 });
 

@@ -52,6 +52,7 @@
     <script src="/public/header.js"></script> <!-- header.js 로드 -->
     <script>
         let config;
+        const RANGE = 'sb2!A2:C'; // 클라이언트 측에서 설정된 RANGE 값
 
         function loadConfig() {
             return fetch('/config')
@@ -76,7 +77,7 @@
         function loadSB2Data() {
             gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: config.spreadsheetId,
-                range: config.range,
+                range: RANGE, // 여기서 사용
             }).then((response) => {
                 const data = response.result.values;
                 if (data) {
