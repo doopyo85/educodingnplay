@@ -51,35 +51,32 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/header.js"></script> <!-- header.js 로드 -->
     <script>
-        $(function() {
-            // "새로 시작하기" 버튼 클릭 시 :8601로 전환
-            $("#newStartButton").click(function() {
-                window.location.href = "https://codingnplay.site/scratch";
-            });
+        let config;
 
-            // 기본/확장1/확장2 버튼 클릭 시 :8601로 전환하고 sb2 파일 불러오기
-            $(document).on("click", ".load-sb2", function() {
-                const sb2Url = $(this).data("url");
-                window.location.href = `https://codingnplay.site/scratch#${sb2Url}`;
-            });
-        });
+        function loadConfig() {
+            return fetch('/config')
+                .then(response => response.json())
+                .then(data => {
+                    config = data;
+                })
+                .catch(error => {
+                    console.error('Error loading config:', error);
+                });
+        }
 
         function initClient() {
             gapi.client.init({
-                apiKey: 'API_KEY',
-                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                apiKey: config.apiKey,
+                discoveryDocs: config.discoveryDocs,
             }).then(() => {
                 loadSB2Data();
             }).catch(error => console.error('Error initializing Google API client', error));
         }
 
         function loadSB2Data() {
-            const spreadsheetId = 'SPREADSHEET_ID';
-            const range = 'sb2!A2:C';
-
             gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: spreadsheetId,
-                range: range,
+                spreadsheetId: config.spreadsheetId,
+                range: config.range,
             }).then((response) => {
                 const data = response.result.values;
                 if (data) {
@@ -137,7 +134,9 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            gapi.load('client', initClient);
+            loadConfig().then(() => {
+                gapi.load('client', initClient);
+            });
         });
     </script>
 </body>

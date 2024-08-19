@@ -11,11 +11,22 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const { exec } = require('child_process');
+require('dotenv').config();
+
+const app = express();
 
 // JWT 비밀키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-const app = express();
+// google API 설정 정보 전달
+app.get('/config', (req, res) => {
+  res.json({
+      apiKey: process.env.GOOGLE_API_KEY,
+      discoveryDocs: [process.env.DISCOVERY_DOCS],
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: process.env.RANGE
+  });
+});
 
 // AWS S3 설정
 const s3 = new AWS.S3({
