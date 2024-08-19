@@ -45,7 +45,7 @@ const store = new RedisStore({ client: redisClient });
 
 // CORS 설정
 app.use(cors({
-  origin: 'https://codingnplay.site', // HTTPS로 변경
+  origin: 'https://codingnplay.site',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -170,6 +170,8 @@ app.get('/api/check-login', (req, res) => {
 
 // 로그인 처리 API
 app.post('/login', (req, res) => {
+  // TODO: 실제 사용자 인증 로직을 구현해야 합니다.
+  // 예: 데이터베이스에서 사용자 정보 확인
   const user = { id: 'user-id', username: 'user-name' };
   
   req.session.is_logined = true;
