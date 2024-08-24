@@ -178,13 +178,14 @@ function toggleArrow(arrow, isOpen) {
 
 // showPageContent 함수는 iframeContent 요소에 주어진 URL을 로드하는 함수입니다.
 
-function showPageContent(url, examName) {
+function showPageContent(examName) {
     const contentView = document.getElementById('iframeContent');
-    contentView.src = url;
+    const initialProblemUrl = `${baseUrl}${examName}_p01.html`;
+    contentView.src = initialProblemUrl;
 
-    // 문제 네비게이션 생성
     renderProblemNavigation(10, 1, examName);
 }
+
 function applySubMenuHighlight(selectedSubMenu) {
     const allSubMenus = document.querySelectorAll('.sub-menu li');
     allSubMenus.forEach(function(item) {
@@ -212,16 +213,11 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 }
 
 function loadProblem(problemNumber, examName) {
-    // 구글 시트에서 가져온 URL 파일명만 사용
     const problemFileName = `${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
-
-    // 기본 주소와 결합하여 전체 URL 생성
     const problemUrl = `${baseUrl}${problemFileName}`;
-    
-    // 문제를 표시할 iframe의 src를 설정
+
     const iframe = document.getElementById('iframeContent');
-    
-    // 문제 URL이 유효한지 확인 후 iframe에 로드
+
     fetch(problemUrl, { method: 'HEAD' })
         .then(response => {
             if (response.ok) {
