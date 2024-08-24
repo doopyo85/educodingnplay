@@ -1,3 +1,5 @@
+const baseUrl = "https://educodingnplaycontents.s3.amazonaws.com/";
+
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
         gapi.load('client', initClient);
@@ -210,8 +212,11 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 }
 
 function loadProblem(problemNumber, examName) {
-    // 문제 URL을 동적으로 생성
-    const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
+    // 구글 시트에서 가져온 URL 파일명만 사용
+    const problemFileName = `${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
+
+    // 기본 주소와 결합하여 전체 URL 생성
+    const problemUrl = `${baseUrl}${problemFileName}`;
     
     // 문제를 표시할 iframe의 src를 설정
     const iframe = document.getElementById('iframeContent');
@@ -242,6 +247,7 @@ document.querySelectorAll('.problem-number').forEach(button => {
 // 초기 로드 시 1번 문제를 자동으로 로드
 const initialExamName = document.getElementById('examName').textContent.trim();
 loadProblem(1, initialExamName);
+
 
 
 
