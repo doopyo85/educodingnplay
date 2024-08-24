@@ -213,11 +213,16 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 }
 
 function loadProblem(problemNumber, examName) {
+    // 문제 파일명 생성
     const problemFileName = `${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
+
+    // 기본 주소와 결합하여 전체 URL 생성
     const problemUrl = `${baseUrl}${problemFileName}`;
-
+    
+    // 문제를 표시할 iframe의 src를 설정
     const iframe = document.getElementById('iframeContent');
-
+    
+    // 문제 URL이 유효한지 확인 후 iframe에 로드
     fetch(problemUrl, { method: 'HEAD' })
         .then(response => {
             if (response.ok) {
@@ -230,6 +235,7 @@ function loadProblem(problemNumber, examName) {
             console.error('문제 정보를 불러오는 중 오류 발생:', error);
         });
 }
+
 
 // 문제 번호 버튼 클릭 시 호출되는 함수
 document.querySelectorAll('.problem-number').forEach(button => {
