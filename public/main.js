@@ -210,33 +210,39 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 }
 
 function loadProblem(problemNumber, examName) {
-    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = '문항정보!A2:D'; // 문항정보 시트 범위 설정
-
-    gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: range,
-    }).then((response) => {
-        const data = response.result.values;
-
-        if (data) {
-            let problemUrl = null;
-            data.forEach(function (row) {
-                if (row[1] === examName && row[2] === `p${problemNumber.toString().padStart(2, '0')}`) {
-                    problemUrl = row[0];
-                }
-            });
-
-            if (problemUrl) {
-                document.getElementById('iframeContent').src = problemUrl;
+    // 문제 URL을 동적으로 생성
+    const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
+    
+    // 문제를 표시할 iframe의 src를 설정
+    const iframe = document.getElementById('iframeContent');
+    
+    // 문제 URL이 유효한지 확인 후 iframe에 로드
+    fetch(problemUrl, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                iframe.src = problemUrl;
             } else {
                 console.error('문제 URL을 찾을 수 없습니다.');
             }
-        }
-    }).catch(error => {
-        console.error('문제 정보를 불러오는 중 오류 발생:', error);
-    });
+        })
+        .catch(error => {
+            console.error('문제 정보를 불러오는 중 오류 발생:', error);
+        });
 }
+
+// 문제 번호 버튼 클릭 시 호출되는 함수
+document.querySelectorAll('.problem-number').forEach(button => {
+    button.addEventListener('click', () => {
+        const problemNumber = button.textContent.trim();
+        const examName = document.getElementById('examName').textContent.trim(); // 시험 이름은 미리 설정된 곳에서 가져옴
+        loadProblem(problemNumber, examName);
+    });
+});
+
+// 초기 로드 시 1번 문제를 자동으로 로드
+const initialExamName = document.getElementById('examName').textContent.trim();
+loadProblem(1, initialExamName);
+
 
 
 function applySubMenuHighlight(selectedSubMenu) {
