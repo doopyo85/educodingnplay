@@ -210,9 +210,32 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 }
 
 function loadProblem(problemNumber, examName) {
-    const url = `https://educodingnplaycontents.s3.amazonaws.com/${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
-    document.getElementById('iframeContent').src = url;
-    // 여기에 문제 데이터를 로드하는 함수 호출을 추가할 수 있습니다.
+    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+    const range = '문항정보!A2:D'; // 문항정보 시트 범위 설정
+
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: range,
+    }).then((response) => {
+        const data = response.result.values;
+
+        if (data) {
+            let problemUrl = null;
+            data.forEach(function (row) {
+                if (row[1] === examName && row[2] === `p${problemNumber.toString().padStart(2, '0')}`) {
+                    problemUrl = row[0];
+                }
+            });
+
+            if (problemUrl) {
+                document.getElementById('iframeContent').src = problemUrl;
+            } else {
+                console.error('문제 URL을 찾을 수 없습니다.');
+            }
+        }
+    }).catch(error => {
+        console.error('문제 정보를 불러오는 중 오류 발생:', error);
+    });
 }
 
 
