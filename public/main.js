@@ -133,6 +133,8 @@ function loadMenuData() {
     });
 }
 
+// toggleSubMenu 함수는 메뉴를 클릭했을 때 서브 메뉴를 토글하는 함수입니다.
+
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('.arrow');
@@ -172,10 +174,15 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
-function showPageContent(url, contentView) {
-    contentView.src = url;
-}
+// showPageContent 함수는 iframeContent 요소에 주어진 URL을 로드하는 함수입니다.
 
+function showPageContent(url, examName) {
+    const contentView = document.getElementById('iframeContent');
+    contentView.src = url;
+
+    // 문제 네비게이션 생성
+    renderProblemNavigation(10, 1, examName);
+}
 function applySubMenuHighlight(selectedSubMenu) {
     const allSubMenus = document.querySelectorAll('.sub-menu li');
     allSubMenus.forEach(function(item) {
@@ -205,10 +212,21 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 function loadProblem(problemNumber, examName) {
     const url = `https://educodingnplaycontents.s3.amazonaws.com/${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
     document.getElementById('iframeContent').src = url;
-    fetchQuestionData(examName, problemNumber);
+    // 여기에 문제 데이터를 로드하는 함수 호출을 추가할 수 있습니다.
 }
 
 
+function applySubMenuHighlight(selectedSubMenu) {
+    const allSubMenus = document.querySelectorAll('.sub-menu li');
+    allSubMenus.forEach(function (item) {
+        item.classList.remove('selected-item');
+    });
+
+    selectedSubMenu.classList.add('selected-item');
+}
+
+
+// ---여기부터는 중복인거 같은데----------------------------------------------------------------------
 function loadQuestionData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
     const range = '문항정보!A2:D';  // 문항정보 시트의 A2:D 열까지
@@ -286,6 +304,8 @@ function loadQuestionContent(questionData) {
         evaluateUserCode(userCode, questionData.inputData, questionData.expectedOutput);
     };
 }
+
+// ---여기까지 중복인거 같은데----------------------------------------------------------------------
 
 function evaluateUserCode(userCode, inputData, expectedOutput) {
     // 실제로 코드를 실행하여 결과를 비교하는 로직
