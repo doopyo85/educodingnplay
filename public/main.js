@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(error => console.error('Error:', error));
     });
+
 });
 
 function initClient() {
@@ -60,7 +61,7 @@ function initClient() {
 
 function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = 'A2:C';
+    const range = 'A2:e';
 
     gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
@@ -183,3 +184,124 @@ function applySubMenuHighlight(selectedSubMenu) {
 
     selectedSubMenu.classList.add('selected-item');
 }
+
+function renderProblemNavigation(numProblems, currentProblem) {
+    const navContainer = document.getElementById('problem-navigation');
+    navContainer.innerHTML = '';
+    
+    for (let i = 1; i <= numProblems; i++) {
+        const problemBtn = document.createElement('span');
+        problemBtn.textContent = i;
+        if (i === currentProblem) {
+            problemBtn.classList.add('active');
+        }
+        problemBtn.addEventListener('click', function() {
+            loadProblem(i);
+        });
+        navContainer.appendChild(problemBtn);
+    }
+}
+
+function loadProblem(problemNumber) {
+    const examName = 'cospro_1-1';  // 시험 이름을 동적으로 가져와야 함
+    const url = `https://educodingnplaycontents.s3.amazonaws.com/${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
+    document.getElementById('iframeContent').src = url;
+    renderProblemNavigation(10, problemNumber);
+}
+
+// 처음 로드할 때 1번 문제 로드
+loadProblem(1);
+
+
+function loadQuestionData() {
+    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+    const range = '문항정보!A2:D';  // 문항정보 시트의 A2:D 열까지
+
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: range,
+    }).then((response) => {
+        const data = response.result.values;
+        if (data) {
+            const navList = document.getElementById('navList');
+            const contentView = document.getElementById('iframeContent');
+            const questionsMap = new Map();
+
+            data.forEach(function(row) {
+                const examName = row[0];
+                const questionNumber = row[1];
+                const inputData = row[2];
+                const expectedOutput = row[3];
+
+                if (!questionsMap.has(examName)) {
+                    questionsMap.set(examName, []);
+                }
+
+                questionsMap.get(examName).push({
+                    questionNumber,
+                    inputData,
+                    expectedOutput,
+                    url: `https://educodingnplaycontents.s3.amazonaws.com/${examName}_${questionNumber}.html`
+                });
+            });
+
+            renderQuestions(questionsMap);
+        }
+    }).catch(error => {
+        console.error('Error loading question data:', error);
+    });
+}
+
+function renderQuestions(questionsMap) {
+    const navList = document.getElementById('navList');
+    navList.innerHTML = '';  // 기존 메뉴 초기화
+    questionsMap.forEach((questions, examName) => {
+        const examItem = document.createElement('li');
+        examItem.textContent = examName;
+        examItem.classList.add('menu-item');
+        examItem.classList.add('has-sub-menu');
+
+        const subMenuItems = document.createElement('ul');
+        subMenuItems.className = 'sub-menu';
+        examItem.appendChild(subMenuItems);
+
+        questions.forEach(questionData => {
+            const subMenuItem = document.createElement('li');
+            subMenuItem.classList.add('menu-item');
+            subMenuItem.textContent = questionData.questionNumber;
+
+            subMenuItem.addEventListener('click', function() {
+                loadQuestionContent(questionData);
+            });
+
+            subMenuItems.appendChild(subMenuItem);
+        });
+
+        navList.appendChild(examItem);
+    });
+}
+
+function loadQuestionContent(questionData) {
+    const iframeContent = document.getElementById('iframeContent');
+    iframeContent.src = questionData.url;
+
+    document.getElementById('runCodeBtn').onclick = function() {
+        const userCode = document.getElementById('ide').value;
+        evaluateUserCode(userCode, questionData.inputData, questionData.expectedOutput);
+    };
+}
+
+function evaluateUserCode(userCode, inputData, expectedOutput) {
+    // 실제로 코드를 실행하여 결과를 비교하는 로직
+    const exec = new Function(userCode);
+    let userOutput;
+    try {
+        userOutput = exec(inputData);
+    } catch (error) {
+        userOutput = `Error: ${error.message}`;
+    }
+
+    const result = (userOutput === expectedOutput) ? '정답입니다!' : '오답입니다.';
+    document.getElementById('output').textContent = `결과: ${userOutput}\n${result}`;
+}
+

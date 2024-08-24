@@ -12,7 +12,29 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script defer src="/public/main.js"></script>
     <style>
-        /* 헤더 스타일 제거, 메인 컨텐츠에만 스타일 적용 */
+        /* 추가된 스타일 */
+        .problem-navigation {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .problem-navigation span {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            margin: 0 5px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+        }
+        .problem-navigation .active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* 기존 스타일 */
         body, html {
             margin: 0;
             padding: 0;
@@ -24,14 +46,14 @@
             height: 100%;
         }
         .nav-container {
-            flex: 0 0 200px; /* 네비게이션 바 너비 조정 */
+            flex: 0 0 200px;
             overflow: auto;
         }
         .content-container {
             display: flex;
             flex: 1;
             height: 100%;
-            margin-left: 200px; /* 왼쪽으로부터 200px 시작 */
+            margin-left: 200px;
         }
         .iframe-container, .ide-container {
             height: 100%;
@@ -93,26 +115,24 @@
     </style>
 </head>
 <body>
-    <!-- Include header.html -->
     <div id="header-placeholder"></div>
 
     <div class="main-content">
         <nav class="nav-container">
-            <ul id="navList">
-                <!-- 동적으로 메뉴 항목이 추가될 곳 -->
-            </ul>
+            <ul id="navList"></ul>
         </nav>
         <div class="content-container">
             <div class="iframe-container">
+                <div class="problem-navigation" id="problem-navigation"></div>
                 <iframe id="iframeContent" src="about:blank"></iframe>
             </div>
             <div class="divider" id="divider"></div>
             <div class="ide-container">
                 <div class="ide-controls">
-                    <button id="runCodeBtn">Run</button> <!-- Run 버튼 -->
+                    <button id="runCodeBtn">Run</button>
                 </div>
                 <textarea id="ide" placeholder="Type your Python code here..."></textarea>
-                <pre id="output"></pre> <!-- 코드 실행 결과를 출력할 영역 -->
+                <pre id="output"></pre>
             </div>
         </div>
     </div>
