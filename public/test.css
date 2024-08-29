@@ -1,18 +1,60 @@
-/* 네비게이션 메뉴의 너비를 300px로 조정 */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.main-content {
+    display: flex;
+    height: 100%;
+}
+
 .nav-container {
     flex: 0 0 300px;
     overflow: auto;
 }
 
-/* 문제 타이틀과 문제 nav 스타일 복구 및 조정 */
-#problem-title {
-    text-align: center;
-    font-size: 2em;
-    margin-bottom: 20px;
-    font-weight: bold;
+.content-container {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    margin-left: 300px;
+    overflow: hidden;
 }
 
-/* 문제 nav 스타일 */
+.iframe-container, .ide-container {
+    height: 100%;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.ide-container {
+    background-color: #2d2d2d;
+    color: white;
+    padding: 10px;
+}
+
+.ide-container textarea {
+    width: 100%;
+    height: 100%;
+    background-color: #2d2d2d;
+    color: white;
+    padding: 10px;
+    border: none;
+    resize: none;
+}
+
 .problem-navigation {
     display: flex;
     justify-content: center;
@@ -36,56 +78,20 @@
     color: white;
 }
 
-/* 문제 content 영역의 좌우 스크롤 제거 */
-#iframeContent {
-    width: 100%; 
-    height: 80vh; 
-    max-width: 100%;
-    margin: 0 auto;
-    display: block;
-    overflow-x: hidden; /* 좌우 스크롤 제거 */
-    padding-left: 5%;
-    padding-right: 5%;
+#problem-title {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
 }
 
-/* IDE 영역이 상하로 꽉 채워지도록 조정 */
-.ide-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* 상하로 꽉 채우도록 조정 */
+.divider {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #ddd;
+    position: relative;
 }
 
-#ide {
-    flex: 1;
-    background-color: #2d2d2d;
-    color: white;
-    padding: 10px;
-    font-family: 'Courier New', Courier, monospace;
-    resize: none;
-    height: calc(100% - 40px); /* IDE 컨트롤 버튼의 높이를 고려하여 조정 */
-}
-
-.ide-controls {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background-color: #444;
-}
-
-.ide-controls button {
-    background-color: #6c757d;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.ide-controls button:hover {
-    background-color: #5a6268;
-}
-
-.pre#output {
+pre#output {
     background-color: #333;
     color: #fff;
     padding: 10px;
