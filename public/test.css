@@ -1,38 +1,63 @@
-/* 문제 네비게이션과 타이틀 사이의 구분선 */
-#problem-divider {
-    width: 100%;
-    height: 2px;
-    background-color: #ccc;
-    margin: 10px 0;
-}
-
-/* 문제 콘텐츠 (iframe) */
-#iframeContent {
-    width: 100%;
-    height: 60vh;
-    border: none;
-    padding: 0 5%; /* 좌우 여백 */
-    box-sizing: border-box; /* 패딩 포함 계산 */
-}
-
-/* 네비게이션 컨테이너 */
+/* 네비게이션 메뉴의 너비를 250px로 조정 */
 .nav-container {
-    margin-bottom: 10px;
+    flex: 0 0 250px; /* 너비를 250px로 고정 */
+    overflow: auto;
 }
 
-/* IDE 컨테이너 */
+/* 콘텐츠와 IDE 영역을 50%씩 차지하도록 조정 */
+.content-container {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    margin-left: 250px; /* 네비게이션 메뉴의 너비에 맞춰 조정 */
+}
+
+.iframe-container, .ide-container {
+    height: 100%;
+    flex: 1; /* 콘텐츠와 IDE 영역을 각각 50%씩 차지 */
+}
+
+.iframe-container {
+    overflow: hidden;
+}
+
+#iframeContent {
+    width: 100%; 
+    height: 80vh; 
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
 .ide-container {
-    margin-top: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 실행 버튼 */
-#runCodeBtn {
-    margin-bottom: 10px;
+#ide {
+    flex: 1;
+    background-color: #2d2d2d;
+    color: white;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    resize: none;
 }
 
-/* 문제 타이틀 */
-#problem-title {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 20px;
+.divider {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #ddd;
+    position: relative;
+}
+
+pre#output {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
 }
