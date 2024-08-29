@@ -64,14 +64,29 @@
         }
         /* 이미지 컨테이너 스타일 */
         .iframe-container iframe {
-            width: 90%; /* 좌우 여백 5% 적용 */
-            height: auto;
+            width: 100%; /* 컨테이너의 100%로 조정 */
+            height: 80vh; /* 뷰포트 높이의 80% */
             max-width: 100%;
             margin: 0 auto;
             display: block;
             padding-left: 5%; /* 좌우 여백 적용 */
             padding-right: 5%; /* 좌우 여백 적용 */
         }   
+
+                /* 이미지 크기 조정 */
+        iframe img {
+            max-width: 100%; /* 이미지가 컨테이너의 너비를 넘지 않도록 조정 */
+            height: auto;
+        }
+
+            /* 문제 타이틀 스타일 */
+        #problem-title {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 20px;
+        }
+
+
         .ide-container {
             flex: 1;
             display: flex;

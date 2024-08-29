@@ -187,6 +187,7 @@ function loadProblem(problemNumber, examName) {
 
     // 문제 타이틀 설정
     const problemTitle = `${examName} - 문제 ${problemNumber}`;
+    console.log('Problem Title:', problemTitle); // 콘솔 로그로 타이틀 출력 확인
     document.getElementById('problem-title').textContent = problemTitle;
 
     fetch(problemUrl, { method: 'HEAD' })
