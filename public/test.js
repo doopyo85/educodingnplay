@@ -187,7 +187,6 @@ function loadProblem(problemNumber, examName) {
 
     // 문제 타이틀 설정
     const problemTitle = `${examName} - 문제 ${problemNumber}`;
-    console.log('Problem Title:', problemTitle); // 콘솔 로그로 타이틀 출력 확인
     document.getElementById('problem-title').textContent = problemTitle;
 
     fetch(problemUrl, { method: 'HEAD' })
@@ -202,6 +201,7 @@ function loadProblem(problemNumber, examName) {
             console.error('문제 정보를 불러오는 중 오류 발생:', error);
         });
 }
+
 
 function renderProblemNavigation(numProblems, currentProblem, examName) {
     const navContainer = document.getElementById('problem-navigation');
