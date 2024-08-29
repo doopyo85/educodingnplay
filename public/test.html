@@ -62,13 +62,16 @@
             flex: 1;
             overflow: hidden;
         }
+        /* 이미지 컨테이너 스타일 */
         .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            overflow: auto;
+            width: 90%; /* 좌우 여백 5% 적용 */
+            height: auto;
+            max-width: 100%;
+            margin: 0 auto;
             display: block;
-        }
+            padding-left: 5%; /* 좌우 여백 적용 */
+            padding-right: 5%; /* 좌우 여백 적용 */
+        }   
         .ide-container {
             flex: 1;
             display: flex;
@@ -118,6 +121,9 @@
     <div id="header-placeholder"></div>
     <div id="examName" style="display:none;">cospro_1-1</div>
     <div class="main-content">
+        <!-- 문제 타이틀 표시 영역 추가 -->
+        <div id="problem-title" style="text-align:center; font-weight:bold; margin-bottom:20px;"></div>
+        
         <nav class="nav-container">
             <ul id="navList"></ul>
         </nav>

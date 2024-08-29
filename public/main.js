@@ -185,6 +185,10 @@ function loadProblem(problemNumber, examName) {
     const problemUrl = `${baseUrl}${problemFileName}`;
     const iframe = document.getElementById('iframeContent');
 
+    // 문제 타이틀 설정
+    const problemTitle = `${examName} - 문제 ${problemNumber}`;
+    document.getElementById('problem-title').textContent = problemTitle;
+
     fetch(problemUrl, { method: 'HEAD' })
         .then(response => {
             if (response.ok) {
