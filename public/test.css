@@ -1,40 +1,59 @@
-/* 네비게이션 메뉴의 너비를 250px로 조정 */
+/* 네비게이션 메뉴의 너비를 300px로 조정 */
 .nav-container {
-    flex: 0 0 250px; /* 너비를 250px로 고정 */
+    flex: 0 0 300px;
     overflow: auto;
 }
 
-/* 콘텐츠와 IDE 영역을 50%씩 차지하도록 조정 */
-.content-container {
+/* 문제 타이틀과 문제 nav 스타일 복구 및 조정 */
+#problem-title {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* 문제 nav 스타일 */
+.problem-navigation {
     display: flex;
-    flex: 1;
-    height: 100%;
-    margin-left: 250px; /* 네비게이션 메뉴의 너비에 맞춰 조정 */
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
-.iframe-container, .ide-container {
-    height: 100%;
-    flex: 1; /* 콘텐츠와 IDE 영역을 각각 50%씩 차지 */
+.problem-navigation span {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    margin: 0 5px;
+    border-radius: 50%;
+    background-color: #ddd;
+    cursor: pointer;
 }
 
-.iframe-container {
-    overflow: hidden;
+.problem-navigation .active {
+    background-color: #007bff;
+    color: white;
 }
 
+/* 문제 content 영역의 좌우 스크롤 제거 */
 #iframeContent {
     width: 100%; 
     height: 80vh; 
     max-width: 100%;
     margin: 0 auto;
     display: block;
+    overflow-x: hidden; /* 좌우 스크롤 제거 */
     padding-left: 5%;
     padding-right: 5%;
 }
 
+/* IDE 영역이 상하로 꽉 채워지도록 조정 */
 .ide-container {
     flex: 1;
     display: flex;
     flex-direction: column;
+    height: 100%; /* 상하로 꽉 채우도록 조정 */
 }
 
 #ide {
@@ -44,16 +63,29 @@
     padding: 10px;
     font-family: 'Courier New', Courier, monospace;
     resize: none;
+    height: calc(100% - 40px); /* IDE 컨트롤 버튼의 높이를 고려하여 조정 */
 }
 
-.divider {
-    width: 5px;
-    cursor: col-resize;
-    background-color: #ddd;
-    position: relative;
+.ide-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #444;
 }
 
-pre#output {
+.ide-controls button {
+    background-color: #6c757d;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.ide-controls button:hover {
+    background-color: #5a6268;
+}
+
+.pre#output {
     background-color: #333;
     color: #fff;
     padding: 10px;
