@@ -1,0 +1,38 @@
+/* 문제 네비게이션과 타이틀 사이의 구분선 */
+#problem-divider {
+    width: 100%;
+    height: 2px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+/* 문제 콘텐츠 (iframe) */
+#iframeContent {
+    width: 100%;
+    height: 60vh;
+    border: none;
+    padding: 0 5%; /* 좌우 여백 */
+    box-sizing: border-box; /* 패딩 포함 계산 */
+}
+
+/* 네비게이션 컨테이너 */
+.nav-container {
+    margin-bottom: 10px;
+}
+
+/* IDE 컨테이너 */
+.ide-container {
+    margin-top: 20px;
+}
+
+/* 실행 버튼 */
+#runCodeBtn {
+    margin-bottom: 10px;
+}
+
+/* 문제 타이틀 */
+#problem-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
