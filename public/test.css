@@ -56,6 +56,7 @@ body, html {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    margin-top: 5%; /* 네비게이션 위에 5% 여백 추가 */
 }
 
 .problem-navigation span {
@@ -65,15 +66,13 @@ body, html {
     line-height: 30px;
     text-align: center;
     margin: 0 5px;
-    border-radius: 50%;
-    background-color: #ddd;
     cursor: pointer;
 }
 
-.problem-navigation .active {
-    background-color: #007bff;
-    color: white;
+.problem-navigation .active i {
+    color: #007bff; /* 활성화된 아이콘의 색상 */
 }
+
 
 #problem-title {
     text-align: center;

@@ -209,16 +209,46 @@ function renderProblemNavigation(numProblems, currentProblem, examName) {
 
     for (let i = 1; i <= numProblems; i++) {
         const problemBtn = document.createElement('span');
-        problemBtn.textContent = i;
+        const iconName = `${i}-circle`;  // 기본 아이콘
+        const iconFillName = `${i}-circle-fill`;  // 활성화된 아이콘
+
+        const iconElement = document.createElement('i');
+        iconElement.classList.add('bi', (i === currentProblem) ? iconFillName : iconName);
+        problemBtn.appendChild(iconElement);
+
         if (i === currentProblem) {
             problemBtn.classList.add('active');
         }
+
         problemBtn.addEventListener('click', function () {
             loadProblem(i, examName);
+            updateActiveButton(i);
         });
+
         navContainer.appendChild(problemBtn);
     }
 }
+
+function updateActiveButton(activeIndex) {
+    const buttons = document.querySelectorAll('#problem-navigation span');
+    buttons.forEach((btn, index) => {
+        const iconElement = btn.querySelector('i');
+        const iconName = `${index + 1}-circle`;
+        const iconFillName = `${index + 1}-circle-fill`;
+
+        if (index + 1 === activeIndex) {
+            btn.classList.add('active');
+            iconElement.classList.remove(iconName);
+            iconElement.classList.add(iconFillName);
+        } else {
+            btn.classList.remove('active');
+            iconElement.classList.remove(iconFillName);
+            iconElement.classList.add(iconName);
+        }
+    });
+}
+
+
 
 // 문항 정보를 별도로 관리하는 부분은 중복되어 제거했습니다.
 
