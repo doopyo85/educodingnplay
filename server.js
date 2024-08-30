@@ -144,6 +144,10 @@ app.get('/test', authenticateUser, (req, res) => {
   res.render('test');  // 'views/test.ejs' 렌더링
 });
 
+app.get('*', authenticateUser, (req, res) => {
+  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
+});
+
 
 // S3에서 파일 가져오기
 app.get('/test-file', async (req, res) => {
@@ -176,7 +180,7 @@ app.get('/get-user', authenticateUser, (req, res) => {
 });
 
 // Scratch 페이지 리디렉션
-app.get('/scratch', authenticateUser, (req, res) => {
+app.get('/scratch-gui', authenticateUser, (req, res) => {
   const token = req.cookies.token; // JWT 토큰을 쿠키에서 가져옵니다
   const scratchGuiUrl = `https://3.34.127.154:8601?token=${token}`;
   res.redirect(scratchGuiUrl);
@@ -222,6 +226,7 @@ app.get('/get-user-session', authenticateUser, (req, res) => {
     res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
 });
+
 
 // 로그아웃 처리
 app.get('/logout', (req, res) => {
