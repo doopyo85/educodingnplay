@@ -52,22 +52,36 @@ body, html {
     resize: none;
 }
 
-.problem-navigation {
+#problem-navigation-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
-    margin-top: 5%; /* 네비게이션 위에 5% 여백 추가 */
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+#problem-navigation {
+    display: flex;
+    gap: 10px;
 }
 
 .problem-icon {
     cursor: pointer;
-    font-size: 24px; /* 아이콘 크기 조절 */
+    font-size: 24px;
 }
 
 .problem-icon:hover {
     opacity: 0.8;
 }
 
+#prev-problem, #next-problem {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+#prev-problem:hover, #next-problem:hover {
+    opacity: 0.8;
+}
 
 #problem-title {
     text-align: center;

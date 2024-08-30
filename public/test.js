@@ -202,12 +202,74 @@ function onMenuSelect(examName) {
     renderProblemNavigation(10, 1, examName);  // 10문항 네비게이션 생성
 }
 
+let currentProblemNumber = 1;
+const totalProblems = 10;
+
+function renderProblemNavigation(numProblems, currentProblem) {
+    const navContainer = document.getElementById('problem-navigation');
+    navContainer.innerHTML = ''; // 기존 내용 초기화
+
+    for (let i = 1; i <= totalProblems; i++) {
+        const problemBtn = document.createElement('span');
+        problemBtn.classList.add('problem-icon');
+        
+        const icon = document.createElement('i');
+        icon.classList.add('bi', i === currentProblemNumber ? `bi-${i === 10 ? 0 : i}-circle-fill` : `bi-${i === 10 ? 0 : i}-circle`);
+        
+        problemBtn.appendChild(icon);
+        
+        problemBtn.addEventListener('click', function() {
+            navigateToProblem(i);
+        });
+
+        navContainer.appendChild(problemBtn);
+    }
+
+    updateNavigationButtons();
+}
+
+function navigateToProblem(problemNumber) {
+    currentProblemNumber = problemNumber;
+    updateProblemNavigation();
+    loadProblem(currentProblemNumber, currentExamName); // currentExamName should be defined somewhere in your code
+}
+
+function updateProblemNavigation() {
+    const icons = document.querySelectorAll('#problem-navigation .problem-icon i');
+    icons.forEach((icon, index) => {
+        const problemNumber = index + 1;
+        icon.className = `bi ${problemNumber === currentProblemNumber ? `bi-${problemNumber === 10 ? 0 : problemNumber}-circle-fill` : `bi-${problemNumber === 10 ? 0 : problemNumber}-circle`}`;
+    });
+    updateNavigationButtons();
+}
+
+function updateNavigationButtons() {
+    const prevButton = document.getElementById('prev-problem');
+    const nextButton = document.getElementById('next-problem');
+
+    prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
+    nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
+}
+
+document.getElementById('prev-problem').addEventListener('click', function() {
+    if (currentProblemNumber > 1) {
+        navigateToProblem(currentProblemNumber - 1);
+    }
+});
+
+document.getElementById('next-problem').addEventListener('click', function() {
+    if (currentProblemNumber < totalProblems) {
+        navigateToProblem(currentProblemNumber + 1);
+    }
+});
+
+
+// loadProblem 함수 수정 (기존 함수를 대체)
 function loadProblem(problemNumber, examName) {
     const problemFileName = `${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
-    const problemUrl = `${baseUrl}${problemFileName}`;
+    const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
     const iframe = document.getElementById('iframeContent');
 
-    // 문제 타이틀 설정
     const problemTitle = `${examName} - 문제 ${problemNumber}`;
     const problemTitleElement = document.getElementById('problem-title');
     if (problemTitleElement) {
@@ -229,35 +291,6 @@ function loadProblem(problemNumber, examName) {
     }
 }
 
-function renderProblemNavigation(numProblems, currentProblem) {
-    const navContainer = document.getElementById('problem-navigation');
-    navContainer.innerHTML = ''; // 기존 내용 초기화
-
-    for (let i = 1; i <= numProblems; i++) {
-        const problemBtn = document.createElement('span');
-        problemBtn.classList.add('problem-icon');
-        
-        const icon = document.createElement('i');
-        icon.classList.add('bi', i === currentProblem ? `bi-${i}-circle-fill` : `bi-${i}-circle`);
-        
-        problemBtn.appendChild(icon);
-        
-        problemBtn.addEventListener('click', function() {
-            updateProblemNavigation(i);
-            // 여기에 문제 로드 로직 추가 (예: loadProblem(i))
-        });
-
-        navContainer.appendChild(problemBtn);
-    }
-}
-
-function updateProblemNavigation(selectedProblem) {
-    const icons = document.querySelectorAll('#problem-navigation .problem-icon i');
-    icons.forEach((icon, index) => {
-        const problemNumber = index + 1;
-        icon.className = `bi ${problemNumber === selectedProblem ? `bi-${problemNumber}-circle-fill` : `bi-${problemNumber}-circle`}`;
-    });
-}
 
 // 문제 로드
 document.addEventListener('DOMContentLoaded', function() {
