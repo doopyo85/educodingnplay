@@ -72,6 +72,14 @@ app.use((req, res, next) => {
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1);
 
+app.use((req, res, next) => {
+  if (req.secure) {
+    next(); // HTTPS 요청일 경우 계속 진행
+  } else {
+    res.redirect('https://' + req.headers.host + req.url); // HTTP 요청일 경우 HTTPS로 리다이렉트
+  }
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -153,9 +161,9 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// 필요시 이 라우트를 삭제하거나, EJS 템플릿으로 전환
-app.get('/main', authenticateUser, (req, res) => {
-  res.render('index');  // EJS 템플릿 렌더링으로 변경 가능
+// 메인 라우트 (기존의 /main 라우트를 /로 통합)
+app.get('/', authenticateUser, (req, res) => {
+  res.render('index');  // 'views/index.ejs' 렌더링
 });
 
 // 사용자 정보 조회
@@ -168,21 +176,6 @@ app.get('/scratch', authenticateUser, (req, res) => {
   const token = req.cookies.token; // JWT 토큰을 쿠키에서 가져옵니다
   const scratchGuiUrl = `https://3.34.127.154:8601?token=${token}`;
   res.redirect(scratchGuiUrl);
-});
-
-// S3에서 파일 가져오기
-app.get('/test', async (req, res) => {
-  try {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: 'https://3.34.127.154/public/test.html'
-    };
-    const data = await s3.getObject(params).promise();
-    res.send(data.Body.toString('utf-8'));
-  } catch (error) {
-    console.error('Error fetching from S3:', error);
-    res.status(500).send('Error fetching page');
-  }
 });
 
 // 로그인 상태 확인 API
@@ -244,6 +237,11 @@ app.use('/public', authenticateUser);
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'resource')));
+
+// 나머지 경로는 템플릿 렌더링으로 처리
+app.get('*', authenticateUser, (req, res) => {
+  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
+});
 
 // Python 코드 실행
 app.post('/run-python', (req, res) => {
