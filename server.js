@@ -15,6 +15,10 @@ require('dotenv').config();
 
 const app = express();
 
+// EJS를 템플릿 엔진으로 설정
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));  // EJS 템플릿 파일들이 위치한 폴더 설정
+
 // JWT 비밀키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
@@ -118,19 +122,40 @@ app.use((req, res, next) => {
 // 메인 라우트
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
-    res.redirect('/public');
+    res.render('index');  // 'views/index.ejs'를 렌더링
   } else {
     res.redirect('/auth/login');
   }
 });
 
+// EJS 템플릿 렌더링
+app.get('/test', (req, res) => {
+  res.render('test');  // 'views/test.ejs' 렌더링
+});
+
+// S3에서 파일 가져오기
+app.get('/test-file', async (req, res) => {
+  try {
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: 'https://3.34.127.154/public/test.html'
+    };
+    const data = await s3.getObject(params).promise();
+    res.send(data.Body.toString('utf-8'));
+  } catch (error) {
+    console.error('Error fetching from S3:', error);
+    res.status(500).send('Error fetching page');
+  }
+});
+
+
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// 메인 페이지
+// 필요시 이 라우트를 삭제하거나, EJS 템플릿으로 전환
 app.get('/main', authenticateUser, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.render('index');  // EJS 템플릿 렌더링으로 변경 가능
 });
 
 // 사용자 정보 조회
