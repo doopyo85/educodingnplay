@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const userEmailElement = document.getElementById("userEmail");
+    const userNameElement = document.getElementById("userName");
     const logoutButtonElement = document.getElementById('logoutButton');
 
-    if (userEmailElement) {
+    if (userNameElement) {
         // 세션 정보를 가져오는 API 호출
         fetch('/get-user-session', {
             credentials: 'include'
@@ -10,20 +10,20 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.username) {
-                userEmailElement.innerText = data.username;
+                userNameElement.innerText = data.username;
             } else {
-                userEmailElement.innerText = "로그인 정보 미확인";
+                userNameElement.innerText = "로그인 정보 미확인";
             }
         })
         .catch(error => {
             console.error('Error fetching session data:', error);
-            userEmailElement.innerText = "로그인 정보 미확인";
+            userNameElement.innerText = "로그인 정보 미확인";
         });
     }
 
     if (logoutButtonElement) {
         logoutButtonElement.addEventListener('click', function () {
-            fetch('/auth/logout', {
+            fetch('/logout', {
                 method: 'GET',
                 credentials: 'include'
             })

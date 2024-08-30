@@ -193,7 +193,7 @@ app.use((err, req, res, next) => {
 // EJS 템플릿 렌더링 라우트 예시
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
-    res.render('index', { user: req.session.nickname });
+    res.render('index', { user: req.session.username });
   } else {
     res.redirect('/auth/login');
   }
@@ -239,7 +239,7 @@ app.get('/', authenticateUser, (req, res) => {
 
 // 사용자 정보 조회
 app.get('/get-user', authenticateUser, (req, res) => {
-  res.json({ email: req.session.nickname });
+  res.json({ email: req.session.username });
 });
 
 // Scratch 페이지 리디렉션
@@ -284,7 +284,7 @@ app.get('/get-user-session', authenticateUser, (req, res) => {
   if (req.user) {
     res.json({ username: req.user.username });
   } else if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.nickname });
+    res.json({ username: req.session.username });
   } else {
     res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
