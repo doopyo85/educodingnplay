@@ -1,12 +1,12 @@
-// 기본 URL 설정
-const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
-
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
         gapi.load('client', initClient);
     } else {
         console.error('Google API not loaded');
     }
+    
+    // 기본 URL 설정
+    const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
 
     const runCodeBtn = document.getElementById('runCodeBtn');
     const userNameElement = document.getElementById('userName');
@@ -228,50 +228,33 @@ function loadProblem(problemNumber, examName) {
     }
 }
 
-function renderProblemNavigation(numProblems, currentProblem, examName) {
+function renderProblemNavigation(numProblems, currentProblem) {
     const navContainer = document.getElementById('problem-navigation');
-    if (!navContainer) return;
-
-    navContainer.innerHTML = '';
+    navContainer.innerHTML = ''; // 기존 내용 초기화
 
     for (let i = 1; i <= numProblems; i++) {
         const problemBtn = document.createElement('span');
-        const iconName = `${i}-circle`;  // 기본 아이콘
-        const iconFillName = `${i}-circle-fill`;  // 활성화된 아이콘
-
-        const iconElement = document.createElement('i');
-        iconElement.classList.add('bi', (i === currentProblem) ? iconFillName : iconName);
-        problemBtn.appendChild(iconElement);
-
-        if (i === currentProblem) {
-            problemBtn.classList.add('active');
-        }
-
-        problemBtn.addEventListener('click', function () {
-            loadProblem(i, examName);
-            updateActiveButton(i);
+        problemBtn.classList.add('problem-icon');
+        
+        const icon = document.createElement('i');
+        icon.classList.add('bi', i === currentProblem ? `bi-${i}-circle-fill` : `bi-${i}-circle`);
+        
+        problemBtn.appendChild(icon);
+        
+        problemBtn.addEventListener('click', function() {
+            updateProblemNavigation(i);
+            // 여기에 문제 로드 로직 추가 (예: loadProblem(i))
         });
 
         navContainer.appendChild(problemBtn);
     }
 }
 
-function updateActiveButton(activeIndex) {
-    const buttons = document.querySelectorAll('#problem-navigation span');
-    buttons.forEach((btn, index) => {
-        const iconElement = btn.querySelector('i');
-        const iconName = `${index + 1}-circle`;
-        const iconFillName = `${index + 1}-circle-fill`;
-
-        if (index + 1 === activeIndex) {
-            btn.classList.add('active');
-            iconElement.classList.remove(iconName);
-            iconElement.classList.add(iconFillName);
-        } else {
-            btn.classList.remove('active');
-            iconElement.classList.remove(iconFillName);
-            iconElement.classList.add(iconName);
-        }
+function updateProblemNavigation(selectedProblem) {
+    const icons = document.querySelectorAll('#problem-navigation .problem-icon i');
+    icons.forEach((icon, index) => {
+        const problemNumber = index + 1;
+        icon.className = `bi ${problemNumber === selectedProblem ? `bi-${problemNumber}-circle-fill` : `bi-${problemNumber}-circle`}`;
     });
 }
 

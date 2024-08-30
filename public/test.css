@@ -59,18 +59,13 @@ body, html {
     margin-top: 5%; /* 네비게이션 위에 5% 여백 추가 */
 }
 
-.problem-navigation span {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    margin: 0 5px;
+.problem-icon {
     cursor: pointer;
+    font-size: 24px; /* 아이콘 크기 조절 */
 }
 
-.problem-navigation .active i {
-    color: #007bff; /* 활성화된 아이콘의 색상 */
+.problem-icon:hover {
+    opacity: 0.8;
 }
 
 
