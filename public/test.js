@@ -1,5 +1,5 @@
-// 기본 URL 설정
-const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
+// baseUrl 선언 제거 (이미 다른 곳에서 선언되어 있다면 이 줄을 주석 처리하거나 제거하세요)
+// const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
 
 let currentProblemNumber = 1;
 const totalProblems = 10;
@@ -116,6 +116,7 @@ function loadProblemData() {
         range: range,
     }).then((response) => {
         problemData = response.result.values;
+        console.log('Problem data loaded:', problemData);  // 디버깅을 위한 로그 추가
     }).catch(error => {
         console.error('Error loading problem data:', error);
     });
@@ -237,6 +238,7 @@ function applySubMenuHighlight(selectedItem) {
 function onMenuSelect(examName) {
     currentExamName = examName;
     currentProblemNumber = 1;
+    console.log('Selected exam:', currentExamName);  // 디버깅을 위한 로그 추가
     loadProblem(currentProblemNumber);
     renderProblemNavigation();
 }
@@ -288,10 +290,13 @@ function updateNavigationButtons() {
 }
 
 function loadProblem(problemNumber) {
+    console.log('Loading problem:', currentExamName, problemNumber);  // 디버깅을 위한 로그 추가
+    console.log('Problem data:', problemData);  // 디버깅을 위한 로그 추가
+    
     const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
     if (problemInfo) {
         const problemFileName = problemInfo[0];
-        const problemUrl = `${baseUrl}${problemFileName}`;
+        const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
         const iframe = document.getElementById('iframeContent');
 
         const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
@@ -304,6 +309,6 @@ function loadProblem(problemNumber) {
             iframe.src = problemUrl;
         }
     } else {
-        console.error('문제 정보를 찾을 수 없습니다.');
+        console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
     }
 }
