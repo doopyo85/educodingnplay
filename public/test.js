@@ -1,6 +1,3 @@
-// baseUrl 선언 제거 (이미 다른 곳에서 선언되어 있다면 이 줄을 주석 처리하거나 제거하세요)
-// const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
-
 let currentProblemNumber = 1;
 const totalProblems = 10;
 let currentExamName = '';
@@ -116,11 +113,12 @@ function loadProblemData() {
         range: range,
     }).then((response) => {
         problemData = response.result.values;
-        console.log('Problem data loaded:', problemData);  // 디버깅을 위한 로그 추가
+        console.log('Problem data loaded:', problemData);
     }).catch(error => {
         console.error('Error loading problem data:', error);
     });
 }
+
 
 function renderMenu(data) {
     const navList = document.getElementById('navList');
@@ -238,13 +236,15 @@ function applySubMenuHighlight(selectedItem) {
 function onMenuSelect(examName) {
     currentExamName = examName;
     currentProblemNumber = 1;
-    console.log('Selected exam:', currentExamName);  // 디버깅을 위한 로그 추가
+    console.log('Selected exam:', currentExamName);
     loadProblem(currentProblemNumber);
     renderProblemNavigation();
 }
 
 function renderProblemNavigation() {
     const navContainer = document.getElementById('problem-navigation');
+    if (!navContainer) return;
+
     navContainer.innerHTML = '';
 
     for (let i = 1; i <= totalProblems; i++) {
@@ -290,9 +290,14 @@ function updateNavigationButtons() {
 }
 
 function loadProblem(problemNumber) {
-    console.log('Loading problem:', currentExamName, problemNumber);  // 디버깅을 위한 로그 추가
-    console.log('Problem data:', problemData);  // 디버깅을 위한 로그 추가
+    console.log('Loading problem:', currentExamName, problemNumber);
+    console.log('Problem data:', problemData);
     
+    if (!problemData || problemData.length === 0) {
+        console.error('Problem data is not loaded yet');
+        return;
+    }
+
     const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
     if (problemInfo) {
         const problemFileName = problemInfo[0];
