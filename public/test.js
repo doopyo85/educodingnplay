@@ -1,6 +1,10 @@
-
 // 기본 URL 설정
 const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
+
+let currentProblemNumber = 1;
+const totalProblems = 10;
+let currentExamName = '';
+let problemData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
@@ -55,6 +59,25 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => console.error('Error:', error));
         });
     }
+
+    const prevButton = document.getElementById('prev-problem');
+    const nextButton = document.getElementById('next-problem');
+
+    if (prevButton) {
+        prevButton.addEventListener('click', function() {
+            if (currentProblemNumber > 1) {
+                navigateToProblem(currentProblemNumber - 1);
+            }
+        });
+    }
+
+    if (nextButton) {
+        nextButton.addEventListener('click', function() {
+            if (currentProblemNumber < totalProblems) {
+                navigateToProblem(currentProblemNumber + 1);
+            }
+        });
+    }
 });
 
 function initClient() {
@@ -68,15 +91,18 @@ function initClient() {
 
 function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = 'menulist!A2:C';
+    const range = '문항정보!A:C';
 
     gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: range,
     }).then((response) => {
-        const data = response.result.values;
-        if (data) {
-            renderMenu(data);
+        problemData = response.result.values;
+        if (problemData && problemData.length > 0) {
+            currentExamName = problemData[0][1].split('p')[0]; // 첫 번째 문제의 시험지명 추출
+            renderMenu(problemData);
+            renderProblemNavigation();
+            loadProblem(1);
         }
     }).catch(error => {
         console.error('Error loading menu data:', error);
@@ -92,9 +118,9 @@ function renderMenu(data) {
 
     const topLevelMenus = new Map();
     data.forEach(function(row) {
-        const topLevelMenu = row[0];
-        const subMenu = row[1];
-        const examName = row[2];
+        const topLevelMenu = row[0].split('_')[0]; // cospro
+        const subMenu = row[0].split('_')[1]; // 1-1, 1-2, etc.
+        const examName = row[1].split('p')[0]; // cospro_1-1, cospro_1-2, etc.
 
         if (!topLevelMenus.has(topLevelMenu)) {
             topLevelMenus.set(topLevelMenu, []);
@@ -146,7 +172,7 @@ function renderMenu(data) {
 
     // 초기 로드 시 첫 번째 메뉴 선택 및 문제 로드
     if (data.length > 0) {
-        const firstMenu = data[0][2];  // 첫 번째 시험지명
+        const firstMenu = data[0][1].split('p')[0];  // 첫 번째 시험지명
         onMenuSelect(firstMenu);
     }
 }
@@ -190,7 +216,6 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
-// applySubMenuHighlight 함수 추가
 function applySubMenuHighlight(selectedItem) {
     const allSubMenuItems = document.querySelectorAll('.sub-menu .menu-item');
     allSubMenuItems.forEach(item => item.classList.remove('active'));
@@ -198,15 +223,16 @@ function applySubMenuHighlight(selectedItem) {
 }
 
 function onMenuSelect(examName) {
-    loadProblem(1, examName);  // 1번 문항을 기본 로드
-    renderProblemNavigation(10, 1, examName);  // 10문항 네비게이션 생성
+    currentExamName = examName;
+    currentProblemNumber = 1;
+    loadProblem(currentProblemNumber);
+    renderProblemNavigation();
 }
 
-let currentProblemNumber = 1;
-const totalProblems = 10;
-
-function renderProblemNavigation(numProblems, currentProblem) {
+function renderProblemNavigation() {
     const navContainer = document.getElementById('problem-navigation');
+    if (!navContainer) return;
+
     navContainer.innerHTML = ''; // 기존 내용 초기화
 
     for (let i = 1; i <= totalProblems; i++) {
@@ -231,7 +257,7 @@ function renderProblemNavigation(numProblems, currentProblem) {
 function navigateToProblem(problemNumber) {
     currentProblemNumber = problemNumber;
     updateProblemNavigation();
-    loadProblem(currentProblemNumber, currentExamName); // currentExamName should be defined somewhere in your code
+    loadProblem(currentProblemNumber);
 }
 
 function updateProblemNavigation() {
@@ -247,57 +273,27 @@ function updateNavigationButtons() {
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
 
-    prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
-    nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
+    if (prevButton) prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
+    if (nextButton) nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
 }
 
-document.getElementById('prev-problem').addEventListener('click', function() {
-    if (currentProblemNumber > 1) {
-        navigateToProblem(currentProblemNumber - 1);
-    }
-});
+function loadProblem(problemNumber) {
+    const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
+    if (problemInfo) {
+        const problemFileName = problemInfo[0];
+        const problemUrl = `${baseUrl}${problemFileName}`;
+        const iframe = document.getElementById('iframeContent');
 
-document.getElementById('next-problem').addEventListener('click', function() {
-    if (currentProblemNumber < totalProblems) {
-        navigateToProblem(currentProblemNumber + 1);
-    }
-});
+        const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
+        const problemTitleElement = document.getElementById('problem-title');
+        if (problemTitleElement) {
+            problemTitleElement.textContent = problemTitle;
+        }
 
-
-// loadProblem 함수 수정 (기존 함수를 대체)
-function loadProblem(problemNumber, examName) {
-    const problemFileName = `${examName}_p${problemNumber.toString().padStart(2, '0')}.html`;
-    const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
-    const iframe = document.getElementById('iframeContent');
-
-    const problemTitle = `${examName} - 문제 ${problemNumber}`;
-    const problemTitleElement = document.getElementById('problem-title');
-    if (problemTitleElement) {
-        problemTitleElement.textContent = problemTitle;
-    }
-
-    if (iframe) {
-        fetch(problemUrl, { method: 'HEAD' })
-            .then(response => {
-                if (response.ok) {
-                    iframe.src = problemUrl;
-                } else {
-                    console.error('문제 URL을 찾을 수 없습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('문제 정보를 불러오는 중 오류 발생:', error);
-            });
+        if (iframe) {
+            iframe.src = problemUrl;
+        }
+    } else {
+        console.error('문제 정보를 찾을 수 없습니다.');
     }
 }
-
-
-// 문제 로드
-document.addEventListener('DOMContentLoaded', function() {
-    const examNameElement = document.getElementById('examName');
-    if (examNameElement) {
-        const initialExamName = examNameElement.textContent.trim();
-        loadProblem(1, initialExamName);
-        renderProblemNavigation(10, 1, initialExamName);
-    }
-});
