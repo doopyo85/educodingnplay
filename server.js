@@ -276,7 +276,6 @@ app.use('/public', authenticateUser);
 
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
-// 정적 파일 서빙을 위한 경로 설정
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path, stat) => {
     if (path.endsWith('.js')) {
@@ -289,9 +288,9 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 
 // 나머지 경로는 템플릿 렌더링으로 처리
-app.get('*', authenticateUser, (req, res) => {
-  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
-});
+//app.get('*', authenticateUser, (req, res) => {
+//  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
+//});
 
 // Python 코드 실행
 app.post('/run-python', (req, res) => {
