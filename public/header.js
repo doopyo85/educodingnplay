@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (logoutButtonElement) {
         logoutButtonElement.addEventListener('click', function () {
-            fetch('/logout', {
+            fetch('/auth/logout', {
                 method: 'GET',
                 credentials: 'include'
             })
