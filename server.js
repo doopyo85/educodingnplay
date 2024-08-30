@@ -127,19 +127,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// 메인 라우트
+// EJS 템플릿 렌더링 라우트 예시
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
-    res.render('index', { user: req.session.nickname });  // 필요한 데이터를 전달
+    res.render('index', { user: req.session.nickname });
   } else {
     res.redirect('/auth/login');
   }
 });
 
-// EJS 템플릿 렌더링
-app.get('/test', (req, res) => {
+app.get('/scratch', authenticateUser, (req, res) => {
+  res.render('scratch');  // 'views/scratch.ejs' 렌더링
+});
+
+app.get('/test', authenticateUser, (req, res) => {
   res.render('test');  // 'views/test.ejs' 렌더링
 });
+
 
 // S3에서 파일 가져오기
 app.get('/test-file', async (req, res) => {

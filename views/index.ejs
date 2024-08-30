@@ -5,16 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>콘텐츠 선택 페이지</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/public/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/styles.css"> <!-- 경로 수정 -->
+    <style>
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-img-box {
+            flex: 0 0 60%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px; /* 이미지 사방에 패딩 추가 */
+        }
+        .card-text-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
+        }
+        .card-img-top {
+            max-height: 80%; /* 이미지 크기 80%로 축소 */
+            max-width: 80%;  /* 이미지 크기 80%로 축소 */
+            object-fit: contain; /* 이미지 비율 유지하며 맞춤 */
+        }
+    </style>
 </head>
 <body>
-    <!-- 공통 헤더 포함 -->
+    <!-- 헤더 추가 -->
     <%- include('partials/header') %>
 
+    <div class="container mt-5">
+        <h1 class="text-center">나에게 맞는 학습 기회를 찾아보세요!</h1>
+        <p class="text-center">논리길을 끄는 비디오, 자기 주도형 튜토리얼, 프로그래밍 활동 등을 통해 컴퓨터 과학의 세계를 탐구해보세요!</p>
+        <div class="row">
+            <!-- 카드 1: 컴퓨터 기초활용 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='/computer_basic'"> <!-- 경로 수정 -->
+                    <div class="card-img-box">
+                        <img src="/resource/computer_basic.png" class="card-img-top" alt="컴퓨터 기초활용">
+                    </div>
+                    <div class="card-text-box">
+                        <h5 class="card-title">컴퓨터 기초활용</h5>
+                        <p class="card-text">컴퓨터 기초 지식을 배우고 실생활에서 활용하는 방법을 익혀보세요.</p>
+                        <a href="/computer_basic" class="btn btn-primary">컴퓨터 기초활용 학습</a> <!-- 경로 수정 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 카드 2: 스크래치 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='/scratch'"> <!-- 경로 수정 -->
+                    <div class="card-img-box">
+                        <img src="/resource/scratch.png" class="card-img-top" alt="스크래치">
+                    </div>
+                    <div class="card-text-box">
+                        <h5 class="card-title">스크래치</h5>
+                        <p class="card-text">스크래치를 사용하여 창의적이고 재미있는 프로젝트를 만들어보세요.</p>
+                        <a href="/scratch" class="btn btn-primary">스크래치 학습하기</a> <!-- 경로 수정 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 카드 3: 엔트리 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='/entry'"> <!-- 경로 수정 -->
+                    <div class="card-img-box">
+                        <img src="/resource/entry.png" class="card-img-top" alt="엔트리">
+                    </div>
+                    <div class="card-text-box">
+                        <h5 class="card-title">엔트리</h5>
+                        <p class="card-text">엔트리로 코딩을 시작하고 다양한 프로젝트를 경험해보세요.</p>
+                        <a href="/entry" class="btn btn-primary">엔트리 학습하기</a> <!-- 경로 수정 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 카드 4: 기출문제풀이 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='/test'"> <!-- 경로 수정 -->
+                    <div class="card-img-box">
+                        <img src="/resource/test.png" class="card-img-top" alt="기출문제풀이">
+                    </div>
+                    <div class="card-text-box">
+                        <h5 class="card-title">기출문제풀이</h5>
+                        <p class="card-text">기출문제를 통해 실력을 테스트하고 향상시켜보세요.</p>
+                        <a href="/test" class="btn btn-primary">기출문제 풀이하기</a> <!-- 경로 수정 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/header.js"></script>
+    <script src="/header.js"></script> <!-- 경로 수정 -->
 </body>
 </html>
