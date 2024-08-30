@@ -4,30 +4,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoutButtonElement = document.getElementById('logoutButton');
 
     if (userNameElement) {
-        // 세션 정보를 가져오는 API 호출
-        fetch('/get-user-session', { credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // JSON으로 파싱 시도
-            })
-            .then(data => {
-                if (data.username) {
-                    userNameElement.textContent = data.username;
-                } else {
-                    userNameElement.textContent = '로그인 정보 없음';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching session data:', error);
-                if (error instanceof SyntaxError) {
-                    console.error('Response is not valid JSON. Actual response:', error.message);
-                }
+        fetch('/get-user-session', { 
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.username) {
+                userNameElement.textContent = data.username;
+            } else {
                 userNameElement.textContent = '로그인 정보 없음';
-            });
-    } else {
-        console.error('User name element not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching session data:', error);
+            userNameElement.textContent = '로그인 정보 없음';
+        });
     }
 
     if (logoutButtonElement) {

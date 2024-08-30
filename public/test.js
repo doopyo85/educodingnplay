@@ -189,6 +189,13 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
+// applySubMenuHighlight 함수 추가
+function applySubMenuHighlight(selectedItem) {
+    const allSubMenuItems = document.querySelectorAll('.sub-menu .menu-item');
+    allSubMenuItems.forEach(item => item.classList.remove('active'));
+    selectedItem.classList.add('active');
+}
+
 function onMenuSelect(examName) {
     loadProblem(1, examName);  // 1번 문항을 기본 로드
     renderProblemNavigation(10, 1, examName);  // 10문항 네비게이션 생성

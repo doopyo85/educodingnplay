@@ -216,14 +216,12 @@ app.post('/login', (req, res) => {
   res.json({ success: true, username: user.username });
 });
 
-app.get('/get-user-session', authenticateUser, (req, res) => {
+app.get('/get-user-session', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  if (req.user) {
-    res.json({ username: req.user.username });
-  } else if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.username });
+  if (req.session && req.session.is_logined) {
+      res.json({ username: req.session.username });
   } else {
-    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
+      res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
 });
 
