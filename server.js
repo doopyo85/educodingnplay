@@ -130,7 +130,7 @@ app.use((req, res, next) => {
 // 메인 라우트
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
-    res.render('index');  // 'views/index.ejs'를 렌더링
+    res.render('index', { user: req.session.nickname });  // 필요한 데이터를 전달
   } else {
     res.redirect('/auth/login');
   }
