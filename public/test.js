@@ -1,3 +1,7 @@
+
+// 기본 URL 설정
+const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
+
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
         gapi.load('client', initClient);
@@ -5,9 +9,6 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('Google API not loaded');
     }
     
-    // 기본 URL 설정
-    const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
-
     const runCodeBtn = document.getElementById('runCodeBtn');
     const userNameElement = document.getElementById('userName');
 
