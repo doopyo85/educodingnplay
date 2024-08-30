@@ -2,27 +2,24 @@ const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
-const db = require('./lib_login/db'); // MySQL 연결 설정 파일
+const db = require('./lib_login/db');
 const jwt = require('jsonwebtoken');
 const AWS = require('aws-sdk');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
+const authRouter = require('./lib_login/auth');
 const { exec } = require('child_process');
 require('dotenv').config();
 const mime = require('mime-types');
 const app = express();
 
-// EJS를 템플릿 엔진으로 설정
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));  // EJS 템플릿 파일들이 위치한 폴더 설정
+app.set('views', path.join(__dirname, 'views'));
 
-// JWT 비밀키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-// google API 설정 정보 전달
 app.get('/config', (req, res) => {
   res.json({
       apiKey: process.env.GOOGLE_API_KEY,
@@ -31,7 +28,6 @@ app.get('/config', (req, res) => {
   });
 });
 
-// AWS S3 설정
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -40,14 +36,11 @@ const s3 = new AWS.S3({
 
 const BUCKET_NAME = 'educodingnplaycontents';
 
-// Redis 클라이언트 설정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 
-// 세션 스토어 설정
 const store = new RedisStore({ client: redisClient });
 
-// CORS 설정
 app.use(cors({
   origin: 'https://codingnplay.site',
   credentials: true,
@@ -55,7 +48,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Content Security Policy 헤더 설정
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
@@ -69,33 +61,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
 app.set('trust proxy', 1);
 
 app.use((req, res, next) => {
   if (req.secure) {
-    next(); // HTTPS 요청일 경우 계속 진행
+    next();
   } else {
-    res.redirect('https://' + req.headers.host + req.url); // HTTP 요청일 경우 HTTPS로 리다이렉트
+    res.redirect('https://' + req.headers.host + req.url);
   }
 });
 
-app.use((req, res, next) => {
-  if (req.path.endsWith('.js')) {
-    res.type('application/javascript');
-  }
-  next();
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
-
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// 세션 설정
 app.use(session({
   store: store,
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
@@ -106,12 +85,11 @@ app.use(session({
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    domain: '.codingnplay.site', // 도메인 설정 확인
+    domain: '.codingnplay.site',
     maxAge: 60 * 60 * 1000
   }
 }));
 
-// JWT 및 세션 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -130,22 +108,14 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-// auth 라우터 설정
 app.use('/auth', authRouter);
 
-// 세션 생성 확인 로그
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
   console.log('쿠키 정보:', req.headers.cookie);
   next();
 });
 
-
-// 보호된 경로에 통합된 인증 미들웨어 적용
-app.use('/public', authenticateUser);
-
-// 정적 파일 서빙을 위한 경로 설정
-app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
@@ -153,12 +123,6 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
 }));
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 
-// 나머지 경로는 템플릿 렌더링으로 처리
-//app.get('*', authenticateUser, (req, res) => {
-//  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
-//});
-
-// MIME타입 문제해결을 위한 미들웨어 추가
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
   switch (ext) {
@@ -185,13 +149,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 에러 처리 미들웨어 추가
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
-
-// EJS 템플릿 렌더링 라우트 예시
 app.get('/', (req, res) => {
   if (req.session.is_logined) {
     res.render('index', { user: req.session.username });
@@ -201,61 +158,38 @@ app.get('/', (req, res) => {
 });
 
 app.get('/scratch', authenticateUser, (req, res) => {
-  res.render('scratch');  // 'views/scratch.ejs' 렌더링
+  res.render('scratch');
 });
 
 app.get('/computer_basic', authenticateUser, (req, res) => {
-  res.render('computer_basic');  // 'views/computer_basic.ejs' 렌더링
+  res.render('computer_basic');
 });
 
 app.get('/entry', authenticateUser, (req, res) => {
-  res.render('entry');  // 'views/entry.ejs' 렌더링
+  res.render('entry');
 });
 
-app.get('*', authenticateUser, (req, res) => {
-  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
+app.get('/test', authenticateUser, (req, res) => {
+  res.render('test');
 });
-
-
-// S3에서 파일 가져오기
-app.get('/test-file', async (req, res) => {
-  try {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: 'https://3.34.127.154/public/test.html'
-    };
-    const data = await s3.getObject(params).promise();
-    res.send(data.Body.toString('utf-8'));
-  } catch (error) {
-    console.error('Error fetching from S3:', error);
-    res.status(500).send('Error fetching page');
-  }
-});
-
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// 메인 라우트 (기존의 /main 라우트를 /로 통합)
-app.get('/', authenticateUser, (req, res) => {
-  res.render('index');  // 'views/index.ejs' 렌더링
-});
-
-// 사용자 정보 조회
 app.get('/get-user', authenticateUser, (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   res.json({ username: req.session.username });
 });
 
-// Scratch 페이지 리디렉션
 app.get('/scratch-gui', authenticateUser, (req, res) => {
-  const token = req.cookies.token; // JWT 토큰을 쿠키에서 가져옵니다
+  const token = req.cookies.token;
   const scratchGuiUrl = `https://3.34.127.154:8601?token=${token}`;
   res.redirect(scratchGuiUrl);
 });
 
-// 로그인 상태 확인 API
 app.get('/api/check-login', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   if (req.session && req.session.is_logined) {
     res.json({ loggedIn: true });
   } else {
@@ -263,14 +197,11 @@ app.get('/api/check-login', (req, res) => {
   }
 });
 
-// 로그인 처리 API
 app.post('/login', (req, res) => {
-  // TODO: 실제 사용자 인증 로직을 구현해야 합니다.
-  // 예: 데이터베이스에서 사용자 정보 확인
   const user = { id: 'user-id', username: 'user-name' };
   
   req.session.is_logined = true;
-  req.session.nickname = user.username;
+  req.session.username = user.username;
 
   const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
   res.cookie('token', token, {
@@ -278,14 +209,15 @@ app.post('/login', (req, res) => {
     secure: true,
     sameSite: 'none',
     domain: '.codingnplay.site',
-    maxAge: 3600000 // 1시간
+    maxAge: 3600000
   });
 
+  res.setHeader('Content-Type', 'application/json');
   res.json({ success: true, username: user.username });
 });
 
-// 유저세션전달 라우트
 app.get('/get-user-session', authenticateUser, (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   if (req.user) {
     res.json({ username: req.user.username });
   } else if (req.session && req.session.is_logined) {
@@ -295,8 +227,6 @@ app.get('/get-user-session', authenticateUser, (req, res) => {
   }
 });
 
-
-// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -307,7 +237,6 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Python 코드 실행
 app.post('/run-python', (req, res) => {
   const { code } = req.body;
 
@@ -321,6 +250,11 @@ app.post('/run-python', (req, res) => {
     }
     res.json({ output: stdout });
   });
+});
+
+// 이 라우트를 마지막에 배치
+app.get('*', authenticateUser, (req, res) => {
+  res.render('index');
 });
 
 const DEFAULT_PORT = 3000;
