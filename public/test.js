@@ -1,5 +1,5 @@
 // 기본 URL 설정
-//const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
+const baseUrl = 'https://educodingnplaycontents.s3.amazonaws.com/';
 
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof gapi !== 'undefined') {
