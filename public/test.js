@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => console.error('Error:', error));
         });
     }
-
+    
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
 
@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+
 function initClient() {
     gapi.client.init({
         apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',  // 실제 API 키로 교체
@@ -91,18 +92,15 @@ function initClient() {
 
 function loadMenuData() {
     const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = '문항정보!A:C';
+    const range = 'menulist!A2:C';
 
     gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: range,
     }).then((response) => {
-        problemData = response.result.values;
-        if (problemData && problemData.length > 0) {
-            currentExamName = problemData[0][1].split('p')[0]; // 첫 번째 문제의 시험지명 추출
-            renderMenu(problemData);
-            renderProblemNavigation();
-            loadProblem(1);
+        const data = response.result.values;
+        if (data) {
+            renderMenu(data);
         }
     }).catch(error => {
         console.error('Error loading menu data:', error);
@@ -118,9 +116,9 @@ function renderMenu(data) {
 
     const topLevelMenus = new Map();
     data.forEach(function(row) {
-        const topLevelMenu = row[0].split('_')[0]; // cospro
-        const subMenu = row[0].split('_')[1]; // 1-1, 1-2, etc.
-        const examName = row[1].split('p')[0]; // cospro_1-1, cospro_1-2, etc.
+        const topLevelMenu = row[0];
+        const subMenu = row[1];
+        const examName = row[2];
 
         if (!topLevelMenus.has(topLevelMenu)) {
             topLevelMenus.set(topLevelMenu, []);
@@ -172,7 +170,7 @@ function renderMenu(data) {
 
     // 초기 로드 시 첫 번째 메뉴 선택 및 문제 로드
     if (data.length > 0) {
-        const firstMenu = data[0][1].split('p')[0];  // 첫 번째 시험지명
+        const firstMenu = data[0][2];  // 첫 번째 시험지명
         onMenuSelect(firstMenu);
     }
 }
@@ -216,6 +214,7 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
+// applySubMenuHighlight 함수 추가
 function applySubMenuHighlight(selectedItem) {
     const allSubMenuItems = document.querySelectorAll('.sub-menu .menu-item');
     allSubMenuItems.forEach(item => item.classList.remove('active'));
@@ -223,16 +222,13 @@ function applySubMenuHighlight(selectedItem) {
 }
 
 function onMenuSelect(examName) {
-    currentExamName = examName;
-    currentProblemNumber = 1;
-    loadProblem(currentProblemNumber);
-    renderProblemNavigation();
+    loadProblem(1, examName);  // 1번 문항을 기본 로드
+    renderProblemNavigation(10, 1, examName);  // 10문항 네비게이션 생성
 }
 
-function renderProblemNavigation() {
-    const navContainer = document.getElementById('problem-navigation');
-    if (!navContainer) return;
 
+function renderProblemNavigation(numProblems, currentProblem) {
+    const navContainer = document.getElementById('problem-navigation');
     navContainer.innerHTML = ''; // 기존 내용 초기화
 
     for (let i = 1; i <= totalProblems; i++) {
@@ -257,7 +253,7 @@ function renderProblemNavigation() {
 function navigateToProblem(problemNumber) {
     currentProblemNumber = problemNumber;
     updateProblemNavigation();
-    loadProblem(currentProblemNumber);
+    loadProblem(currentProblemNumber, currentExamName); // currentExamName should be defined somewhere in your code
 }
 
 function updateProblemNavigation() {
@@ -276,6 +272,8 @@ function updateNavigationButtons() {
     if (prevButton) prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
     if (nextButton) nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
 }
+
+
 
 function loadProblem(problemNumber) {
     const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
