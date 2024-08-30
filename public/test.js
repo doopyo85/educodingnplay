@@ -80,13 +80,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-
 function initClient() {
     gapi.client.init({
-        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',  // 실제 API 키로 교체
+        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
         loadMenuData();
+        loadProblemData();
     }).catch(error => console.error('Error initializing Google API client', error));
 }
 
@@ -104,6 +104,20 @@ function loadMenuData() {
         }
     }).catch(error => {
         console.error('Error loading menu data:', error);
+    });
+}
+
+function loadProblemData() {
+    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
+    const range = '문항정보!A:C';
+
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: range,
+    }).then((response) => {
+        problemData = response.result.values;
+    }).catch(error => {
+        console.error('Error loading problem data:', error);
     });
 }
 
@@ -214,7 +228,6 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
-// applySubMenuHighlight 함수 추가
 function applySubMenuHighlight(selectedItem) {
     const allSubMenuItems = document.querySelectorAll('.sub-menu .menu-item');
     allSubMenuItems.forEach(item => item.classList.remove('active'));
@@ -222,14 +235,15 @@ function applySubMenuHighlight(selectedItem) {
 }
 
 function onMenuSelect(examName) {
-    loadProblem(1, examName);  // 1번 문항을 기본 로드
-    renderProblemNavigation(10, 1, examName);  // 10문항 네비게이션 생성
+    currentExamName = examName;
+    currentProblemNumber = 1;
+    loadProblem(currentProblemNumber);
+    renderProblemNavigation();
 }
 
-
-function renderProblemNavigation(numProblems, currentProblem) {
+function renderProblemNavigation() {
     const navContainer = document.getElementById('problem-navigation');
-    navContainer.innerHTML = ''; // 기존 내용 초기화
+    navContainer.innerHTML = '';
 
     for (let i = 1; i <= totalProblems; i++) {
         const problemBtn = document.createElement('span');
@@ -253,7 +267,7 @@ function renderProblemNavigation(numProblems, currentProblem) {
 function navigateToProblem(problemNumber) {
     currentProblemNumber = problemNumber;
     updateProblemNavigation();
-    loadProblem(currentProblemNumber, currentExamName); // currentExamName should be defined somewhere in your code
+    loadProblem(currentProblemNumber);
 }
 
 function updateProblemNavigation() {
@@ -272,8 +286,6 @@ function updateNavigationButtons() {
     if (prevButton) prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
     if (nextButton) nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
 }
-
-
 
 function loadProblem(problemNumber) {
     const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
