@@ -61,12 +61,12 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com; " +
     "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;"
   );
-  return next();
+  next();
 });
 
 // Proxy 설정: ALB를 통해 전달된 헤더를 신뢰
@@ -137,6 +137,26 @@ app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
   console.log('쿠키 정보:', req.headers.cookie);
   next();
+});
+
+// MIME타입 문제해결을 위한 미들웨어 추가
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js')) {
+    res.type('application/javascript');
+  } else if (req.path.endsWith('.css')) {
+    res.type('text/css');
+  } else if (req.path.endsWith('.png')) {
+    res.type('image/png');
+  } else if (req.path.endsWith('.ico')) {
+    res.type('image/x-icon');
+  }
+  next();
+});
+
+// 에러 처리 미들웨어 추가
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 // EJS 템플릿 렌더링 라우트 예시
@@ -256,7 +276,15 @@ app.use('/public', authenticateUser);
 
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path, stat) => {
+    if (path.endsWith('.js')) {
+      res.set('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.set('Content-Type', 'text/css');
+    }
+  }
+}));
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 
 // 나머지 경로는 템플릿 렌더링으로 처리
