@@ -203,8 +203,12 @@ app.get('/scratch', authenticateUser, (req, res) => {
   res.render('scratch');  // 'views/scratch.ejs' 렌더링
 });
 
-app.get('/test', authenticateUser, (req, res) => {
-  res.render('test');  // 'views/test.ejs' 렌더링
+app.get('/computer_basic', authenticateUser, (req, res) => {
+  res.render('computer_basic');  // 'views/computer_basic.ejs' 렌더링
+});
+
+app.get('/entry', authenticateUser, (req, res) => {
+  res.render('entry');  // 'views/entry.ejs' 렌더링
 });
 
 app.get('*', authenticateUser, (req, res) => {
