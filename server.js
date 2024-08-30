@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // authRouter를 가져오는 코드 추가
 const { exec } = require('child_process');
 require('dotenv').config();
-
+const mime = require('mime-types');
 const app = express();
 
 // EJS를 템플릿 엔진으로 설정
@@ -139,16 +139,47 @@ app.use((req, res, next) => {
   next();
 });
 
+
+// 보호된 경로에 통합된 인증 미들웨어 적용
+app.use('/public', authenticateUser);
+
+// 정적 파일 서빙을 위한 경로 설정
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+app.use('/public', express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
+  }
+}));
+app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
+
+// 나머지 경로는 템플릿 렌더링으로 처리
+//app.get('*', authenticateUser, (req, res) => {
+//  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
+//});
+
 // MIME타입 문제해결을 위한 미들웨어 추가
 app.use((req, res, next) => {
-  if (req.path.endsWith('.js')) {
-    res.type('application/javascript');
-  } else if (req.path.endsWith('.css')) {
-    res.type('text/css');
-  } else if (req.path.endsWith('.png')) {
-    res.type('image/png');
-  } else if (req.path.endsWith('.ico')) {
-    res.type('image/x-icon');
+  const ext = path.extname(req.url).toLowerCase();
+  switch (ext) {
+    case '.js':
+      res.type('application/javascript');
+      break;
+    case '.css':
+      res.type('text/css');
+      break;
+    case '.json':
+      res.type('application/json');
+      break;
+    case '.png':
+      res.type('image/png');
+      break;
+    case '.jpg':
+    case '.jpeg':
+      res.type('image/jpeg');
+      break;
+    case '.wav':
+      res.type('audio/wav');
+      break;
   }
   next();
 });
@@ -270,27 +301,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/auth/login');
   });
 });
-
-// 보호된 경로에 통합된 인증 미들웨어 적용
-app.use('/public', authenticateUser);
-
-// 정적 파일 서빙을 위한 경로 설정
-app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
-app.use('/public', express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path, stat) => {
-    if (path.endsWith('.js')) {
-      res.set('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
-      res.set('Content-Type', 'text/css');
-    }
-  }
-}));
-app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
-
-// 나머지 경로는 템플릿 렌더링으로 처리
-//app.get('*', authenticateUser, (req, res) => {
-//  res.render('index');  // 모든 다른 경로는 'views/index.ejs'로 렌더링
-//});
 
 // Python 코드 실행
 app.post('/run-python', (req, res) => {
