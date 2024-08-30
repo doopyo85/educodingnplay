@@ -80,6 +80,18 @@ app.use((req, res, next) => {
   }
 });
 
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js')) {
+    res.type('application/javascript');
+  }
+  next();
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
