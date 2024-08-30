@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (userNameElement) {
         // 세션 정보를 가져오는 API 호출
-        fetch('/get-user-session')
+        fetch('/get-user-session', { credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -14,18 +14,20 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 if (data.username) {
-                    if (userNameElement) {
-                        userNameElement.textContent = data.username;
-                    }
+                    userNameElement.textContent = data.username;
                 } else {
-                    if (userNameElement) {
-                        userNameElement.textContent = '로그인 정보 없음';
-                    }
+                    userNameElement.textContent = '로그인 정보 없음';
                 }
             })
             .catch(error => {
                 console.error('Error fetching session data:', error);
+                if (error instanceof SyntaxError) {
+                    console.error('Response is not valid JSON. Actual response:', error.message);
+                }
+                userNameElement.textContent = '로그인 정보 없음';
             });
+    } else {
+        console.error('User name element not found');
     }
 
     if (logoutButtonElement) {
@@ -34,6 +36,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: 'GET',
                 credentials: 'include'
             })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Logout failed');
+                }
+                return response.text();
+            })
             .then(() => {
                 window.location.href = '/auth/login';
             })
@@ -41,5 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error('Error during logout:', error);
             });
         });
+    } else {
+        console.error('Logout button not found');
     }
 });

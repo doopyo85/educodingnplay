@@ -8,42 +8,52 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('Google API not loaded');
     }
 
-    // 세션 유지
-    fetch('/get-user', { credentials: 'include' })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        document.getElementById("userName").innerText = data.email || "로그인 정보 미확인";
-    })
-    .catch(error => {
-        console.error('Error fetching user data:', error);
-        document.getElementById("userName").innerText = "로그인 정보 미확인";
-    });
-    
-    document.getElementById('runCodeBtn').addEventListener('click', function() {
-        const code = document.getElementById('ide').value;
+    const runCodeBtn = document.getElementById('runCodeBtn');
+    const userNameElement = document.getElementById('userName');
 
-        fetch('/run-python', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById('output').innerText = `Error: ${data.error}`;
-            } else {
-                document.getElementById('output').innerText = data.output;
+    // 세션 유지
+    if (userNameElement) {
+        fetch('/get-user', { credentials: 'include' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            return response.json();
         })
-        .catch(error => console.error('Error:', error));
-    });
+        .then(data => {
+            userNameElement.innerText = data.username || "로그인 정보 미확인";
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+            userNameElement.innerText = "로그인 정보 미확인";
+        });
+    }
+    
+    if (runCodeBtn) {
+        runCodeBtn.addEventListener('click', function() {
+            const code = document.getElementById('ide').value;
+
+            fetch('/run-python', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const outputElement = document.getElementById('output');
+                if (outputElement) {
+                    if (data.error) {
+                        outputElement.innerText = `Error: ${data.error}`;
+                    } else {
+                        outputElement.innerText = data.output;
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
 });
 
 function initClient() {
@@ -74,6 +84,10 @@ function loadMenuData() {
 
 function renderMenu(data) {
     const navList = document.getElementById('navList');
+    if (!navList) {
+        console.error('Navigation list element not found');
+        return;
+    }
 
     const topLevelMenus = new Map();
     data.forEach(function(row) {
@@ -187,24 +201,30 @@ function loadProblem(problemNumber, examName) {
 
     // 문제 타이틀 설정
     const problemTitle = `${examName} - 문제 ${problemNumber}`;
-    document.getElementById('problem-title').textContent = problemTitle;
+    const problemTitleElement = document.getElementById('problem-title');
+    if (problemTitleElement) {
+        problemTitleElement.textContent = problemTitle;
+    }
 
-    fetch(problemUrl, { method: 'HEAD' })
-        .then(response => {
-            if (response.ok) {
-                iframe.src = problemUrl;
-            } else {
-                console.error('문제 URL을 찾을 수 없습니다.');
-            }
-        })
-        .catch(error => {
-            console.error('문제 정보를 불러오는 중 오류 발생:', error);
-        });
+    if (iframe) {
+        fetch(problemUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    iframe.src = problemUrl;
+                } else {
+                    console.error('문제 URL을 찾을 수 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('문제 정보를 불러오는 중 오류 발생:', error);
+            });
+    }
 }
-
 
 function renderProblemNavigation(numProblems, currentProblem, examName) {
     const navContainer = document.getElementById('problem-navigation');
+    if (!navContainer) return;
+
     navContainer.innerHTML = '';
 
     for (let i = 1; i <= numProblems; i++) {
@@ -248,12 +268,12 @@ function updateActiveButton(activeIndex) {
     });
 }
 
-
-
-// 문항 정보를 별도로 관리하는 부분은 중복되어 제거했습니다.
-
+// 문제 로드
 document.addEventListener('DOMContentLoaded', function() {
-    const initialExamName = document.getElementById('examName').textContent.trim();
-    loadProblem(1, initialExamName);
-    renderProblemNavigation(10, 1, initialExamName);
+    const examNameElement = document.getElementById('examName');
+    if (examNameElement) {
+        const initialExamName = examNameElement.textContent.trim();
+        loadProblem(1, initialExamName);
+        renderProblemNavigation(10, 1, initialExamName);
+    }
 });
