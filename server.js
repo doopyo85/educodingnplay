@@ -276,6 +276,7 @@ app.use('/public', authenticateUser);
 
 // 정적 파일 서빙을 위한 경로 설정
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+// 정적 파일 서빙을 위한 경로 설정
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path, stat) => {
     if (path.endsWith('.js')) {
