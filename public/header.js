@@ -1,9 +1,9 @@
+// header.js
 document.addEventListener("DOMContentLoaded", function () {
     const userNameElement = document.getElementById("userName");
-    const userEmailElement = document.getElementById("userEmail");
     const logoutButtonElement = document.getElementById('logoutButton');
 
-    if (userNameElement || userEmailElement) {
+    if (userNameElement) {
         // 세션 정보를 가져오는 API 호출
         fetch('/get-user-session')
             .then(response => {
@@ -14,16 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 if (data.username) {
-                    if (userEmailElement) {
-                        userEmailElement.textContent = data.username;
-                    }
                     if (userNameElement) {
                         userNameElement.textContent = data.username;
                     }
                 } else {
-                    if (userEmailElement) {
-                        userEmailElement.textContent = '로그인 정보 없음';
-                    }
                     if (userNameElement) {
                         userNameElement.textContent = '로그인 정보 없음';
                     }

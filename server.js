@@ -106,6 +106,7 @@ app.use(session({
     secure: true,
     httpOnly: true,
     sameSite: 'none',
+    domain: '.codingnplay.site', // 도메인 설정 확인
     maxAge: 60 * 60 * 1000
   }
 }));
@@ -243,7 +244,7 @@ app.get('/', authenticateUser, (req, res) => {
 
 // 사용자 정보 조회
 app.get('/get-user', authenticateUser, (req, res) => {
-  res.json({ email: req.session.username });
+  res.json({ username: req.session.username });
 });
 
 // Scratch 페이지 리디렉션

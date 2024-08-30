@@ -17,11 +17,11 @@ document.addEventListener("DOMContentLoaded", function() {
         return response.json();
     })
     .then(data => {
-        document.getElementById("userEmail").innerText = data.email || "로그인 정보 미확인";
+        document.getElementById("userName").innerText = data.email || "로그인 정보 미확인";
     })
     .catch(error => {
         console.error('Error fetching user data:', error);
-        document.getElementById("userEmail").innerText = "로그인 정보 미확인";
+        document.getElementById("userName").innerText = "로그인 정보 미확인";
     });
     
     document.getElementById('runCodeBtn').addEventListener('click', function() {
