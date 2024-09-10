@@ -23,7 +23,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 app.get('/config', (req, res) => {
   res.json({
       apiKey: process.env.GOOGLE_API_KEY,
-      discoveryDocs: [process.env.DISCOVERY_DOCS],
+      discoveryDocs: process.env.DISCOVERY_DOCS,
       spreadsheetId: process.env.SPREADSHEET_ID,
   });
 });
@@ -175,7 +175,8 @@ app.get('/test', authenticateUser, (req, res) => {
   res.render('test', { 
     user: req.session.username,
     googleApiKey: process.env.GOOGLE_API_KEY,
-    spreadsheetId: process.env.SPREADSHEET_ID
+    spreadsheetId: process.env.SPREADSHEET_ID,  // 여기에 쉼표 추가
+    discoveryDocs: process.env.DISCOVERY_DOCS
   });
 });
 
