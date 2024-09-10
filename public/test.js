@@ -316,6 +316,27 @@ function updateNavigationButtons() {
     if (nextButton) nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
 }
 
+function resizeIframe(iframe) {
+    if (!iframe) return;
+
+    const container = document.getElementById('problem-container');
+    const containerHeight = container.clientHeight;
+    
+    // iframe 내부 문서의 높이를 가져옵니다
+    const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
+    let iframeHeight = iframeContent.body.scrollHeight;
+    
+    // 20% 추가 여백을 계산합니다
+    const extraSpace = Math.max(containerHeight * 0.2, 100); // 최소 100px의 여백
+    
+    // 최종 높이를 계산합니다 (원래 높이 + 추가 여백)
+    const finalHeight = iframeHeight + extraSpace;
+    
+    // iframe의 높이를 설정합니다
+    iframe.style.height = finalHeight + 'px';
+}
+
+
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
     console.log('Problem data:', problemData);
@@ -338,6 +359,9 @@ function loadProblem(problemNumber) {
         const iframe = document.getElementById('iframeContent');
         if (iframe) {
             iframe.src = problemUrl;
+            iframe.onload = function() {
+                resizeIframe(iframe);
+            };
             console.log('iframe src set to:', problemUrl);
         } else {
             console.error('iframe element not found');
@@ -355,3 +379,11 @@ function loadProblem(problemNumber) {
         console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
     }
 }
+
+// 창 크기가 변경될 때마다 iframe 크기를 조정합니다
+window.addEventListener('resize', function() {
+    const iframe = document.getElementById('iframeContent');
+    if (iframe) {
+        resizeIframe(iframe);
+    }
+});
