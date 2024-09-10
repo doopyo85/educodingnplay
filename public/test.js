@@ -277,15 +277,16 @@ function renderProblemNavigation() {
     navContainer.innerHTML = '';
 
     for (let i = 1; i <= totalProblems; i++) {
-        const problemBtn = document.createElement('span');
+        const problemBtn = document.createElement('div');
         problemBtn.classList.add('problem-icon');
+        if (i === currentProblemNumber) {
+            problemBtn.classList.add('active');
+        }
+        problemBtn.textContent = i;
         
-        const icon = document.createElement('i');
-        icon.classList.add('bi', i === currentProblemNumber ? `bi-${i === 10 ? 0 : i}-circle-fill` : `bi-${i === 10 ? 0 : i}-circle`);
-        
-        problemBtn.appendChild(icon);
-        
-        problemBtn.addEventListener('click', () => navigateToProblem(i));
+        problemBtn.addEventListener('click', function() {
+            navigateToProblem(i);
+        });
 
         navContainer.appendChild(problemBtn);
     }
@@ -326,8 +327,8 @@ function resizeIframe(iframe) {
     const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
     let iframeHeight = iframeContent.body.scrollHeight;
     
-    // 20% 추가 여백을 계산합니다
-    const extraSpace = Math.max(containerHeight * 0.2, 100); // 최소 100px의 여백
+    // 20% 추가 여백을 계산합니다 (최소 50px, 최대 200px)
+    const extraSpace = Math.min(Math.max(containerHeight * 0.2, 50), 200);
     
     // 최종 높이를 계산합니다 (원래 높이 + 추가 여백)
     const finalHeight = iframeHeight + extraSpace;
