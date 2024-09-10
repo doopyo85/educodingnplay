@@ -1,7 +1,7 @@
-let currentProblemNumber = 1;
+var currentProblemNumber = 1;
 const totalProblems = 10;
-let currentExamName = '';
-let problemData = [];
+var currentExamName = '';
+var problemData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     
@@ -133,7 +133,10 @@ function loadProblemData(spreadsheetId) {
         console.log('Problem data loaded:', problemData);
         
         if (problemData && problemData.length > 0) {
+            console.log('First problem:', problemData[0]);
             loadProblem(currentProblemNumber);
+        } else {
+            console.error('No problem data loaded');
         }
     }).catch(error => {
         console.error('Error loading problem data:', error);
