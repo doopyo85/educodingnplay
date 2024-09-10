@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
     <script defer src="/public/test.js"></script>
+
+    <!-- 필요한 hidden input 요소 추가 -->
+    <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
+    <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
+    <input type="hidden" id="discoveryDocs" value="<%= process.env.DISCOVERY_DOCS %>">
+
+
 </head>
+
 
 <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container-fluid">
@@ -34,6 +42,8 @@
         </div>
     </div>
 </header>
+
+
 
 <!-- header.js 스크립트 로드 -->
 <script defer src="/public/header.js"></script>

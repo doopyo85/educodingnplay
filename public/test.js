@@ -9,10 +9,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const googleApiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
     
-    if (typeof gapi !== 'undefined') {
-        gapi.load('client', initClient);
+    if (googleApiKey && spreadsheetId) {
+        if (typeof gapi !== 'undefined') {
+            gapi.load('client', initClient);
+        } else {
+            console.error('Google API not loaded');
+        }
     } else {
-        console.error('Google API not loaded');
+        console.error('Required elements not found');
     }
     
     setupEventListeners();
@@ -87,13 +91,13 @@ function runCode() {
 
 function initClient() {
     gapi.client.init({
-      apiKey: googleApiKey,
-      discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+        apiKey: document.getElementById('googleApiKey').value,
+        discoveryDocs: [document.getElementById('discoveryDocs').value],
     }).then(() => {
-      loadMenuData();
-      loadProblemData();
+        loadMenuData();
+        loadProblemData();
     }).catch(error => console.error('Error initializing Google API client', error));
-  }
+}
   
 function loadMenuData() {
     gapi.client.sheets.spreadsheets.values.get({

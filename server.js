@@ -223,11 +223,10 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/get-user-session', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
   if (req.session && req.session.is_logined) {
-      res.json({ username: req.session.username });
+    res.json({ username: req.session.nickname });  // nickname을 username으로 전송
   } else {
-      res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
+    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
 });
 

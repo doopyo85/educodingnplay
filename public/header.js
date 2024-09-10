@@ -12,12 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .then(response => {
+            console.log('Response status:', response.status);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
+            console.log('Received data:', data);
             if (data.username) {
                 userNameElement.textContent = data.username;
             } else {
@@ -28,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error('Error fetching session data:', error);
             userNameElement.textContent = '로그인 정보 없음';
         });
+    } else {
+        console.error('User name element not found');
     }
 
     if (logoutButtonElement) {
