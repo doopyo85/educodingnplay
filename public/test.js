@@ -46,11 +46,16 @@ function setupEventListeners() {
     fetchUserData();
 }
 
-fetchUserData() {
+function fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
         fetch('/get-user', { credentials: 'include' })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 userNameElement.innerText = data.username || "로그인 정보 미확인";
             })
