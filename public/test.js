@@ -254,8 +254,13 @@ function onMenuSelect(examName) {
     currentExamName = examName;
     currentProblemNumber = 1;
     console.log('Selected exam:', currentExamName);
-    loadProblem(currentProblemNumber);
-    renderProblemNavigation();
+    
+    if (problemData && problemData.length > 0) {
+        loadProblem(currentProblemNumber);
+        renderProblemNavigation();
+    } else {
+        console.error('Problem data not loaded yet. Cannot load problem.');
+    }
 }
 
 function renderProblemNavigation() {
