@@ -4,6 +4,11 @@ let currentExamName = '';
 let problemData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
+    
+    // Google API 키와 스프레드시트 ID를 서버에서 전달받아 사용
+    const googleApiKey = document.getElementById('googleApiKey').value;
+    const spreadsheetId = document.getElementById('spreadsheetId').value;
+    
     if (typeof gapi !== 'undefined') {
         gapi.load('client', initClient);
     } else {
@@ -41,16 +46,11 @@ function setupEventListeners() {
     fetchUserData();
 }
 
-function fetchUserData() {
+fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
         fetch('/get-user', { credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 userNameElement.innerText = data.username || "로그인 정보 미확인";
             })
@@ -82,47 +82,43 @@ function runCode() {
 
 function initClient() {
     gapi.client.init({
-        apiKey: 'AIzaSyAZqp7wFA6uQtlyalJMayyNffqhj1rVgLk',
-        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+      apiKey: googleApiKey,
+      discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
-        loadMenuData();
-        loadProblemData();
+      loadMenuData();
+      loadProblemData();
     }).catch(error => console.error('Error initializing Google API client', error));
-}
-
+  }
+  
 function loadMenuData() {
-    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = 'menulist!A2:C';
-
     gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: range,
+      spreadsheetId: spreadsheetId,
+      range: 'menulist!A2:C',
     }).then((response) => {
-        const data = response.result.values;
-        if (data) {
-            renderMenu(data);
-        }
+      const data = response.result.values;
+      if (data) {
+        renderMenu(data);
+      }
     }).catch(error => {
-        console.error('Error loading menu data:', error);
+      console.error('Error loading menu data:', error);
     });
 }
 
 function loadProblemData() {
-    const spreadsheetId = '1yEb5m_fjw3msbBYLFtO55ukUI0C0XkJfLurWWyfALok';
-    const range = '문항정보!A:C';
-
     gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: range,
+      spreadsheetId: spreadsheetId,
+      range: '문항정보!A:C',
     }).then((response) => {
-        problemData = response.result.values;
-        console.log('Problem data loaded:', problemData);
-        
-        if (problemData.length > 0) {
-            loadProblem(currentProblemNumber);
-        }
+      problemData = response.result.values;
+      console.log('Problem data loaded:', problemData);
+      
+      if (problemData && problemData.length > 0) {
+        loadProblem(currentProblemNumber);
+      } else {
+        console.error('No problem data loaded');
+      }
     }).catch(error => {
-        console.error('Error loading problem data:', error);
+      console.error('Error loading problem data:', error);
     });
 }
 
@@ -314,3 +310,4 @@ function loadProblem(problemNumber) {
         console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
     }
 }
+

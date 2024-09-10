@@ -170,8 +170,13 @@ app.get('/entry', authenticateUser, (req, res) => {
   res.render('entry');
 });
 
+// 라우트 설정
 app.get('/test', authenticateUser, (req, res) => {
-  res.render('test');
+  res.render('test', { 
+    user: req.session.username,
+    googleApiKey: process.env.GOOGLE_API_KEY,
+    spreadsheetId: process.env.SPREADSHEET_ID
+  });
 });
 
 app.get('/health', (req, res) => {
