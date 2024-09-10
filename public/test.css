@@ -67,28 +67,16 @@ body, html {
 
 #problem-navigation {
     display: flex;
-    gap: 5px;
+    gap: 10px;
 }
 
 .problem-icon {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    background-color: #f0f0f0;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 24px;
 }
 
 .problem-icon:hover {
-    background-color: #e0e0e0;
-}
-
-.problem-icon.active {
-    background-color: #007bff;
-    color: white;
+    opacity: 0.8;
 }
 
 #prev-problem, #next-problem {

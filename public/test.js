@@ -269,7 +269,6 @@ function onMenuSelect(examName) {
         console.error('Problem data not loaded yet. Cannot load problem.');
     }
 }
-
 function renderProblemNavigation() {
     const navContainer = document.getElementById('problem-navigation');
     if (!navContainer) return;
@@ -277,12 +276,14 @@ function renderProblemNavigation() {
     navContainer.innerHTML = '';
 
     for (let i = 1; i <= totalProblems; i++) {
-        const problemBtn = document.createElement('div');
-        problemBtn.classList.add('problem-icon');
+        const problemBtn = document.createElement('i');
+        problemBtn.classList.add('bi', 'problem-icon');
+        
         if (i === currentProblemNumber) {
-            problemBtn.classList.add('active');
+            problemBtn.classList.add(i === 10 ? 'bi-0-circle-fill' : `bi-${i}-circle-fill`);
+        } else {
+            problemBtn.classList.add(i === 10 ? 'bi-0-circle' : `bi-${i}-circle`);
         }
-        problemBtn.textContent = i;
         
         problemBtn.addEventListener('click', function() {
             navigateToProblem(i);
@@ -327,8 +328,8 @@ function resizeIframe(iframe) {
     const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
     let iframeHeight = iframeContent.body.scrollHeight;
     
-    // 20% 추가 여백을 계산합니다 (최소 50px, 최대 200px)
-    const extraSpace = Math.min(Math.max(containerHeight * 0.2, 50), 200);
+    // 10% 추가 여백을 계산합니다 (최소 30px, 최대 100px)
+    const extraSpace = Math.min(Math.max(containerHeight * 0.1, 30), 100);
     
     // 최종 높이를 계산합니다 (원래 높이 + 추가 여백)
     const finalHeight = iframeHeight + extraSpace;
