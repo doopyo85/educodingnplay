@@ -114,6 +114,11 @@ function loadProblemData() {
     }).then((response) => {
         problemData = response.result.values;
         console.log('Problem data loaded:', problemData);
+        
+        // 문제 데이터가 로드되면 첫 번째 문제 로드
+        if (problemData.length > 0) {
+            loadProblem(currentProblemNumber);
+        }
     }).catch(error => {
         console.error('Error loading problem data:', error);
     });
@@ -298,7 +303,7 @@ function loadProblem(problemNumber) {
         return;
     }
 
-    const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}p${problemNumber.toString().padStart(2, '0')}`);
+    const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}_p${problemNumber.toString().padStart(2, '0')}`);
     if (problemInfo) {
         const problemFileName = problemInfo[0];
         const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
