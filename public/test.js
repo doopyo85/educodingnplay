@@ -22,6 +22,25 @@ document.addEventListener("DOMContentLoaded", function() {
     setupEventListeners();
 });
 
+function initClient() {
+    const apiKey = document.getElementById('googleApiKey').value;
+    const spreadsheetId = document.getElementById('spreadsheetId').value;
+    
+    if (!apiKey || !spreadsheetId) {
+        console.error('API Key or Spreadsheet ID is missing');
+        return;
+    }
+
+    gapi.client.init({
+        apiKey: apiKey,
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    }).then(() => {
+        loadMenuData(spreadsheetId);
+        loadProblemData(spreadsheetId);
+    }).catch(error => console.error('Error initializing Google API client', error));
+}
+
+
 function setupEventListeners() {
     const runCodeBtn = document.getElementById('runCodeBtn');
     const prevButton = document.getElementById('prev-problem');
@@ -89,45 +108,35 @@ function runCode() {
     .catch(error => console.error('Error:', error));
 }
 
-function initClient() {
-    gapi.client.init({
-        apiKey: document.getElementById('googleApiKey').value,
-        discoveryDocs: [document.getElementById('discoveryDocs').value],
-    }).then(() => {
-        loadMenuData();
-        loadProblemData();
-    }).catch(error => console.error('Error initializing Google API client', error));
-}
+
   
-function loadMenuData() {
+function loadMenuData(spreadsheetId) {
     gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: spreadsheetId,
-      range: 'menulist!A2:C',
+        spreadsheetId: spreadsheetId,
+        range: 'menulist!A2:C',
     }).then((response) => {
-      const data = response.result.values;
-      if (data) {
-        renderMenu(data);
-      }
+        const data = response.result.values;
+        if (data) {
+            renderMenu(data);
+        }
     }).catch(error => {
-      console.error('Error loading menu data:', error);
+        console.error('Error loading menu data:', error);
     });
 }
 
-function loadProblemData() {
+function loadProblemData(spreadsheetId) {
     gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: spreadsheetId,
-      range: '문항정보!A:C',
+        spreadsheetId: spreadsheetId,
+        range: '문항정보!A:C',
     }).then((response) => {
-      problemData = response.result.values;
-      console.log('Problem data loaded:', problemData);
-      
-      if (problemData && problemData.length > 0) {
-        loadProblem(currentProblemNumber);
-      } else {
-        console.error('No problem data loaded');
-      }
+        problemData = response.result.values;
+        console.log('Problem data loaded:', problemData);
+        
+        if (problemData && problemData.length > 0) {
+            loadProblem(currentProblemNumber);
+        }
     }).catch(error => {
-      console.error('Error loading problem data:', error);
+        console.error('Error loading problem data:', error);
     });
 }
 
