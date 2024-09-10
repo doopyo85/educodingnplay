@@ -10,58 +10,20 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('Google API not loaded');
     }
     
+    setupEventListeners();
+});
+
+function setupEventListeners() {
     const runCodeBtn = document.getElementById('runCodeBtn');
-    const userNameElement = document.getElementById('userName');
-
-    // 세션 유지
-    if (userNameElement) {
-        fetch('/get-user', { credentials: 'include' })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            userNameElement.innerText = data.username || "로그인 정보 미확인";
-        })
-        .catch(error => {
-            console.error('Error fetching user data:', error);
-            userNameElement.innerText = "로그인 정보 미확인";
-        });
-    }
-    
-    if (runCodeBtn) {
-        runCodeBtn.addEventListener('click', function() {
-            const code = document.getElementById('ide').value;
-
-            fetch('/run-python', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const outputElement = document.getElementById('output');
-                if (outputElement) {
-                    if (data.error) {
-                        outputElement.innerText = `Error: ${data.error}`;
-                    } else {
-                        outputElement.innerText = data.output;
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    }
-    
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
 
+    if (runCodeBtn) {
+        runCodeBtn.addEventListener('click', runCode);
+    }
+
     if (prevButton) {
-        prevButton.addEventListener('click', function() {
+        prevButton.addEventListener('click', () => {
             if (currentProblemNumber > 1) {
                 navigateToProblem(currentProblemNumber - 1);
             }
@@ -69,13 +31,54 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (nextButton) {
-        nextButton.addEventListener('click', function() {
+        nextButton.addEventListener('click', () => {
             if (currentProblemNumber < totalProblems) {
                 navigateToProblem(currentProblemNumber + 1);
             }
         });
     }
-});
+
+    fetchUserData();
+}
+
+function fetchUserData() {
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement) {
+        fetch('/get-user', { credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                userNameElement.innerText = data.username || "로그인 정보 미확인";
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                userNameElement.innerText = "로그인 정보 미확인";
+            });
+    }
+}
+
+function runCode() {
+    const code = document.getElementById('ide').value;
+    fetch('/run-python', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const outputElement = document.getElementById('output');
+        if (outputElement) {
+            outputElement.innerText = data.error ? `Error: ${data.error}` : data.output;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 
 function initClient() {
     gapi.client.init({
@@ -115,7 +118,6 @@ function loadProblemData() {
         problemData = response.result.values;
         console.log('Problem data loaded:', problemData);
         
-        // 문제 데이터가 로드되면 첫 번째 문제 로드
         if (problemData.length > 0) {
             loadProblem(currentProblemNumber);
         }
@@ -123,7 +125,6 @@ function loadProblemData() {
         console.error('Error loading problem data:', error);
     });
 }
-
 
 function renderMenu(data) {
     const navList = document.getElementById('navList');
@@ -134,80 +135,79 @@ function renderMenu(data) {
 
     const topLevelMenus = new Map();
     data.forEach(function(row) {
-        const topLevelMenu = row[0];
-        const subMenu = row[1];
-        const examName = row[2];
-
+        const [topLevelMenu, subMenu, examName] = row;
         if (!topLevelMenus.has(topLevelMenu)) {
             topLevelMenus.set(topLevelMenu, []);
         }
-
         topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
     });
 
     topLevelMenus.forEach(function(subMenus, topLevelMenu) {
-        const topLevelMenuItem = document.createElement('li');
-        topLevelMenuItem.textContent = topLevelMenu;
-        topLevelMenuItem.classList.add('menu-item', 'has-sub-menu');
-
-        const arrow = document.createElement('span');
-        arrow.classList.add('arrow', 'arrow-down');
-        topLevelMenuItem.appendChild(arrow);
-
-        topLevelMenuItem.addEventListener('click', function() {
-            toggleSubMenu(topLevelMenuItem);
-        });
-
-        const subMenuItems = document.createElement('ul');
-        subMenuItems.className = 'sub-menu';
+        const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu);
+        const subMenuItems = createSubMenuItems(subMenus);
         topLevelMenuItem.appendChild(subMenuItems);
-
-        subMenus.forEach(function(subMenuData) {
-            const subMenuItem = document.createElement('li');
-            subMenuItem.classList.add('menu-item');
-
-            const icon = document.createElement('i');
-            icon.classList.add('bi', 'bi-file-text');
-            subMenuItem.appendChild(icon);
-
-            const text = document.createElement('span');
-            text.textContent = subMenuData.subMenu;
-            subMenuItem.appendChild(text);
-
-            subMenuItem.addEventListener('click', function(event) {
-                event.stopPropagation();
-                onMenuSelect(subMenuData.examName);
-                applySubMenuHighlight(subMenuItem);
-            });
-
-            subMenuItems.appendChild(subMenuItem);
-        });
-
         navList.appendChild(topLevelMenuItem);
     });
 
-    // 초기 로드 시 첫 번째 메뉴 선택 및 문제 로드
     if (data.length > 0) {
-        const firstMenu = data[0][2];  // 첫 번째 시험지명
-        onMenuSelect(firstMenu);
+        onMenuSelect(data[0][2]);
     }
+}
+
+function createTopLevelMenuItem(topLevelMenu) {
+    const topLevelMenuItem = document.createElement('li');
+    topLevelMenuItem.textContent = topLevelMenu;
+    topLevelMenuItem.classList.add('menu-item', 'has-sub-menu');
+
+    const arrow = document.createElement('span');
+    arrow.classList.add('arrow', 'arrow-down');
+    topLevelMenuItem.appendChild(arrow);
+
+    topLevelMenuItem.addEventListener('click', () => toggleSubMenu(topLevelMenuItem));
+
+    return topLevelMenuItem;
+}
+
+function createSubMenuItems(subMenus) {
+    const subMenuItems = document.createElement('ul');
+    subMenuItems.className = 'sub-menu';
+
+    subMenus.forEach(function({ subMenu, examName }) {
+        const subMenuItem = document.createElement('li');
+        subMenuItem.classList.add('menu-item');
+
+        const icon = document.createElement('i');
+        icon.classList.add('bi', 'bi-file-text');
+        subMenuItem.appendChild(icon);
+
+        const text = document.createElement('span');
+        text.textContent = subMenu;
+        subMenuItem.appendChild(text);
+
+        subMenuItem.addEventListener('click', function(event) {
+            event.stopPropagation();
+            onMenuSelect(examName);
+            applySubMenuHighlight(subMenuItem);
+        });
+
+        subMenuItems.appendChild(subMenuItem);
+    });
+
+    return subMenuItems;
 }
 
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('.arrow');
 
-    const allSubMenuItems = document.querySelectorAll('.sub-menu');
-    const allArrows = document.querySelectorAll('.arrow');
-
-    allSubMenuItems.forEach(function(item) {
+    document.querySelectorAll('.sub-menu').forEach(item => {
         if (item !== subMenu) {
             item.style.maxHeight = '0px';
             item.style.display = 'none';
         }
     });
 
-    allArrows.forEach(function(item) {
+    document.querySelectorAll('.arrow').forEach(item => {
         if (item !== arrow) {
             toggleArrow(item, false);
         }
@@ -225,16 +225,11 @@ function toggleSubMenu(topLevelMenuItem) {
 }
 
 function toggleArrow(arrow, isOpen) {
-    if (isOpen) {
-        arrow.className = 'arrow arrow-up';
-    } else {
-        arrow.className = 'arrow arrow-down';
-    }
+    arrow.className = `arrow arrow-${isOpen ? 'up' : 'down'}`;
 }
 
 function applySubMenuHighlight(selectedItem) {
-    const allSubMenuItems = document.querySelectorAll('.sub-menu .menu-item');
-    allSubMenuItems.forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.sub-menu .menu-item').forEach(item => item.classList.remove('active'));
     selectedItem.classList.add('active');
 }
 
@@ -261,9 +256,7 @@ function renderProblemNavigation() {
         
         problemBtn.appendChild(icon);
         
-        problemBtn.addEventListener('click', function() {
-            navigateToProblem(i);
-        });
+        problemBtn.addEventListener('click', () => navigateToProblem(i));
 
         navContainer.appendChild(problemBtn);
     }
@@ -296,7 +289,6 @@ function updateNavigationButtons() {
 
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
-    console.log('Problem data:', problemData);
     
     if (!problemData || problemData.length === 0) {
         console.error('Problem data is not loaded yet');
@@ -305,7 +297,7 @@ function loadProblem(problemNumber) {
 
     const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}_p${problemNumber.toString().padStart(2, '0')}`);
     if (problemInfo) {
-        const problemFileName = problemInfo[0];
+        const [problemFileName] = problemInfo;
         const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
         const iframe = document.getElementById('iframeContent');
 
