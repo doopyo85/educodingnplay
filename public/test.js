@@ -1,5 +1,6 @@
+// 전역 변수 선언을 파일 맨 위로 이동하고 모두 var로 변경
 var currentProblemNumber = 1;
-const totalProblems = 10;
+var totalProblems = 10;
 var currentExamName = '';
 var problemData = [];
 
@@ -125,7 +126,7 @@ function loadMenuData(spreadsheetId) {
 }
 
 function loadProblemData(spreadsheetId) {
-    gapi.client.sheets.spreadsheets.values.get({
+    return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: '문항정보!A:C',
     }).then((response) => {
@@ -133,13 +134,19 @@ function loadProblemData(spreadsheetId) {
         console.log('Problem data loaded:', problemData);
         
         if (problemData && problemData.length > 0) {
+            // 첫 번째 행이 헤더인 경우 제거
+            if (problemData[0][0] === 'URL') {
+                problemData.shift();
+            }
             console.log('First problem:', problemData[0]);
-            loadProblem(currentProblemNumber);
+            return problemData;
         } else {
             console.error('No problem data loaded');
+            return [];
         }
     }).catch(error => {
         console.error('Error loading problem data:', error);
+        return [];
     });
 }
 
@@ -311,29 +318,40 @@ function updateNavigationButtons() {
 
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
+    console.log('Problem data:', problemData);
     
     if (!problemData || problemData.length === 0) {
         console.error('Problem data is not loaded yet');
         return;
     }
 
-    const problemInfo = problemData.find(problem => problem[1] === `${currentExamName}_p${problemNumber.toString().padStart(2, '0')}`);
+    const problemInfo = problemData.find(problem => 
+        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
+        problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
+    );
+
     if (problemInfo) {
-        const [problemFileName] = problemInfo;
+        const [problemFileName, , ] = problemInfo;
         const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
+        console.log('Problem URL:', problemUrl);
+
         const iframe = document.getElementById('iframeContent');
+        if (iframe) {
+            iframe.src = problemUrl;
+            console.log('iframe src set to:', problemUrl);
+        } else {
+            console.error('iframe element not found');
+        }
 
         const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
         const problemTitleElement = document.getElementById('problem-title');
         if (problemTitleElement) {
             problemTitleElement.textContent = problemTitle;
-        }
-
-        if (iframe) {
-            iframe.src = problemUrl;
+        } else {
+            console.error('problem-title element not found');
         }
     } else {
         console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
+        console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
     }
 }
-
