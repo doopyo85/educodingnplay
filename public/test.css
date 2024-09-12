@@ -94,6 +94,7 @@ body, html {
 
 /* 네비게이션 우측의 콘텐츠 영역 */
 .contents {
+    margin-left: 250px;
     display: flex;
     flex: 1;
     height: 100%;
