@@ -178,13 +178,14 @@ function renderMenu(data) {
     }
 }
 
+// Bootstrap 아이콘으로 변경
 function createTopLevelMenuItem(topLevelMenu) {
     const topLevelMenuItem = document.createElement('li');
     topLevelMenuItem.textContent = topLevelMenu;
     topLevelMenuItem.classList.add('menu-item', 'has-sub-menu');
 
-    const arrow = document.createElement('span');
-    arrow.classList.add('arrow', 'arrow-down');
+    const arrow = document.createElement('i');  // span 대신 i 태그로 변경
+    arrow.classList.add('bi', 'bi-chevron-down');  // Bootstrap 아이콘 추가
     topLevelMenuItem.appendChild(arrow);
 
     topLevelMenuItem.addEventListener('click', () => toggleSubMenu(topLevelMenuItem));
@@ -248,8 +249,15 @@ function toggleSubMenu(topLevelMenuItem) {
     }
 }
 
+// 아이콘을 변경하는 함수
 function toggleArrow(arrow, isOpen) {
-    arrow.className = `arrow arrow-${isOpen ? 'up' : 'down'}`;
+    if (isOpen) {
+        arrow.classList.remove('bi-chevron-down');
+        arrow.classList.add('bi-chevron-up');
+    } else {
+        arrow.classList.remove('bi-chevron-up');
+        arrow.classList.add('bi-chevron-down');
+    }
 }
 
 function applySubMenuHighlight(selectedItem) {
