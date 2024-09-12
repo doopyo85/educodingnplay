@@ -312,8 +312,6 @@ function updateProblemNavigation() {
     updateNavigationButtons();
 }
 
-
-
 function updateNavigationButtons() {
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
@@ -327,20 +325,21 @@ function resizeIframe(iframe) {
 
     const container = document.getElementById('problem-container');
     const containerHeight = container.clientHeight;
-    
+
     // iframe 내부 문서의 높이를 가져옵니다
     const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
     let iframeHeight = iframeContent.body.scrollHeight;
-    
-    // 10% 추가 여백을 계산합니다 (최소 30px, 최대 100px)
-    const extraSpace = Math.min(Math.max(containerHeight * 0.1, 30), 100);
-    
-    // 최종 높이를 계산합니다 (원래 높이 + 추가 여백)
-    const finalHeight = iframeHeight + extraSpace;
-    
-    // iframe의 높이를 설정합니다
+
+    // 컨테이너 높이와 비교하여 iframe의 높이를 조정합니다
+    const finalHeight = Math.min(iframeHeight, containerHeight);
+
+    // iframe의 높이를 컨테이너 높이에 맞게 조정
     iframe.style.height = finalHeight + 'px';
+    
+    // iframe 안에서 상하 스크롤이 가능하게 설정
+    iframe.style.overflowY = 'auto';
 }
+
 
 
 function loadProblem(problemNumber) {
