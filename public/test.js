@@ -225,24 +225,24 @@ function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('i');
 
-    if (subMenu.classList.contains('show')) {
-        subMenu.classList.remove('show');
-        arrow.classList.remove('bi-chevron-up');
-        arrow.classList.add('bi-chevron-down');
-    } else {
-        // 다른 열린 서브메뉴 닫기
-        document.querySelectorAll('.sub-menu.show').forEach(menu => {
-            if (menu !== subMenu) {
-                menu.classList.remove('show');
-                const parentArrow = menu.parentElement.querySelector('i');
-                parentArrow.classList.remove('bi-chevron-up');
-                parentArrow.classList.add('bi-chevron-down');
-            }
-        });
+    // 다른 모든 서브메뉴 닫기
+    document.querySelectorAll('.sub-menu.show').forEach(menu => {
+        if (menu !== subMenu) {
+            menu.classList.remove('show');
+            const parentArrow = menu.closest('.has-sub-menu').querySelector('i');
+            parentArrow.classList.remove('bi-chevron-up');
+            parentArrow.classList.add('bi-chevron-down');
+        }
+    });
 
-        subMenu.classList.add('show');
+    // 현재 서브메뉴 토글
+    subMenu.classList.toggle('show');
+    if (subMenu.classList.contains('show')) {
         arrow.classList.remove('bi-chevron-down');
         arrow.classList.add('bi-chevron-up');
+    } else {
+        arrow.classList.remove('bi-chevron-up');
+        arrow.classList.add('bi-chevron-down');
     }
 }
 
