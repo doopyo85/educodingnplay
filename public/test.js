@@ -3,25 +3,25 @@ var currentProblemNumber = 1;
 var totalProblems = 10;
 var currentExamName = '';
 var problemData = [];
-
 document.addEventListener("DOMContentLoaded", function() {
-    
-    // Google API 키와 스프레드시트 ID를 서버에서 전달받아 사용
-    const googleApiKey = document.getElementById('googleApiKey').value;
-    const spreadsheetId = document.getElementById('spreadsheetId').value;
-    
-    if (googleApiKey && spreadsheetId) {
-        if (typeof gapi !== 'undefined') {
-            gapi.load('client', initClient);
+    if (!window.menuLoaded) {
+        const googleApiKey = document.getElementById('googleApiKey').value;
+        const spreadsheetId = document.getElementById('spreadsheetId').value;
+
+        if (googleApiKey && spreadsheetId) {
+            if (typeof gapi !== 'undefined') {
+                gapi.load('client', initClient);
+            } else {
+                console.error('Google API not loaded');
+            }
         } else {
-            console.error('Google API not loaded');
+            console.error('Required elements not found');
         }
-    } else {
-        console.error('Required elements not found');
+
+        window.menuLoaded = true;  // 메뉴가 로드된 상태로 표시
     }
-    
-    setupEventListeners();
 });
+
 
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;

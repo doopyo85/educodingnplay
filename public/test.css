@@ -1,68 +1,60 @@
+/* 기본 스타일 설정 */
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* 스크롤 숨김 */
 }
 
+/* 메인 콘텐츠 컨테이너 */
 .main-content {
     display: flex;
-    height: calc(100vh - 60px); /* 헤더 높이를 고려하여 조정 */
+    height: calc(100vh - 60px); /* 헤더 높이를 고려한 콘텐츠 높이 조정 */
 }
 
+/* 네비게이션 (메뉴) 컨테이너 */
 .nav-container {
     flex: 0 0 300px;
-    overflow-y: auto;
+    overflow-y: auto; /* 세로 스크롤 허용 */
 }
 
-/* 메뉴 토글 아이콘과 메뉴명 사이의 여백 추가 */
-.menu-item i {
-    margin-right: 8px; /* 아이콘과 텍스트 사이의 여백 */
-}
-
-
-/* 부모 컨테이너 스크롤 제거 */
+/* 콘텐츠 컨테이너 */
 .content-container {
     display: flex;
     flex: 1;
     margin-left: 200px;
-    overflow: hidden; /* 부모 컨테이너는 스크롤을 감춤 */
+    overflow: hidden; /* 부모 컨테이너는 스크롤 숨김 */
 }
 
+/* 아이프레임 및 IDE 컨테이너 */
 .iframe-container, .ide-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%; /* 높이를 100%로 설정하여 iframe을 감싸는 부모 컨테이너가 페이지 전체를 차지하도록 */    overflow-y: auto;  /* 상하 스크롤만 허용 */
-    overflow-x: hidden;  /* 좌우 스크롤 방지 */
+    height: 100%; /* 높이를 100%로 설정하여 페이지 전체 차지 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
+    overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 
-/* 부모 컨테이너 */
-.iframe-container {
-    flex: 1;
-    height: 100%; /* 높이를 100%로 설정하여 부모가 전체 높이를 차지 */
-    overflow: hidden; /* 부모에서는 스크롤을 감춤 */
-}
-
-#problem-container {
-    flex: 1;
-    overflow-y: auto;
-    position: relative;
-}
-
-/* 콘텐츠 스크롤만 활성화 */
+/* 아이프레임 내부 콘텐츠 */
 #iframeContent {
     width: 100%;
     height: 100%;
-    overflow-y: auto; /* 콘텐츠 영역에만 스크롤 허용 */
-    overflow-x: hidden; /* 좌우 스크롤 방지 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
+    overflow-x: hidden; /* 가로 스크롤 방지 */
     border: none;
 }
 
+/* 이미지 크기 조정 */
+#iframeContent img {
+    max-width: 100%; /* 이미지가 콘텐츠의 너비를 넘지 않도록 제한 */
+    height: auto; /* 비율을 유지하면서 자동으로 높이 조정 */
+}
 
+/* IDE 컨테이너 스타일 */
 .ide-container {
-    background-color: #2d2d2d;
-    color: white;
+    background-color: #2d2d2d; /* 배경 색상 */
+    color: white; /* 텍스트 색상 */
 }
 
 .ide-container textarea {
@@ -72,19 +64,21 @@ body, html {
     color: white;
     padding: 10px;
     border: none;
-    resize: none;
+    resize: none; /* 텍스트 영역 크기 조정 비활성화 */
 }
 
+/* 문제 내비게이션 컨테이너 */
 #problem-navigation-container {
     display: flex;
-    justify-content: center;
+    justify-content: center; /* 중앙 정렬 */
     align-items: center;
     padding: 10px 0;
 }
 
+/* 문제 내비게이션 아이콘 스타일 */
 #problem-navigation {
     display: flex;
-    gap: 10px;
+    gap: 10px; /* 아이콘 간의 간격 */
 }
 
 .problem-icon {
@@ -93,31 +87,31 @@ body, html {
 }
 
 .problem-icon:hover {
-    opacity: 0.8;
+    opacity: 0.8; /* 호버 시 불투명도 조정 */
 }
 
+/* 문제 내비게이션 이전/다음 버튼 */
 #prev-problem, #next-problem {
     cursor: pointer;
     font-size: 24px;
-    padding: 0 10px;
+    padding: 0 10px; /* 좌우 여백 */
 }
 
-#problem-navigation-container {
-    padding: 10px 0;
-}
-
+/* 문제 제목 스타일 */
 #problem-title {
     text-align: center;
     font-size: 1.5em;
     margin-bottom: 10px;
 }
 
+/* 구분선 */
 .divider {
     width: 5px;
     cursor: col-resize;
-    background-color: #ddd;
+    background-color: #ddd; /* 구분선 색상 */
 }
 
+/* 출력 영역 스타일 */
 pre#output {
     background-color: #333;
     color: #fff;
@@ -125,21 +119,16 @@ pre#output {
     margin: 0;
     font-family: 'Courier New', Courier, monospace;
     white-space: pre-wrap;
-    overflow-y: auto;
-    flex: 0 0 30%;
+    overflow-y: auto; /* 세로 스크롤 허용 */
+    flex: 0 0 30%; /* 크기 고정 */
 }
 
+/* IDE 컨트롤 패널 */
 .ide-controls {
     padding: 10px;
 }
 
-/* 콘텐츠 내부 이미지 크기를 자동으로 조정 */
-#iframeContent img {
-    max-width: 100%; /* 이미지의 최대 너비를 콘텐츠 너비에 맞춤 */
-    height: auto; /* 비율을 유지하면서 자동으로 높이를 조정 */
-}
-
-/* 스크롤바 스타일 적용 */
+/* 스크롤바 스타일 */
 ::-webkit-scrollbar {
     width: 8px; /* 스크롤바 너비 */
 }
@@ -154,5 +143,10 @@ pre#output {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #666; /* 스크롤바 호버 시 색상 */
+    background: #666; /* 호버 시 스크롤바 색상 */
+}
+
+/* 메뉴 토글 아이콘과 메뉴명 사이의 여백 추가 */
+.menu-item i {
+    margin-right: 8px; /* 아이콘과 텍스트 사이의 여백 */
 }
