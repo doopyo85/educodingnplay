@@ -14,15 +14,53 @@ body, html {
 
 /* 네비게이션 (메뉴) 컨테이너 */
 .nav-container {
-    flex: 0 0 300px;
-    overflow-y: auto; /* 세로 스크롤 허용 */
+    width: 250px; /* 적절한 너비 설정 */
 }
 
-/* 소메뉴 동그라미 제거 */
+/* 메뉴 리스트 스타일 */
 .nav-container ul {
     list-style-type: none;
     padding-left: 0;
+    margin: 0;
 }
+
+/* 메뉴 아이템 스타일 */
+.menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    position: relative; /* 하위 메뉴의 기준점 */
+}
+
+/* 대메뉴 스타일 */
+.menu-item.has-sub-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 대메뉴 토글 아이콘 여백 */
+.menu-item.has-sub-menu > i {
+    margin-left: 8px;
+}
+
+/* 소메뉴 컨테이너 스타일 */
+.sub-menu {
+    display: none;
+    padding-left: 20px; /* 들여쓰기 효과 */
+    background-color: #f8f9fa; /* 배경색 설정 */
+}
+
+/* 소메뉴 아이템 스타일 */
+.sub-menu .menu-item {
+    padding: 6px 12px;
+}
+
+/* 펼쳐진 소메뉴 스타일 */
+.sub-menu.show {
+    display: block;
+}
+
+
 
 /* 콘텐츠 컨테이너 */
 .content-container {
@@ -181,19 +219,3 @@ pre#output {
     background: #555; /* 호버 시 스크롤바 색상 */
 }
 
-/* 대메뉴 토글 아이콘 여백 추가 */
-.menu-item.has-sub-menu > i {
-    margin-left: 8px; /* 토글 아이콘 왼쪽에 여백 추가 */
-}
-
-/* 메뉴 아이템 스타일 */
-.menu-item {
-    padding: 8px 16px;
-    cursor: pointer;
-}
-
-.menu-item.has-sub-menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}

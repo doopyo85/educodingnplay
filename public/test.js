@@ -223,29 +223,26 @@ function createSubMenuItems(subMenus) {
 
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
-    const arrow = topLevelMenuItem.querySelector('.arrow');
+    const arrow = topLevelMenuItem.querySelector('i');
 
-    document.querySelectorAll('.sub-menu').forEach(item => {
-        if (item !== subMenu) {
-            item.style.maxHeight = '0px';
-            item.style.display = 'none';
-        }
-    });
-
-    document.querySelectorAll('.arrow').forEach(item => {
-        if (item !== arrow) {
-            toggleArrow(item, false);
-        }
-    });
-
-    if (subMenu.style.maxHeight === '0px' || !subMenu.style.maxHeight) {
-        subMenu.style.maxHeight = '1000px';
-        subMenu.style.display = 'block';
-        toggleArrow(arrow, true);
+    if (subMenu.classList.contains('show')) {
+        subMenu.classList.remove('show');
+        arrow.classList.remove('bi-chevron-up');
+        arrow.classList.add('bi-chevron-down');
     } else {
-        subMenu.style.maxHeight = '0px';
-        subMenu.style.display = 'none';
-        toggleArrow(arrow, false);
+        // 다른 열린 서브메뉴 닫기
+        document.querySelectorAll('.sub-menu.show').forEach(menu => {
+            if (menu !== subMenu) {
+                menu.classList.remove('show');
+                const parentArrow = menu.parentElement.querySelector('i');
+                parentArrow.classList.remove('bi-chevron-up');
+                parentArrow.classList.add('bi-chevron-down');
+            }
+        });
+
+        subMenu.classList.add('show');
+        arrow.classList.remove('bi-chevron-down');
+        arrow.classList.add('bi-chevron-up');
     }
 }
 
