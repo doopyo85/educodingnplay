@@ -332,37 +332,45 @@ function resizeIframe(iframe) {
     if (!iframe) return;
 
     const container = document.getElementById('problem-container');
+    if (!container) return;
+
     const containerHeight = container.clientHeight;
+
+    // iframe의 높이를 컨테이너의 높이로 설정
+    iframe.style.height = containerHeight + 'px';
 
     // iframe 내부 문서의 높이를 가져옵니다
     const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
-    let iframeHeight = iframeContent.body.scrollHeight;
+    const iframeBody = iframeContent.body;
+
+    // body의 스타일을 수정하여 내용이 iframe 전체를 채우도록 합니다
+    iframeBody.style.margin = '0';
+    iframeBody.style.padding = '0';
+    iframeBody.style.height = '100%';
+    iframeBody.style.overflow = 'auto';
 
     // 이미지가 로드되면 다시 크기 조정
     const images = iframeContent.getElementsByTagName('img');
     let imagesLoaded = 0;
 
-    // 모든 이미지가 로드된 후 높이 재조정
-    function adjustIframeHeight() {
-        const updatedHeight = iframeContent.body.scrollHeight;
-        iframe.style.height = containerHeight + 'px';  // 부모 컨테이너 높이에 맞춤
+    function checkAllImagesLoaded() {
+        imagesLoaded++;
+        if (imagesLoaded === images.length) {
+            // 모든 이미지가 로드된 후 필요한 경우 추가 조정
+            iframe.style.height = containerHeight + 'px';
+        }
     }
 
     if (images.length > 0) {
         Array.from(images).forEach(image => {
-            image.onload = function() {
-                imagesLoaded++;
-                if (imagesLoaded === images.length) {
-                    adjustIframeHeight(); // 모든 이미지가 로드된 후에만 높이 조정
-                }
-            };
+            if (image.complete) {
+                checkAllImagesLoaded();
+            } else {
+                image.onload = checkAllImagesLoaded;
+            }
         });
-    } else {
-        adjustIframeHeight(); // 이미지가 없으면 바로 높이 조정
     }
 }
-
-
 
 
 function loadProblem(problemNumber) {
