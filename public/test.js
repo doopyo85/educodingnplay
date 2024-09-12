@@ -303,12 +303,15 @@ function navigateToProblem(problemNumber) {
 
 function updateProblemNavigation() {
     const icons = document.querySelectorAll('#problem-navigation .problem-icon');
+    
     icons.forEach((icon, index) => {
         const problemNumber = index + 1;
-        icon.className = `bi ${problemNumber === currentProblemNumber ? `bi-${problemNumber === 10 ? 0 : problemNumber}-circle-fill` : `bi-${problemNumber === 10 ? 0 : problemNumber}-circle`}`;
+        icon.className = `bi problem-icon ${problemNumber === currentProblemNumber ? `bi-${problemNumber === 10 ? 0 : problemNumber}-circle-fill` : `bi-${problemNumber === 10 ? 0 : problemNumber}-circle`}`;
     });
+    
     updateNavigationButtons();
 }
+
 
 
 function updateNavigationButtons() {
