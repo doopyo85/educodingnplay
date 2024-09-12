@@ -36,16 +36,28 @@ function initClient() {
         apiKey: apiKey,
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
-        return Promise.all([
-            loadMenuData(spreadsheetId),
-            loadProblemData(spreadsheetId)
-        ]);
-    }).then(([menuData, problemData]) => {
-        renderMenu(menuData);
-        if (problemData && problemData.length > 0) {
-            onMenuSelect(problemData[0][1]); // Assuming the exam name is in the second column
+        console.log('Google API client initialized');
+        return loadMenuData(spreadsheetId);
+    }).then((menuData) => {
+        if (menuData && menuData.length > 0) {
+            renderMenu(menuData);
+            return loadProblemData(spreadsheetId);
+        } else {
+            throw new Error('No menu data loaded');
         }
-    }).catch(error => console.error('Error initializing Google API client', error));
+    }).then((problemData) => {
+        if (problemData && problemData.length > 0) {
+            console.log('Problem data loaded successfully');
+            window.problemData = problemData; // Store problem data globally
+            if (currentExamName) {
+                loadProblem(currentProblemNumber);
+            }
+        } else {
+            throw new Error('No problem data loaded');
+        }
+    }).catch(error => {
+        console.error('Error in initialization process:', error);
+    });
 }
 
 
@@ -119,17 +131,17 @@ function runCode() {
 
   
 function loadMenuData(spreadsheetId) {
-    gapi.client.sheets.spreadsheets.values.get({
+    return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: 'menulist!A2:C',
     }).then((response) => {
         const data = response.result.values;
-        if (data) {
-            renderMenu(data); // 이 부분이 두 번 호출되지 않는지 확인
+        if (data && data.length > 0) {
+            return data;
+        } else {
+            throw new Error('No menu data found');
         }
-    }).catch(error => {
-        console.error('Error loading menu data:', error);
-    });    
+    });
 }
 
 function loadProblemData(spreadsheetId) {
@@ -137,16 +149,15 @@ function loadProblemData(spreadsheetId) {
         spreadsheetId: spreadsheetId,
         range: '문항정보!A:C',
     }).then((response) => {
-        problemData = response.result.values;
-        console.log('Problem data loaded:', problemData);
-        
-        if (problemData && problemData.length > 0) {
-            if (problemData[0][0] === 'URL') {
-                problemData.shift();
+        const data = response.result.values;
+        if (data && data.length > 0) {
+            // 첫 번째 행이 헤더인 경우 제거
+            if (data[0][0] === 'URL') {
+                data.shift();
             }
-            return problemData;
+            return data;
         } else {
-            throw new Error('No problem data loaded');
+            throw new Error('No problem data found');
         }
     });
 }
@@ -160,13 +171,20 @@ function renderMenu(data) {
 
     navList.innerHTML = ''; // Clear existing menu items
 
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('Invalid menu data');
+        return;
+    }
+
     const topLevelMenus = new Map();
     data.forEach(function(row) {
-        const [topLevelMenu, subMenu, examName] = row;
-        if (!topLevelMenus.has(topLevelMenu)) {
-            topLevelMenus.set(topLevelMenu, []);
+        if (row && row.length >= 3) {
+            const [topLevelMenu, subMenu, examName] = row;
+            if (!topLevelMenus.has(topLevelMenu)) {
+                topLevelMenus.set(topLevelMenu, []);
+            }
+            topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
         }
-        topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
     });
 
     let index = 0;
@@ -178,9 +196,13 @@ function renderMenu(data) {
         index++;
     });
 
-    if (data.length > 0) {
-        onMenuSelect(data[0][2]);
-    }
+    // Bootstrap의 collapse 기능 초기화
+    var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
+    var collapseList = collapseElementList.map(function (collapseEl) {
+        return new bootstrap.Collapse(collapseEl, {
+            toggle: false
+        })
+    })
 }
 
 // Bootstrap 아이콘으로 변경
