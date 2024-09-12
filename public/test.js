@@ -157,6 +157,8 @@ function renderMenu(data) {
         return;
     }
 
+    navList.innerHTML = ''; // Clear existing menu items
+
     const topLevelMenus = new Map();
     data.forEach(function(row) {
         const [topLevelMenu, subMenu, examName] = row;
@@ -166,11 +168,13 @@ function renderMenu(data) {
         topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
     });
 
+    let index = 0;
     topLevelMenus.forEach(function(subMenus, topLevelMenu) {
-        const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu);
-        const subMenuItems = createSubMenuItems(subMenus);
-        topLevelMenuItem.appendChild(subMenuItems);
+        const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
+        const subMenuItems = createSubMenuItems(subMenus, index);
         navList.appendChild(topLevelMenuItem);
+        navList.appendChild(subMenuItems);
+        index++;
     });
 
     if (data.length > 0) {
