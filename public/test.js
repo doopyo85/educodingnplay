@@ -213,29 +213,30 @@ function renderMenu(data) {
         });
     });
 
-    // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-        el.addEventListener('click', function(event) {
-            event.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            const bsCollapse = bootstrap.Collapse.getInstance(target);
-            if (bsCollapse) {
-                if (target.classList.contains('show')) {
-                    bsCollapse.hide();
-                } else {
-                    // 다른 열린 메뉴 닫기
-                    document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
-                        if (openMenu !== target) {
-                            bootstrap.Collapse.getInstance(openMenu).hide();
-                        }
-                    });
-                    bsCollapse.show();
-                }
+    // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
+document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+    el.addEventListener('click', function(event) {
+        event.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const bsCollapse = bootstrap.Collapse.getInstance(target);
+        if (bsCollapse) {
+            if (target.classList.contains('show')) {
+                bsCollapse.hide();
+            } else {
+                // 다른 열린 메뉴 닫기
+                document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
+                    if (openMenu !== target) {
+                        bootstrap.Collapse.getInstance(openMenu).hide();
+                    }
+                });
+                bsCollapse.show();
             }
-            updateToggleIcon(this);
-        });
+        }
+        updateToggleIcon(this);
     });
+});
     
+    // 아이콘 변경
     function updateToggleIcon(element) {
         const icon = element.querySelector('.bi');
         if (icon) {
@@ -321,6 +322,7 @@ function toggleArrow(arrow, isOpen) {
     }
 }
 
+// 하위 메뉴 클릭 시 상위 메뉴에 active 클래스 제거, 클릭된 메뉴에 active 클래스 추가
 function applySubMenuHighlight(selectedItem) {
     // 모든 메뉴 아이템에서 active 클래스 제거
     document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item').forEach(item => item.classList.remove('active'));
@@ -328,11 +330,11 @@ function applySubMenuHighlight(selectedItem) {
     // 선택된 하위 메뉴 아이템에 active 클래스 추가
     selectedItem.classList.add('active');
     
-    // 상위 메뉴 아이템에도 active 클래스 추가
+    // 상위 메뉴 아이템에 active 클래스 제거
     let parentCollapse = selectedItem.closest('.collapse');
     if (parentCollapse) {
         let parentMenuItem = document.querySelector(`[href="#${parentCollapse.id}"]`).closest('.menu-item');
-        parentMenuItem.classList.add('active');
+        parentMenuItem.classList.remove('active');
     }
 }
 
