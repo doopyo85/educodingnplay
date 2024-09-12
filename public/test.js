@@ -340,15 +340,26 @@ function resizeIframe(iframe) {
 
     // 이미지가 로드되면 다시 크기 조정
     const images = iframeContent.getElementsByTagName('img');
-    Array.from(images).forEach(image => {
-        image.onload = function() {
-            const updatedHeight = iframeContent.body.scrollHeight;
-            iframe.style.height = updatedHeight + 'px';
-        };
-    });
+    let imagesLoaded = 0;
 
-    // iframe의 높이를 컨테이너 높이에 맞게 조정
-    iframe.style.height = Math.min(iframeHeight, containerHeight) + 'px';
+    // 모든 이미지가 로드된 후 높이 재조정
+    function adjustIframeHeight() {
+        const updatedHeight = iframeContent.body.scrollHeight;
+        iframe.style.height = Math.min(updatedHeight, containerHeight) + 'px';
+    }
+
+    if (images.length > 0) {
+        Array.from(images).forEach(image => {
+            image.onload = function() {
+                imagesLoaded++;
+                if (imagesLoaded === images.length) {
+                    adjustIframeHeight(); // 모든 이미지가 로드된 후에만 높이 조정
+                }
+            };
+        });
+    } else {
+        adjustIframeHeight(); // 이미지가 없으면 바로 높이 조정
+    }
 }
 
 
