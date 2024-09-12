@@ -18,6 +18,12 @@ body, html {
     overflow-y: auto; /* 세로 스크롤 허용 */
 }
 
+/* 소메뉴 동그라미 제거 */
+.nav-container ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
 /* 콘텐츠 컨테이너 */
 .content-container {
     display: flex;
@@ -175,7 +181,19 @@ pre#output {
     background: #555; /* 호버 시 스크롤바 색상 */
 }
 
-/* 메뉴 토글 아이콘과 메뉴명 사이의 여백 추가 */
-.menu-item i {
-    margin-right: 8px; /* 아이콘과 텍스트 사이의 여백 */
+/* 대메뉴 토글 아이콘 여백 추가 */
+.menu-item.has-sub-menu > i {
+    margin-left: 8px; /* 토글 아이콘 왼쪽에 여백 추가 */
+}
+
+/* 메뉴 아이템 스타일 */
+.menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.menu-item.has-sub-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
