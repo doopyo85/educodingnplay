@@ -110,13 +110,20 @@ function fetchUserData() {
 }
 
 function runCode() {
-    const code = document.getElementById('ide').value;
+    console.log("Run button clicked");
+    const code = document.getElementById('ide').value; // IDE에 입력된 코드 가져오기
+    
+    if (!code) {
+        alert('Please enter code before running.');
+        return;
+    }
+
     fetch('/run-python', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code })  // Python 코드를 서버로 전송
     })
     .then(response => response.json())
     .then(data => {
