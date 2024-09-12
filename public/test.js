@@ -202,7 +202,7 @@ function createSubMenuItems(subMenus) {
         subMenuItem.classList.add('menu-item');
 
         const icon = document.createElement('i');
-        icon.classList.add('bi', 'bi-file-text');
+        icon.classList.add('bi', 'bi-file-text');  // 서브메뉴에 Bootstrap 아이콘 추가
         subMenuItem.appendChild(icon);
 
         const text = document.createElement('span');
@@ -221,31 +221,18 @@ function createSubMenuItems(subMenus) {
     return subMenuItems;
 }
 
-// Update function to toggle the submenu opening downwards
+// 메뉴 펼치기/접기 기능
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
-    const arrow = topLevelMenuItem.querySelector('i');
-
-    // 다른 모든 서브메뉴 닫기
-    document.querySelectorAll('.sub-menu.show').forEach(menu => {
-        if (menu !== subMenu) {
-            menu.classList.remove('show');
-            const parentArrow = menu.closest('.has-sub-menu').querySelector('i');
-            parentArrow.classList.remove('bi-chevron-up');
-            parentArrow.classList.add('bi-chevron-down');
-        }
-    });
-
-    // 현재 서브메뉴 토글
-    subMenu.classList.toggle('show');
     if (subMenu.classList.contains('show')) {
-        arrow.classList.remove('bi-chevron-down');
-        arrow.classList.add('bi-chevron-up');
+        subMenu.classList.remove('show');
+        topLevelMenuItem.querySelector('i').classList.replace('bi-chevron-up', 'bi-chevron-down'); // 아이콘을 아래로
     } else {
-        arrow.classList.remove('bi-chevron-up');
-        arrow.classList.add('bi-chevron-down');
+        subMenu.classList.add('show');
+        topLevelMenuItem.querySelector('i').classList.replace('bi-chevron-down', 'bi-chevron-up'); // 아이콘을 위로
     }
 }
+
 
 
 // 아이콘을 변경하는 함수

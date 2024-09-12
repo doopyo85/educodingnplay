@@ -56,7 +56,6 @@ body, html {
     display: block;
 }
 
-
 /* 토글 아이콘 */
 .nav-container .menu-item.has-sub-menu > i {
     margin-left: 10px;
@@ -80,20 +79,6 @@ body, html {
     display: block;
 }
 
-/* Bootstrap 클래스 재정의 */
-.nav-container .dropdown-menu {
-    position: static !important;
-    float: none !important;
-    width: 100% !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-.nav-container .dropdown-item {
-    white-space: normal !important;
-}
-
 /* 네비게이션 우측의 콘텐츠 영역 */
 .contents {
     margin-left: 250px;
@@ -115,7 +100,6 @@ body, html {
     display: flex;
     flex-direction: column;
 }
-
 
 /* 문제 네비게이션 스타일 */
 #problem-navigation-container {
@@ -216,7 +200,6 @@ body, html {
     color: white;
     padding: 10px;
 }
-
 
 /* IDE 내부 텍스트 영역 */
 .ide-container textarea {
