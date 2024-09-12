@@ -118,11 +118,11 @@ function loadMenuData(spreadsheetId) {
     }).then((response) => {
         const data = response.result.values;
         if (data) {
-            renderMenu(data);
+            renderMenu(data); // 이 부분이 두 번 호출되지 않는지 확인
         }
     }).catch(error => {
         console.error('Error loading menu data:', error);
-    });
+    });    
 }
 
 function loadProblemData(spreadsheetId) {
