@@ -15,6 +15,12 @@ body, html {
     overflow-y: auto;
 }
 
+/* 메뉴 토글 아이콘과 메뉴명 사이의 여백 추가 */
+.menu-item i {
+    margin-right: 8px; /* 아이콘과 텍스트 사이의 여백 */
+}
+
+
 /* 부모 컨테이너 스크롤 제거 */
 .content-container {
     display: flex;
@@ -125,6 +131,12 @@ pre#output {
 
 .ide-controls {
     padding: 10px;
+}
+
+/* 콘텐츠 내부 이미지 크기를 자동으로 조정 */
+#iframeContent img {
+    max-width: 100%; /* 이미지의 최대 너비를 콘텐츠 너비에 맞춤 */
+    height: auto; /* 비율을 유지하면서 자동으로 높이를 조정 */
 }
 
 /* 스크롤바 스타일 적용 */

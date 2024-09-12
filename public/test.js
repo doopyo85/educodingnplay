@@ -338,15 +338,19 @@ function resizeIframe(iframe) {
     const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
     let iframeHeight = iframeContent.body.scrollHeight;
 
-    // 컨테이너 높이와 비교하여 iframe의 높이를 조정합니다
-    const finalHeight = Math.min(iframeHeight, containerHeight);
+    // 이미지가 로드되면 다시 크기 조정
+    const images = iframeContent.getElementsByTagName('img');
+    Array.from(images).forEach(image => {
+        image.onload = function() {
+            const updatedHeight = iframeContent.body.scrollHeight;
+            iframe.style.height = updatedHeight + 'px';
+        };
+    });
 
     // iframe의 높이를 컨테이너 높이에 맞게 조정
-    iframe.style.height = finalHeight + 'px';
-    
-    // iframe 안에서 상하 스크롤이 가능하게 설정
-    iframe.style.overflowY = 'auto';
+    iframe.style.height = Math.min(iframeHeight, containerHeight) + 'px';
 }
+
 
 
 
