@@ -38,13 +38,18 @@ body, html {
     align-items: center;
 }
 
+/* 소메뉴가 대메뉴 하단에 열리도록 변경 */
 .nav-container .sub-menu {
     display: none;
     padding-left: 20px;
+    background-color: #f8f9fa;
+    width: 100%; /* 부모 너비에 맞춤 */
+    position: relative; /* 하단에 열리도록 설정 */
 }
 
+
 .nav-container .sub-menu.show {
-    display: block;
+    display: block; /* 클릭 시 하단에 열리도록 설정 */
 }
 
 
@@ -87,25 +92,18 @@ body, html {
 
 
 
-/* 콘텐츠 컨테이너 */
+/* 가로로 나란히 배열되도록 수정 */
 .content-container {
-    flex: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* 가로로 나란히 배열 */
     height: 100%;
     overflow: hidden;
 }
 
-/* 아이프레임 및 IDE 컨테이너 */
 .iframe-container, .ide-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* 높이를 100%로 설정하여 페이지 전체 차지 */
-    overflow-y: auto; /* 세로 스크롤 허용 */
-    overflow-x: hidden; /* 가로 스크롤 방지 */
+    flex: 1; /* 두 영역이 균등하게 공간을 차지하도록 설정 */
+    height: 100%;
 }
-
 /* 아이프레임 내부 콘텐츠 */
 #iframeContent {
     flex: 1;
