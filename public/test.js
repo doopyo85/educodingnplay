@@ -325,60 +325,12 @@ function resizeIframe(iframe) {
     if (!container) return;
 
     const containerHeight = container.clientHeight;
-    const containerWidth = container.clientWidth;
-
-    // iframe의 높이를 컨테이너의 높이로 설정
     iframe.style.height = containerHeight + 'px';
 
-    // iframe 내부 문서의 높이를 가져옵니다
-    const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
-    const iframeBody = iframeContent.body;
-
-    // body의 스타일을 수정하여 내용이 iframe 전체를 채우도록 합니다
-    iframeBody.style.margin = '0';
-    iframeBody.style.padding = '0';
-    iframeBody.style.height = '100%';
-    iframeBody.style.overflow = 'auto';
-    iframeBody.style.overflowX = 'hidden'; // 가로 스크롤 숨김
-
-    // iframe 내부 스크롤바 및 이미지 스타일 적용
-    const style = iframeContent.createElement('style');
-    style.textContent = `
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-        img { max-width: 80%; width: auto; height: auto; display: block; margin: 0 auto; }
-    `;
-    iframeContent.head.appendChild(style);
-
-    // 이미지 가져오기
-    const images = iframeContent.getElementsByTagName('img');
-
-    // 이미지 크기 조정 및 로드 체크
-    let imagesLoaded = 0;
-
-    function checkAllImagesLoaded() {
-        imagesLoaded++;
-        if (imagesLoaded === images.length) {
-            // 모든 이미지가 로드된 후 필요한 경우 추가 조정
-            iframe.style.height = containerHeight + 'px';
-        }
-    }
-
-    Array.from(images).forEach(img => {
-        img.style.maxWidth = '80%';
-        img.style.width = 'auto';
-        img.style.height = 'auto';
-        img.style.display = 'block';
-        img.style.margin = '0 auto';
-
-        if (img.complete) {
-            checkAllImagesLoaded();
-        } else {
-            img.onload = checkAllImagesLoaded;
-        }
-    });
+    // cross-origin 접근 시도 제거
+    iframe.onload = function() {
+        iframe.style.height = containerHeight + 'px';
+    };
 }
 
 

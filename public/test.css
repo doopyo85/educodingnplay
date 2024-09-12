@@ -30,40 +30,28 @@ body, html {
 }
 
 .nav-container .menu-item {
-    position: relative;
     padding: 10px 15px;
     cursor: pointer;
 }
 
-.nav-container .menu-item.has-sub-menu {
+.nav-container .menu-item a {
+    color: #333;
+    text-decoration: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.nav-container .sub-menu {
-    display: none;
-    position: static; /* absolute에서 static으로 변경 */
-    left: auto;
-    top: auto;
-    width: 100%;
-    background-color: #f8f9fa;
-    padding-left: 20px;
-    box-shadow: none;
+.nav-container .collapse {
+    padding-left: 15px;
 }
 
-.nav-container .sub-menu.show {
-    display: block;
-}
-
-/* 토글 아이콘 */
-.nav-container .menu-item.has-sub-menu > i {
-    margin-left: 10px;
+.nav-container .bi {
+    transition: transform 0.3s;
 }
 
 /* 소메뉴 컨테이너 스타일 */
 .nav-container .sub-menu {
-    display: none;
     padding-left: 20px;
     background-color: #f8f9fa;
     width: 100%; /* 부모 너비에 맞춤 */
