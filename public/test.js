@@ -203,37 +203,63 @@ function renderMenu(data) {
             toggle: false
         })
     })
-}
 
-// Bootstrap 아이콘으로 변경
-function createTopLevelMenuItem(topLevelMenu) {
+    // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+        el.addEventListener('click', function() {
+            const arrow = this.querySelector('.bi');
+            if (arrow) {
+                arrow.classList.toggle('rotate');
+            }
+        });
+    });
+}    
+
+
+function createTopLevelMenuItem(topLevelMenu, index) {
     const topLevelMenuItem = document.createElement('li');
-    topLevelMenuItem.textContent = topLevelMenu;
-    topLevelMenuItem.classList.add('menu-item', 'has-sub-menu');
+    topLevelMenuItem.classList.add('menu-item');
 
-    const arrow = document.createElement('i');  // span 대신 i 태그로 변경
-    arrow.classList.add('bi', 'bi-chevron-down');  // Bootstrap 아이콘 추가
-    topLevelMenuItem.appendChild(arrow);
+    const link = document.createElement('a');
+    link.href = `#collapse${index}`;
+    link.setAttribute('data-bs-toggle', 'collapse');
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-expanded', 'false');
+    link.setAttribute('aria-controls', `collapse${index}`);
+    link.textContent = topLevelMenu;
+    link.classList.add('d-flex', 'justify-content-between', 'align-items-center');
 
-    topLevelMenuItem.addEventListener('click', () => toggleSubMenu(topLevelMenuItem));
+    const arrow = document.createElement('i');
+    arrow.classList.add('bi', 'bi-chevron-down');
+    link.appendChild(arrow);
+
+    topLevelMenuItem.appendChild(link);
+
+    // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
+    link.addEventListener('click', function() {
+        arrow.classList.toggle('rotate');
+    });
 
     return topLevelMenuItem;
 }
 
-function createSubMenuItems(subMenus) {
-    const subMenuItems = document.createElement('ul');
-    subMenuItems.className = 'sub-menu';
+function createSubMenuItems(subMenus, index) {
+    const subMenuContainer = document.createElement('div');
+    subMenuContainer.id = `collapse${index}`;
+    subMenuContainer.classList.add('collapse');
+
+    const subMenuList = document.createElement('ul');
+    subMenuList.classList.add('list-unstyled', 'pl-3');
 
     subMenus.forEach(function({ subMenu, examName }) {
         const subMenuItem = document.createElement('li');
         subMenuItem.classList.add('menu-item');
 
         const icon = document.createElement('i');
-        icon.classList.add('bi', 'bi-file-text');  // 서브메뉴에 Bootstrap 아이콘 추가
+        icon.classList.add('bi', 'bi-file-text', 'me-2');
         subMenuItem.appendChild(icon);
 
-        const text = document.createElement('span');
-        text.textContent = ' ' + subMenu; // 아이콘과 텍스트 사이에 공백 추가
+        const text = document.createTextNode(subMenu);
         subMenuItem.appendChild(text);
 
         subMenuItem.addEventListener('click', function(event) {
@@ -242,25 +268,12 @@ function createSubMenuItems(subMenus) {
             applySubMenuHighlight(subMenuItem);
         });
 
-        subMenuItems.appendChild(subMenuItem);
+        subMenuList.appendChild(subMenuItem);
     });
 
-    return subMenuItems;
+    subMenuContainer.appendChild(subMenuList);
+    return subMenuContainer;
 }
-
-// 메뉴 펼치기/접기 기능
-function toggleSubMenu(topLevelMenuItem) {
-    const subMenu = topLevelMenuItem.querySelector('.sub-menu');
-    if (subMenu.classList.contains('show')) {
-        subMenu.classList.remove('show');
-        topLevelMenuItem.querySelector('i').classList.replace('bi-chevron-up', 'bi-chevron-down'); // 아이콘을 아래로
-    } else {
-        subMenu.classList.add('show');
-        topLevelMenuItem.querySelector('i').classList.replace('bi-chevron-down', 'bi-chevron-up'); // 아이콘을 위로
-    }
-}
-
-
 
 // 아이콘을 변경하는 함수
 function toggleArrow(arrow, isOpen) {

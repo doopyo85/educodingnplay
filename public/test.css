@@ -232,3 +232,13 @@ pre#output {
 ::-webkit-scrollbar-thumb:hover {
     background: #555; /* 호버 시 스크롤바 색상 */
 }
+
+
+/* 아이콘 회전을 위한 css트랜지션 */
+.bi-chevron-down {
+    transition: transform 0.3s ease-in-out;
+}
+
+.bi-chevron-down.rotate {
+    transform: rotate(180deg);
+}
