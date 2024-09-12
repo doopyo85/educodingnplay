@@ -335,6 +335,7 @@ function resizeIframe(iframe) {
     if (!container) return;
 
     const containerHeight = container.clientHeight;
+    const containerWidth = container.clientWidth;
 
     // iframe의 높이를 컨테이너의 높이로 설정
     iframe.style.height = containerHeight + 'px';
@@ -357,20 +358,12 @@ function resizeIframe(iframe) {
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
-        img { max-width: 100%; height: auto; display: block; }
+        img { max-width: 80%; width: auto; height: auto; display: block; margin: 0 auto; }
     `;
     iframeContent.head.appendChild(style);
 
     // 이미지 가져오기
     const images = iframeContent.getElementsByTagName('img');
-
-    // 텍스트 문단의 최대 너비 계산
-    const paragraphs = iframeContent.getElementsByTagName('p');
-    let maxWidth = 0;
-    Array.from(paragraphs).forEach(p => {
-        const width = p.offsetWidth;
-        if (width > maxWidth) maxWidth = width;
-    });
 
     // 이미지 크기 조정 및 로드 체크
     let imagesLoaded = 0;
@@ -384,9 +377,11 @@ function resizeIframe(iframe) {
     }
 
     Array.from(images).forEach(img => {
-        img.style.maxWidth = '100%';
+        img.style.maxWidth = '80%';
+        img.style.width = 'auto';
         img.style.height = 'auto';
-        img.style.maxWidth = maxWidth + 'px';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
 
         if (img.complete) {
             checkAllImagesLoaded();

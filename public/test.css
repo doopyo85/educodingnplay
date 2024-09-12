@@ -48,9 +48,11 @@ body, html {
 
 /* iframe 내부 이미지 스타일 */
 #iframeContent img {
-    max-width: 100%;
+    max-width: 80%;
     height: auto;
     display: block; /* 이미지 아래 여백 제거 */
+    margin: 0 auto; /* 이미지를 중앙 정렬합니다 */
+
 }
 
 /* iframe 내부 스크롤바 스타일 (가능한 경우) */
