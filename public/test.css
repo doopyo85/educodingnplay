@@ -50,6 +50,24 @@ body, html {
     transition: transform 0.3s;
 }
 
+.nav-container .menu-item a:hover {
+    background-color: #e9ecef;
+}
+
+.nav-container .menu-item.active > a {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.nav-container .sub-menu .menu-item:hover {
+    background-color: #e9ecef;
+}
+
+.nav-container .sub-menu .menu-item.active {
+    font-weight: bold;
+    color: #007bff;
+}
+
 /* 소메뉴 컨테이너 스타일 */
 .nav-container .sub-menu {
     padding-left: 20px;

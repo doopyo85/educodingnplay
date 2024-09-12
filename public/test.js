@@ -196,24 +196,39 @@ function renderMenu(data) {
         index++;
     });
 
-    // Bootstrap의 collapse 기능 초기화
+    // Bootstrap의 collapse 기능 초기화 및 이벤트 리스너 추가
     var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
-    var collapseList = collapseElementList.map(function (collapseEl) {
-        return new bootstrap.Collapse(collapseEl, {
+    collapseElementList.forEach(function(collapseEl) {
+        var collapse = new bootstrap.Collapse(collapseEl, {
             toggle: false
-        })
-    })
+        });
+
+        collapseEl.addEventListener('show.bs.collapse', function() {
+            // 다른 모든 열린 메뉴 닫기
+            collapseElementList.forEach(function(el) {
+                if (el !== collapseEl && el.classList.contains('show')) {
+                    bootstrap.Collapse.getInstance(el).hide();
+                }
+            });
+        });
+    });
 
     // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
     document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-        el.addEventListener('click', function() {
+        el.addEventListener('click', function(event) {
+            event.preventDefault(); // 기본 동작 방지
+            const target = document.querySelector(this.getAttribute('href'));
+            const bsCollapse = bootstrap.Collapse.getInstance(target);
+            if (bsCollapse) {
+                bsCollapse.toggle();
+            }
             const arrow = this.querySelector('.bi');
             if (arrow) {
                 arrow.classList.toggle('rotate');
             }
         });
     });
-}    
+}  
 
 
 function createTopLevelMenuItem(topLevelMenu, index) {
