@@ -39,7 +39,7 @@ body, html {
 
 #iframeContent {
     width: 100%;
-    height: auto; /* 높이를 auto로 설정 */
+    height: 100%; /* 높이를 auto로 설정 */
     border: none;
 }
 
