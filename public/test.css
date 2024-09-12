@@ -95,7 +95,7 @@ body, html {
 /* 가로로 나란히 배열되도록 수정 */
 .content-container {
     display: flex;
-    flex-direction: row; /* 가로로 나란히 배열 */
+    flex-direction: column;
     height: 100%;
     overflow: hidden;
 }
@@ -171,7 +171,10 @@ body, html {
 
 /* 문제 네비게이션 스타일 */
 #problem-navigation-container {
-    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
 }
 
 /* 문제 내비게이션 아이콘 스타일 */
