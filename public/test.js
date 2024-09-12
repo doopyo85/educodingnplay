@@ -36,8 +36,15 @@ function initClient() {
         apiKey: apiKey,
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
     }).then(() => {
-        loadMenuData(spreadsheetId);
-        loadProblemData(spreadsheetId);
+        return Promise.all([
+            loadMenuData(spreadsheetId),
+            loadProblemData(spreadsheetId)
+        ]);
+    }).then(([menuData, problemData]) => {
+        renderMenu(menuData);
+        if (problemData && problemData.length > 0) {
+            onMenuSelect(problemData[0][1]); // Assuming the exam name is in the second column
+        }
     }).catch(error => console.error('Error initializing Google API client', error));
 }
 
@@ -134,19 +141,13 @@ function loadProblemData(spreadsheetId) {
         console.log('Problem data loaded:', problemData);
         
         if (problemData && problemData.length > 0) {
-            // 첫 번째 행이 헤더인 경우 제거
             if (problemData[0][0] === 'URL') {
                 problemData.shift();
             }
-            console.log('First problem:', problemData[0]);
             return problemData;
         } else {
-            console.error('No problem data loaded');
-            return [];
+            throw new Error('No problem data loaded');
         }
-    }).catch(error => {
-        console.error('Error loading problem data:', error);
-        return [];
     });
 }
 
