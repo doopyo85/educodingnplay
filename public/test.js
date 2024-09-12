@@ -226,7 +226,7 @@ function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('i');
 
-    // Close all other submenus
+    // 다른 모든 서브메뉴 닫기
     document.querySelectorAll('.sub-menu.show').forEach(menu => {
         if (menu !== subMenu) {
             menu.classList.remove('show');
@@ -236,7 +236,7 @@ function toggleSubMenu(topLevelMenuItem) {
         }
     });
 
-    // Toggle the current submenu
+    // 현재 서브메뉴 토글
     subMenu.classList.toggle('show');
     if (subMenu.classList.contains('show')) {
         arrow.classList.remove('bi-chevron-down');

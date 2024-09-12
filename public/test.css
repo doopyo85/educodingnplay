@@ -30,6 +30,7 @@ body, html {
 }
 
 .nav-container .menu-item {
+    position: relative;
     padding: 10px 15px;
     cursor: pointer;
 }
@@ -40,18 +41,19 @@ body, html {
     align-items: center;
 }
 
-/* 하위 메뉴가 대메뉴 아래로 열리도록 설정 */
 .nav-container .sub-menu {
     display: none;
-    padding-left: 20px;
-    position: relative; /* 하위 메뉴가 대메뉴 하단에 열리도록 */
-    background-color: #f8f9fa;
+    position: static; /* absolute에서 static으로 변경 */
+    left: auto;
+    top: auto;
     width: 100%;
+    background-color: #f8f9fa;
+    padding-left: 20px;
+    box-shadow: none;
 }
 
-/* 하위 메뉴가 보이게 될 때 설정 */
 .nav-container .sub-menu.show {
-    display: block; /* 클릭 시 하위 메뉴가 아래로 열리도록 */
+    display: block;
 }
 
 
