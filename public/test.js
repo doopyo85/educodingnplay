@@ -349,6 +349,16 @@ function resizeIframe(iframe) {
     iframeBody.style.height = '100%';
     iframeBody.style.overflow = 'auto';
 
+    // iframe 내부 스크롤바 스타일 적용 (가능한 경우)
+    const style = iframeContent.createElement('style');
+    style.textContent = `
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    `;
+    iframeContent.head.appendChild(style);
+
     // 이미지가 로드되면 다시 크기 조정
     const images = iframeContent.getElementsByTagName('img');
     let imagesLoaded = 0;
