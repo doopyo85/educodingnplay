@@ -50,11 +50,13 @@ body, html {
     transition: transform 0.3s;
 }
 
-.nav-container .menu-item a:hover {
+.nav-container .menu-item a:hover,
+.nav-container .sub-menu .menu-item:hover {
     background-color: #e9ecef;
 }
 
-.nav-container .menu-item.active > a {
+.nav-container .menu-item.active > a,
+.nav-container .sub-menu .menu-item.active {
     font-weight: bold;
     color: #007bff;
 }
