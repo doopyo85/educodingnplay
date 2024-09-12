@@ -91,11 +91,10 @@ body, html {
 }
 
 
-
 /* 가로로 나란히 배열되도록 수정 */
 .content-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* 세로 배열에서 가로 배열로 수정 */
     height: 100%;
     overflow: hidden;
 }
@@ -120,7 +119,6 @@ body, html {
     height: auto;
     display: block; /* 이미지 아래 여백 제거 */
     margin: 0 auto; /* 이미지를 중앙 정렬합니다 */
-
 }
 
 /* iframe 내부 스크롤바 스타일 (가능한 경우) */
@@ -245,4 +243,3 @@ pre#output {
 ::-webkit-scrollbar-thumb:hover {
     background: #555; /* 호버 시 스크롤바 색상 */
 }
-
