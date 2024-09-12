@@ -23,7 +23,8 @@ body, html {
     display: flex;
     flex: 1;
     margin-left: 200px;
-    overflow: hidden; /* 부모 컨테이너는 스크롤 숨김 */
+    height: 100%; /* 부모 컨테이너가 전체 높이를 차지하도록 설정 */
+    overflow: hidden; /* 스크롤 방지 */
 }
 
 /* 아이프레임 및 IDE 컨테이너 */

@@ -345,7 +345,7 @@ function resizeIframe(iframe) {
     // 모든 이미지가 로드된 후 높이 재조정
     function adjustIframeHeight() {
         const updatedHeight = iframeContent.body.scrollHeight;
-        iframe.style.height = Math.min(updatedHeight, containerHeight) + 'px';
+        iframe.style.height = containerHeight + 'px';  // 부모 컨테이너 높이에 맞춤
     }
 
     if (images.length > 0) {
