@@ -221,11 +221,12 @@ function createSubMenuItems(subMenus) {
     return subMenuItems;
 }
 
+// Update function to toggle the submenu opening downwards
 function toggleSubMenu(topLevelMenuItem) {
     const subMenu = topLevelMenuItem.querySelector('.sub-menu');
     const arrow = topLevelMenuItem.querySelector('i');
 
-    // 다른 모든 서브메뉴 닫기
+    // Close all other submenus
     document.querySelectorAll('.sub-menu.show').forEach(menu => {
         if (menu !== subMenu) {
             menu.classList.remove('show');
@@ -235,7 +236,7 @@ function toggleSubMenu(topLevelMenuItem) {
         }
     });
 
-    // 현재 서브메뉴 토글
+    // Toggle the current submenu
     subMenu.classList.toggle('show');
     if (subMenu.classList.contains('show')) {
         arrow.classList.remove('bi-chevron-down');
@@ -245,6 +246,7 @@ function toggleSubMenu(topLevelMenuItem) {
         arrow.classList.add('bi-chevron-down');
     }
 }
+
 
 // 아이콘을 변경하는 함수
 function toggleArrow(arrow, isOpen) {
@@ -437,5 +439,13 @@ window.addEventListener('resize', function() {
     const iframe = document.getElementById('iframeContent');
     if (iframe) {
         resizeIframe(iframe);
+    }
+});
+
+// Ensure content and IDE are loaded and displayed side by side
+window.addEventListener('load', function() {
+    const contentContainer = document.querySelector('.content-container');
+    if (contentContainer) {
+        contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
