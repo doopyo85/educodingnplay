@@ -19,6 +19,7 @@ body, html {
     overflow-y: auto;
     background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
+    flex-shrink: 0; /* 네비게이션 영역이 줄어들지 않도록 설정 */
 }
 
 /* 메뉴 스타일 */
@@ -91,10 +92,8 @@ body, html {
     white-space: normal !important;
 }
 
-
 /* 네비게이션 우측의 콘텐츠 영역 */
 .contents {
-    margin-left: 250px; /* nav-list 너비만큼 왼쪽에서 시작 */
     display: flex;
     flex: 1;
     height: 100%;
