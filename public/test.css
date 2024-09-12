@@ -12,9 +12,10 @@ body, html {
     height: calc(100vh - 60px); /* 헤더 높이를 고려한 콘텐츠 높이 조정 */
 }
 
-/* 네비게이션 (메뉴) 컨테이너 */
+/* 네비게이션 컨테이너 스타일 */
 .nav-container {
-    width: 250px; /* 적절한 너비 설정 */
+    width: 250px;
+    padding: 10px;
 }
 
 /* 메뉴 리스트 스타일 */
@@ -25,39 +26,56 @@ body, html {
 }
 
 /* 메뉴 아이템 스타일 */
-.menu-item {
+.nav-container .menu-item {
     padding: 8px 16px;
     cursor: pointer;
-    position: relative; /* 하위 메뉴의 기준점 */
+    position: relative;
+    display: block; /* 강제로 블록 레벨 요소로 만듦 */
+    width: 100%; /* 너비를 100%로 설정 */
 }
 
 /* 대메뉴 스타일 */
-.menu-item.has-sub-menu {
+.nav-container .menu-item.has-sub-menu {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 /* 대메뉴 토글 아이콘 여백 */
-.menu-item.has-sub-menu > i {
+.nav-container .menu-item.has-sub-menu > i {
     margin-left: 8px;
 }
 
 /* 소메뉴 컨테이너 스타일 */
-.sub-menu {
+.nav-container .sub-menu {
     display: none;
-    padding-left: 20px; /* 들여쓰기 효과 */
-    background-color: #f8f9fa; /* 배경색 설정 */
+    padding-left: 20px;
+    background-color: #f8f9fa;
+    width: 100%; /* 부모 너비에 맞춤 */
 }
 
 /* 소메뉴 아이템 스타일 */
-.sub-menu .menu-item {
+.nav-container .sub-menu .menu-item {
     padding: 6px 12px;
 }
 
 /* 펼쳐진 소메뉴 스타일 */
-.sub-menu.show {
+.nav-container .sub-menu.show {
     display: block;
+}
+
+/* Bootstrap 클래스 재정의 */
+.nav-container .dropdown-menu {
+    position: static !important;
+    float: none !important;
+    width: 100% !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.nav-container .dropdown-item {
+    white-space: normal !important;
 }
 
 

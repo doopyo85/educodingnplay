@@ -206,7 +206,7 @@ function createSubMenuItems(subMenus) {
         subMenuItem.appendChild(icon);
 
         const text = document.createElement('span');
-        text.textContent = subMenu;
+        text.textContent = ' ' + subMenu; // 아이콘과 텍스트 사이에 공백 추가
         subMenuItem.appendChild(text);
 
         subMenuItem.addEventListener('click', function(event) {
