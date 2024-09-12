@@ -25,6 +25,7 @@ body, html {
 /* 메뉴 스타일 */
 .nav-container ul {
     list-style-type: none;
+    padding-top: 10px; /* 여백 추가 */
     padding: 0;
     margin: 0;
 }
@@ -59,6 +60,7 @@ body, html {
 .nav-container .sub-menu .menu-item.active {
     font-weight: bold;
     color: #007bff;
+    background-color: #e9ecef; /* 배경색 변경 */
 }
 
 .nav-container .sub-menu .menu-item:hover {
