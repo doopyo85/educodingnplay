@@ -43,12 +43,14 @@ body, html {
     height: 100%;
     border: none;
     overflow-y: auto; /* 세로 스크롤만 허용 */
+    overflow-x: hidden; /* 가로 스크롤 숨김 */
 }
 
-/* 이미지 크기 조정 */
+/* iframe 내부 이미지 스타일 */
 #iframeContent img {
-    max-width: 100%; /* 이미지가 콘텐츠의 너비를 넘지 않도록 제한 */
-    height: auto; /* 비율을 유지하면서 자동으로 높이 조정 */
+    max-width: 100%;
+    height: auto;
+    display: block; /* 이미지 아래 여백 제거 */
 }
 
 /* iframe 내부 스크롤바 스타일 (가능한 경우) */
