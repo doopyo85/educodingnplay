@@ -41,8 +41,17 @@
             </div>
             <div class="ide-container">
                 <div id="app">
-                    <code-editor theme="github-dark" :line-nums="true" :languages="[['cpp', 'C++'], ['python', 'Python']]" />
-                </div>
+                    <code-editor theme="github-dark" :line-nums="true" :languages="[['cpp', 'C++'], ['python', 'Python']]"></code-editor>
+                  </div>
+                  
+                  <script>
+                    const app = Vue.createApp({
+                      components: {
+                        'code-editor': CodeEditor
+                      }
+                    });
+                    app.mount('#app');
+                  </script>
             </div>
         </div>
     </div>
@@ -59,15 +68,5 @@
     <script src="/public/header.js"></script>
     <script src="/public/test.js"></script>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            new Vue({
-                el: '#app',
-                components: {
-                    'code-editor': CodeEditor,
-                },
-            });
-        });
-    </script>
 </body>
 </html>
