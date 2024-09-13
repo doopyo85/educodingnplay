@@ -14,6 +14,7 @@ const { exec } = require('child_process');
 require('dotenv').config();
 const mime = require('mime-types');
 const app = express();
+const fs = require('fs');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -262,7 +263,7 @@ app.post('/run-python', (req, res) => {
           return res.status(500).json({ 
               error: error.message, 
               stderr: stderr,
-              stdout: stdout  // stdout도 함께 전송
+              stdout: stdout
           });
       }
       res.json({ output: stdout });

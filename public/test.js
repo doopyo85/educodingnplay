@@ -131,14 +131,16 @@ function runCode() {
     })
     .then(response => {
         if (!response.ok) {
-            return response.json().then(err => { throw err; });
+            return response.text().then(text => {
+                throw new Error(text);
+            });
         }
         return response.json();
     })
     .then(data => {
         const outputElement = document.getElementById('output');
         if (outputElement) {
-            outputElement.innerText = data.error ? `Error: ${data.error}\nStderr: ${data.stderr}` : data.output;
+            outputElement.innerText = data.error ? `Error: ${data.error}\nStderr: ${data.stderr}\nStdout: ${data.stdout}` : data.output;
         }
         console.log("Execution result:", data);
     })
@@ -146,7 +148,7 @@ function runCode() {
         console.error('Error:', error);
         const outputElement = document.getElementById('output');
         if (outputElement) {
-            outputElement.innerText = `Error: ${JSON.stringify(error, null, 2)}`;
+            outputElement.innerText = `Error: ${error.message}`;
         }
     });
 }
