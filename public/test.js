@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Required elements not found');
         }
 
-        window.menuLoaded = true;  // 메뉴가 로드된 상태로 표시
+        window.menuLoaded = true;
     }
+    setupEventListeners(); // 여기에 추가
 });
 
 
@@ -62,6 +63,7 @@ function initClient() {
 
 
 function setupEventListeners() {
+    console.log("Setting up event listeners"); // 추가
     const runCodeBtn = document.getElementById('runCodeBtn');
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
