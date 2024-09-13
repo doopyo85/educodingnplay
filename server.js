@@ -242,21 +242,22 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/run-python', (req, res) => {
-  console.log('Received code execution request:', req.body);
-  
   const { code } = req.body;
-
   if (!code) {
-    return res.status(400).json({ error: 'Python code is required.' });
+      return res.status(400).send('Python code is required.');
   }
 
-  // 작은따옴표를 사용하여 Python 코드를 감싸고, 내부 작은따옴표 처리
-  exec(`python3 -c '${code.replace(/'/g, "\\'")}'`, (error, stdout, stderr) => {
-    if (error) {
-      console.error('Error executing Python code:', stderr);
-      return res.json({ error: stderr });
-    }
-    res.json({ output: stdout });
+  const tempFile = path.join(__dirname, 'temp_python_script.py');
+  fs.writeFileSync(tempFile, code);
+
+  exec(`python3 ${tempFile}`, (error, stdout, stderr) => {
+      fs.unlinkSync(tempFile);  // 임시 파일 삭제
+
+      if (error) {
+          console.error('Error executing Python code:', stderr);
+          return res.status(500).send(stderr);
+      }
+      res.send(stdout);
   });
 });
 

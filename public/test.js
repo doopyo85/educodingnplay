@@ -112,32 +112,43 @@ function fetchUserData() {
 }
 
 function runCode() {
-    console.log("Run button clicked");  // 버튼 클릭 시 로그
-    const code = document.getElementById('ide').value; // IDE에 입력된 코드 가져오기
+    console.log("Run button clicked");
+    const code = document.getElementById('ide').value;
     
     if (!code) {
         alert('Please enter code before running.');
         return;
     }
 
-    console.log("Code to execute:", code);  // 입력된 코드 확인
+    console.log("Code to execute:", code);
 
     fetch('/run-python', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code })  // Python 코드를 서버로 전송
+        body: JSON.stringify({ code })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();  // JSON.parse를 사용하지 않고 텍스트로 받습니다.
+    })
     .then(data => {
         const outputElement = document.getElementById('output');
         if (outputElement) {
-            outputElement.innerText = data.error ? `Error: ${data.error}` : data.output;
+            outputElement.innerText = data;  // 받은 텍스트를 그대로 출력합니다.
         }
-        console.log("Execution result:", data);  // 서버에서 받은 실행 결과 로그
+        console.log("Execution result:", data);
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        const outputElement = document.getElementById('output');
+        if (outputElement) {
+            outputElement.innerText = `Error: ${error.message}`;
+        }
+    });
 }
 
 
