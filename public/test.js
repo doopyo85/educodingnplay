@@ -467,23 +467,26 @@ window.addEventListener('load', function() {
 
 // 여기서부터 파이썬 ide 코드----------------------------------------------
 async function loadPyodideAndPackages() {
-    if (typeof loadPyodide === 'undefined') {
-        console.error('Pyodide가 아직 로드되지 않았습니다.');
-        return;
-    }
+    const outputElement = document.getElementById('output');
 
-    pyodide = await loadPyodide();
-    await pyodide.loadPackage("numpy");  // 필요한 패키지 로드
-    console.log("Pyodide loaded");
+    // Pyodide가 이미 로드되었는지 확인
+    if (typeof pyodide === 'undefined') {
+        // Pyodide 로딩 중 메시지 출력
+        outputElement.value = 'loading...\n';
+        console.log('loading Pyodide...');
+
+        // Pyodide 로드
+        window.pyodide = await loadPyodide();  // 전역 변수로 설정
+        await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
+
+        // 준비 완료 메시지 출력
+        outputElement.value += '준비되었습니다. 실행할 코드를 입력하세요\n';
+        console.log('Pyodide loaded. 준비되었습니다. 실행할 코드를 입력하세요.');
+    }
 }
 
-// DOMContentLoaded가 완료된 후에 Pyodide를 로드
-document.addEventListener("DOMContentLoaded", function() {
-    loadPyodideAndPackages();
-});
-
-// 파이썬 ide 실행코드
-function runCode() {
+// 코드 실행 함수
+async function runCode() {
     const code = document.getElementById('ide').value;
     const outputElement = document.getElementById('output');
     
@@ -495,21 +498,27 @@ function runCode() {
     try {
         // Python 코드 실행
         let output = pyodide.runPython(code);
-        
-        // 결과가 Pyodide.ffi.PyProxy 객체인 경우 JavaScript 객체로 변환
+
+        // PyProxy 객체일 경우 변환
         if (output instanceof pyodide.ffi.PyProxy) {
             output = output.toJs();
         }
-        
+
         // 출력
         outputElement.value += '>>> ' + code + '\n' + output + '\n';
     } catch (err) {
         outputElement.value += '>>> ' + code + '\n' + err + '\n';
     }
-    
+
     // 스크롤을 아래로 이동
     outputElement.scrollTop = outputElement.scrollHeight;
 }
+
+// Pyodide 로드 후 메시지 출력
+document.addEventListener("DOMContentLoaded", function() {
+    loadPyodideAndPackages();
+});
+
 
 // 키 이벤트 리스너 추가
 document.getElementById('ide').addEventListener('keydown', function(e) {
