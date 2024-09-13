@@ -117,6 +117,23 @@ app.use((req, res, next) => {
   next();
 });
 
+
+// Add this to your server.js file
+app.use('/public', (req, res, next) => {
+  const filePath = path.join(__dirname, 'public', req.url);
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      console.error(`File not found: ${filePath}`);
+      next();
+    } else {
+      console.log(`Serving file: ${filePath}`);
+      res.setHeader('Content-Type', 'application/javascript');
+      res.send(content);
+    }
+  });
+});
+
+
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');

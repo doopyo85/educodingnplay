@@ -465,15 +465,3 @@ window.addEventListener('load', function() {
     }
 });
 
-// 여기서부터 파이썬 ide 코드----------------------------------------------
-import { createApp } from 'vue';
-import CodeEditor from 'simple-code-editor';
-import hljs from 'highlight.js';
-
-const app = createApp({
-  components: {
-    CodeEditor,
-  },
-});
-
-app.mount('#app');
