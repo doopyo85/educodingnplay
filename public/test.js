@@ -470,25 +470,25 @@ window.addEventListener('load', function() {
 async function loadPyodideAndPackages() {
     const outputElement = document.getElementById('output');
 
-    // Pyodide가 이미 로드되었는지 확인
     if (typeof window.pyodide !== 'undefined') {
         console.log('Pyodide already loaded.');
-        return; // 이미 로드된 경우 함수 종료
+        return;
     }
 
-    // Pyodide 로딩 중 메시지 출력
-    outputElement.value = 'loading...\n';
-    console.log('loading Pyodide...');
+    outputElement.value = 'Loading Pyodide...\n';
+    console.log('Loading Pyodide...');
 
-    // Pyodide 로드
-    window.pyodide = await loadPyodide();  // 전역 변수로 설정
-    await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
+    try {
+        window.pyodide = await loadPyodide();
+        await window.pyodide.loadPackage("numpy");
 
-    // 준비 완료 메시지 출력
-    outputElement.value += '준비되었습니다. 실행할 코드를 입력하세요\n';
-    console.log('Pyodide loaded. 준비되었습니다. 실행할 코드를 입력하세요.');
+        outputElement.value += 'Pyodide loaded successfully. Ready to execute Python code.\n';
+        console.log('Pyodide loaded successfully.');
+    } catch (error) {
+        outputElement.value += `Error loading Pyodide: ${error}\n`;
+        console.error('Error loading Pyodide:', error);
+    }
 }
-
 // 코드 실행 함수
 async function runCode() {
     const code = document.getElementById('ide').value;
@@ -499,34 +499,35 @@ async function runCode() {
         return;
     }
 
-    try {
-        // Python 코드 실행
-        let output = pyodide.runPython(code);
-
-        // PyProxy 객체일 경우 변환
-        if (output instanceof pyodide.ffi.PyProxy) {
-            output = output.toJs();
-        }
-
-        // 출력
-        outputElement.value += '>>> ' + code + '\n' + output + '\n';
-    } catch (err) {
-        outputElement.value += '>>> ' + code + '\n' + err + '\n';
+    if (typeof window.pyodide === 'undefined') {
+        outputElement.value += 'Error: Pyodide is not loaded. Please wait for initialization to complete.\n';
+        return;
     }
 
-    // 스크롤을 아래로 이동
+    try {
+        let output = await window.pyodide.runPythonAsync(code);
+
+        if (output instanceof window.pyodide.ffi.PyProxy) {
+            output = output.toString();
+        }
+
+        outputElement.value += '>>> ' + code + '\n' + output + '\n';
+    } catch (err) {
+        outputElement.value += '>>> ' + code + '\n' + 'Error: ' + err.message + '\n';
+    }
+
     outputElement.scrollTop = outputElement.scrollHeight;
 }
 
 // Pyodide 로드 후 메시지 출력
-document.addEventListener("DOMContentLoaded", function() {
-    loadPyodideAndPackages();
+document.addEventListener("DOMContentLoaded", async function() {
+    await loadPyodideAndPackages();
 });
 
 // 키 이벤트 리스너 추가
-document.getElementById('ide').addEventListener('keydown', function(e) {
+document.getElementById('ide').addEventListener('keydown', async function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();  // 기본 엔터 동작 방지
-        runCode();
+        e.preventDefault();
+        await runCode();
     }
 });
