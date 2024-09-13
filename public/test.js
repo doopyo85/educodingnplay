@@ -467,6 +467,7 @@ window.addEventListener('load', function() {
 
 // Vue.js 로드 확인
 document.addEventListener('DOMContentLoaded', function() {
+    // Vue.js 로드 확인
     if (typeof Vue === 'undefined') {
         console.error('Vue is not loaded');
         return;
@@ -477,12 +478,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('CodeEditor is not loaded');
         return;
     }
-    
-    // Vue 인스턴스 생성
-    new Vue({
-        el: '#app',
+
+    // Vue 인스턴스 생성 (Vue 3.x 방식)
+    const app = Vue.createApp({
         components: {
             'code-editor': CodeEditor
         }
     });
+    app.mount('#app');
 });
