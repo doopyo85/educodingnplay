@@ -466,9 +466,6 @@ window.addEventListener('load', function() {
 });
 
 // 여기서부터 파이썬 ide 코드----------------------------------------------
-// 전역에서 중복 선언 방지
-let pyodide;
-
 async function loadPyodideAndPackages() {
     if (!pyodide) {
         pyodide = await loadPyodide();
@@ -476,6 +473,8 @@ async function loadPyodideAndPackages() {
         console.log("Pyodide loaded");
     }
 }
+
+loadPyodideAndPackages();
 
 // 파이썬 ide 실행코드
 function runCode() {
