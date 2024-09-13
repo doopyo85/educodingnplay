@@ -223,12 +223,12 @@ body, html {
 }
 
 /* 출력 영역 스타일 */
-pre#output {
-    height: 30%;
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    margin: 0;
+#output {
+    width: 100%;
+    height: 200px;  /* 또는 원하는 높이 */
+    background-color: #f0f0f0;
+    font-family: monospace;
+    white-space: pre-wrap;
     overflow-y: auto;
 }
 

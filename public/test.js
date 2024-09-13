@@ -23,6 +23,17 @@ document.addEventListener("DOMContentLoaded", function() {
     setupEventListeners(); // 여기에 추가
 });
 
+let pyodide;
+
+async function loadPyodideAndPackages() {
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
+    console.log("Pyodide loaded");
+}
+
+loadPyodideAndPackages();
+
+
 
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;
@@ -110,55 +121,6 @@ function fetchUserData() {
             });
     }
 }
-
-function runCode() {
-    console.log("Run button clicked");
-    const code = document.getElementById('ide').value;
-    
-    // 사용자로부터 입력값을 받습니다.
-    const userInput = prompt("입력이 필요합니다. 여러 값을 입력할 경우 공백으로 구분하세요:");
-    
-    if (!code) {
-        alert('Please enter code before running.');
-        return;
-    }
-
-    console.log("Code to execute:", code);
-    console.log("User input:", userInput);
-
-    fetch('/run-python', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code, input: userInput })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(text);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        const outputElement = document.getElementById('output');
-        if (outputElement) {
-            outputElement.innerText = data.error ? `Error: ${data.error}\nStderr: ${data.stderr}\nStdout: ${data.stdout}` : data.output;
-        }
-        console.log("Execution result:", data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        const outputElement = document.getElementById('output');
-        if (outputElement) {
-            outputElement.innerText = `Error: ${error.message}`;
-        }
-    });
-}
-
-
-
   
 function loadMenuData(spreadsheetId) {
     return gapi.client.sheets.spreadsheets.values.get({
@@ -512,5 +474,42 @@ window.addEventListener('load', function() {
     const contentContainer = document.querySelector('.content-container');
     if (contentContainer) {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
+    }
+});
+
+// 여기서부터 파이썬 ide 실행코드
+function runCode() {
+    const code = document.getElementById('ide').value;
+    const outputElement = document.getElementById('output');
+    
+    if (!code) {
+        alert('Please enter code before running.');
+        return;
+    }
+
+    try {
+        // Python 코드 실행
+        let output = pyodide.runPython(code);
+        
+        // 결과가 Pyodide.ffi.PyProxy 객체인 경우 JavaScript 객체로 변환
+        if (output instanceof pyodide.ffi.PyProxy) {
+            output = output.toJs();
+        }
+        
+        // 출력
+        outputElement.value += '>>> ' + code + '\n' + output + '\n';
+    } catch (err) {
+        outputElement.value += '>>> ' + code + '\n' + err + '\n';
+    }
+    
+    // 스크롤을 아래로 이동
+    outputElement.scrollTop = outputElement.scrollHeight;
+}
+
+// 키 이벤트 리스너 추가
+document.getElementById('ide').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();  // 기본 엔터 동작 방지
+        runCode();
     }
 });
