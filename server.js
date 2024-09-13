@@ -242,25 +242,32 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/run-python', (req, res) => {
+  console.log('Received code execution request:', req.body);
   const { code } = req.body;
+
   if (!code) {
-      return res.status(400).send('Python code is required.');
+      return res.status(400).json({ error: 'Python code is required.' });
   }
 
+  // 임시 파일에 코드 저장
   const tempFile = path.join(__dirname, 'temp_python_script.py');
   fs.writeFileSync(tempFile, code);
 
   exec(`python3 ${tempFile}`, (error, stdout, stderr) => {
-      fs.unlinkSync(tempFile);  // 임시 파일 삭제
+      // 임시 파일 삭제
+      fs.unlinkSync(tempFile);
 
       if (error) {
-          console.error('Error executing Python code:', stderr);
-          return res.status(500).send(stderr);
+          console.error('Error executing Python code:', error);
+          return res.status(500).json({ 
+              error: error.message, 
+              stderr: stderr,
+              stdout: stdout  // stdout도 함께 전송
+          });
       }
-      res.send(stdout);
+      res.json({ output: stdout });
   });
 });
-
 
 // 이 라우트를 마지막에 배치
 app.get('*', authenticateUser, (req, res) => {

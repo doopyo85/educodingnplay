@@ -131,14 +131,14 @@ function runCode() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json().then(err => { throw err; });
         }
-        return response.text();  // JSON.parse를 사용하지 않고 텍스트로 받습니다.
+        return response.json();
     })
     .then(data => {
         const outputElement = document.getElementById('output');
         if (outputElement) {
-            outputElement.innerText = data;  // 받은 텍스트를 그대로 출력합니다.
+            outputElement.innerText = data.error ? `Error: ${data.error}\nStderr: ${data.stderr}` : data.output;
         }
         console.log("Execution result:", data);
     })
@@ -146,7 +146,7 @@ function runCode() {
         console.error('Error:', error);
         const outputElement = document.getElementById('output');
         if (outputElement) {
-            outputElement.innerText = `Error: ${error.message}`;
+            outputElement.innerText = `Error: ${JSON.stringify(error, null, 2)}`;
         }
     });
 }
