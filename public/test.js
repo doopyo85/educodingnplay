@@ -466,6 +466,8 @@ window.addEventListener('load', function() {
 });
 
 // Vue.js 로드 확인
+import CodeEditor from 'simple-code-editor/CodeEditor.vue';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Vue.js 로드 확인
     if (typeof Vue === 'undefined') {
