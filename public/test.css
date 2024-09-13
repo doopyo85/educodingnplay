@@ -222,15 +222,17 @@ body, html {
     padding: 10px;
 }
 
-/* 출력 영역 스타일 */
+/* 파이썬 ide 콘솔 출력창 스타일 수정 */
 #output {
     width: 100%;
-    height: 200px;  /* 또는 원하는 높이 */
-    background-color: #f0f0f0;
+    height: 200px;
+    background-color: #1e1e1e;  /* 짙은 배경색으로 변경 */
+    color: #00ff00; /* 밝은 초록색으로 텍스트 변경 */
     font-family: monospace;
     white-space: pre-wrap;
     overflow-y: auto;
 }
+
 
 /* IDE 컨트롤 패널 */
 .ide-controls {

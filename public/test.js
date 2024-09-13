@@ -23,18 +23,6 @@ document.addEventListener("DOMContentLoaded", function() {
     setupEventListeners(); // 여기에 추가
 });
 
-let pyodide;
-
-async function loadPyodideAndPackages() {
-    pyodide = await loadPyodide();
-    await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
-    console.log("Pyodide loaded");
-}
-
-loadPyodideAndPackages();
-
-
-
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
@@ -477,7 +465,19 @@ window.addEventListener('load', function() {
     }
 });
 
-// 여기서부터 파이썬 ide 실행코드
+// 여기서부터 파이썬 ide 코드----------------------------------------------
+// 전역에서 중복 선언 방지
+let pyodide;
+
+async function loadPyodideAndPackages() {
+    if (!pyodide) {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
+        console.log("Pyodide loaded");
+    }
+}
+
+// 파이썬 ide 실행코드
 function runCode() {
     const code = document.getElementById('ide').value;
     const outputElement = document.getElementById('output');
