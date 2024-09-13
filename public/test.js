@@ -110,13 +110,15 @@ function fetchUserData() {
 }
 
 function runCode() {
-    console.log("Run button clicked");
+    console.log("Run button clicked");  // 버튼 클릭 시 로그
     const code = document.getElementById('ide').value; // IDE에 입력된 코드 가져오기
     
     if (!code) {
         alert('Please enter code before running.');
         return;
     }
+
+    console.log("Code to execute:", code);  // 입력된 코드 확인
 
     fetch('/run-python', {
         method: 'POST',
@@ -131,9 +133,11 @@ function runCode() {
         if (outputElement) {
             outputElement.innerText = data.error ? `Error: ${data.error}` : data.output;
         }
+        console.log("Execution result:", data);  // 서버에서 받은 실행 결과 로그
     })
     .catch(error => console.error('Error:', error));
 }
+
 
 
   
