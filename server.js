@@ -64,7 +64,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.set('trust proxy', 1);
 
 app.use((req, res, next) => {
@@ -120,7 +119,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use('/public', (req, res, next) => {
   const filePath = path.join(__dirname, 'public', req.url);
   
@@ -150,9 +148,9 @@ app.use('/public', (req, res, next) => {
   });
 });
 
-
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
+app.use('/vue-ide', express.static(__dirname + '/vue-ide/public'));
 
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();

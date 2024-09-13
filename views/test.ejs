@@ -42,6 +42,17 @@
             <div class="ide-container">
                 <div id="app">
                     <code-editor theme="github-dark" :line-nums="true" :languages="[['cpp', 'C++'], ['python', 'Python']]"></code-editor>
+                    <script>
+                        const app = Vue.createApp({
+                          data() {
+                            return {
+                              message: 'Hello from Vue!'
+                            }
+                          }
+                        });
+                      
+                        app.mount('#app');
+                      </script>
                 </div>                  
             </div>
         </div>
@@ -56,6 +67,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script> <!-- CDN으로 highlight.js 추가 -->
     <script src="/public/header.js"></script>
     <script src="/public/test.js"></script>
-    
+    <script src="/vue-ide/bundle.js"></script>
 </body>
 </html>
