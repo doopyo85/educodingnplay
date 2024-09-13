@@ -466,68 +466,14 @@ window.addEventListener('load', function() {
 });
 
 // 여기서부터 파이썬 ide 코드----------------------------------------------
-// Pyodide 로드 함수
-async function loadPyodideAndPackages() {
-    const outputElement = document.getElementById('output');
+import { createApp } from 'vue';
+import CodeEditor from 'simple-code-editor';
+import hljs from 'highlight.js';
 
-    if (typeof window.pyodide !== 'undefined') {
-        console.log('Pyodide already loaded.');
-        return;
-    }
-
-    outputElement.value = 'Loading Pyodide...\n';
-    console.log('Loading Pyodide...');
-
-    try {
-        window.pyodide = await loadPyodide();
-        await window.pyodide.loadPackage("numpy");
-
-        outputElement.value += 'Pyodide loaded successfully. Ready to execute Python code.\n';
-        console.log('Pyodide loaded successfully.');
-    } catch (error) {
-        outputElement.value += `Error loading Pyodide: ${error}\n`;
-        console.error('Error loading Pyodide:', error);
-    }
-}
-// 코드 실행 함수
-async function runCode() {
-    const code = document.getElementById('ide').value;
-    const outputElement = document.getElementById('output');
-    
-    if (!code) {
-        alert('Please enter code before running.');
-        return;
-    }
-
-    if (typeof window.pyodide === 'undefined') {
-        outputElement.value += 'Error: Pyodide is not loaded. Please wait for initialization to complete.\n';
-        return;
-    }
-
-    try {
-        let output = await window.pyodide.runPythonAsync(code);
-
-        if (output instanceof window.pyodide.ffi.PyProxy) {
-            output = output.toString();
-        }
-
-        outputElement.value += '>>> ' + code + '\n' + output + '\n';
-    } catch (err) {
-        outputElement.value += '>>> ' + code + '\n' + 'Error: ' + err.message + '\n';
-    }
-
-    outputElement.scrollTop = outputElement.scrollHeight;
-}
-
-// Pyodide 로드 후 메시지 출력
-document.addEventListener("DOMContentLoaded", async function() {
-    await loadPyodideAndPackages();
+const app = createApp({
+  components: {
+    CodeEditor,
+  },
 });
 
-// 키 이벤트 리스너 추가
-document.getElementById('ide').addEventListener('keydown', async function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        await runCode();
-    }
-});
+app.mount('#app');
