@@ -1,5 +1,7 @@
 // codeeditor 가져오기
 import CodeEditor from '../node_modules/simple-code-editor/CodeEditor.vue';
+export {}; //이 파일을 모듈로 만듭니다. 
+
 
 // 전역 변수 선언을 파일 맨 위로 이동하고 모두 var로 변경
 var currentProblemNumber = 1;
