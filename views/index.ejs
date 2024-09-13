@@ -39,6 +39,18 @@
     <!-- 헤더 추가 -->
     <%- include('partials/header') %>
 
+
+    <!-- Lodash CDN 사용 -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    
+    <!-- Lodash 함수 사용 -->
+    <p><script>document.write(_.capitalize('lodash가 잘 작동합니다!'));</script></p>
+    
+    <div id="app"></div>
+    <script src="/bundle.js"></script>
+
+
+
     <div class="container mt-5">
         <h1 class="text-center">나에게 맞는 학습 기회를 찾아보세요!</h1>
         <p class="text-center">논리길을 끄는 비디오, 자기 주도형 튜토리얼, 프로그래밍 활동 등을 통해 컴퓨터 과학의 세계를 탐구해보세요!</p>
