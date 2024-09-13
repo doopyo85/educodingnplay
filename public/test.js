@@ -467,14 +467,20 @@ window.addEventListener('load', function() {
 
 // 여기서부터 파이썬 ide 코드----------------------------------------------
 async function loadPyodideAndPackages() {
-    if (!pyodide) {
-        pyodide = await loadPyodide();
-        await pyodide.loadPackage("numpy");  // 필요한 패키지가 있다면 여기에 추가
-        console.log("Pyodide loaded");
+    if (typeof loadPyodide === 'undefined') {
+        console.error('Pyodide가 아직 로드되지 않았습니다.');
+        return;
     }
+
+    pyodide = await loadPyodide();
+    await pyodide.loadPackage("numpy");  // 필요한 패키지 로드
+    console.log("Pyodide loaded");
 }
 
-loadPyodideAndPackages();
+// DOMContentLoaded가 완료된 후에 Pyodide를 로드
+document.addEventListener("DOMContentLoaded", function() {
+    loadPyodideAndPackages();
+});
 
 // 파이썬 ide 실행코드
 function runCode() {
