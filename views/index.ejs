@@ -34,20 +34,17 @@
             object-fit: contain; /* 이미지 비율 유지하며 맞춤 */
         }
     </style>
+    <!-- Lodash CDN 사용 -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 </head>
 <body>
     <!-- 헤더 추가 -->
     <%- include('partials/header') %>
-
-
-    <!-- Lodash CDN 사용 -->
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     
+     
+    <div id="app"></div>
     <!-- Lodash 함수 사용 -->
     <p><script>document.write(_.capitalize('lodash가 잘 작동합니다!'));</script></p>
-    
-    <div id="app"></div>
-    <script src="/bundle.js"></script>
 
 
 
@@ -113,5 +110,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/header.js"></script>
+    <script src="/bundle.js"></script>
 </body>
 </html>
