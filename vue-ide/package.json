@@ -1,0 +1,28 @@
+{
+  "name": "vue-ide",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.x.x",
+    "@babel/preset-env": "^7.x.x",
+    "babel-loader": "^8.x.x",
+    "css-loader": "^6.x.x",
+    "simple-code-editor": "^x.x.x",
+    "style-loader": "^3.x.x",
+    "vue": "^3.x.x",
+    "vue-loader": "^16.x.x",
+    "webpack": "^5.x.x",
+    "webpack-cli": "^4.x.x"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.6.0"
+  }
+}
