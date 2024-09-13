@@ -41,20 +41,41 @@
             </div>
             <div class="ide-container">
                 <div id="app">
-                    <code-editor theme="github-dark" :line-nums="true" :languages="[['cpp', 'C++'], ['python', 'Python']]"></code-editor>
+                    <!-- 코드 에디터 -->
+                    <code-editor theme="vs2015" :line-nums="true" :languages="[['python', 'Python'], ['cpp', 'C++']]" default-language="python"></code-editor>
+                    
+                    <!-- 실행 버튼 추가 -->
+                    <button @click="runCode">Run Code</button>
+            
+                    <!-- 출력 터미널 추가 -->
+                    <div id="output-terminal">
+                        <h3>Output:</h3>
+                        <pre id="output-content"></pre>
+                    </div>
+                    
                     <script>
+                        // Vue 애플리케이션 초기화
                         const app = Vue.createApp({
                           data() {
                             return {
                               message: 'Hello from Vue!'
+                            };
+                          },
+                          methods: {
+                            // 실행 버튼을 누르면 에디터의 코드를 출력
+                            runCode() {
+                              const code = document.querySelector('code-editor').getCode(); // 코드 에디터에서 코드를 가져옵니다.
+                              document.getElementById('output-content').innerText = `Running code:\n${code}`;
                             }
                           }
                         });
                       
+                        // Vue 애플리케이션을 #app 요소에 마운트
                         app.mount('#app');
-                      </script>
+                    </script>
                 </div>                  
             </div>
+            
         </div>
     </div>
     <div id="dynamic-content"></div>
