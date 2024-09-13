@@ -42,20 +42,7 @@
             <div class="ide-container">
                 <div id="app">
                     <code-editor theme="github-dark" :line-nums="true" :languages="[['cpp', 'C++'], ['python', 'Python']]"></code-editor>
-                </div>
-                  
-                <script type="module" src="/public/test.js">
-                    import CodeEditor from '/node_modules/simple-code-editor/CodeEditor.vue';
-                    
-                    const app = Vue.createApp({
-                      components: {
-                        'code-editor': CodeEditor
-                      }
-                    });
-                  
-                    app.mount('#app');
-                </script>
-                  
+                </div>                  
             </div>
         </div>
     </div>
@@ -67,7 +54,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script> <!-- CDN으로 highlight.js 추가 -->
-    <script src="https://simple-code-editor.vicuxd.com/simple-code-editor.js"></script> <!-- simple-code-editor CDN -->
     <script src="/public/header.js"></script>
     <script src="/public/test.js"></script>
     

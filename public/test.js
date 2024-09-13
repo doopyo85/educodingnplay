@@ -1,3 +1,6 @@
+// codeeditor 가져오기
+import CodeEditor from '../node_modules/simple-code-editor/CodeEditor.vue';
+
 // 전역 변수 선언을 파일 맨 위로 이동하고 모두 var로 변경
 var currentProblemNumber = 1;
 var totalProblems = 10;
@@ -466,26 +469,17 @@ window.addEventListener('load', function() {
 });
 
 // Vue.js 로드 확인
-import CodeEditor from 'simple-code-editor/CodeEditor.vue';
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Vue.js 로드 확인
     if (typeof Vue === 'undefined') {
         console.error('Vue is not loaded');
         return;
     }
-    
-    // CodeEditor 컴포넌트 로드 확인
-    if (typeof CodeEditor === 'undefined') {
-        console.error('CodeEditor is not loaded');
-        return;
-    }
 
-    // Vue 인스턴스 생성 (Vue 3.x 방식)
     const app = Vue.createApp({
         components: {
             'code-editor': CodeEditor
         }
     });
+
     app.mount('#app');
 });
