@@ -115,19 +115,23 @@ function runCode() {
     console.log("Run button clicked");
     const code = document.getElementById('ide').value;
     
+    // 사용자로부터 입력값을 받습니다.
+    const userInput = prompt("입력이 필요합니다. 여러 값을 입력할 경우 공백으로 구분하세요:");
+    
     if (!code) {
         alert('Please enter code before running.');
         return;
     }
 
     console.log("Code to execute:", code);
+    console.log("User input:", userInput);
 
     fetch('/run-python', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code, input: userInput })
     })
     .then(response => {
         if (!response.ok) {

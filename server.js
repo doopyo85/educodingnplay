@@ -244,15 +244,18 @@ app.get('/logout', (req, res) => {
 
 app.post('/run-python', (req, res) => {
   console.log('Received code execution request:', req.body);
-  const { code } = req.body;
+  const { code, input } = req.body;
 
   if (!code) {
       return res.status(400).json({ error: 'Python code is required.' });
   }
 
-  // 임시 파일에 코드 저장
+  // input() 함수 호출을 대체하는 코드를 추가합니다.
+  const modifiedCode = code.replace(/input\([^)]*\)/g, `"${input}".split()`);
+
+  // 임시 파일에 수정된 코드 저장
   const tempFile = path.join(__dirname, 'temp_python_script.py');
-  fs.writeFileSync(tempFile, code);
+  fs.writeFileSync(tempFile, modifiedCode);
 
   exec(`python3 ${tempFile}`, (error, stdout, stderr) => {
       // 임시 파일 삭제
