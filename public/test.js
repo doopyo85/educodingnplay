@@ -1,8 +1,3 @@
-// codeeditor 가져오기
-import CodeEditor from '../node_modules/simple-code-editor/CodeEditor.vue';
-export {}; //이 파일을 모듈로 만듭니다. 
-
-
 // 전역 변수 선언을 파일 맨 위로 이동하고 모두 var로 변경
 var currentProblemNumber = 1;
 var totalProblems = 10;
@@ -468,20 +463,4 @@ window.addEventListener('load', function() {
     if (contentContainer) {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
-});
-
-// Vue.js 로드 확인
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof Vue === 'undefined') {
-        console.error('Vue is not loaded');
-        return;
-    }
-
-    const app = Vue.createApp({
-        components: {
-            'code-editor': CodeEditor
-        }
-    });
-
-    app.mount('#app');
 });
