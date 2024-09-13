@@ -5,16 +5,16 @@ const redis = require('redis');
 const db = require('./lib_login/db');
 const jwt = require('jsonwebtoken');
 const AWS = require('aws-sdk');
-const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth');
 const { exec } = require('child_process');
 require('dotenv').config();
+const path = require('path');
 const mime = require('mime-types');
-const app = express();
 const fs = require('fs');
+const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -118,27 +118,36 @@ app.use((req, res, next) => {
 });
 
 
-// Add this to your server.js file
 app.use('/public', (req, res, next) => {
   const filePath = path.join(__dirname, 'public', req.url);
+  
   fs.readFile(filePath, (err, content) => {
     if (err) {
       console.error(`File not found: ${filePath}`);
-      next();
-    } else {
-      console.log(`Serving file: ${filePath}`);
-      res.setHeader('Content-Type', 'application/javascript');
-      res.send(content);
+      return next(); // 파일을 찾지 못한 경우 다음 미들웨어로 넘김
     }
+
+    console.log(`Serving file: ${filePath}`);
+    
+    // MIME 타입 결정
+    let contentType = mime.lookup(filePath);
+    
+    // JavaScript 파일의 경우 항상 'application/javascript'로 설정
+    if (path.extname(filePath) === '.js') {
+      contentType = 'application/javascript';
+    }
+    
+    // MIME 타입을 결정하지 못한 경우 기본값 사용
+    if (!contentType) {
+      contentType = 'application/octet-stream';
+    }
+
+    res.setHeader('Content-Type', contentType);
+    res.send(content);
   });
 });
 
 
-app.use('/public', express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, filePath) => {
-    res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
-  }
-}));
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 

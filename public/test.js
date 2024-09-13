@@ -465,3 +465,24 @@ window.addEventListener('load', function() {
     }
 });
 
+// Vue.js 로드 확인
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Vue === 'undefined') {
+        console.error('Vue is not loaded');
+        return;
+    }
+    
+    // CodeEditor 컴포넌트 로드 확인
+    if (typeof CodeEditor === 'undefined') {
+        console.error('CodeEditor is not loaded');
+        return;
+    }
+    
+    // Vue 인스턴스 생성
+    new Vue({
+        el: '#app',
+        components: {
+            'code-editor': CodeEditor
+        }
+    });
+});
