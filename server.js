@@ -95,15 +95,6 @@ app.get('/config', (req, res) => {
   });
 });
 
-// Google Sheets API 및 S3 설정
-const sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
-const s3Client = new S3Client({
-  region: 'ap-northeast-2',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  }
-});
 
 // S3에서 파일 가져오기 함수
 const getObjectFromS3 = async (fileName) => {
