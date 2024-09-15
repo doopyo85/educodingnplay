@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
@@ -11,7 +12,6 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth');
 const { exec } = require('child_process');
-require('dotenv').config();
 const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
@@ -37,6 +37,8 @@ const s3Client = new S3Client({
 });
 
 const BUCKET_NAME = 'educodingnplaycontents';
+console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
+console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
 
 // S3에서 객체 가져오는 함수 (async/await 사용)
 const getObjectFromS3 = async (key) => {
