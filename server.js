@@ -57,6 +57,13 @@ app.use(session({
   }
 }));
 
+// 세션 및 쿠키 상태 점검
+app.use((req, res, next) => {
+  console.log('세션 정보:', req.session);
+  console.log('쿠키 정보:', req.headers.cookie);
+  next();
+});
+
 // 정적 파일 제공 설정
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
@@ -94,7 +101,10 @@ app.get('/config', (req, res) => {
 const sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
-  credentials: fromEnv()
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }
 });
 
 // S3에서 파일 가져오기 함수
