@@ -70,6 +70,11 @@ app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')))
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
+// /favicon.ico 요청을 처리하여 업로드된 파일을 제공
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon_cna.ico'));
+});
+
 // JWT를 이용한 사용자 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
