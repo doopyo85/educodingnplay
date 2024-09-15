@@ -6,7 +6,7 @@
     <title>코딩앤아카데미 - 쉽게 배우는 프로그래밍</title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
     <!-- Simple Code Editor CSS -->
@@ -18,49 +18,61 @@
     <link rel="stylesheet" href="/public/test.css">
     
     <style>
-        code-editor {
+        .ide-container code-editor {
             width: 100% !important;
             height: 70vh !important;
         }
     </style>
+
+    <!-- Hidden inputs -->
+    <input type="hidden" id="googleApiKey" value="<%= googleApiKey %>">
+    <input type="hidden" id="spreadsheetId" value="<%= spreadsheetId %>">
+    <input type="hidden" id="discoveryDocs" value="<%= discoveryDocs %>">
 </head>
 <body>
-    <div id="app">
-        <!-- Your Vue app template here -->
-        <div class="main-container">
-            <nav class="nav-container">
-                <!-- Navigation content -->
-            </nav>
-            <div class="contents">
-                <div class="content-container">
-                    <!-- Content here -->
+    <%- include('partials/header') %>
+    <div class="main-container">
+        <nav class="nav-container">
+            <ul id="navList" class="list-unstyled">
+                <!-- Google Sheets에서 동적으로 메뉴 추가 -->
+            </ul>
+        </nav>
+        <div class="contents">
+            <div class="content-container">
+                <div id="problem-navigation-container">
+                    <i class="bi bi-chevron-left" id="prev-problem"></i>
+                    <div id="problem-navigation"></div>
+                    <i class="bi bi-chevron-right" id="next-problem"></i>
                 </div>
-                <div class="ide-container">
-                    <code-editor 
-                        v-if="editorMounted"
-                        :theme="editorTheme" 
-                        :line-nums="true" 
-                        :languages="editorLanguages"
-                        :default-language="defaultLanguage"
-                        @update:modelValue="onCodeChange">
-                    </code-editor>
-                    <button @click="runCode" class="btn btn-primary mt-3">Run Code</button>
-                    <div id="output-terminal" class="mt-3">
-                        <h3>Output:</h3>
-                        <pre id="output-content" class="p-3 bg-dark text-light">{{ output }}</pre>
-                    </div>
+                <div id="problem-title"></div>
+                <div id="problem-container">
+                    <iframe id="iframeContent" src="about:blank"></iframe>
+                </div>
+            </div>
+            <div class="ide-container">
+                <div id="app">
+                    <!-- Vue app will be mounted here -->
                 </div>
             </div>
         </div>
     </div>
+    <div id="dynamic-content"></div>
 
-    <!-- Vue 3 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+
     <!-- Simple Code Editor -->
     <script src="/path/to/simple-code-editor.umd.js"></script>
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
     
-    <!-- Your custom scripts -->
+    <!-- Custom Scripts -->
     <script src="/public/header.js"></script>
     <script src="/public/test.js"></script>
 
@@ -68,20 +80,27 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    editorMounted: false,
-                    editorTheme: 'vs2015',
-                    editorLanguages: [['python', 'Python'], ['cpp', 'C++']],
-                    defaultLanguage: 'python',
                     code: '',
                     output: ''
-                }
+                };
             },
-            mounted() {
-                this.editorMounted = true;
-                this.$nextTick(() => {
-                    this.applyCustomStyles();
-                });
-            },
+            template: `
+                <code-editor 
+                    ref="editor"
+                    theme="vs2015" 
+                    :line-nums="true" 
+                    :languages="[['python', 'Python'], ['cpp', 'C++']]"
+                    default-language="python"
+                    @update:modelValue="onCodeChange">
+                </code-editor>
+                
+                <button @click="runCode" class="btn btn-primary mt-3">Run Code</button>
+        
+                <div id="output-terminal" class="mt-3">
+                    <h3>Output:</h3>
+                    <pre id="output-content" class="p-3 bg-dark text-light">{{ output }}</pre>
+                </div>
+            `,
             methods: {
                 onCodeChange(newCode) {
                     this.code = newCode;
@@ -90,17 +109,34 @@
                     this.output = `Running code:\n${this.code}`;
                 },
                 applyCustomStyles() {
-                    const editorElement = this.$el.querySelector('code-editor');
+                    const editorElement = this.$refs.editor.$el;
                     if (editorElement) {
                         editorElement.style.setProperty('width', '100%', 'important');
                         editorElement.style.setProperty('height', '70vh', 'important');
                     }
                 }
+            },
+            mounted() {
+                this.$nextTick(() => {
+                    this.applyCustomStyles();
+                });
             }
         });
 
         app.component('code-editor', window.SimpleCodeEditor);
+
         app.mount('#app');
+
+        // Additional style application after DOM content loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const editorElement = document.querySelector('.ide-container code-editor');
+                if (editorElement) {
+                    editorElement.style.setProperty('width', '100%', 'important');
+                    editorElement.style.setProperty('height', '70vh', 'important');
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html>
