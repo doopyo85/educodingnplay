@@ -5,63 +5,31 @@ const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const db = require('./lib_login/db');
 const jwt = require('jsonwebtoken');
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');  // AWS SDK v3
-const { fromEnv } = require('@aws-sdk/credential-provider-env');        // 환경 변수에서 자격 증명을 가져오기 위한 모듈
 const cors = require('cors');
+const { google } = require('googleapis');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { fromEnv } = require('@aws-sdk/credential-provider-env');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth');
-const { exec } = require('child_process');
-const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
+const path = require('path');
 const app = express();
 
+// EJS 템플릿 엔진 설정
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// JWT 시크릿 키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-app.get('/config', (req, res) => {
-  res.json({
-    apiKey: process.env.GOOGLE_API_KEY,
-    discoveryDocs: process.env.DISCOVERY_DOCS,
-    spreadsheetId: process.env.SPREADSHEET_ID,
-  });
-});
-
-// S3 클라이언트 설정 (v3)
-const s3Client = new S3Client({
-  region: 'ap-northeast-2',
-  credentials: fromEnv()  // 환경 변수에서 자격 증명을 로드
-});
-
-const BUCKET_NAME = 'educodingnplaycontents';
-console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
-console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
-
-// S3에서 객체 가져오는 함수 (async/await 사용)
-const getObjectFromS3 = async (fileName) => {
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: fileName  // 동적으로 파일 이름을 받아 처리
-  };
-
-  try {
-    const data = await s3Client.send(new GetObjectCommand(params));
-    return data.Body;  // 파일 내용을 반환
-  } catch (err) {
-    console.error(`Error fetching file from S3: ${err.message}`);
-    throw err;
-  }
-};
-
-
+// Redis 클라이언트 생성 및 세션 스토어 설정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
-
 const store = new RedisStore({ client: redisClient });
 
+// CORS 설정
 app.use(cors({
   origin: 'https://codingnplay.site',
   credentials: true,
@@ -73,6 +41,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// 세션 설정
 app.use(session({
   store: store,
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
@@ -84,14 +53,19 @@ app.use(session({
     httpOnly: true,
     sameSite: 'none',
     domain: '.codingnplay.site',
-    maxAge: 60 * 60 * 1000
+    maxAge: 60 * 60 * 1000 // 1시간 유지
   }
 }));
 
-// 로그인 인증 미들웨어
+// 정적 파일 제공 설정
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
+app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
+app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
+
+// JWT를 이용한 사용자 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
-
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
@@ -107,139 +81,67 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-app.use('/auth', authRouter);
-
-app.use((req, res, next) => {
-  console.log('세션 정보:', req.session);
-  console.log('쿠키 정보:', req.headers.cookie);
-  next();
-});
-
-app.use('/public', (req, res, next) => {
-  const filePath = path.join(__dirname, 'public', req.url);
-  
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      console.error(`File not found: ${filePath}`);
-      return next(); // 파일을 찾지 못한 경우 다음 미들웨어로 넘김
-    }
-
-    console.log(`Serving file: ${filePath}`);
-    
-    // MIME 타입 결정
-    let contentType = mime.lookup(filePath);
-    
-    // JavaScript 파일의 경우 항상 'application/javascript'로 설정
-    if (path.extname(filePath) === '.js') {
-      contentType = 'application/javascript';
-    }
-    
-    // MIME 타입을 결정하지 못한 경우 기본값 사용
-    if (!contentType) {
-      contentType = 'application/octet-stream';
-    }
-
-    res.setHeader('Content-Type', contentType);
-    res.send(content);
+// 환경 변수 설정 정보 출력
+app.get('/config', (req, res) => {
+  res.json({
+    apiKey: process.env.GOOGLE_API_KEY,
+    discoveryDocs: process.env.DISCOVERY_DOCS,
+    spreadsheetId: process.env.SPREADSHEET_ID,
   });
 });
 
-app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
-app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
-app.use('/vue-ide', express.static(__dirname + '/vue-ide/public'));
-
-app.use((req, res, next) => {
-  const ext = path.extname(req.url).toLowerCase();
-  switch (ext) {
-    case '.js':
-      res.type('application/javascript');
-      break;
-    case '.css':
-      res.type('text/css');
-      break;
-    case '.json':
-      res.type('application/json');
-      break;
-    case '.png':
-      res.type('image/png');
-      break;
-    case '.jpg':
-    case '.jpeg':
-      res.type('image/jpeg');
-      break;
-    case '.wav':
-      res.type('audio/wav');
-      break;
-  }
-  next();
+// Google Sheets API 및 S3 설정
+const sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
+const s3Client = new S3Client({
+  region: 'ap-northeast-2',
+  credentials: fromEnv()
 });
 
-app.get('/', (req, res) => {
-  if (req.session.is_logined) {
-    res.render('index', { user: req.session.username });
-  } else {
-    res.redirect('/auth/login');
-  }
-});
-
-app.get('/scratch', authenticateUser, (req, res) => {
-  res.render('scratch');
-});
-
-app.get('/computer_basic', authenticateUser, (req, res) => {
-  res.render('computer_basic');
-});
-
-app.get('/entry', authenticateUser, (req, res) => {
-  res.render('entry');
-});
-
-// 라우트 설정
-app.get('/test', authenticateUser, async (req, res) => {
-  // 예를 들어, 클라이언트에서 파일명을 동적으로 받아오는 경우
-  const fileName = req.query.fileName || 'default-file.txt';  // fileName을 쿼리 파라미터로 받아옴, 기본값은 'default-file.txt'
-
+// S3에서 파일 가져오기 함수
+const getObjectFromS3 = async (fileName) => {
+  const params = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: fileName
+  };
   try {
-    // S3에서 동적으로 지정된 파일 가져오기
-    const objectData = await getObjectFromS3(fileName);  
+    const data = await s3Client.send(new GetObjectCommand(params));
+    return data.Body;
+  } catch (err) {
+    console.error(`Error fetching file from S3: ${err.message}`);
+    throw err;
+  }
+};
+
+// Google Sheets에서 데이터 가져오는 함수
+async function getSheetData(spreadsheetId, range) {
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: spreadsheetId,
+    range: range
+  });
+  return response.data.values;
+}
+
+// /test 라우트 - Google Sheets와 S3 데이터를 사용
+app.get('/test', authenticateUser, async (req, res) => {
+  try {
+    const sheetData = await getSheetData(process.env.SPREADSHEET_ID, '문항정보!A:C');
+    const [fileName] = sheetData[0];
+    const objectData = await getObjectFromS3(fileName);
+
     res.render('test', { 
       user: req.session.username,
       googleApiKey: process.env.GOOGLE_API_KEY,
       spreadsheetId: process.env.SPREADSHEET_ID,
       discoveryDocs: process.env.DISCOVERY_DOCS,
-      fileContent: objectData.toString()  // 파일 내용을 렌더링에 사용
+      fileContent: objectData.toString()
     });
   } catch (err) {
-    console.error(`Error fetching file from S3: ${err.message}`);
-    res.status(500).send('Error fetching file from S3');
+    console.error(`Error in /test route: ${err.message}`);
+    res.status(500).send('Error fetching file from S3 or Google Sheets');
   }
 });
 
-
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-app.get('/get-user', authenticateUser, (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json({ username: req.session.username });
-});
-
-app.get('/scratch-gui', authenticateUser, (req, res) => {
-  const token = req.cookies.token;
-  const scratchGuiUrl = `https://3.34.127.154:8601?token=${token}`;
-  res.redirect(scratchGuiUrl);
-});
-
-app.get('/api/check-login', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  if (req.session && req.session.is_logined) {
-    res.json({ loggedIn: true });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
-
+// 로그인 처리
 app.post('/login', (req, res) => {
   const user = { id: 'user-id', username: 'user-name' };
   
@@ -255,18 +157,10 @@ app.post('/login', (req, res) => {
     maxAge: 3600000
   });
 
-  res.setHeader('Content-Type', 'application/json');
   res.json({ success: true, username: user.username });
 });
 
-app.get('/get-user-session', (req, res) => {
-  if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.nickname });  // nickname을 username으로 전송
-  } else {
-    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
-  }
-});
-
+// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -277,13 +171,52 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 이 라우트를 마지막에 배치
+// 메인 페이지 라우트
+app.get('/', authenticateUser, (req, res) => {
+  res.render('index', { user: req.session.username });
+});
+
+// 기타 라우트
+app.get('/scratch', authenticateUser, (req, res) => {
+  res.render('scratch');
+});
+app.get('/computer_basic', authenticateUser, (req, res) => {
+  res.render('computer_basic');
+});
+app.get('/entry', authenticateUser, (req, res) => {
+  res.render('entry');
+});
+
+// 로그인 상태 체크 API
+app.get('/api/check-login', (req, res) => {
+  if (req.session && req.session.is_logined) {
+    res.json({ loggedIn: true });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+// 사용자 세션 정보 확인 API
+app.get('/get-user-session', authenticateUser, (req, res) => {
+  if (req.session && req.session.is_logined) {
+    res.json({ username: req.session.username });
+  } else {
+    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
+  }
+});
+
+// 헬스 체크 API
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// 모든 경로에 대한 기본 라우트 처리
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
 });
 
+// 서버 시작
 const DEFAULT_PORT = 3000;
-
 function startServer(port) {
   app.listen(port, (err) => {
     if (err) {
@@ -299,5 +232,4 @@ function startServer(port) {
     }
   });
 }
-
 startServer(DEFAULT_PORT);
