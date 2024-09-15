@@ -86,15 +86,11 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-// 환경 변수 설정 정보 출력
-app.get('/config', (req, res) => {
-  res.json({
-    apiKey: process.env.GOOGLE_API_KEY,
-    discoveryDocs: process.env.DISCOVERY_DOCS,
-    spreadsheetId: process.env.SPREADSHEET_ID,
-  });
+// S3 클라이언트 설정
+const s3Client = new S3Client({
+  region: 'ap-northeast-2',
+  credentials: fromEnv()
 });
-
 
 // S3에서 파일 가져오기 함수
 const getObjectFromS3 = async (fileName) => {
@@ -110,7 +106,6 @@ const getObjectFromS3 = async (fileName) => {
     throw err;
   }
 };
-
 
 // /test 라우트 - S3에서 파일 가져오기
 app.get('/test', authenticateUser, async (req, res) => {
