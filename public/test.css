@@ -212,8 +212,8 @@ body, html {
 }
 
 code-editor {
-    width: 100%;
-    height: 70%; /* 입력창을 70%로 설정 */
+    width: 100%; 
+    height: 70%;  /* 입력창을 70%로 설정 */
 }
 
 #output-terminal {

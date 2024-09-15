@@ -82,34 +82,39 @@
     <script src="/vue-ide/bundle.js"></script>
     
     <script>
-        // Vue 애플리케이션 초기화
-        const app = Vue.createApp({
-          data() {
-            return {
-              code: '', // 코드 에디터에서 가져올 코드
-            };
+      const app = Vue.createApp({
+        data() {
+          return {
+            code: '',
+          };
+        },
+        mounted() {
+          // 컴포넌트가 마운트된 후 스타일 적용
+          this.applyCustomStyles();
+        },
+        methods: {
+          runCode() {
+            const editor = document.querySelector('code-editor');
+            if (editor) {
+              const code = editor.getCode();
+              document.getElementById('output-content').innerText = `Running code:\n${code}`;
+            } else {
+              document.getElementById('output-content').innerText = "Editor not found!";
+            }
           },
-          methods: {
-            // 실행 버튼을 누르면 에디터의 코드를 출력
-            runCode() {
-              const editor = document.querySelector('code-editor');
-              if (editor) {
-                const code = editor.getCode(); // 코드 에디터에서 코드를 가져옴
-                document.getElementById('output-content').innerText = `Running code:\n${code}`;
-              } else {
-                document.getElementById('output-content').innerText = "Editor not found!";
-              }
+          applyCustomStyles() {
+            // 특정 스타일 강제 적용
+            const editorElement = document.querySelector('code-editor');
+            if (editorElement) {
+              editorElement.style.width = '100%';
+              editorElement.style.height = '70vh';
             }
           }
-        });
-
-        // 기존 Vue 앱이 마운트되어 있는지 확인하고, 있을 경우 unmount() 호출
-        if (app) {
-          app.unmount(); // 기존 앱이 있을 경우 unmount
         }
+      });
       
-        // Vue 애플리케이션을 #app 요소에 마운트
-        app.mount('#app');
+      app.mount('#app');
+      
     </script>
 
 </body>
