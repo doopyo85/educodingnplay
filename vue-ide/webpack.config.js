@@ -30,7 +30,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public/index.html'),
       filename: 'index.html'
-    })
+    }),
+     new webpack.DefinePlugin({
+      __VUE_OPTIONS_API__: JSON.stringify(true), // 혹은 false
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(false), // 배포 시 devtools 비활성화
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false), // 선택사항
+    }),
   ],
   resolve: {
     alias: {
