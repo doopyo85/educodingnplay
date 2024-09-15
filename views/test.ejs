@@ -79,12 +79,6 @@
     <script src="/vue-ide/bundle.js"></script>
     
     <script>
-        // 기존에 마운트된 앱을 확인하고 unmount() 호출
-        const existingApp = document.querySelector('#app');
-        if (existingApp && app) {
-          app.unmount(); // 기존 앱이 있을 경우 unmount
-        }
-
         // Vue 애플리케이션 초기화
         const app = Vue.createApp({
           data() {
@@ -105,6 +99,11 @@
             }
           }
         });
+
+        // 기존 Vue 앱이 마운트되어 있는지 확인하고, 있을 경우 unmount() 호출
+        if (app) {
+          app.unmount(); // 기존 앱이 있을 경우 unmount
+        }
       
         // Vue 애플리케이션을 #app 요소에 마운트
         app.mount('#app');
