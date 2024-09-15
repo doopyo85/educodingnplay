@@ -16,8 +16,6 @@ const mime = require('mime-types');
 const fs = require('fs');
 const app = express();
 
-console.log('Current working directory:', process.cwd());
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -123,32 +121,36 @@ app.use((req, res, next) => {
 
 app.use('/public', (req, res, next) => {
   const filePath = path.join(__dirname, 'public', req.url);
-  console.log('Attempting to serve file:', filePath);
-  fs.access(filePath, fs.constants.F_OK, (err) => {
+  
+  fs.readFile(filePath, (err, content) => {
     if (err) {
       console.error(`File not found: ${filePath}`);
-      return next();
+      return next(); // 파일을 찾지 못한 경우 다음 미들웨어로 넘김
     }
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        console.error(`Error reading file: ${filePath}`, err);
-        return next(err);
-      }
-      console.log(`Serving file: ${filePath}`);
-      let contentType = mime.lookup(filePath) || 'application/octet-stream';
-      if (path.extname(filePath) === '.js') {
-        contentType = 'application/javascript';
-      }
-      res.setHeader('Content-Type', contentType);
-      res.send(content);
-    });
+
+    console.log(`Serving file: ${filePath}`);
+    
+    // MIME 타입 결정
+    let contentType = mime.lookup(filePath);
+    
+    // JavaScript 파일의 경우 항상 'application/javascript'로 설정
+    if (path.extname(filePath) === '.js') {
+      contentType = 'application/javascript';
+    }
+    
+    // MIME 타입을 결정하지 못한 경우 기본값 사용
+    if (!contentType) {
+      contentType = 'application/octet-stream';
+    }
+
+    res.setHeader('Content-Type', contentType);
+    res.send(content);
   });
 });
 
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(__dirname + '/vue-ide/public'));
-app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
@@ -196,11 +198,12 @@ app.get('/entry', authenticateUser, (req, res) => {
   res.render('entry');
 });
 
+// 라우트 설정
 app.get('/test', authenticateUser, (req, res) => {
   res.render('test', { 
     user: req.session.username,
     googleApiKey: process.env.GOOGLE_API_KEY,
-    spreadsheetId: process.env.SPREADSHEET_ID,
+    spreadsheetId: process.env.SPREADSHEET_ID,  // 여기에 쉼표 추가
     discoveryDocs: process.env.DISCOVERY_DOCS
   });
 });
@@ -250,7 +253,7 @@ app.post('/login', (req, res) => {
 
 app.get('/get-user-session', (req, res) => {
   if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.nickname });
+    res.json({ username: req.session.nickname });  // nickname을 username으로 전송
   } else {
     res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
@@ -266,13 +269,9 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// 이 라우트를 마지막에 배치
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
 });
 
 const DEFAULT_PORT = 3000;
