@@ -1,3 +1,5 @@
+// 누락된 부분과 개선사항을 반영한 최종 수정본
+
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -12,14 +14,11 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 
-// EJS 템플릿 엔진 설정
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// JWT 시크릿 키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-// Redis 클라이언트 및 세션 설정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 const store = new RedisStore({ client: redisClient });
@@ -46,29 +45,19 @@ app.use(session({
     httpOnly: true,
     sameSite: 'none',
     domain: '.codingnplay.site',
-    maxAge: 60 * 60 * 1000 // 1시간 유지
+    maxAge: 60 * 60 * 1000
   }
 }));
 
-// 세션 및 쿠키 상태 점검
-app.use((req, res, next) => {
-  console.log('세션 정보:', req.session);
-  console.log('쿠키 정보:', req.headers.cookie);
-  next();
-});
-
-// 정적 파일 제공 설정
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
-// /favicon.ico 요청을 처리하여 업로드된 파일을 제공
 app.get('/favicon_cna.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon_cna.ico'));
 });
 
-// JWT를 이용한 사용자 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
   if (token) {
@@ -86,18 +75,23 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-// S3 클라이언트 설정
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
   credentials: fromEnv()
 });
 
-// S3에서 파일 가져오기 함수
 const getObjectFromS3 = async (fileName) => {
   const params = {
     Bucket: process.env.BUCKET_NAME,
     Key: fileName
   };
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('S3 Params:', params);
+    console.log('AWS Access Key ID:', process.env.AWS_ACCESS_KEY_ID);
+    console.log('AWS Secret Access Key:', process.env.AWS_SECRET_ACCESS_KEY);
+  }
+
   try {
     const data = await s3Client.send(new GetObjectCommand(params));
     return data.Body;
@@ -107,13 +101,9 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
-// /test 라우트 - S3에서 파일 가져오기
 app.get('/test', authenticateUser, async (req, res) => {
   try {
-    // S3에서 파일 가져오기 (기본 파일명 사용)
     const objectData = await getObjectFromS3('default-file.html');
-
-    // test.ejs로 데이터 전달
     res.render('test', { 
       user: req.session.username,
       fileContent: objectData.toString()
@@ -124,10 +114,9 @@ app.get('/test', authenticateUser, async (req, res) => {
   }
 });
 
-// 로그인 처리
 app.post('/login', (req, res) => {
   const user = { id: 'user-id', username: 'user-name' };
-  
+
   req.session.is_logined = true;
   req.session.username = user.username;
 
@@ -143,7 +132,6 @@ app.post('/login', (req, res) => {
   res.json({ success: true, username: user.username });
 });
 
-// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -154,51 +142,14 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 메인 페이지 라우트
 app.get('/', authenticateUser, (req, res) => {
   res.render('index', { user: req.session.username });
 });
 
-// 기타 라우트
-app.get('/scratch', authenticateUser, (req, res) => {
-  res.render('scratch');
-});
-app.get('/computer_basic', authenticateUser, (req, res) => {
-  res.render('computer_basic');
-});
-app.get('/entry', authenticateUser, (req, res) => {
-  res.render('entry');
-});
-
-// 로그인 상태 체크 API
-app.get('/api/check-login', (req, res) => {
-  if (req.session && req.session.is_logined) {
-    res.json({ loggedIn: true });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
-
-// 사용자 세션 정보 확인 API
-app.get('/get-user-session', authenticateUser, (req, res) => {
-  if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.username });
-  } else {
-    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
-  }
-});
-
-// 헬스 체크 API
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-// 모든 경로에 대한 기본 라우트 처리
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
 });
 
-// 서버 시작
 const DEFAULT_PORT = 3000;
 function startServer(port) {
   app.listen(port, (err) => {
@@ -215,4 +166,5 @@ function startServer(port) {
     }
   });
 }
+
 startServer(DEFAULT_PORT);
