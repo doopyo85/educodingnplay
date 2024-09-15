@@ -8,6 +8,35 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchProblemData();     // 서버에서 문제 데이터를 가져옴
 });
 
+
+// Google API 클라이언트 로드 및 초기화
+function loadGoogleAPI() {
+    gapi.load('client', initClient);
+}
+
+// Google API 클라이언트 초기화
+function initClient() {
+    const apiKey = document.getElementById('googleApiKey').value;
+    const spreadsheetId = document.getElementById('spreadsheetId').value;
+
+    gapi.client.init({
+        apiKey: apiKey,
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    }).then(() => {
+        console.log('Google API client initialized');
+        return loadProblemData(spreadsheetId);
+    }).then((problemData) => {
+        if (problemData && problemData.length > 0) {
+            window.problemData = problemData;
+            if (currentExamName) {
+                loadProblem(currentProblemNumber);
+            }
+        }
+    }).catch(error => {
+        console.error('Error initializing Google API:', error);
+    });
+}
+
 // 서버에서 문제 데이터 가져오는 함수
 function fetchProblemData() {
     fetch('/test', { credentials: 'include' })  // 서버에서 /test 엔드포인트로부터 데이터 요청

@@ -3,17 +3,12 @@ const express = require('express');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redis = require('redis');
-const db = require('./lib_login/db');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const { google } = require('googleapis');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { fromEnv } = require('@aws-sdk/credential-provider-env');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth');
-const mime = require('mime-types');
-const fs = require('fs');
 const path = require('path');
 const app = express();
 
@@ -24,12 +19,11 @@ app.set('views', path.join(__dirname, 'views'));
 // JWT 시크릿 키 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-// Redis 클라이언트 생성 및 세션 스토어 설정
+// Redis 클라이언트 및 세션 설정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 const store = new RedisStore({ client: redisClient });
 
-// CORS 설정
 app.use(cors({
   origin: 'https://codingnplay.site',
   credentials: true,
@@ -41,7 +35,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// 세션 설정
 app.use(session({
   store: store,
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
@@ -71,7 +64,7 @@ app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'no
 app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
 // /favicon.ico 요청을 처리하여 업로드된 파일을 제공
-app.get('/favicon.ico', (req, res) => {
+app.get('/favicon_cna.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon_cna.ico'));
 });
 
@@ -127,32 +120,21 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
-// Google Sheets에서 데이터 가져오는 함수
-async function getSheetData(spreadsheetId, range) {
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: spreadsheetId,
-    range: range
-  });
-  return response.data.values;
-}
 
-// /test 라우트 - Google Sheets와 S3 데이터를 사용
+// /test 라우트 - S3에서 파일 가져오기
 app.get('/test', authenticateUser, async (req, res) => {
   try {
-    const sheetData = await getSheetData(process.env.SPREADSHEET_ID, '문항정보!A:C');
-    const [fileName] = sheetData[0];
-    const objectData = await getObjectFromS3(fileName);
+    // S3에서 파일 가져오기 (기본 파일명 사용)
+    const objectData = await getObjectFromS3('default-file.html');
 
+    // test.ejs로 데이터 전달
     res.render('test', { 
       user: req.session.username,
-      googleApiKey: process.env.GOOGLE_API_KEY,
-      spreadsheetId: process.env.SPREADSHEET_ID,
-      discoveryDocs: process.env.DISCOVERY_DOCS,
       fileContent: objectData.toString()
     });
   } catch (err) {
     console.error(`Error in /test route: ${err.message}`);
-    res.status(500).send('Error fetching file from S3 or Google Sheets');
+    res.status(500).send('Error fetching file from S3');
   }
 });
 
