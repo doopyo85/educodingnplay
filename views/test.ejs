@@ -16,6 +16,14 @@
     <link rel="stylesheet" href="themes-base16.css">
     <link rel="stylesheet" href="/public/test.css"> <!-- test.css 적용 -->
    
+    <style>
+      /* 인라인 스타일로 중요한 스타일 정의 */
+      code-editor {
+          width: 100% !important; 
+          height: 70vh !important;
+      }
+    </style>
+
     <!-- Hidden inputs -->
     <input type="hidden" id="googleApiKey" value="<%= googleApiKey %>">
     <input type="hidden" id="spreadsheetId" value="<%= spreadsheetId %>">
@@ -114,7 +122,16 @@
       });
       
       app.mount('#app');
-      
+      // 추가: DOMContentLoaded 이벤트 후 스타일 재적용
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const editorElement = document.querySelector('code-editor');
+          if (editorElement) {
+            editorElement.style.setProperty('width', '100%', 'important');
+            editorElement.style.setProperty('height', '70vh', 'important');
+          }
+        }, 100); // 약간의 지연을 주어 다른 스크립트가 실행된 후 적용
+      });
     </script>
 
 </body>
