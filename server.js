@@ -121,6 +121,8 @@ app.use((req, res, next) => {
 
 app.use('/public', (req, res, next) => {
   const filePath = path.join(__dirname, 'public', req.url);
+  console.log('Attempting to serve file:', filePath);
+  express.static(path.join(__dirname, 'public'))(req, res, next);
   
   fs.readFile(filePath, (err, content) => {
     if (err) {
@@ -151,6 +153,7 @@ app.use('/public', (req, res, next) => {
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(__dirname + '/vue-ide/public'));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
@@ -291,5 +294,7 @@ function startServer(port) {
     }
   });
 }
+
+console.log('Current working directory:', process.cwd());
 
 startServer(DEFAULT_PORT);
