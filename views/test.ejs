@@ -10,9 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
     <!-- Simple Code Editor CSS -->
-    <link rel="stylesheet" href="/path/to/simple-code-editor.css">
-    <link rel="stylesheet" href="/path/to/themes.css">
-    <link rel="stylesheet" href="/path/to/themes-base16.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-code-editor@latest/dist/simple-code-editor.min.css">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/public/test.css">
@@ -67,7 +65,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
 
     <!-- Simple Code Editor -->
-    <script src="/path/to/simple-code-editor.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-code-editor@latest/dist/simple-code-editor.min.js"></script>
 
     <!-- highlight.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
@@ -123,20 +121,13 @@
             }
         });
 
-        app.component('code-editor', window.SimpleCodeEditor);
-
-        app.mount('#app');
-
-        // Additional style application after DOM content loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const editorElement = document.querySelector('.ide-container code-editor');
-                if (editorElement) {
-                    editorElement.style.setProperty('width', '100%', 'important');
-                    editorElement.style.setProperty('height', '70vh', 'important');
-                }
-            }, 100);
-        });
+        // Make sure SimpleCodeEditor is loaded before registering the component
+        if (typeof SimpleCodeEditor !== 'undefined') {
+            app.component('code-editor', SimpleCodeEditor);
+            app.mount('#app');
+        } else {
+            console.error('SimpleCodeEditor is not loaded');
+        }
     </script>
 </body>
 </html>
