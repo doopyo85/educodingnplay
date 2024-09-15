@@ -41,21 +41,21 @@ console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
 console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
 
 // S3에서 객체 가져오는 함수 (async/await 사용)
-const getObjectFromS3 = async (key) => {
+const getObjectFromS3 = async (fileName) => {
   const params = {
     Bucket: BUCKET_NAME,
-    Key: key
+    Key: fileName  // 동적으로 파일 이름을 받아 처리
   };
 
   try {
     const data = await s3Client.send(new GetObjectCommand(params));
-    console.log(data.Body.toString());
-    return data.Body;
+    return data.Body;  // 파일 내용을 반환
   } catch (err) {
-    console.error("Error fetching from S3:", err);
+    console.error(`Error fetching file from S3: ${err.message}`);
     throw err;
   }
 };
+
 
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
@@ -196,9 +196,12 @@ app.get('/entry', authenticateUser, (req, res) => {
 
 // 라우트 설정
 app.get('/test', authenticateUser, async (req, res) => {
-  // S3에서 파일 가져오기
+  // 예를 들어, 클라이언트에서 파일명을 동적으로 받아오는 경우
+  const fileName = req.query.fileName || 'default-file.txt';  // fileName을 쿼리 파라미터로 받아옴, 기본값은 'default-file.txt'
+
   try {
-    const objectData = await getObjectFromS3('example.txt');  // example.txt 파일을 가져오는 예시
+    // S3에서 동적으로 지정된 파일 가져오기
+    const objectData = await getObjectFromS3(fileName);  
     res.render('test', { 
       user: req.session.username,
       googleApiKey: process.env.GOOGLE_API_KEY,
@@ -207,9 +210,11 @@ app.get('/test', authenticateUser, async (req, res) => {
       fileContent: objectData.toString()  // 파일 내용을 렌더링에 사용
     });
   } catch (err) {
+    console.error(`Error fetching file from S3: ${err.message}`);
     res.status(500).send('Error fetching file from S3');
   }
 });
+
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
