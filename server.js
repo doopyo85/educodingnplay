@@ -4,7 +4,8 @@ const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const db = require('./lib_login/db');
 const jwt = require('jsonwebtoken');
-const AWS = require('aws-sdk');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');  // AWS SDK v3
+const { fromEnv } = require('@aws-sdk/credential-provider-env');        // 환경 변수에서 자격 증명을 가져오기 위한 모듈
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -23,19 +24,36 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 app.get('/config', (req, res) => {
   res.json({
-      apiKey: process.env.GOOGLE_API_KEY,
-      discoveryDocs: process.env.DISCOVERY_DOCS,
-      spreadsheetId: process.env.SPREADSHEET_ID,
+    apiKey: process.env.GOOGLE_API_KEY,
+    discoveryDocs: process.env.DISCOVERY_DOCS,
+    spreadsheetId: process.env.SPREADSHEET_ID,
   });
 });
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: 'ap-northeast-2'
+// S3 클라이언트 설정 (v3)
+const s3Client = new S3Client({
+  region: 'ap-northeast-2',
+  credentials: fromEnv()  // 환경 변수에서 자격 증명을 로드
 });
 
 const BUCKET_NAME = 'educodingnplaycontents';
+
+// S3에서 객체 가져오는 함수 (async/await 사용)
+const getObjectFromS3 = async (key) => {
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: key
+  };
+
+  try {
+    const data = await s3Client.send(new GetObjectCommand(params));
+    console.log(data.Body.toString());
+    return data.Body;
+  } catch (err) {
+    console.error("Error fetching from S3:", err);
+    throw err;
+  }
+};
 
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
@@ -48,31 +66,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", 
-    "default-src 'self'; " +
-    "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
-    "https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com " +
-    "https://cdnjs.cloudflare.com https://simple-code-editor.vicuxd.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://www.google.com; " +
-    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://www.google.com https://cdn.jsdelivr.net; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;"
-  );
-  next();
-});
-
-app.set('trust proxy', 1);
-
-app.use((req, res, next) => {
-  if (req.secure) {
-    next();
-  } else {
-    res.redirect('https://' + req.headers.host + req.url);
-  }
-});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -93,6 +86,7 @@ app.use(session({
   }
 }));
 
+// 로그인 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -199,13 +193,20 @@ app.get('/entry', authenticateUser, (req, res) => {
 });
 
 // 라우트 설정
-app.get('/test', authenticateUser, (req, res) => {
-  res.render('test', { 
-    user: req.session.username,
-    googleApiKey: process.env.GOOGLE_API_KEY,
-    spreadsheetId: process.env.SPREADSHEET_ID,  // 여기에 쉼표 추가
-    discoveryDocs: process.env.DISCOVERY_DOCS
-  });
+app.get('/test', authenticateUser, async (req, res) => {
+  // S3에서 파일 가져오기
+  try {
+    const objectData = await getObjectFromS3('example.txt');  // example.txt 파일을 가져오는 예시
+    res.render('test', { 
+      user: req.session.username,
+      googleApiKey: process.env.GOOGLE_API_KEY,
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      discoveryDocs: process.env.DISCOVERY_DOCS,
+      fileContent: objectData.toString()  // 파일 내용을 렌더링에 사용
+    });
+  } catch (err) {
+    res.status(500).send('Error fetching file from S3');
+  }
 });
 
 app.get('/health', (req, res) => {
