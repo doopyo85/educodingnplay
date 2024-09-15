@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="themes.css">
     <link rel="stylesheet" href="themes-base16.css">
     <link rel="stylesheet" href="simple-code-editor.css">
-    <link rel="stylesheet" href="/public/test.css">
+    <link rel="stylesheet" href="/public/test.css"> <!-- test.css 적용 -->
     
     <!-- Hidden inputs -->
     <input type="hidden" id="googleApiKey" value="<%= googleApiKey %>">
@@ -49,7 +49,7 @@
                         default-language="python"></code-editor>
                     
                     <!-- 실행 버튼 추가 -->
-                    <button @click="runCode" class="btn btn-primary mt-3">Run Code</button>
+                    <button id="runCodeBtn" class="btn btn-primary mt-3">Run Code</button>
             
                     <!-- 출력 터미널 추가 -->
                     <div id="output-terminal" class="mt-3">
@@ -79,11 +79,17 @@
     <script src="/vue-ide/bundle.js"></script>
     
     <script>
+        // 기존에 마운트된 앱을 확인하고 unmount() 호출
+        const existingApp = document.querySelector('#app');
+        if (existingApp && app) {
+          app.unmount(); // 기존 앱이 있을 경우 unmount
+        }
+
         // Vue 애플리케이션 초기화
         const app = Vue.createApp({
           data() {
             return {
-              message: 'Hello from Vue!'
+              code: '', // 코드 에디터에서 가져올 코드
             };
           },
           methods: {

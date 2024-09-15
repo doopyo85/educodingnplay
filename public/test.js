@@ -68,7 +68,15 @@ function setupEventListeners() {
     const nextButton = document.getElementById('next-problem');
 
     if (runCodeBtn) {
-        runCodeBtn.addEventListener('click', runCode);
+        runCodeBtn.addEventListener('click', function() {
+            const editor = document.querySelector('code-editor');
+            if (editor) {
+                const code = editor.getCode(); // 코드 에디터에서 코드를 가져옴
+                document.getElementById('output-content').innerText = `Running code:\n${code}`;
+            } else {
+                document.getElementById('output-content').innerText = "Editor not found!";
+            }
+        });
     }
 
     if (prevButton) {
