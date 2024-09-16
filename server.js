@@ -12,6 +12,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 
+// auth.js 라우트 파일 추가
+const authRouter = require('./auth');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -71,6 +73,9 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
+// auth 라우트 연결
+app.use('/auth', authRouter);
+
 // /config 라우트 - Google API 키와 스프레드시트 ID 등의 정보 제공
 app.get('/config', (req, res) => {
   res.json({
@@ -103,7 +108,6 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
   credentials: fromEnv(), // 환경변수에서 자격 증명 불러오기
@@ -125,14 +129,6 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
-app.get('/auth/login', (req, res) => {
-  if (req.session.is_logined) {
-    return res.redirect('/');
-  } else {
-    res.render('login');
-  }
-});
-
 app.get('/test', authenticateUser, async (req, res) => {
   try {
     const objectData = await getObjectFromS3('default-file.html');
@@ -144,34 +140,6 @@ app.get('/test', authenticateUser, async (req, res) => {
     console.error(`Error in /test route: ${err.message}`);
     res.status(500).send('Error fetching file from S3');
   }
-});
-
-app.post('/login', (req, res) => {
-  const user = { id: 'user-id', username: 'user-name' };
-
-  req.session.is_logined = true;
-  req.session.username = user.username;
-
-  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.codingnplay.site',
-    maxAge: 3600000
-  });
-
-  res.json({ success: true, username: user.username });
-});
-
-app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).send('로그아웃 실패');
-    }
-    res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
-    res.redirect('/auth/login');
-  });
 });
 
 app.get('/', authenticateUser, (req, res) => {
