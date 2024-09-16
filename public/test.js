@@ -62,20 +62,16 @@ function initClient() {
 
 
 function setupEventListeners() {
-    console.log("Setting up event listeners"); // 추가
     const runCodeBtn = document.getElementById('runCodeBtn');
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
 
+    // Ace 에디터와 연동된 코드 실행
     if (runCodeBtn) {
         runCodeBtn.addEventListener('click', function() {
-            const editor = document.querySelector('code-editor');
-            if (editor) {
-                const code = editor.getCode(); // 코드 에디터에서 코드를 가져옴
-                document.getElementById('output-content').innerText = `Running code:\n${code}`;
-            } else {
-                document.getElementById('output-content').innerText = "Editor not found!";
-            }
+            var editor = ace.edit("editor");  // Ace 에디터 가져오기
+            const code = editor.getValue();  // 에디터에서 코드 가져오기
+            document.getElementById('output-content').innerText = `Running code:\n${code}`;
         });
     }
 

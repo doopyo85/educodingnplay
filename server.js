@@ -76,7 +76,7 @@ app.use((req, res, next) => {
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
     "https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com " +
-    "https://cdnjs.cloudflare.com https://simple-code-editor.vicuxd.com; " +
+    "https://cdnjs.cloudflare.com" +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://www.google.com; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://www.google.com https://cdn.jsdelivr.net; " +
@@ -174,7 +174,6 @@ app.use('/public', (req, res, next) => {
 
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
-app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
 app.use((req, res, next) => {
   res.setHeader(
