@@ -132,7 +132,7 @@ const s3Client = new S3Client({
 
 const getObjectFromS3 = async (fileName) => {
   const params = {
-    Bucket: process.env.AWS_S3_BUCKET_NAME, // 환경 변수에서 버킷 이름을 가져옵니다.
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
     Key: fileName
   };
 
@@ -207,13 +207,18 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// 루트 라우트 수정
+// 라우트 설정
 app.get('/', (req, res) => {
   if (req.session && req.session.is_logined) {
     res.render('index', { user: req.session.username });
   } else {
     res.redirect('/auth/login');
   }
+});
+
+// 404 처리
+app.use((req, res, next) => {
+  res.status(404).render('404');
 });
 
 app.get('*', authenticateUser, (req, res) => {
