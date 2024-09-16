@@ -51,6 +51,15 @@ body, html {
     transition: transform 0.3s;
 }
 
+.collapse {
+    transition: height 0.3s ease; /* 높이만 변경되도록 설정 */
+}
+
+.collapse.show {
+    margin-left: 0px; /* 움직임 방지 */
+    padding-left: 0px; /* 패딩이 없도록 설정 */
+}
+
 .nav-container .menu-item a:hover,
 .nav-container .sub-menu .menu-item:hover {
     background-color: #e9ecef;
