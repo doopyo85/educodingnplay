@@ -137,9 +137,11 @@ app.get('/', authenticateUser, (req, res) => {
   res.render('index', { user: req.session.username });
 });
 
+// 이 라우트를 마지막에 배치하고, 콜백 함수를 제공합니다.
 app.get('*', authenticateUser, (req, res) => {
-  res.render('index');
+  res.render('index', { user: req.session.username });
 });
+
 
 const DEFAULT_PORT = 3000;
 function startServer(port) {
