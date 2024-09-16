@@ -451,6 +451,15 @@ function loadProblem(problemNumber) {
         } else {
             console.error('problem-title element not found');
         }
+
+        // Update the Vue component with the new problem
+        if (typeof window.updateEditorProblem === 'function') {
+            window.updateEditorProblem({
+                title: problemTitle,
+                url: problemUrl,
+                // Add any other relevant problem data here
+            });
+        }
     } else {
         console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
         console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
