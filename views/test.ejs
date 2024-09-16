@@ -57,34 +57,39 @@
     <script src="/public/header.js"></script>
     <script src="/public/test.js"></script>
 
-    <script>
-        // Ace Editor 초기화
-        var editor = ace.edit("editor");
-        editor.session.setMode("ace/mode/python");
-        editor.setTheme("ace/theme/textmate");
+     <!-- Scripts -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        // Run 버튼 클릭시 서버로 코드 전송 및 결과 표시
-        document.getElementById("runCodeBtn").addEventListener("click", function() {
-            var code = editor.getValue(); // 에디터에서 코드 가져오기
-            document.getElementById("output-content").textContent = "Running...";
-
-            // 서버에 파이썬 코드 전송
-            fetch('/run-python', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ code: code }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 서버에서 받은 결과를 출력
-                document.getElementById("output-content").textContent = data.output;
-            })
-            .catch((error) => {
-                document.getElementById("output-content").textContent = "Error running code: " + error;
-            });
-        });
-    </script>
+     <script>
+         // Ace Editor 초기화
+         var editor = ace.edit("editor");
+         editor.session.setMode("ace/mode/python");
+ 
+         // 다크 테마 적용 (tomorrow_night_bright)
+         editor.setTheme("ace/theme/tomorrow_night_bright");
+ 
+         // Run 버튼 클릭시 서버로 코드 전송 및 결과 표시
+         document.getElementById("runCodeBtn").addEventListener("click", function() {
+             var code = editor.getValue(); // 에디터에서 코드 가져오기
+             document.getElementById("output-content").textContent = "Running...";
+ 
+             // 서버에 파이썬 코드 전송
+             fetch('/run-python', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({ code: code }),
+             })
+             .then(response => response.json())
+             .then(data => {
+                 // 서버에서 받은 결과를 출력
+                 document.getElementById("output-content").textContent = data.output;
+             })
+             .catch((error) => {
+                 document.getElementById("output-content").textContent = "Error running code: " + error;
+             });
+         });
+     </script>
 </body>
 </html>
