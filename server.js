@@ -69,10 +69,11 @@ app.get('/config', (req, res) => {
 
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
+
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        return res.status(401).json({ loggedIn: false, error: '유효하지 않은 토큰입니다.' });
+        return res.redirect('/auth/login'); // 로그인 페이지로 리다이렉트
       }
       req.user = user;
       next();
@@ -80,9 +81,10 @@ const authenticateUser = (req, res, next) => {
   } else if (req.session && req.session.is_logined) {
     next();
   } else {
-    res.status(401).json({ loggedIn: false, error: '로그인이 필요합니다.' });
+    res.redirect('/auth/login'); // 로그인 페이지로 리다이렉트
   }
 };
+
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
