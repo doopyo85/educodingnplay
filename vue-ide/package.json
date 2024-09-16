@@ -4,26 +4,29 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js"
+    "dev": "webpack serve --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --mode production",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/core": "^7.x.x",
-    "@babel/preset-env": "^7.x.x",
-    "babel-loader": "^8.x.x",
-    "css-loader": "^6.x.x",
     "simple-code-editor": "^x.x.x",
-    "style-loader": "^3.x.x",
-    "vue": "^3.x.x",
-    "vue-loader": "^16.x.x",
-    "webpack": "^5.x.x",
-    "webpack-cli": "^4.x.x"
+    "vue": "^3.x.x"
   },
   "devDependencies": {
+    "@babel/core": "^7.x.x",
+    "@babel/preset-env": "^7.x.x",
     "@vue/cli-plugin-babel": "^5.0.8",
-    "html-webpack-plugin": "^5.6.0"
+    "@vue/compiler-sfc": "^3.x.x",
+    "babel-loader": "^8.x.x",
+    "css-loader": "^6.x.x",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^3.x.x",
+    "vue-loader": "^17.x.x",
+    "webpack": "^5.x.x",
+    "webpack-cli": "^4.x.x",
+    "webpack-dev-server": "^4.x.x"
   }
 }

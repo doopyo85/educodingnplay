@@ -111,7 +111,6 @@ app.get('/get-user', authenticateUser, (req, res) => {
   res.json({ username: req.session.username });
 });
 
-
 // auth 라우트 연결
 app.use('/auth', authRouter);
 
@@ -156,6 +155,11 @@ app.get('/test', authenticateUser, async (req, res) => {
     console.error(`Error in /test route: ${err.message}`);
     res.status(500).json({ error: 'Error fetching file from S3' });
   }
+});
+
+// Vue.js 라우트에 대한 폴백 처리
+app.get('/vue-ide/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'vue-ide/dist/index.html'));
 });
 
 // 에러 핸들링 미들웨어 추가

@@ -1,46 +1,62 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
-module.exports = {
-  mode: 'development',
-  entry: './src/main.js',
-  output: {
-    path: path.resolve(__dirname, '../public/vue-app'),
-    filename: 'bundle.js'
-  },
-  module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
-  },
-  plugins: [
-    new VueLoaderPlugin(),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'public/index.html'),
-      filename: 'index.html'
-    }),
-     new webpack.DefinePlugin({
-      __VUE_OPTIONS_API__: JSON.stringify(true), // 혹은 false
-      __VUE_PROD_DEVTOOLS__: JSON.stringify(false), // 배포 시 devtools 비활성화
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false), // 선택사항
-    }),
-  ],
-  resolve: {
-    alias: {
-      'vue$': 'vue/dist/vue.esm-bundler.js'
+module.exports = (env, argv) => {
+  const isProduction = argv.mode === 'production';
+
+  return {
+    mode: isProduction ? 'production' : 'development',
+    entry: './src/main.js',
+    output: {
+      path: path.resolve(__dirname, '../public/vue-app'),
+      filename: isProduction ? '[name].[contenthash].js' : 'bundle.js',
+      clean: true
     },
-    extensions: ['*', '.js', '.vue', '.json']
-  }
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader'
+        },
+        {
+          test: /\.js$/,
+          loader: 'babel-loader',
+          exclude: /node_modules/
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader']
+        }
+      ]
+    },
+    plugins: [
+      new VueLoaderPlugin(),
+      new HtmlWebpackPlugin({
+        template: path.resolve(__dirname, 'public/index.html'),
+        filename: 'index.html'
+      }),
+      new webpack.DefinePlugin({
+        __VUE_OPTIONS_API__: JSON.stringify(true),
+        __VUE_PROD_DEVTOOLS__: JSON.stringify(!isProduction),
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(!isProduction),
+      }),
+    ],
+    resolve: {
+      alias: {
+        'vue': 'vue/dist/vue.esm-bundler.js'
+      },
+      extensions: ['*', '.js', '.vue', '.json']
+    },
+    devServer: {
+      static: {
+        directory: path.join(__dirname, '../public'),
+      },
+      compress: true,
+      port: 8080,
+      hot: true,
+    },
+    devtool: isProduction ? 'source-map' : 'eval-cheap-module-source-map'
+  };
 };
