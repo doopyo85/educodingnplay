@@ -12,8 +12,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 
-// auth.js 라우트 파일 추가
-const authRouter = require('./auth');
+// auth.js 라우트 파일 추가 (경로 수정)
+const authRouter = require('./lib_login/auth');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -87,28 +87,8 @@ app.get('/config', (req, res) => {
   });
 });
 
-const authenticateUser = (req, res, next) => {
-  // 로그인 페이지와 로그인 처리 라우트는 인증 없이 허용
-  if (req.path === '/auth/login' || req.path === '/login') {
-    return next();
-  }
-
-  const token = req.cookies.token;
-
-  if (token) {
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.redirect('/auth/login');
-      }
-      req.user = user;
-      next();
-    });
-  } else if (req.session && req.session.is_logined) {
-    next();
-  } else {
-    res.redirect('/auth/login');
-  }
-};
+// authCheck 미들웨어 가져오기 (경로 수정)
+const { authenticateUser } = require('./lib_login/authCheck');
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
@@ -141,25 +121,6 @@ app.get('/test', authenticateUser, async (req, res) => {
     console.error(`Error in /test route: ${err.message}`);
     res.status(500).send('Error fetching file from S3');
   }
-});
-
-// 로그인 라우트 추가
-app.post('/login', (req, res) => {
-  const user = { id: 'user-id', username: 'user-name' };
-
-  req.session.is_logined = true;
-  req.session.username = user.username;
-
-  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.codingnplay.site',
-    maxAge: 3600000
-  });
-
-  res.json({ success: true, username: user.username });
 });
 
 app.get('/logout', (req, res) => {
