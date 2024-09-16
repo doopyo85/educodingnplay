@@ -106,11 +106,11 @@ app.use(session({
   saveUninitialized: false,
   proxy: true,
   cookie: {
-    secure: true, // HTTPS 환경에서만 쿠키 전송
-    httpOnly: true, // 클라이언트 측 JavaScript에서 쿠키 접근 차단
-    sameSite: 'none', // 크로스 사이트 요청 가능하게 설정
-    domain: '.codingnplay.site', // 도메인 전체에 쿠키 적용
-    maxAge: 60 * 60 * 1000 // 1시간 세션 유지
+    secure: true, // HTTPS 환경에서 필수
+    httpOnly: true,
+    sameSite: 'none', // 크로스 사이트 요청을 허용
+    domain: '.codingnplay.site', // 서브도메인 포함 전체 도메인에 쿠키 적용
+    maxAge: 60 * 60 * 1000 // 1시간
   }
 }));
 
@@ -175,6 +175,14 @@ app.use('/public', (req, res, next) => {
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
+
+app.use((req, res, next) => {
+  res.setHeader(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  );
+  next();
+});
 
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
