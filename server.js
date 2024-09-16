@@ -66,22 +66,28 @@ app.get('/config', (req, res) => {
 });
 
 const authenticateUser = (req, res, next) => {
+  // 로그인 페이지로의 접근은 인증 없이 허용
+  if (req.path === '/auth/login') {
+    return next();  // 로그인 페이지는 인증 필요 없음
+  }
+
   const token = req.cookies.token;
 
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        return res.redirect('/auth/login'); // 로그인 페이지로 리다이렉트
+        return res.redirect('/auth/login');  // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
       }
       req.user = user;
       next();
     });
   } else if (req.session && req.session.is_logined) {
-    next();
+    next();  // 세션이 존재하면 다음 미들웨어로 이동
   } else {
-    res.redirect('/auth/login'); // 로그인 페이지로 리다이렉트
+    res.redirect('/auth/login');  // 로그인되어 있지 않으면 로그인 페이지로 리다이렉트
   }
 };
+
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
@@ -103,6 +109,10 @@ const getObjectFromS3 = async (fileName) => {
     throw err;
   }
 };
+
+app.get('/auth/login', (req, res) => {
+  res.render('login');  // login.ejs 파일을 렌더링
+});
 
 
 app.get('/test', authenticateUser, async (req, res) => {
