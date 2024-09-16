@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 
-// auth.js 라우트 파일 추가 (경로 수정)
+// auth.js 라우트 파일 추가
 const authRouter = require('./lib_login/auth');
 
 app.set('view engine', 'ejs');
@@ -75,6 +75,25 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
+// 인증 미들웨어를 직접 정의
+const authenticateUser = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(401).json({ loggedIn: false, error: '유효하지 않은 토큰입니다.' });
+      }
+      req.user = user;
+      next();
+    });
+  } else if (req.session && req.session.is_logined) {
+    next();
+  } else {
+    res.status(401).json({ loggedIn: false, error: '로그인이 필요합니다.' });
+  }
+};
+
 // auth 라우트 연결
 app.use('/auth', authRouter);
 
@@ -86,9 +105,6 @@ app.get('/config', (req, res) => {
     spreadsheetId: process.env.SPREADSHEET_ID
   });
 });
-
-// authCheck 미들웨어 가져오기 (경로 수정)
-const { authenticateUser } = require('./lib_login/authCheck');
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
@@ -110,7 +126,6 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
-// 이 부분을 주의깊게 확인하세요
 app.get('/test', authenticateUser, async (req, res) => {
   try {
     const objectData = await getObjectFromS3('default-file.html');
@@ -122,6 +137,24 @@ app.get('/test', authenticateUser, async (req, res) => {
     console.error(`Error in /test route: ${err.message}`);
     res.status(500).send('Error fetching file from S3');
   }
+});
+
+app.post('/login', (req, res) => {
+  const user = { id: 'user-id', username: 'user-name' };
+  
+  req.session.is_logined = true;
+  req.session.username = user.username;
+
+  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.codingnplay.site',
+    maxAge: 3600000
+  });
+
+  res.json({ success: true, username: user.username });
 });
 
 app.get('/logout', (req, res) => {
@@ -138,7 +171,6 @@ app.get('/', authenticateUser, (req, res) => {
   res.render('index', { user: req.session.username });
 });
 
-// 이 라우트를 마지막에 배치하고, 콜백 함수를 제공합니다.
 app.get('*', authenticateUser, (req, res) => {
   res.status(404).render('404', { user: req.session.username });
 });
