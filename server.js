@@ -134,9 +134,12 @@ const authenticateUser = (req, res, next) => {
 
 app.use('/auth', authRouter);
 
+// session 정보를 모든 EJS 템플릿에 전달하는 미들웨어
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);
   console.log('쿠키 정보:', req.headers.cookie);
+  res.locals.username = req.session.username || null;
+  res.locals.is_logined = req.session.is_logined || false;
   next();
 });
 
