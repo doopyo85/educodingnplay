@@ -28,6 +28,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", 
+    "default-src 'self'; " +
+    "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
+    "https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com " +
+    "https://cdnjs.cloudflare.com https://simple-code-editor.vicuxd.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://www.google.com; " +
+    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://www.google.com https://cdn.jsdelivr.net; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;"
+  );
+  next();
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -111,9 +126,12 @@ const getObjectFromS3 = async (fileName) => {
 };
 
 app.get('/auth/login', (req, res) => {
-  res.render('login');  // login.ejs 파일을 렌더링
+  if (req.session.is_logined) {
+    return res.redirect('/');
+  } else {
+    res.render('login');
+  }
 });
-
 
 app.get('/test', authenticateUser, async (req, res) => {
   try {
