@@ -6,6 +6,7 @@ var problemData = [];
 document.addEventListener("DOMContentLoaded", function() {
     setupEventListeners(); // 이벤트 리스너 설정
     fetchProblemData();     // 서버에서 문제 데이터를 가져옴
+    const s3Url = '<%= s3Url %>';
 });
 
 

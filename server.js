@@ -5,8 +5,6 @@ const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { fromEnv } = require('@aws-sdk/credential-provider-env');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -125,41 +123,13 @@ app.get('/config', (req, res) => {
   });
 });
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: fromEnv(),
-});
-
-const getObjectFromS3 = async (fileName) => {
-  const params = {
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: fileName
-  };
-
-  try {
-    const data = await s3Client.send(new GetObjectCommand(params));
-    return data.Body;
-  } catch (err) {
-    console.error(`Error fetching file from S3:`, err);
-    console.error(`Bucket: ${params.Bucket}, Key: ${params.Key}`);
-    console.error(`AWS Region: ${process.env.AWS_REGION}`);
-    console.error(`Access Key ID: ${process.env.AWS_ACCESS_KEY_ID.substr(0, 5)}...`);
-    throw err;
-  }
-};
-
 // '/test' 엔드포인트 수정
-app.get('/test', authenticateUser, async (req, res) => {
-  try {
-    const objectData = await getObjectFromS3('default-file.html');
-    res.render('test', { 
-      user: req.session.username,
-      fileContent: objectData.toString()
-    });
-  } catch (err) {
-    console.error(`Error in /test route: ${err.message}`);
-    res.status(500).json({ error: 'Error fetching file from S3' });
-  }
+app.get('/test', authenticateUser, (req, res) => {
+  res.render('test', { 
+    user: req.session.username,
+    googleApiKey: process.env.GOOGLE_API_KEY,
+    spreadsheetId: process.env.SPREADSHEET_ID
+  });
 });
 
 // Vue.js 라우트에 대한 폴백 처리
