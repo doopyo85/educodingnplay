@@ -75,14 +75,15 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
-// 인증 미들웨어를 직접 정의
+// 인증 미들웨어를 수정
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
 
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        return res.status(401).json({ loggedIn: false, error: '유효하지 않은 토큰입니다.' });
+        console.error('Token verification failed:', err);
+        return res.redirect('/auth/login');
       }
       req.user = user;
       next();
@@ -90,7 +91,8 @@ const authenticateUser = (req, res, next) => {
   } else if (req.session && req.session.is_logined) {
     next();
   } else {
-    res.status(401).json({ loggedIn: false, error: '로그인이 필요합니다.' });
+    console.log('User not authenticated, redirecting to login');
+    res.redirect('/auth/login');
   }
 };
 
@@ -139,22 +141,31 @@ app.get('/test', authenticateUser, async (req, res) => {
   }
 });
 
+// 로그인 라우트 수정
 app.post('/login', (req, res) => {
-  const user = { id: 'user-id', username: 'user-name' };
+  const { username, password } = req.body;
   
-  req.session.is_logined = true;
-  req.session.username = user.username;
+  // 여기에 실제 사용자 인증 로직을 추가해야 합니다.
+  // 예시를 위해 간단한 체크만 수행합니다.
+  if (username === 'test' && password === 'password') {
+    req.session.is_logined = true;
+    req.session.username = username;
 
-  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.codingnplay.site',
-    maxAge: 3600000
-  });
+    const token = jwt.sign({ username: username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      domain: '.codingnplay.site',
+      maxAge: 3600000
+    });
 
-  res.json({ success: true, username: user.username });
+    console.log('Login successful:', username);
+    res.json({ success: true, username: username });
+  } else {
+    console.log('Login failed for:', username);
+    res.status(401).json({ success: false, error: '잘못된 사용자명 또는 비밀번호입니다.' });
+  }
 });
 
 app.get('/logout', (req, res) => {
@@ -167,8 +178,13 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/', authenticateUser, (req, res) => {
-  res.render('index', { user: req.session.username });
+// 루트 라우트 수정
+app.get('/', (req, res) => {
+  if (req.session.is_logined) {
+    res.render('index', { user: req.session.username });
+  } else {
+    res.redirect('/auth/login');
+  }
 });
 
 app.get('*', authenticateUser, (req, res) => {
