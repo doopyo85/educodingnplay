@@ -58,6 +58,15 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
+// /config 라우트 - Google API 키와 스프레드시트 ID 등의 정보 제공
+app.get('/config', (req, res) => {
+  res.json({
+    apiKey: process.env.GOOGLE_API_KEY,
+    discoveryDocs: process.env.DISCOVERY_DOCS,
+    spreadsheetId: process.env.SPREADSHEET_ID
+  });
+});
+
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
   if (token) {
