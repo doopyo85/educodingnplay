@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             console.log('Received data:', data);
             if (data.username) {
-                userNameElement.textContent = data.username;
+                userNameElement.textContent = data.username;  // 세션의 username 표시
             } else {
                 userNameElement.textContent = '로그인 정보 없음';
             }
