@@ -140,7 +140,10 @@ const getObjectFromS3 = async (fileName) => {
     const data = await s3Client.send(new GetObjectCommand(params));
     return data.Body;
   } catch (err) {
-    console.error(`Error fetching file from S3: ${err.message}`);
+    console.error(`Error fetching file from S3:`, err);
+    console.error(`Bucket: ${params.Bucket}, Key: ${params.Key}`);
+    console.error(`AWS Region: ${process.env.AWS_REGION}`);
+    console.error(`Access Key ID: ${process.env.AWS_ACCESS_KEY_ID.substr(0, 5)}...`);
     throw err;
   }
 };
