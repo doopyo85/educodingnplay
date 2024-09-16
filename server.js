@@ -304,6 +304,33 @@ app.get('/logout', (req, res) => {
   });
 });
 
+
+// 파이썬 코드를 실행하는 라우트
+app.post('/run-python', (req, res) => {
+  const userCode = req.body.code; // 클라이언트로부터 받은 코드
+
+  // 임시 파이썬 파일로 저장한 후 실행
+  const fs = require('fs');
+  const path = './temp.py';
+  
+  fs.writeFileSync(path, userCode); // 파일에 코드 작성
+
+  // 파이썬 파일 실행
+  exec(`python3 ${path}`, (error, stdout, stderr) => {
+      if (error) {
+          console.error(`Error: ${error.message}`);
+          return res.json({ output: `Error: ${error.message}` });
+      }
+      if (stderr) {
+          console.error(`stderr: ${stderr}`);
+          return res.json({ output: `stderr: ${stderr}` });
+      }
+      
+      res.json({ output: stdout }); // 결과 전송
+  });
+});
+
+
 // 이 라우트를 마지막에 배치
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
