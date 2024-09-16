@@ -75,6 +75,7 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
+
 // 인증 미들웨어를 수정
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -95,6 +96,21 @@ const authenticateUser = (req, res, next) => {
     res.redirect('/auth/login');
   }
 };
+
+// '/get-user-session' 엔드포인트 추가
+app.get('/get-user-session', (req, res) => {
+  if (req.session && req.session.is_logined) {
+    res.json({ username: req.session.username });
+  } else {
+    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
+  }
+});
+
+// '/get-user' 엔드포인트 추가
+app.get('/get-user', authenticateUser, (req, res) => {
+  res.json({ username: req.session.username });
+});
+
 
 // auth 라우트 연결
 app.use('/auth', authRouter);
@@ -128,6 +144,7 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
+// '/test' 엔드포인트 수정
 app.get('/test', authenticateUser, async (req, res) => {
   try {
     const objectData = await getObjectFromS3('default-file.html');
@@ -137,8 +154,14 @@ app.get('/test', authenticateUser, async (req, res) => {
     });
   } catch (err) {
     console.error(`Error in /test route: ${err.message}`);
-    res.status(500).send('Error fetching file from S3');
+    res.status(500).json({ error: 'Error fetching file from S3' });
   }
+});
+
+// 에러 핸들링 미들웨어 추가
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // 로그인 라우트 수정
