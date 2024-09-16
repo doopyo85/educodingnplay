@@ -54,8 +54,8 @@ app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')))
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
-app.get('/favicon_cna.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon_cna.ico'));
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
 const authenticateUser = (req, res, next) => {
