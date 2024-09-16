@@ -171,7 +171,7 @@ app.use('/public', (req, res, next) => {
 
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
-app.use('/vue-ide', express.static(__dirname + '/vue-ide/public'));
+app.use('/vue-ide', express.static(path.join(__dirname, 'vue-ide/public')));
 
 app.use((req, res, next) => {
   const ext = path.extname(req.url).toLowerCase();
@@ -205,6 +205,10 @@ app.get('/', (req, res) => {
   } else {
     res.redirect('/auth/login');
   }
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
 });
 
 app.get('/scratch', authenticateUser, (req, res) => {
