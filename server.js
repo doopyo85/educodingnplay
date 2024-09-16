@@ -110,6 +110,7 @@ const getObjectFromS3 = async (fileName) => {
   }
 };
 
+// 이 부분을 주의깊게 확인하세요
 app.get('/test', authenticateUser, async (req, res) => {
   try {
     const objectData = await getObjectFromS3('default-file.html');
@@ -139,9 +140,8 @@ app.get('/', authenticateUser, (req, res) => {
 
 // 이 라우트를 마지막에 배치하고, 콜백 함수를 제공합니다.
 app.get('*', authenticateUser, (req, res) => {
-  res.render('index', { user: req.session.username });
+  res.status(404).render('404', { user: req.session.username });
 });
-
 
 const DEFAULT_PORT = 3000;
 function startServer(port) {
