@@ -84,9 +84,11 @@ const authenticateUser = (req, res, next) => {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
         console.error('Token verification failed:', err);
+        req.session.is_logined = false;
         return res.redirect('/auth/login');
       }
       req.user = user;
+      req.session.is_logined = true;
       next();
     });
   } else if (req.session && req.session.is_logined) {
@@ -124,13 +126,13 @@ app.get('/config', (req, res) => {
 });
 
 const s3Client = new S3Client({
-  region: 'ap-northeast-2',
+  region: process.env.AWS_REGION,
   credentials: fromEnv(),
 });
 
 const getObjectFromS3 = async (fileName) => {
   const params = {
-    Bucket: process.env.BUCKET_NAME,
+    Bucket: process.env.AWS_S3_BUCKET_NAME, // 환경 변수에서 버킷 이름을 가져옵니다.
     Key: fileName
   };
 
@@ -207,7 +209,7 @@ app.get('/logout', (req, res) => {
 
 // 루트 라우트 수정
 app.get('/', (req, res) => {
-  if (req.session.is_logined) {
+  if (req.session && req.session.is_logined) {
     res.render('index', { user: req.session.username });
   } else {
     res.redirect('/auth/login');
