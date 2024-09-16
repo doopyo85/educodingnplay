@@ -1,5 +1,3 @@
-// 누락된 부분과 개선사항을 반영한 최종 수정본
-
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -85,10 +83,9 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
-  credentials: fromEnv()
+  credentials: fromEnv(), // 환경변수에서 자격 증명 불러오기
 });
 
 const getObjectFromS3 = async (fileName) => {
@@ -97,20 +94,16 @@ const getObjectFromS3 = async (fileName) => {
     Key: fileName
   };
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('S3 Params:', params);
-    console.log('AWS Access Key ID:', process.env.AWS_ACCESS_KEY_ID);
-    console.log('AWS Secret Access Key:', process.env.AWS_SECRET_ACCESS_KEY);
-  }
-
   try {
     const data = await s3Client.send(new GetObjectCommand(params));
+    console.log('S3 Object Data:', data); // 데이터 확인용 로그
     return data.Body;
   } catch (err) {
     console.error(`Error fetching file from S3: ${err.message}`);
     throw err;
   }
 };
+
 
 app.get('/test', authenticateUser, async (req, res) => {
   try {
