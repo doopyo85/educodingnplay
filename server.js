@@ -142,6 +142,34 @@ app.get('/test', authenticateUser, async (req, res) => {
   }
 });
 
+app.post('/login', (req, res) => {
+  const user = { id: 'user-id', username: 'user-name' };
+
+  req.session.is_logined = true;
+  req.session.username = user.username;
+
+  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.codingnplay.site',
+    maxAge: 3600000
+  });
+
+  res.json({ success: true, username: user.username });
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).send('로그아웃 실패');
+    }
+    res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
+    res.redirect('/auth/login');
+  });
+});
+
 app.get('/', authenticateUser, (req, res) => {
   res.render('index', { user: req.session.username });
 });
