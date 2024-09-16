@@ -12,16 +12,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .then(response => {
-            console.log('Response status:', response.status);  // 응답 상태 확인
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Received data:', data);  // 응답 데이터 확인
             if (data.username) {
-                userNameElement.textContent = data.username;  // username을 출력
+                userNameElement.textContent = data.username;
             } else {
                 userNameElement.textContent = '로그인 정보 없음';
             }

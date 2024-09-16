@@ -273,22 +273,33 @@ app.post('/login', (req, res) => {
   req.session.is_logined = true;
   req.session.username = user.username;
 
-  const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.codingnplay.site',
-    maxAge: 3600000
-  });
+  // 세션 저장을 확실히 하기 위해 save 메소드 사용
+  req.session.save((err) => {
+    if(err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ error: 'Failed to save session' });
+    }
 
-  res.setHeader('Content-Type', 'application/json');
-  res.json({ success: true, username: user.username });
+    const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      domain: '.codingnplay.site',
+      maxAge: 3600000
+    });
+
+    res.json({ success: true, username: user.username });
+  });
 });
 
 app.get('/get-user-session', (req, res) => {
+  console.log('Session data:', req.session);
+  console.log('Is logged in:', req.session.is_logined);
+  console.log('Username:', req.session.username);
+
   if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.username });  // username을 전송
+    res.json({ username: req.session.username });
   } else {
     res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
