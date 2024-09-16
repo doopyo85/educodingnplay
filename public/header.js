@@ -12,16 +12,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .then(response => {
-            console.log('Response status:', response.status);
+            console.log('Response status:', response.status);  // 응답 상태 확인
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
         .then(data => {
-            console.log('Received data:', data);
+            console.log('Received data:', data);  // 응답 데이터 확인
             if (data.username) {
-                userNameElement.textContent = data.username;  // 세션의 username 표시
+                userNameElement.textContent = data.username;  // username을 출력
             } else {
                 userNameElement.textContent = '로그인 정보 없음';
             }
@@ -30,8 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error('Error fetching session data:', error);
             userNameElement.textContent = '로그인 정보 없음';
         });
-    } else {
-        console.error('User name element not found');
     }
 
     if (logoutButtonElement) {
