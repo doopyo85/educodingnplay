@@ -45,9 +45,7 @@ const getObjectFromS3 = async (fileName) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-
 // JWT 사용 설정
-
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 app.get('/config', (req, res) => {
@@ -82,8 +80,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-
 
 app.set('trust proxy', 1);
 
@@ -138,7 +134,7 @@ app.use('/auth', authRouter);
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);  // 세션 정보를 출력
   console.log('쿠키 정보:', req.headers.cookie);  // 쿠키 정보를 출력
-  res.locals.username = req.session.username || null;
+  res.locals.userID = req.session.userID || null;
   res.locals.is_logined = req.session.is_logined || false;
   next();
 });
@@ -209,102 +205,55 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-  if (req.session.is_logined) {
-    res.render('index', { user: req.session.username });
-  } else {
-    res.redirect('/auth/login');
-  }
-});
-
-app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'resource', 'favicon.ico'));
-});
-
-app.get('/scratch', authenticateUser, (req, res) => {
-  res.render('scratch');
-});
-
-app.get('/computer_basic', authenticateUser, (req, res) => {
-  res.render('computer_basic');
-});
-
-app.get('/entry', authenticateUser, (req, res) => {
-  res.render('entry');
-});
-
-// 라우트 설정
-app.get('/test', authenticateUser, (req, res) => {
-  res.render('test', { 
-    user: req.session.username,
-    googleApiKey: process.env.GOOGLE_API_KEY,
-    spreadsheetId: process.env.SPREADSHEET_ID,  // 여기에 쉼표 추가
-    discoveryDocs: process.env.DISCOVERY_DOCS
-  });
-});
-
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-app.get('/get-user', authenticateUser, (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json({ username: req.session.username });
-});
-
-app.get('/scratch-gui', authenticateUser, (req, res) => {
-  const token = req.cookies.token;
-  const scratchGuiUrl = `https://3.34.127.154:8601?token=${token}`;
-  res.redirect(scratchGuiUrl);
-});
-
-app.get('/api/check-login', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  if (req.session && req.session.is_logined) {
-    res.json({ loggedIn: true });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
-
+// 회원가입 및 로그인 라우트 수정
 app.post('/login', (req, res) => {
-  const user = { id: 'user-id', username: 'user-name' };
-  
-  req.session.is_logined = true;
-  req.session.username = user.username;
-
-  // 세션 저장을 확실히 하기 위해 save 메소드 사용
-  req.session.save((err) => {
-    if(err) {
-      console.error('Session save error:', err);
-      return res.status(500).json({ error: 'Failed to save session' });
-    }
-
-    const token = jwt.sign({ username: user.username, sessionID: req.sessionID }, JWT_SECRET, { expiresIn: '1h' });
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      domain: '.codingnplay.site',
-      maxAge: 3600000
-    });
-
-    res.json({ success: true, username: user.username });
+  const { userID, password } = req.body; // 기존 username을 userID로 변경
+  db.query('SELECT * FROM users WHERE userID = ?', [userID], (err, results) => {
+      if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
+          req.session.is_logined = true;
+          req.session.userID = results[0].userID;
+          res.redirect('/');
+      } else {
+          res.send('Login Failed');
+      }
   });
 });
 
+// 관리자 센터 등록 라우트
+app.post('/admin/register-center', authenticateUser, (req, res) => {
+  if (req.session.is_logined && req.session.role === 'admin') {
+    const { center_name } = req.body;
+    db.query('INSERT INTO centers (center_name) VALUES (?)', [center_name], (err, results) => {
+      if (err) throw err;
+      res.send('Center registered successfully');
+    });
+  } else {
+    res.status(403).send('Unauthorized');
+  }
+});
+
+// 센터 목록을 보여주기 위한 라우트
+app.get('/center-list', (req, res) => {
+  db.query('SELECT * FROM centers', (err, results) => {
+    if (err) throw err;
+    res.json(results); // 센터 목록을 JSON 형식으로 반환
+  });
+});
+
+// 세션에서 사용자 정보를 가져오는 라우트
 app.get('/get-user-session', (req, res) => {
   console.log('Session data:', req.session);
   console.log('Is logged in:', req.session.is_logined);
-  console.log('Username:', req.session.username);
+  console.log('UserID:', req.session.userID);
 
   if (req.session && req.session.is_logined) {
-    res.json({ username: req.session.username });
+    res.json({ userID: req.session.userID });
   } else {
     res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
   }
 });
 
+// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -314,7 +263,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/auth/login');
   });
 });
-
 
 // 파이썬 코드를 실행하는 라우트
 app.post('/run-python', (req, res) => {
@@ -328,25 +276,25 @@ app.post('/run-python', (req, res) => {
 
   // 파이썬 파일 실행
   exec(`python3 ${path}`, (error, stdout, stderr) => {
-      if (error) {
-          console.error(`Error: ${error.message}`);
-          return res.json({ output: `Error: ${error.message}` });
-      }
-      if (stderr) {
-          console.error(`stderr: ${stderr}`);
-          return res.json({ output: `stderr: ${stderr}` });
-      }
-      
-      res.json({ output: stdout }); // 결과 전송
+    if (error) {
+      console.error(`Error: ${error.message}`);
+      return res.json({ output: `Error: ${error.message}` });
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return res.json({ output: `stderr: ${stderr}` });
+    }
+
+    res.json({ output: stdout }); // 결과 전송
   });
 });
 
-
-// 이 라우트를 마지막에 배치
+// 모든 라우트에서 사용할 기본 라우트 (페이지가 없을 때)
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
 });
 
+// 서버 시작 함수
 const DEFAULT_PORT = 3000;
 
 function startServer(port) {
@@ -366,3 +314,4 @@ function startServer(port) {
 }
 
 startServer(DEFAULT_PORT);
+

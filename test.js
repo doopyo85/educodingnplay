@@ -3,7 +3,6 @@ var currentProblemNumber = 1;
 var totalProblems = 10;
 var currentExamName = '';
 var problemData = [];
-
 document.addEventListener("DOMContentLoaded", function() {
     if (!window.menuLoaded) {
         const googleApiKey = document.getElementById('googleApiKey').value;
@@ -61,6 +60,7 @@ function initClient() {
     });
 }
 
+
 function setupEventListeners() {
     const runCodeBtn = document.getElementById('runCodeBtn');
     const prevButton = document.getElementById('prev-problem');
@@ -105,7 +105,7 @@ function fetchUserData() {
                 return response.json();
             })
             .then(data => {
-                userNameElement.innerText = data.userID || "로그인 정보 미확인";  // userID로 변경
+                userNameElement.innerText = data.username || "로그인 정보 미확인";
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
@@ -198,27 +198,27 @@ function renderMenu(data) {
     });
 
     // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-        el.addEventListener('click', function(event) {
-            event.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            const bsCollapse = bootstrap.Collapse.getInstance(target);
-            if (bsCollapse) {
-                if (target.classList.contains('show')) {
-                    bsCollapse.hide();
-                } else {
-                    // 다른 열린 메뉴 닫기
-                    document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
-                        if (openMenu !== target) {
-                            bootstrap.Collapse.getInstance(openMenu).hide();
-                        }
-                    });
-                    bsCollapse.show();
-                }
+document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+    el.addEventListener('click', function(event) {
+        event.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const bsCollapse = bootstrap.Collapse.getInstance(target);
+        if (bsCollapse) {
+            if (target.classList.contains('show')) {
+                bsCollapse.hide();
+            } else {
+                // 다른 열린 메뉴 닫기
+                document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
+                    if (openMenu !== target) {
+                        bootstrap.Collapse.getInstance(openMenu).hide();
+                    }
+                });
+                bsCollapse.show();
             }
-            updateToggleIcon(this);
-        });
+        }
+        updateToggleIcon(this);
     });
+});
     
     // 아이콘 변경
     function updateToggleIcon(element) {
@@ -234,6 +234,7 @@ function renderMenu(data) {
         }
     }
 }  
+
 
 function createTopLevelMenuItem(topLevelMenu, index) {
     const topLevelMenuItem = document.createElement('li');
@@ -268,7 +269,7 @@ function createSubMenuItems(subMenus, index) {
     subMenuContainer.classList.add('collapse');
 
     const subMenuList = document.createElement('ul');
-    subMenuList.classList.add('list-unstyled', 'pl    -3');
+    subMenuList.classList.add('list-unstyled', 'pl-3');
 
     subMenus.forEach(function({ subMenu, examName }) {
         const subMenuItem = document.createElement('li');
@@ -476,4 +477,3 @@ window.addEventListener('load', function() {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
-

@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return response.json();
         })
         .then(data => {
-            if (data.userID) {  // userID로 변경
-                userNameElement.textContent = data.userID;  // userID 표시
+            if (data.username) {
+                userNameElement.textContent = data.username;
             } else {
                 userNameElement.textContent = '로그인 정보 없음';
             }
