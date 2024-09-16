@@ -106,11 +106,11 @@ app.use(session({
   saveUninitialized: false,
   proxy: true,
   cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: 'none',
-    domain: '.codingnplay.site',
-    maxAge: 60 * 60 * 1000
+    secure: true, // HTTPS 환경에서만 쿠키 전송
+    httpOnly: true, // 클라이언트 측 JavaScript에서 쿠키 접근 차단
+    sameSite: 'none', // 크로스 사이트 요청 가능하게 설정
+    domain: '.codingnplay.site', // 도메인 전체에 쿠키 적용
+    maxAge: 60 * 60 * 1000 // 1시간 세션 유지
   }
 }));
 
@@ -136,8 +136,8 @@ app.use('/auth', authRouter);
 
 // session 정보를 모든 EJS 템플릿에 전달하는 미들웨어
 app.use((req, res, next) => {
-  console.log('세션 정보:', req.session);
-  console.log('쿠키 정보:', req.headers.cookie);
+  console.log('세션 정보:', req.session);  // 세션 정보를 출력
+  console.log('쿠키 정보:', req.headers.cookie);  // 쿠키 정보를 출력
   res.locals.username = req.session.username || null;
   res.locals.is_logined = req.session.is_logined || false;
   next();
