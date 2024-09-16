@@ -73,10 +73,8 @@ app.use(cors({
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
-    "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
-    "https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com " +
-    "https://cdnjs.cloudflare.com" +
+    "font-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://www.google.com; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://www.google.com https://cdn.jsdelivr.net; " +
@@ -84,6 +82,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
 
 app.set('trust proxy', 1);
 
