@@ -8,7 +8,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // 인증 관련 라우터
-const centerRouter = require('./lib/center'); // 센터 관련 라우터
+const centerRouter = require('./lib_login/center'); // 센터 관련 라우터
 const { exec } = require('child_process');
 require('dotenv').config();
 const path = require('path');
