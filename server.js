@@ -14,6 +14,7 @@ const app = express();
 
 // auth.js 라우트 파일 추가
 const authRouter = require('./auth');
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -30,6 +31,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Content Security Policy 설정
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
@@ -86,9 +88,9 @@ app.get('/config', (req, res) => {
 });
 
 const authenticateUser = (req, res, next) => {
-  // 로그인 페이지로의 접근은 인증 없이 허용
-  if (req.path === '/auth/login') {
-    return next();  // 로그인 페이지는 인증 필요 없음
+  // 로그인 페이지와 로그인 처리 라우트는 인증 없이 허용
+  if (req.path === '/auth/login' || req.path === '/login') {
+    return next();
   }
 
   const token = req.cookies.token;
@@ -96,21 +98,21 @@ const authenticateUser = (req, res, next) => {
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        return res.redirect('/auth/login');  // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
+        return res.redirect('/auth/login');
       }
       req.user = user;
       next();
     });
   } else if (req.session && req.session.is_logined) {
-    next();  // 세션이 존재하면 다음 미들웨어로 이동
+    next();
   } else {
-    res.redirect('/auth/login');  // 로그인되어 있지 않으면 로그인 페이지로 리다이렉트
+    res.redirect('/auth/login');
   }
 };
 
 const s3Client = new S3Client({
   region: 'ap-northeast-2',
-  credentials: fromEnv(), // 환경변수에서 자격 증명 불러오기
+  credentials: fromEnv(),
 });
 
 const getObjectFromS3 = async (fileName) => {
@@ -121,7 +123,6 @@ const getObjectFromS3 = async (fileName) => {
 
   try {
     const data = await s3Client.send(new GetObjectCommand(params));
-    console.log('S3 Object Data:', data); // 데이터 확인용 로그
     return data.Body;
   } catch (err) {
     console.error(`Error fetching file from S3: ${err.message}`);
@@ -142,6 +143,7 @@ app.get('/test', authenticateUser, async (req, res) => {
   }
 });
 
+// 로그인 라우트 추가
 app.post('/login', (req, res) => {
   const user = { id: 'user-id', username: 'user-name' };
 
