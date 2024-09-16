@@ -232,6 +232,18 @@ app.post('/admin/register-center', authenticateUser, (req, res) => {
   }
 });
 
+// 센터 목록을 가져오는 API 엔드포인트
+router.get('/api/get-center-list', async (req, res) => {
+  try {
+      const centers = await getCenterListFromSheet(process.env.SPREADSHEET_ID, process.env.GOOGLE_API_KEY);
+      res.json({ centers });
+  } catch (error) {
+      res.status(500).json({ error: '센터 목록을 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+module.exports = router;
+
 // 센터 목록을 보여주기 위한 라우트
 app.get('/center-list', (req, res) => {
   db.query('SELECT * FROM centers', (err, results) => {

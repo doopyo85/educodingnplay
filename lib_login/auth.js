@@ -4,13 +4,73 @@ const router = express.Router();
 const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db'); // db.js 파일을 불러옵니다
+const { google } = require('googleapis');
 
+// 구글 시트를 통한 센터 목록 가져오기 함수
+async function getCenterListFromSheet(spreadsheetId, apiKey) {
+    const sheets = google.sheets({ version: 'v4', auth: apiKey });
+    
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: '센터목록!A:B',  // 센터 목록이 있는 시트 범위
+        });
+        
+        const rows = response.data.values;
+        if (rows.length) {
+            return rows.map(row => ({ id: row[0], name: row[1] }));  // 센터 ID와 이름 반환
+        } else {
+            console.log('No data found.');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching center list:', error);
+        throw error;
+    }
+}
+
+// 사용자 ID로 사용자 가져오기
+async function getUserByUserID(userID) {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM Users WHERE userID = ?', [userID], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+}
+
+// 사용자 생성 함수
+async function createUser(userID, password, email, name, phone, birthdate, role = 'student') {
+    return new Promise((resolve, reject) => {
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+            if (err) {
+                return reject(err);
+            }
+
+            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const values = [userID, hashedPassword, email, name, phone, birthdate, role];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    return reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    });
+}
+
+// 로그인 페이지 라우트
 router.get('/login', (request, response) => {
     const title = '로그인';
     const html = template.HTML(title, `
         <h2>로그인</h2>
         <form id="loginForm">
-            <p><input class="login" type="text" name="username" placeholder="아이디"></p>
+            <p><input class="login" type="text" name="userID" placeholder="아이디"></p>
             <p><input class="login" type="password" name="pwd" placeholder="비밀번호"></p>
             <p><input class="btn" type="submit" value="로그인"></p>
         </form>
@@ -40,31 +100,31 @@ router.get('/login', (request, response) => {
     response.send(html);
 });
 
+// 로그인 처리 라우트
 router.post('/login_process', async (req, res) => {
     try {
-        const username = req.body.username;
+        const userID = req.body.userID;
         const password = req.body.pwd;
+        
+        console.log('로그인 시도:', { userID });
 
-        console.log('로그인 시도:', { username });
-
-        if (!username || !password) {
+        if (!userID || !password) {
             return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
         }
-
-        const user = await getUserByUsername(username);
         
+        const user = await getUserByUserID(userID);
         if (user) {
             // 비밀번호 비교
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
                 req.session.is_logined = true;
-                req.session.nickname = user.username;
+                req.session.userID = user.userID; // 변경된 부분
                 req.session.save(err => {
                     if (err) {
                         console.error('세션 저장 오류:', err);
                         return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
                     }
-                    console.log('로그인 성공:', user.username);
+                    console.log('로그인 성공:', user.userID); // 변경된 부분
                     res.json({ success: true, redirect: '/public' });
                 });
             } else {
@@ -81,13 +141,13 @@ router.post('/login_process', async (req, res) => {
     }
 });
 
-// 새로 추가된 회원가입 라우트
+// 회원가입 페이지 라우트
 router.get('/register', (req, res) => {
     const title = '회원가입';
     const html = template.HTML(title, `
         <h2>회원가입</h2>
         <form action="/auth/register_process" method="post">
-            <p><input class="login" type="text" name="username" placeholder="아이디" required></p>
+            <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
             <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
             <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
             <p><input class="login" type="text" name="name" placeholder="이름" required></p>
@@ -108,15 +168,15 @@ router.get('/register', (req, res) => {
 // 회원가입 처리 라우트
 router.post('/register_process', async (req, res) => {
     try {
-        const { username, password, email, name, phone, birthdate, role } = req.body;
+        const { userID, password, email, name, phone, birthdate, role } = req.body;
 
         // 간단한 유효성 검사
-        if (!username || !password || !email || !name) {
+        if (!userID || !password || !email || !name) {
             return res.status(400).json({ error: '필수 필드를 모두 입력해주세요.' });
         }
 
         // 사용자 생성
-        await createUser(username, password, email, name, phone, birthdate, role);
+        await createUser(userID, password, email, name, phone, birthdate, role);
 
         res.redirect('/auth/login');
     } catch (error) {
@@ -124,40 +184,5 @@ router.post('/register_process', async (req, res) => {
         res.status(500).json({ error: '서버 오류', details: error.message });
     }
 });
-
-// 사용자 이름으로 사용자 가져오기
-async function getUserByUsername(username) {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Users WHERE username = ?', [username], (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results.length > 0 ? results[0] : null);
-            }
-        });
-    });
-}
-
-async function createUser(username, password, email, name, phone, birthdate, role = 'student') {
-    return new Promise((resolve, reject) => {
-        // 비밀번호를 해싱합니다.
-        bcrypt.hash(password, 10, (err, hashedPassword) => {
-            if (err) {
-                return reject(err);
-            }
-
-            const query = 'INSERT INTO Users (username, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            const values = [username, hashedPassword, email, name, phone, birthdate, role];
-
-            db.query(query, values, (error, results) => {
-                if (error) {
-                    return reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        });
-    });
-}
 
 module.exports = router;
