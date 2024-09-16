@@ -7,13 +7,15 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth');
+const authRouter = require('./lib_login/auth'); // 인증 관련 라우터
+const centerRouter = require('./lib/center'); // 센터 관련 라우터
 const { exec } = require('child_process');
 require('dotenv').config();
 const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
 const app = express();
+
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -128,7 +130,11 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
+// **인증 라우트 처리**
 app.use('/auth', authRouter);
+
+// **센터 관련 라우트 처리**
+app.use('/center', centerRouter);
 
 // session 정보를 모든 EJS 템플릿에 전달하는 미들웨어
 app.use((req, res, next) => {
@@ -168,6 +174,7 @@ app.use('/public', (req, res, next) => {
   });
 });
 
+// static 파일 제공 및 기타 라우트 설정
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 
@@ -218,31 +225,6 @@ app.post('/login', (req, res) => {
       }
   });
 });
-
-// 관리자 센터 등록 라우트
-app.post('/admin/register-center', authenticateUser, (req, res) => {
-  if (req.session.is_logined && req.session.role === 'admin') {
-    const { center_name } = req.body;
-    db.query('INSERT INTO centers (center_name) VALUES (?)', [center_name], (err, results) => {
-      if (err) throw err;
-      res.send('Center registered successfully');
-    });
-  } else {
-    res.status(403).send('Unauthorized');
-  }
-});
-
-// 센터 목록을 가져오는 API 엔드포인트
-router.get('/api/get-center-list', async (req, res) => {
-  try {
-      const centers = await getCenterListFromSheet(process.env.SPREADSHEET_ID, process.env.GOOGLE_API_KEY);
-      res.json({ centers });
-  } catch (error) {
-      res.status(500).json({ error: '센터 목록을 불러오는 중 오류가 발생했습니다.' });
-  }
-});
-
-module.exports = router;
 
 // 센터 목록을 보여주기 위한 라우트
 app.get('/center-list', (req, res) => {
