@@ -9,7 +9,7 @@ const getCenterListFromSheet = async (spreadsheetId, apiKey) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheetId,
-      range: '센터목록!A:B',
+      range: '센터목록!A2:B100',
     });
     const rows = response.data.values;
     if (rows.length) {

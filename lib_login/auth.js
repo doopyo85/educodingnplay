@@ -3,6 +3,7 @@ const router = express.Router();
 const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db');
+const axios = require('axios'); // axios를 사용하여 내부 API 호출
 
 // 로그인 페이지 라우트
 router.get('/login', (request, response) => {
@@ -45,65 +46,6 @@ router.get('/login', (request, response) => {
     response.send(html);
 });
 
-// 회원가입 페이지 라우트
-router.get('/register', async (req, res) => {
-    const title = '회원가입';
-    const html = template.HTML(title, `
-        <h2>회원가입</h2>
-        <form id="registerForm">
-            <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
-            <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
-            <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
-            <p><input class="login" type="text" name="name" placeholder="이름" required></p>
-            <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
-            <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
-            <p>
-                <select class="login" name="role">
-                    <option value="student">학생</option>
-                    <option value="teacher">선생님</option>
-                    <option value="principal">원장님</option>
-                </select>
-            </p>
-            <p>
-                <select class="login" name="centerID" required>
-                    <option value="">센터를 선택하세요</option>
-                    <!-- 센터 목록은 서버에서 동적으로 추가 -->
-                </select>
-            </p>
-            <p><input class="btn" type="submit" value="가입하기"></p>
-        </form>
-        <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-        $(document).ready(function() {
-            $('#registerForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '/auth/register_process',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            window.location.href = '/auth/login';
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        const response = xhr.responseJSON;
-                        if (response && response.error) {
-                            alert(response.error);
-                        } else {
-                            alert("회원가입 중 오류가 발생했습니다.");
-                        }
-                    }
-                });
-            });
-        });
-        </script>
-    `, '');
-    res.send(html);
-});
-
 // 로그인 처리 라우트
 router.post('/login_process', async (req, res) => {
     try {
@@ -141,6 +83,78 @@ router.post('/login_process', async (req, res) => {
     } catch (error) {
         console.error('로그인 처리 중 오류 발생:', error);
         res.status(500).json({ error: '서버 오류' });
+    }
+});
+
+// 회원가입 페이지 라우트
+router.get('/register', async (req, res) => {
+    const title = '회원가입';
+    
+    try {
+        // 내부 API를 통해 센터 목록 가져오기
+        const response = await axios.get('http://localhost:3000/center/api/get-center-list');
+        const centers = response.data.centers;
+        
+        // 센터 목록 옵션 생성
+        const centerOptions = centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
+
+        const html = template.HTML(title, `
+            <h2>회원가입</h2>
+            <form id="registerForm">
+                <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
+                <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
+                <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
+                <p><input class="login" type="text" name="name" placeholder="이름" required></p>
+                <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
+                <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
+                <p>
+                    <select class="login" name="role">
+                        <option value="student">학생</option>
+                        <option value="teacher">선생님</option>
+                        <option value="principal">원장님</option>
+                    </select>
+                </p>
+                <p>
+                    <select class="login" name="centerID" required>
+                        <option value="">센터를 선택하세요</option>
+                        ${centerOptions}
+                    </select>
+                </p>
+                <p><input class="btn" type="submit" value="가입하기"></p>
+            </form>
+            <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+            $(document).ready(function() {
+                $('#registerForm').on('submit', function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '/auth/register_process',
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message);
+                                window.location.href = '/auth/login';
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            const response = xhr.responseJSON;
+                            if (response && response.error) {
+                                alert(response.error);
+                            } else {
+                                alert("회원가입 중 오류가 발생했습니다.");
+                            }
+                        }
+                    });
+                });
+            });
+            </script>
+        `, '');
+        res.send(html);
+    } catch (error) {
+        console.error('Error rendering register page:', error);
+        res.status(500).send('서버 오류가 발생했습니다.');
     }
 });
 
