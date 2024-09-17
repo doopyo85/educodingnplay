@@ -57,35 +57,35 @@ router.get('/login', (request, response) => {
         // 회원가입 처리 로직 (회원가입 폼 제출 시 처리)
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
-            $(document).ready(function() {
-                $('#registerForm').on('submit', function(e) {
-                    e.preventDefault(); // 폼 제출 중지
+        $(document).ready(function() {
+            $('#registerForm').on('submit', function(e) {
+                e.preventDefault(); // 폼 제출 중지
 
-                    $.ajax({
-                        url: '/auth/register_process',
-                        method: 'POST',
-                        data: $(this).serialize(),
-                        success: function(response) {
-                            if (response.success) {
-                                // 회원가입 완료 팝업 창 표시
-                                alert(response.message);
-                                // 로그인 페이지로 리디렉션
-                                window.location.href = '/auth/login';
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            // 오류 메시지 처리
-                            const response = xhr.responseJSON;
-                            if (response && response.error) {
-                                alert(response.error);
-                            } else {
-                                alert("회원가입 중 오류가 발생했습니다.");
-                            }
+                $.ajax({
+                    url: '/auth/register_process',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            // 회원가입 완료 팝업 창 표시
+                            alert(response.message); // 이 부분이 팝업창으로 메시지를 표시하게 합니다.
+                            // 로그인 페이지로 리디렉션
+                            window.location.href = '/auth/login';
                         }
-                    });
+                    },
+                    error: function(xhr, status, error) {
+                        const response = xhr.responseJSON;
+                        if (response && response.error) {
+                            alert(response.error);
+                        } else {
+                            alert("회원가입 중 오류가 발생했습니다.");
+                        }
+                    }
                 });
             });
-        </script>       
+        });
+        </script>
+  
     `, '');
     response.send(html);
 });
@@ -95,26 +95,26 @@ router.post('/login_process', async (req, res) => {
     try {
         const userID = req.body.userID;
         const password = req.body.pwd;
-        
+
         console.log('로그인 시도:', { userID });
 
         if (!userID || !password) {
             return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
         }
-        
+
         const user = await getUserByUserID(userID);
         if (user) {
-            // 비밀번호 비교
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
                 req.session.is_logined = true;
-                req.session.userID = user.userID; // 변경된 부분
+                req.session.userID = user.userID;
                 req.session.save(err => {
                     if (err) {
                         console.error('세션 저장 오류:', err);
                         return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
                     }
-                    console.log('로그인 성공:', user.userID); // 변경된 부분
+                    console.log('로그인 성공:', user.userID);
+                    // 로그인 성공 후 리다이렉트
                     res.json({ success: true, redirect: '/public' });
                 });
             } else {
@@ -130,6 +130,7 @@ router.post('/login_process', async (req, res) => {
         res.status(500).json({ error: '서버 오류' });
     }
 });
+
 
 // 회원가입 페이지 라우트
 router.get('/register', async (req, res) => {
