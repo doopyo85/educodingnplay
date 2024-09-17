@@ -41,29 +41,6 @@ async function getUserByUserID(userID) {
     });
 }
 
-// 사용자 생성 함수
-async function createUser(userID, password, email, name, phone, birthdate, role = 'student', centerID) {
-    return new Promise((resolve, reject) => {
-        bcrypt.hash(password, 10, (err, hashedPassword) => {
-            if (err) {
-                return reject(err);
-            }
-
-            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-            const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
-
-            db.query(query, values, (error, results) => {
-                if (error) {
-                    return reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        });
-    });
-}
-
-
 // 로그인 페이지 라우트
 router.get('/login', (request, response) => {
     const title = '로그인';
@@ -78,19 +55,26 @@ router.get('/login', (request, response) => {
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
         $(document).ready(function() {
-            $('#loginForm').on('submit', function(e) {
+            $('#registerForm').on('submit', function(e) {
                 e.preventDefault();
+
                 $.ajax({
-                    url: '/auth/login_process',
+                    url: '/auth/register_process',
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
                         if (response.success) {
-                            window.location.href = response.redirect;
+                            alert(response.message);
+                            window.location.href = '/auth/login';
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert(xhr.responseJSON.error);
+                        const response = xhr.responseJSON;
+                        if (response.error) {
+                            alert(response.error);  // 에러 메시지를 경고창으로 표시
+                        } else {
+                            alert('회원가입 중 오류가 발생했습니다.');
+                        }
                     }
                 });
             });
@@ -142,7 +126,6 @@ router.post('/login_process', async (req, res) => {
 });
 
 // 회원가입 페이지 라우트
-// 회원가입 페이지 라우트
 router.get('/register', async (req, res) => {
     const title = '회원가입';
 
@@ -182,27 +165,52 @@ router.get('/register', async (req, res) => {
     res.send(html);
 });
 
+async function createUser(userID, password, email, name, phone, birthdate, role = 'student', centerID) {
+    return new Promise((resolve, reject) => {
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+            if (err) {
+                return reject(err);
+            }
 
-// 회원가입 처리 라우트
+            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
+
+            db.query(query, values, (error, results) => {
+                if (error) {
+                    return reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    });
+}
+
 // 회원가입 처리 라우트
 router.post('/register_process', async (req, res) => {
     try {
         const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
 
-        // 간단한 유효성 검사
+        // 필수 입력 필드 유효성 검사
         if (!userID || !password || !email || !name || !centerID) {
             return res.status(400).json({ error: '필수 필드를 모두 입력해주세요.' });
         }
 
-        // 사용자 생성 (centerID 포함)
+        // 이미 존재하는 userID인지 확인
+        const existingUser = await getUserByUserID(userID);
+        if (existingUser) {
+            return res.status(400).json({ error: '이미 존재하는 ID입니다. 다른 ID를 입력하세요.' });
+        }
+
+        // 사용자 생성
         await createUser(userID, password, email, name, phone, birthdate, role, centerID);
 
-        res.redirect('/auth/login');
+        // 회원가입 성공 메시지
+        res.json({ success: true, message: '회원가입이 완료되었습니다. 가입한 ID로 로그인 하세요.' });
     } catch (error) {
         console.error('회원가입 처리 중 오류 발생:', error);
         res.status(500).json({ error: '서버 오류', details: error.message });
     }
 });
-
 
 module.exports = router;
