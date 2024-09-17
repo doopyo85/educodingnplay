@@ -26,7 +26,7 @@ async function getCenterListFromSheet(spreadsheetId, apiKey) {
         console.error('Error fetching center list:', error);}
         throw error;
     }
-}
+
 
 // 사용자 ID로 사용자 가져오기
 async function getUserByUserID(userID) {
