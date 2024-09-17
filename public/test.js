@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function initClient() {
+    console.log('Initializing Google API client');
     const apiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
     
@@ -34,6 +35,9 @@ function initClient() {
         return;
     }
 
+    console.log('API Key:', apiKey);
+    console.log('Spreadsheet ID:', spreadsheetId);
+    
     gapi.client.init({
         apiKey: apiKey,
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
@@ -116,16 +120,21 @@ function fetchUserData() {
 }
   
 function loadMenuData(spreadsheetId) {
+    console.log('Loading menu data from spreadsheet:', spreadsheetId);
     return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: 'menulist!A2:C',
     }).then((response) => {
         const data = response.result.values;
+        console.log('Received menu data:', data);
         if (data && data.length > 0) {
             return data;
         } else {
-            throw new Error('No menu data found');
+            throw new Error('No menu data found or empty data received');
         }
+    }).catch(error => {
+        console.error('Error loading menu data:', error);
+        throw error;
     });
 }
 
@@ -269,7 +278,7 @@ function createSubMenuItems(subMenus, index) {
     subMenuContainer.classList.add('collapse');
 
     const subMenuList = document.createElement('ul');
-    subMenuList.classList.add('list-unstyled', 'pl    -3');
+    subMenuList.classList.add('list-unstyled', 'pl-3');
 
     subMenus.forEach(function({ subMenu, examName }) {
         const subMenuItem = document.createElement('li');
