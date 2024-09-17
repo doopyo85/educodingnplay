@@ -12,7 +12,7 @@ async function getCenterListFromSheet(spreadsheetId, apiKey) {
     try {
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: '센터목록!A:B',  // 센터 목록이 있는 시트 범위
+            range: '센터목록!A2:B100',  // 센터 목록이 있는 시트 범위
         });
         
         const rows = response.data.values;
@@ -54,31 +54,29 @@ router.get('/login', (request, response) => {
         <p>계정이 없으신가요? <a href="/auth/register">회원가입</a></p>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
+        // 회원가입 처리 로직 (회원가입 폼 제출 시 처리)
         $(document).ready(function() {
             $('#registerForm').on('submit', function(e) {
                 e.preventDefault();
-
+                
                 $.ajax({
                     url: '/auth/register_process',
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
+                        // 회원가입 성공 시 메시지를 팝업으로 띄우기
                         if (response.success) {
-                            alert(response.message);
-                            window.location.href = '/auth/login';
+                            alert(response.message); // 팝업 메시지로 회원가입 완료 알림
+                            window.location.href = '/auth/login'; // 로그인 페이지로 리다이렉션
                         }
                     },
                     error: function(xhr, status, error) {
-                        const response = xhr.responseJSON;
-                        if (response.error) {
-                            alert(response.error);  // 에러 메시지를 경고창으로 표시
-                        } else {
-                            alert('회원가입 중 오류가 발생했습니다.');
-                        }
+                        alert(xhr.responseJSON.error); // 오류 발생 시 오류 메시지 알림
                     }
                 });
             });
         });
+
         </script>
     `, '');
     response.send(html);
@@ -206,11 +204,13 @@ router.post('/register_process', async (req, res) => {
         await createUser(userID, password, email, name, phone, birthdate, role, centerID);
 
         // 회원가입 성공 메시지
-        res.json({ success: true, message: '회원가입이 완료되었습니다. 가입한 ID로 로그인 하세요.' });
-    } catch (error) {
-        console.error('회원가입 처리 중 오류 발생:', error);
-        res.status(500).json({ error: '서버 오류', details: error.message });
-    }
-});
+        res.json({ 
+            success: true, 
+            message: '회원가입이 완료되었습니다. 가입한 ID로 로그인 하세요.' });
+        } catch (error) {
+            console.error('회원가입 처리 중 오류 발생:', error);
+            res.status(500).json({ error: '서버 오류', details: error.message });
+        }
+    });
 
 module.exports = router;
