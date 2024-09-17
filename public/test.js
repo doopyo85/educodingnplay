@@ -22,6 +22,10 @@ document.addEventListener("DOMContentLoaded", function() {
         window.menuLoaded = true;
     }
     setupEventListeners();
+
+    // 문제가 선택되지 않았을 때 main.webp 이미지를 표시
+    displayDefaultContent();
+    
     renderMenu([]); // 빈 배열로 초기화
 });
 
@@ -65,6 +69,36 @@ function initClient() {
         console.error('Error in initialization process:', error);
     });
 }
+
+function displayDefaultContent() {
+    const iframe = document.getElementById('iframeContent');
+    const problemContainer = document.getElementById('problem-container');
+
+    if (iframe && problemContainer) {
+        iframe.style.display = 'none'; // 문제를 선택하지 않았으므로 iframe 숨기기
+
+        const img = document.createElement('img');
+        img.src = '/resources/main.webp';  // main.webp 파일 경로
+        img.alt = '메인 이미지';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
+
+        // 기존에 이미 이미지가 있으면 제거하고 새로운 이미지를 추가
+        while (problemContainer.firstChild) {
+            problemContainer.removeChild(problemContainer.firstChild);
+        }
+        problemContainer.appendChild(img);
+    }
+
+    // 문제 네비게이션 좌, 우 버튼 숨기기
+    const prevButton = document.getElementById('prev-problem');
+    const nextButton = document.getElementById('next-problem');
+    if (prevButton) prevButton.style.visibility = 'hidden';
+    if (nextButton) nextButton.style.visibility = 'hidden';
+}
+
 
 function setupEventListeners() {
     const runCodeBtn = document.getElementById('runCodeBtn');
@@ -419,53 +453,96 @@ function resizeIframe(iframe) {
     };
 }
 
-
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
     console.log('Problem data:', problemData);
-    
+
     if (!problemData || problemData.length === 0) {
         console.error('Problem data is not loaded yet');
         return;
     }
 
-    const problemInfo = problemData.find(problem => 
-        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
+    const problemInfo = problemData.find(problem =>
+        problem[1].toLowerCase() === currentExamName.toLowerCase() &&
         problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
     );
 
+    const problemContainer = document.getElementById('problem-container');
+    const iframe = document.getElementById('iframeContent');
+    const problemTitleElement = document.getElementById('problem-title');
+
     if (problemInfo) {
-        const [problemFileName, , ] = problemInfo;
+        // 문제가 있는 경우 iframe으로 문제 로드
+        const [problemFileName] = problemInfo;
         const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
         console.log('Problem URL:', problemUrl);
 
-        const iframe = document.getElementById('iframeContent');
         if (iframe) {
             iframe.src = problemUrl;
-            iframe.onload = function() {
+            iframe.style.display = 'block'; // 문제 로드 시 iframe 표시
+            iframe.onload = function () {
                 resizeIframe(iframe);
             };
-            console.log('iframe src set to:', problemUrl);
         } else {
             console.error('iframe element not found');
         }
 
-        const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
-        const problemTitleElement = document.getElementById('problem-title');
         if (problemTitleElement) {
-            problemTitleElement.textContent = problemTitle;
+            problemTitleElement.textContent = `${currentExamName} - 문제 ${problemNumber}`;
         } else {
             console.error('problem-title element not found');
         }
 
-        // 총 문제 수를 업데이트
+        // 이미지가 있으면 제거하고 iframe을 추가
+        while (problemContainer.firstChild) {
+            problemContainer.removeChild(problemContainer.firstChild);
+        }
+        problemContainer.appendChild(iframe);
+
+        // 좌우 화살표 버튼 활성화
+        const prevButton = document.getElementById('prev-problem');
+        const nextButton = document.getElementById('next-problem');
+        if (prevButton) prevButton.style.visibility = problemNumber > 1 ? 'visible' : 'hidden';
+        if (nextButton) nextButton.style.visibility = problemNumber < totalProblems ? 'visible' : 'hidden';
+
+        // 문제 수 업데이트
         totalProblems = problemData.filter(problem => problem[1].toLowerCase() === currentExamName.toLowerCase()).length;
-        renderProblemNavigation();  // 문제 네비게이션을 다시 렌더링
+        renderProblemNavigation();  // 문제 네비게이션 다시 렌더링
+
     } else {
         console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
         console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
+
+        // 문제가 없는 경우 기본 이미지를 표시
+        if (iframe) iframe.style.display = 'none';  // iframe 숨기기
+
+        // 이미지를 표시
+        const img = document.createElement('img');
+        img.src = '/resources/main.webp';  // main.webp 파일 경로
+        img.alt = '메인 이미지';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
+
+        // 기존 콘텐츠 제거 후 이미지 추가
+        while (problemContainer.firstChild) {
+            problemContainer.removeChild(problemContainer.firstChild);
+        }
+        problemContainer.appendChild(img);
+
+        // 좌우 화살표 버튼 숨기기
+        const prevButton = document.getElementById('prev-problem');
+        const nextButton = document.getElementById('next-problem');
+        if (prevButton) prevButton.style.visibility = 'hidden';
+        if (nextButton) nextButton.style.visibility = 'hidden';
+
+        if (problemTitleElement) {
+            problemTitleElement.textContent = '';  // 문제 제목도 비우기
+        }
     }
 }
+
 
 // 창 크기가 변경될 때마다 iframe 크기를 조정합니다
 window.addEventListener('resize', function() {
