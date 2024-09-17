@@ -1,4 +1,3 @@
-// auth.js 파일은 로그인과 관련된 라우트를 정의합니다.
 const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
@@ -43,15 +42,15 @@ async function getUserByUserID(userID) {
 }
 
 // 사용자 생성 함수
-async function createUser(userID, password, email, name, phone, birthdate, role = 'student') {
+async function createUser(userID, password, email, name, phone, birthdate, role = 'student', centerID) {
     return new Promise((resolve, reject) => {
         bcrypt.hash(password, 10, (err, hashedPassword) => {
             if (err) {
                 return reject(err);
             }
 
-            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            const values = [userID, hashedPassword, email, name, phone, birthdate, role];
+            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
 
             db.query(query, values, (error, results) => {
                 if (error) {
@@ -142,33 +141,48 @@ router.post('/login_process', async (req, res) => {
 });
 
 // 회원가입 페이지 라우트
-router.get('/register', (req, res) => {
-    const title = '회원가입';
-    const html = template.HTML(title, `
-        <h2>회원가입</h2>
-        <form action="/auth/register_process" method="post">
-            <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
-            <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
-            <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
-            <p><input class="login" type="text" name="name" placeholder="이름" required></p>
-            <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
-            <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
-            <p><select class="login" name="role">
-                <option value="student">학생</option>
-                <option value="teacher">선생님</option>
-                <option value="principal">원장님</option>
-            </select></p>
-            <p><input class="btn" type="submit" value="가입하기"></p>
-        </form>
-        <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
-    `, '');
-    res.send(html);
+router.get('/register', async (req, res) => {
+    try {
+        // 구글 시트에서 센터 목록 가져오기
+        const centers = await getCenterListFromSheet(process.env.SPREADSHEET_ID, process.env.GOOGLE_API_KEY);
+
+        const centerOptions = centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
+        const title = '회원가입';
+        const html = template.HTML(title, `
+            <h2>회원가입</h2>
+            <form action="/auth/register_process" method="post">
+                <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
+                <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
+                <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
+                <p><input class="login" type="text" name="name" placeholder="이름" required></p>
+                <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
+                <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
+                <p>
+                    <label for="center">센터</label>
+                    <select class="login" id="center" name="centerID">
+                        ${centerOptions}
+                    </select>
+                </p>
+                <p><select class="login" name="role">
+                    <option value="student">학생</option>
+                    <option value="teacher">선생님</option>
+                    <option value="principal">원장님</option>
+                </select></p>
+                <p><input class="btn" type="submit" value="가입하기"></p>
+            </form>
+            <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+        `, '');
+        res.send(html);
+    } catch (error) {
+        console.error('센터 목록을 가져오는 중 오류 발생:', error);
+        res.status(500).send('센터 목록을 불러오는 중 오류가 발생했습니다.');
+    }
 });
 
 // 회원가입 처리 라우트
 router.post('/register_process', async (req, res) => {
     try {
-        const { userID, password, email, name, phone, birthdate, role } = req.body;
+        const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
 
         // 간단한 유효성 검사
         if (!userID || !password || !email || !name) {
@@ -176,7 +190,7 @@ router.post('/register_process', async (req, res) => {
         }
 
         // 사용자 생성
-        await createUser(userID, password, email, name, phone, birthdate, role);
+        await createUser(userID, password, email, name, phone, birthdate, role, centerID);
 
         res.redirect('/auth/login');
     } catch (error) {
