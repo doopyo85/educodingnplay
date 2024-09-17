@@ -3,7 +3,7 @@ const router = express.Router();
 const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db');
-const axios = require('axios'); // axios를 사용하여 내부 API 호출
+const axios = require('axios');
 
 // 로그인 페이지 라우트
 router.get('/login', (request, response) => {
@@ -92,7 +92,11 @@ router.get('/register', async (req, res) => {
     
     try {
         // 내부 API를 통해 센터 목록 가져오기
-        const response = await axios.get('http://localhost:3000/center/api/get-center-list');
+        const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+            httpsAgent: new (require('https').Agent)({  
+                rejectUnauthorized: false
+            })
+        });
         const centers = response.data.centers;
         
         // 센터 목록 옵션 생성
@@ -154,7 +158,7 @@ router.get('/register', async (req, res) => {
         res.send(html);
     } catch (error) {
         console.error('Error rendering register page:', error);
-        res.status(500).send('서버 오류가 발생했습니다.');
+        res.status(500).send('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
 });
 
