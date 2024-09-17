@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         window.menuLoaded = true;
     }
-    setupEventListeners(); // 여기에 추가
+    setupEventListeners();
+    renderMenu([]); // 빈 배열로 초기화
 });
 
 function initClient() {
@@ -97,7 +98,7 @@ function setupEventListeners() {
 function fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
-        fetch('/get-user', { credentials: 'include' })
+        fetch('/get-user-session', { credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -105,7 +106,7 @@ function fetchUserData() {
                 return response.json();
             })
             .then(data => {
-                userNameElement.innerText = data.userID || "로그인 정보 미확인";  // userID로 변경
+                userNameElement.innerText = data.userID || "로그인 정보 미확인";
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);

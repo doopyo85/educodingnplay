@@ -145,36 +145,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/public', (req, res, next) => {
-  const filePath = path.join(__dirname, 'public', req.url);
-  
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      console.error(`File not found: ${filePath}`);
-      return next(); // 파일을 찾지 못한 경우 다음 미들웨어로 넘김
-    }
-
-    console.log(`Serving file: ${filePath}`);
-    
-    // MIME 타입 결정
-    let contentType = mime.lookup(filePath);
-    
-    // JavaScript 파일의 경우 항상 'application/javascript'로 설정
-    if (path.extname(filePath) === '.js') {
-      contentType = 'application/javascript';
-    }
-    
-    // MIME 타입을 결정하지 못한 경우 기본값 사용
-    if (!contentType) {
-      contentType = 'application/octet-stream';
-    }
-
-    res.setHeader('Content-Type', contentType);
-    res.send(content);
-  });
-});
-
 // static 파일 제공 및 기타 라우트 설정
+app.use('/public', express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path, stat) => {
+    if (path.endsWith('.js')) {
+      res.set('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 
@@ -301,6 +280,11 @@ app.get('/', (req, res) => {
 // 모든 라우트에서 사용할 기본 라우트 (페이지가 없을 때)
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // 서버 시작 함수
