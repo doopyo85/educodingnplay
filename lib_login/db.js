@@ -1,17 +1,20 @@
-var mysql = require('mysql');
-var db;
+const mysql = require('mysql');
+require('dotenv').config();
+
+let db;
 
 function handleDisconnect() {
     db = mysql.createConnection({
-        host: 'database-1.cte6iy2wqmcn.ap-northeast-2.rds.amazonaws.com',
-        user: 'codingpioneer',
-        password: 'fq84cod3',
-        database: 'educodingnplay',
-        connectTimeout: 10000,  // 추가
-        acquireTimeout: 10000,  // 추가
-        connectionLimit: 5,     // 추가
-        queueLimit: 30,         // 추가
-        debug: true             // 디버그 옵션 활성화
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        port: process.env.DB_PORT,
+        connectTimeout: 10000,
+        acquireTimeout: 10000,
+        connectionLimit: 5,
+        queueLimit: 30,
+        debug: process.env.NODE_ENV !== 'production'
     });
 
     db.connect(function(err) {
