@@ -283,6 +283,21 @@ app.post('/run-python', (req, res) => {
   });
 });
 
+// test 렌더링
+app.get('/test', authenticateUser, (req, res) => {
+  res.render('test');  // 'test.ejs' 템플릿을 렌더링
+});
+
+
+// 루트 경로 라우트
+app.get('/', (req, res) => {
+  if (!req.session.is_logined) {
+    res.redirect('/auth/login');
+  } else {
+    res.render('index');
+  }
+});
+
 // 모든 라우트에서 사용할 기본 라우트 (페이지가 없을 때)
 app.get('*', authenticateUser, (req, res) => {
   res.render('index');
