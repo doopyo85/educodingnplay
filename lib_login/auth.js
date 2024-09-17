@@ -158,15 +158,14 @@ router.get('/register', async (req, res) => {
                 <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
                 <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
                 <p>
-                    <label for="center">센터</label>
                     <select class="login" id="center" name="centerID">
                         ${centerOptions}
                     </select>
                 </p>
                 <p><select class="login" name="role">
                     <option value="student">학생</option>
-                    <option value="teacher">선생님</option>
-                    <option value="principal">원장님</option>
+                    <option value="teacher">강사</option>
+                    <option value="principal">원장</option>
                 </select></p>
                 <p><input class="btn" type="submit" value="가입하기"></p>
             </form>
