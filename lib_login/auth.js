@@ -53,31 +53,39 @@ router.get('/login', (request, response) => {
         </form>
         <p>계정이 없으신가요? <a href="/auth/register">회원가입</a></p>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
+        
         // 회원가입 처리 로직 (회원가입 폼 제출 시 처리)
-        $(document).ready(function() {
-            $('#registerForm').on('submit', function(e) {
-                e.preventDefault();
-                
-                $.ajax({
-                    url: '/auth/register_process',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        // 회원가입 성공 시 메시지를 팝업으로 띄우기
-                        if (response.success) {
-                            alert(response.message); // 팝업 메시지로 회원가입 완료 알림
-                            window.location.href = '/auth/login'; // 로그인 페이지로 리다이렉션
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#registerForm').on('submit', function(e) {
+                    e.preventDefault(); // 폼 제출 중지
+
+                    $.ajax({
+                        url: '/auth/register_process',
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                // 회원가입 완료 팝업 창 표시
+                                alert(response.message);
+                                // 로그인 페이지로 리디렉션
+                                window.location.href = '/auth/login';
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // 오류 메시지 처리
+                            const response = xhr.responseJSON;
+                            if (response && response.error) {
+                                alert(response.error);
+                            } else {
+                                alert("회원가입 중 오류가 발생했습니다.");
+                            }
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        alert(xhr.responseJSON.error); // 오류 발생 시 오류 메시지 알림
-                    }
+                    });
                 });
             });
-        });
-
-        </script>
+        </script>       
     `, '');
     response.send(html);
 });
