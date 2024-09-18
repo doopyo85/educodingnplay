@@ -4,16 +4,20 @@ let config;
 
 function loadConfig() {
     return fetch('/config')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Config loaded:', data);
-            config = data;
-            initClient(); // 설정을 로드한 후 initClient 호출
-        })
-        .catch(error => {
-            console.error('Error loading config:', error);
-            displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
-        });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Config loaded:', data);
+        config = data;
+      })
+      .catch(error => {
+        console.error('Error loading config:', error);
+        displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
+      });
 }
 
 function initClient() {

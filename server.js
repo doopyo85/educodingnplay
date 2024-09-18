@@ -213,6 +213,14 @@ app.get('/center-list', (req, res) => {
   });
 });
 
+app.get('/get-user', (req, res) => {
+  if (req.session && req.session.userID) {
+    res.json({ username: req.session.userID });
+  } else {
+    res.status(401).json({ error: '인증되지 않은 사용자' });
+  }
+});
+
 // 세션에서 사용자 정보를 가져오는 라우트
 app.get('/get-user-session', (req, res) => {
   console.log('Session data:', req.session);
