@@ -8,43 +8,56 @@
 <body>
     <div class="container mt-5">
         <h2>회원가입</h2>
-        <form action="/auth/register_process" method="POST">
-            <input class="login" type="text" name="userID" placeholder="아이디" required>
-            <input class="login" type="password" name="password" placeholder="비밀번호" required>
-            <input class="login" type="email" name="email" placeholder="이메일" required>
-            <input class="login" type="text" name="name" placeholder="이름" required>
-            <input class="login" type="tel" name="phone" placeholder="전화번호">
-            <input class="login" type="date" name="birthdate" placeholder="생년월일">
-            <select class="login" name="role" required>
-                <option value="student">학생</option>
-                <option value="teacher">선생님</option>
-                <option value="principal">원장님</option>
-            </select>
-            <select class="login" name="centerID" required>
-                <option value="">센터를 선택하세요</option>
-            </select>
-            <button type="submit" class="btn btn-primary">회원가입</button>
-        </form>
-        <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
-    </div>
-    <script>
-        $(document).ready(function() {
-            $.ajax({
-                url: '/api/get-center-list',
-                method: 'GET',
-                success: function(response) {
-                    const centers = response.centers;
-                    const centerSelect = $('select[name="centerID"]');
-                    centers.forEach(center => {
-                        centerSelect.append(`<option value="${center.id}">${center.name}</option>`);
+            <form id="registerForm">
+                <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
+                <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
+                <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
+                <p><input class="login" type="text" name="name" placeholder="이름" required></p>
+                <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
+                <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
+                <p>
+                    <select class="login" name="role">
+                        <option value="student">학생</option>
+                        <option value="teacher">선생님</option>
+                        <option value="principal">원장님</option>
+                    </select>
+                </p>
+                <p>
+                    <select class="login" name="centerID" required>
+                        <option value="">센터를 선택하세요</option>
+                        ${centerOptions}
+                    </select>
+                </p>
+                <p><input class="btn" type="submit" value="가입하기"></p>
+            </form>
+            <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+            $(document).ready(function() {
+                $('#registerForm').on('submit', function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '/auth/register_process',
+                        method: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message);
+                                window.location.href = '/auth/login';
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            const response = xhr.responseJSON;
+                            if (response && response.error) {
+                                alert(response.error);
+                            } else {
+                                alert("회원가입 중 오류가 발생했습니다.");
+                            }
+                        }
                     });
-                },
-                error: function() {
-                    alert('센터 목록을 불러오는 중 오류가 발생했습니다.');
-                }
+                });
             });
-        });
-    </script>
+            </script>
         
 </body>
 </html>
