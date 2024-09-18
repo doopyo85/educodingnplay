@@ -9,18 +9,33 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
-// 로그인 POST
-router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await db.getUserByUsername(username);
-    
-    if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.user = user;
-        return res.redirect('/');
-    } else {
-        return res.status(401).send('로그인 실패');
+router.get('/login', (req, res) => {
+    res.render('login'); // login.ejs 파일을 렌더링
+});
+
+
+router.post('/login_process', async (req, res) => {
+    const { userID, password } = req.body;
+    try {
+        const user = await getUserByUserID(userID);
+        if (user && await bcrypt.compare(password, user.password)) {
+            req.session.is_logined = true;
+            req.session.userID = user.userID;
+            req.session.save((err) => {
+                if (err) {
+                    return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+                }
+                res.json({ success: true, redirect: '/' });
+            });
+        } else {
+            res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+        }
+    } catch (error) {
+        console.error('Login process error:', error);
+        res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
     }
 });
+
 
 // 회원가입 페이지 GET
 router.get('/register', (req, res) => {

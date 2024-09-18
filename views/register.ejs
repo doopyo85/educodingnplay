@@ -7,21 +7,55 @@
     <link rel="stylesheet" href="/public/styles.css">
 </head>
 <body>
-    <%- include('partials/header') %>
     <div class="container mt-5">
-        <h1>회원가입</h1>
-        <form action="/auth/register" method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">아이디</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">비밀번호</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">회원가입</button>
+        <h2>회원가입</h2>
+        <form id="registerForm">
+            <p><input class="login" type="text" name="userID" placeholder="아이디" required></p>
+            <p><input class="login" type="password" name="password" placeholder="비밀번호" required></p>
+            <p><input class="login" type="email" name="email" placeholder="이메일" required></p>
+            <p><input class="login" type="text" name="name" placeholder="이름" required></p>
+            <p><input class="login" type="tel" name="phone" placeholder="전화번호"></p>
+            <p><input class="login" type="date" name="birthdate" placeholder="생년월일"></p>
+            <p>
+                <select class="login" name="role">
+                    <option value="student">학생</option>
+                    <option value="teacher">선생님</option>
+                    <option value="principal">원장님</option>
+                </select>
+            </p>
+            <p>
+                <select class="login" name="centerID" required>
+                    <option value="">센터를 선택하세요</option>
+                    <!-- 여기에 센터 목록 옵션이 추가됩니다 -->
+                </select>
+            </p>
+            <p><input class="btn" type="submit" value="가입하기"></p>
         </form>
-        <p class="mt-3">이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+        <p>이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
     </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // 회원가입 폼 제출 처리
+        $('#registerForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/auth/register_process',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        window.location.href = '/auth/login';
+                    }
+                },
+                error: function(xhr) {
+                    alert('회원가입 중 오류가 발생했습니다.');
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
