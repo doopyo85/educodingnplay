@@ -330,15 +330,14 @@ function onMenuSelect(examName) {
     if (problemData && problemData.length > 0) {
         loadProblem(currentProblemNumber);
         renderProblemNavigation();
+        
+        // 추가: Problem Navigation 컨테이너 표시
+        const navContainer = document.getElementById('problem-navigation-container');
+        if (navContainer) {
+            navContainer.style.display = 'flex';  // or 'block', depending on your layout
+        }
     } else {
         console.error('Problem data not loaded yet. Cannot load problem.');
-    }
-
-    // 선택된 메뉴 아이템 찾기 및 하이라이트 적용
-    const selectedMenuItem = Array.from(document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item'))
-        .find(item => item.textContent.trim() === examName);
-    if (selectedMenuItem) {
-        applySubMenuHighlight(selectedMenuItem);
     }
 
 }
