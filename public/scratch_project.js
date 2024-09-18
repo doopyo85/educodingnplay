@@ -1,6 +1,11 @@
 const RANGE = 'sb2!A2:C';
-
 let config;
+
+document.addEventListener("DOMContentLoaded", async function() {
+    await loadConfig();  // config 로드
+    console.log('Config:', config);  // config가 제대로 로드되었는지 확인
+    loadGapi();  // gapi 라이브러리 로드
+});
 
 async function loadConfig() {
     try {
@@ -17,12 +22,21 @@ async function loadConfig() {
 }
 
 function loadGapi() {
+    if (typeof gapi === 'undefined') {
+        console.error('Google API not loaded');
+        return;
+    }
     gapi.load('client', initClient);
 }
 
 async function initClient() {
+    if (!config || !config.apiKey || !config.spreadsheetId) {
+        console.error('API Key, Spreadsheet ID, or Discovery Docs are missing');
+        return;
+    }
+
     try {
-        console.log('Initializing Google API client');
+        console.log('Initializing Google API client with config:', config);
         await gapi.client.init({
             apiKey: config.apiKey,
             discoveryDocs: [config.discoveryDocs],
@@ -37,11 +51,12 @@ async function initClient() {
 
 async function loadSB2Data() {
     try {
-        console.log('Loading SB2 data');
+        console.log('Loading SB2 data from range:', RANGE);
         const response = await gapi.client.sheets.spreadsheets.values.get({
             spreadsheetId: config.spreadsheetId,
             range: RANGE,
         });
+        console.log('SB2 data loaded:', response.result);
         const data = response.result.values;
         if (data && data.length > 0) {
             const projects = groupByProject(data);
@@ -108,8 +123,3 @@ function displayErrorMessage(message) {
     container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
 }
 
-document.addEventListener("DOMContentLoaded", async function() {
-    await loadConfig();
-    console.log('Config:', config);  // 설정 정보 확인
-    loadGapi(); // gapi 라이브러리 로드
-});
