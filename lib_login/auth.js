@@ -21,7 +21,7 @@ router.post('/login_process', async (req, res) => {
                     console.error('Session save error:', err);
                     return res.status(500).json({ error: '세션 저장 오류' });
                 }
-                res.json({ success: true, redirect: '/' });
+                res.json({ success: true, redirect: '/public' }); // 여기를 '/public'으로 변경
             });
         } else {
             res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });

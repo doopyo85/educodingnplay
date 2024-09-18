@@ -109,7 +109,7 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location.href = response.redirect;
+                        window.location.href = response.redirect; // 서버에서 제공하는 리다이렉트 URL 사용
                     }
                 },
                 error: function(xhr, status, error) {

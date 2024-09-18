@@ -240,6 +240,14 @@ app.get('/logout', (req, res) => {
   });
 });
 
+app.get('/public', (req, res) => {
+  if (req.session.is_logined) {
+      res.render('dashboard'); // 또는 적절한 뷰 렌더링
+  } else {
+      res.redirect('/auth/login');
+  }
+});
+
 let sheets;
 
 async function initGoogleSheets() {
