@@ -267,14 +267,14 @@ app.get('/test', authenticateUser, (req, res) => {
   res.render('test');  // 'test.ejs' 템플릿을 렌더링
 });
 
-// scratch 렌더링
-app.get('/scratch', authenticateUser, (req, res) => {
-  res.render('scratch');  // 'scratch.ejs' 템플릿을 렌더링
+// Scratch GUI로 리다이렉트
+app.get('/scratch', (req, res) => {
+  res.redirect('http://localhost:8601');
 });
 
-// scratch-gui 리다이렉트
-app.get('/scratch-gui', (req, res) => {
-  res.redirect('http://localhost:8601');
+// Scratch 프로젝트 목록 페이지
+app.get('/scratch_project', authenticateUser, (req, res) => {
+  res.render('scratch_project');  // 'scratch_project.ejs' 템플릿을 렌더링
 });
 
 // 루트 경로 라우트

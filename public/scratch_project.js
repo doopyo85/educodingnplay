@@ -1,3 +1,7 @@
+const RANGE = 'sb2!A2:C';
+
+let config;
+
 function loadConfig() {
     return fetch('/config')
         .then(response => response.json())
@@ -44,6 +48,20 @@ function loadSB2Data() {
         displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
     });
 }
+
+// groupByProject, displayProjects, displayErrorMessage 함수는 이전과 동일
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadConfig().then(() => {
+        gapi.load('client', initClient);
+    });
+
+    // 기존 프로젝트 로드 버튼 클릭 이벤트
+    $(document).on("click", ".load-sb2", function() {
+        const sb2Url = $(this).data("url");
+        window.location.href = `http://localhost:8601#${sb2Url}`;
+    });
+});
 
 document.addEventListener("DOMContentLoaded", function() {
     loadConfig().then(() => {
