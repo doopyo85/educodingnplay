@@ -51,7 +51,6 @@ function initClient() {
         if (loadedProblemData && loadedProblemData.length > 0) {
             console.log('Problem data loaded successfully');
             problemData = loadedProblemData; // 전역 변수에 할당
-            initializeDefaultProblem(); // 문제 데이터 로드 후 초기 문제 설정
         } else {
             throw new Error('No problem data loaded');
         }
@@ -92,26 +91,6 @@ function setupEventListeners() {
     }
 
     fetchUserData();
-}
-
-
-// 새로 추가된 함수
-function initializeDefaultProblem() {
-    currentExamName = 'ctrtest_1-1';
-    currentProblemNumber = 1;
-    if (problemData && problemData.length > 0) {
-        loadProblem(currentProblemNumber);
-        renderProblemNavigation();
-    } else {
-        // problemData가 아직 로드되지 않았다면, 로드될 때까지 기다립니다.
-        const checkDataAndLoad = setInterval(() => {
-            if (problemData && problemData.length > 0) {
-                loadProblem(currentProblemNumber);
-                renderProblemNavigation();
-                clearInterval(checkDataAndLoad);
-            }
-        }, 100); // 100ms마다 확인
-    }
 }
 
 
@@ -199,11 +178,18 @@ function renderMenu(data) {
     });
 
     let index = 0;
+    let firstSubmenu = null;
     topLevelMenus.forEach(function(subMenus, topLevelMenu) {
         const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
         const subMenuItems = createSubMenuItems(subMenus, index);
         navList.appendChild(topLevelMenuItem);
         navList.appendChild(subMenuItems);
+
+        // 첫 번째 하위 메뉴 저장
+        if (index === 0 && subMenus.length > 0) {
+            firstSubmenu = subMenus[0];
+        }        
+
         index++;
     });
 
@@ -225,7 +211,7 @@ function renderMenu(data) {
     });
 
     // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
-document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
     el.addEventListener('click', function(event) {
         event.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
@@ -245,6 +231,11 @@ document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
         }
         updateToggleIcon(this);
     });
+
+    // 첫 번째 하위 메뉴 자동 선택
+    if (firstSubmenu) {
+        onMenuSelect(firstSubmenu.examName);
+    }    
 });
     
     // 아이콘 변경
@@ -368,11 +359,16 @@ function onMenuSelect(examName) {
         if (navContainer) {
             navContainer.style.display = 'flex';
         }
+
+        // 선택된 메뉴 아이템 찾기 및 하이라이트 적용
+        const selectedMenuItem = Array.from(document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item'))
+            .find(item => item.textContent.trim() === examName);
+        if (selectedMenuItem) {
+            applySubMenuHighlight(selectedMenuItem);
+        }
     } else {
         console.error('Problem data not loaded yet. Cannot load problem.');
     }
-
-
 }
 
 function renderProblemNavigation() {
