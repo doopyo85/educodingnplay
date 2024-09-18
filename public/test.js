@@ -78,14 +78,14 @@ function displayDefaultContent() {
         iframe.style.display = 'none'; // 문제를 선택하지 않았으므로 iframe 숨기기
 
         const img = document.createElement('img');
-        img.src = '/resources/main.webp';  // main.webp 파일 경로
+        img.src = 'https://<your-s3-bucket-url>/main.webp';  // S3에 있는 main.webp 경로
         img.alt = '메인 이미지';
         img.style.maxWidth = '100%';
         img.style.height = 'auto';
         img.style.display = 'block';
         img.style.margin = '0 auto';
 
-        // 기존에 이미 이미지가 있으면 제거하고 새로운 이미지를 추가
+        // 기존에 있던 이미지를 제거하고 새로운 이미지를 추가
         while (problemContainer.firstChild) {
             problemContainer.removeChild(problemContainer.firstChild);
         }
@@ -172,22 +172,56 @@ function loadMenuData(spreadsheetId) {
     });
 }
 
-function loadProblemData(spreadsheetId) {
-    return gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: '문항정보!A:C',
-    }).then((response) => {
-        const data = response.result.values;
-        if (data && data.length > 0) {
-            // 첫 번째 행이 헤더인 경우 제거
-            if (data[0][0] === 'URL') {
-                data.shift();
-            }
-            return data;
+function loadProblem(problemNumber) {
+    console.log('Loading problem:', currentExamName, problemNumber);
+
+    if (!problemData || problemData.length === 0) {
+        console.error('Problem data is not loaded yet');
+        return;
+    }
+
+    const problemInfo = problemData.find(problem => 
+        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
+        problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
+    );
+
+    const problemContainer = document.getElementById('problem-container');
+    const problemNavContainer = document.getElementById('problem-navigation-container');
+    const iframe = document.getElementById('iframeContent');
+    const problemTitleElement = document.getElementById('problem-title');
+
+    if (problemInfo) {
+        const [problemFileName] = problemInfo;
+        const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
+
+        if (iframe) {
+            iframe.src = problemUrl;
+            iframe.style.display = 'block';  // 문제 로드 시 iframe 표시
         } else {
-            throw new Error('No problem data found');
+            console.error('iframe element not found');
         }
-    });
+
+        if (problemTitleElement) {
+            problemTitleElement.textContent = `${currentExamName} - 문제 ${problemNumber}`;
+        }
+
+        // 문제 내비게이션과 문제 컨테이너 표시
+        problemNavContainer.style.display = 'flex';
+        problemContainer.style.display = 'block';
+
+        // 좌우 화살표 버튼 표시
+        const prevButton = document.getElementById('prev-problem');
+        const nextButton = document.getElementById('next-problem');
+        if (prevButton) prevButton.style.visibility = problemNumber > 1 ? 'visible' : 'hidden';
+        if (nextButton) nextButton.style.visibility = problemNumber < totalProblems ? 'visible' : 'hidden';
+
+        // 문제 수 업데이트 후 네비게이션 다시 렌더링
+        totalProblems = problemData.filter(problem => problem[1].toLowerCase() === currentExamName.toLowerCase()).length;
+        renderProblemNavigation();
+    } else {
+        console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
+        displayDefaultContent();  // 문제가 없을 경우 기본 이미지 표시
+    }
 }
 
 function renderMenu(data) {

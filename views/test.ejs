@@ -28,7 +28,7 @@
         </nav>
         <div class="contents">
             <div class="content-container">
-                <div id="problem-navigation-container">
+                <div id="problem-navigation-container" style="display: none;"> <!-- 문제 선택 시 표시 -->
                     <i class="bi bi-chevron-left" id="prev-problem"></i>
                     <div id="problem-navigation"></div>
                     <i class="bi bi-chevron-right" id="next-problem"></i>
@@ -61,37 +61,31 @@
     <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
     <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
 
-     <!-- Scripts -->
-     <script>
-         // Ace Editor 초기화
-         var editor = ace.edit("editor");
-         editor.session.setMode("ace/mode/python");
+    <!-- Ace Editor Script -->
+    <script>
+        var editor = ace.edit("editor");
+        editor.session.setMode("ace/mode/python");
+        editor.setTheme("ace/theme/tomorrow_night_bright");
 
-         // 다크 테마 적용 (tomorrow_night_bright)
-         editor.setTheme("ace/theme/tomorrow_night_bright");
+        document.getElementById("runCodeBtn").addEventListener("click", function() {
+            var code = editor.getValue();
+            document.getElementById("output-content").textContent = "Running...";
 
-         // Run 버튼 클릭시 서버로 코드 전송 및 결과 표시
-         document.getElementById("runCodeBtn").addEventListener("click", function() {
-             var code = editor.getValue(); // 에디터에서 코드 가져오기
-             document.getElementById("output-content").textContent = "Running...";
-
-             // 서버에 파이썬 코드 전송
-             fetch('/run-python', {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                 },
-                 body: JSON.stringify({ code: code }),
-             })
-             .then(response => response.json())
-             .then(data => {
-                 // 서버에서 받은 결과를 출력
-                 document.getElementById("output-content").textContent = data.output;
-             })
-             .catch((error) => {
-                 document.getElementById("output-content").textContent = "Error running code: " + error;
-             });
-         });
-     </script>
+            fetch('/run-python', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output-content").textContent = data.output;
+            })
+            .catch(error => {
+                document.getElementById("output-content").textContent = "Error running code: " + error;
+            });
+        });
+    </script>
 </body>
 </html>
