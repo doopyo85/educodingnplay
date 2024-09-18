@@ -63,13 +63,47 @@ module.exports = {
         .btn:hover {
             background-color: #595787;
         }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
     </head>
     <body>
       <div class="background">
         ${authStatusUI}
         ${body}
+        <div id="error-message" class="error-message"></div>
       </div>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+        $(document).ready(function() {
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                const userID = $('input[name="userID"]').val();
+                const password = $('input[name="pwd"]').val();
+                $.ajax({
+                    url: '/auth/login_process',
+                    method: 'POST',
+                    data: JSON.stringify({ userID, password }),
+                    contentType: 'application/json',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Login error:', xhr.responseJSON);
+                        $('#error-message').text(xhr.responseJSON?.error || "로그인 중 오류가 발생했습니다.");
+                    }
+                });
+            });
+        });
+      </script>
     </body>
     </html>
         `;

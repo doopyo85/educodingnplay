@@ -66,39 +66,39 @@ async function getUserByUserID(userID) {
 
 // 로그인 처리 로직
 router.post('/login_process', async (req, res) => {
+    console.log('로그인 처리 시작');
     const { userID, password } = req.body;
-    console.log('Login attempt:', { userID });
-  
+    console.log('Login attempt:', { userID, passwordLength: password ? password.length : 0 });
+
     try {
-      const user = await getUserByUserID(userID);
-      console.log('User found:', user); // 디버깅을 위한 로그
-  
-      if (user && user.password && password) {
-        console.log('Comparing passwords'); // 디버깅을 위한 로그
-        try {
+        const user = await getUserByUserID(userID);
+        console.log('User found:', user ? 'Yes' : 'No');
+
+        if (user && user.password && password) {
+            console.log('Comparing passwords');
             const isMatch = await bcrypt.compare(password, user.password);
+            console.log('Password match:', isMatch);
+
             if (isMatch) {
-              // 로그인 성공
-              req.session.is_logined = true;
-              req.session.userID = user.userID;
-              res.json({ success: true, redirect: '/' });
+                // 로그인 성공
+                req.session.is_logined = true;
+                req.session.userID = user.userID;
+                console.log('Login successful, session:', req.session);
+                res.json({ success: true, redirect: '/' });
             } else {
-              // 비밀번호 불일치
-              res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+                console.log('Password mismatch');
+                res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
             }
-          } catch (err) {
-            console.error('비밀번호 비교 중 오류 발생:', err);
-            res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
-          }
-      } else {
-        // 사용자 없음 또는 비밀번호 정보 없음
-        res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
-      }
+        } else {
+            console.log('User not found or password info missing');
+            res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+        }
     } catch (err) {
-      console.error('Login process error:', err);
-      res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
+        console.error('Login process error:', err);
+        res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
     }
-  });
+    console.log('로그인 처리 종료');
+});
 
 // 회원가입 페이지 라우트
 router.get('/register', async (req, res) => {
