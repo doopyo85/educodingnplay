@@ -2,7 +2,6 @@ const express = require('express');
 const db = require('../lib_login/db');
 const { google } = require('googleapis');
 const router = express.Router();
-const express = require('express');
 const { getSheetData } = require('../server');
 
 router.get('/api/get-center-list', async (req, res) => {
