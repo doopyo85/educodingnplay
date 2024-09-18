@@ -109,7 +109,9 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        window.location.href = response.redirect; // 서버에서 제공하는 리다이렉트 URL 사용
+                        window.location.href = response.redirect; // 이 부분이 실제로 리다이렉트를 수행합니다.
+                    } else {
+                        $('#error-message').text(response.error || "로그인에 실패했습니다.");
                     }
                 },
                 error: function(xhr, status, error) {
