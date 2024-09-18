@@ -4,7 +4,7 @@ const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
-const { queryDatabase } = require('../db');  // db.js에서 queryDatabase 함수 가져오기
+const { queryDatabase } = require('./db');  // 경로 수정
 
 
 // 로그인 페이지 라우트
@@ -64,7 +64,7 @@ async function getUserByUserID(userID) {
 }
 
 // 로그인 처리 로직
-app.post('/login_process', async (req, res) => {
+router.post('/login_process', async (req, res) => {
     const { userID, password } = req.body;
     console.log('로그인 시도:', { userID });
 
@@ -74,14 +74,14 @@ app.post('/login_process', async (req, res) => {
             // 로그인 성공
             req.session.is_logined = true;
             req.session.userID = user.userID;
-            res.redirect('/');
+            res.json({ success: true, redirect: '/' });
         } else {
             // 로그인 실패
-            res.status(401).send('Login Failed');
+            res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
         }
     } catch (err) {
         console.error('로그인 처리 중 오류 발생:', err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: '서버 내부 오류가 발생했습니다.' });
     }
 });
 
