@@ -18,8 +18,6 @@ const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 
-<link rel="icon" href="/public/favicon.ico"></link>
-
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { fromEnv } = require('@aws-sdk/credential-provider-env');
