@@ -43,7 +43,7 @@ function getConnection() {
 // MySQL 쿼리 예시
 async function exampleQuery() {
     try {
-        const results = await queryDatabase('SELECT * FROM users WHERE id = ?', [1]);
+        const results = await queryDatabase('SELECT * FROM Users WHERE id = ?', [1]);
         console.log(results);
     } catch (error) {
         console.error('쿼리 실행 오류:', error);
