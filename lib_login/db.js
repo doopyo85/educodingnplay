@@ -1,6 +1,18 @@
 const mysql = require('mysql');
 require('dotenv').config();
 
+async function testDatabaseConnection() {
+    try {
+      const result = await queryDatabase('SELECT 1');
+      console.log('Database connection successful:', result);
+    } catch (error) {
+      console.error('Database connection failed:', error);
+    }
+  }
+  
+  testDatabaseConnection();
+
+
 const pool = mysql.createPool({
     connectionLimit: 10,  // 최대 연결 수 설정
     host: process.env.DB_HOST,

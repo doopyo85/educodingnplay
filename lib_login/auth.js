@@ -180,6 +180,7 @@ router.get('/register', async (req, res) => {
 router.post('/register_process', async (req, res) => {
     try {
         const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
+        console.log('Registration attempt:', { userID, email, name, role, centerID });
 
         if (!userID || !password || !email || !name || !centerID) {
             return res.status(400).json({ error: '필수 필드를 모두 입력해주세요.' });
@@ -204,24 +205,17 @@ router.post('/register_process', async (req, res) => {
 
 // 사용자 생성 함수
 async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
-    return new Promise((resolve, reject) => {
-        bcrypt.hash(password, 10, (err, hashedPassword) => {
-            if (err) {
-                return reject(err);
-            }
-
-            const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-            const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
-
-            db.query(query, values, (error, results) => {
-                if (error) {
-                    return reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        });
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
+    
+    try {
+        const results = await queryDatabase(query, values);
+        return results;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
 }
 
 module.exports = router;
