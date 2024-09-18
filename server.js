@@ -195,7 +195,7 @@ app.use((req, res, next) => {
 app.post('/login', async (req, res) => {
   const { userID, password } = req.body;
   try {
-    const results = await queryDatabase('SELECT * FROM users WHERE userID = ?', [userID]);
+    const results = await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
     if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
       req.session.is_logined = true;
       req.session.userID = results[0].userID;
