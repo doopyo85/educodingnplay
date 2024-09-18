@@ -62,7 +62,7 @@ function groupByProject(data) {
     return projects;
 }
 
-// 프로젝트를 화면에 출력하는 함수
+// 프로젝트를 화면에 출력한 후 버튼 클릭 이벤트 리스너 추가
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = ''; // 기존 내용을 초기화
@@ -91,9 +91,24 @@ function displayProjects(projects) {
         `;
 
         card.innerHTML = cardContent;
-        console.log('Appending card for project:', projectName);  // 카드가 추가되기 전에 확인
         container.appendChild(card);
     });
+
+    // "load-sb2" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
+    document.querySelectorAll('.load-sb2').forEach(button => {
+        button.addEventListener('click', function() {
+            const sb2Url = this.getAttribute('data-url');
+            console.log('Loading SB2 project from URL:', sb2Url);
+            // Scratch GUI에 sb2 파일을 로드하는 코드 추가
+            loadSB2InScratchGUI(sb2Url);
+        });
+    });
+}
+
+// Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 따라 다르게 설정해야 할 수 있습니다)
+function loadSB2InScratchGUI(sb2Url) {
+    // Scratch-GUI URL 형식에 맞춰 sb2 파일 로드하는 코드 작성
+    window.open(`https://scratch.mit.edu/#editor?url=${sb2Url}`, '_blank');
 }
 
 // 오류 메시지를 화면에 출력하는 함수
