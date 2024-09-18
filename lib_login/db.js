@@ -60,16 +60,4 @@ async function testDatabaseConnection() {
   }
 })();
 
-async function getUserByUserID(userID) {
-  const results = await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
-  return results[0]; // 첫 번째 결과만 반환
-}
-
-async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
-  return await queryDatabase(
-      'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [userID, password, email, name, phone, birthdate, role, centerID]
-  );
-}
-
-module.exports = { queryDatabase, getUserByUserID, createUser };
+module.exports = { queryDatabase };
