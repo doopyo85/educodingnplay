@@ -10,15 +10,21 @@ async function initializePool() {
   console.log('DB_NAME:', process.env.DB_NAME);
   console.log('DB_PORT:', process.env.DB_PORT);
 
-  pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    connectionLimit: 10,
-    connectTimeout: 10000 // 10 seconds
-  });
+  try {
+    pool = await mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT,
+      connectionLimit: 10,
+      connectTimeout: 20000 // 20 seconds
+    });
+    console.log('Pool created successfully');
+  } catch (error) {
+    console.error('Failed to create pool:', error);
+    throw error;
+  }
 }
 
 async function queryDatabase(query, params = []) {
@@ -44,10 +50,14 @@ async function testDatabaseConnection() {
   }
 }
 
-initializePool()
-  .then(testDatabaseConnection)
-  .catch(error => {
-    console.error('Failed to initialize pool:', error);
-  });
+// Initialize pool and test connection when this module is imported
+(async () => {
+  try {
+    await initializePool();
+    await testDatabaseConnection();
+  } catch (error) {
+    console.error('Failed to initialize and test database connection:', error);
+  }
+})();
 
 module.exports = { queryDatabase };
