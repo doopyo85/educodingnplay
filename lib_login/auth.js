@@ -100,7 +100,7 @@ router.post('/login_process', async (req, res) => {
             }
         } else {
             console.log('User not found or password info missing');
-            res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+            
         }
     } catch (err) {
         console.error('Login process error:', err);
