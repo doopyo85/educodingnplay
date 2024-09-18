@@ -76,6 +76,7 @@ async function loadSB2Data() {
 function groupByProject(data) {
     const projects = {};
     data.forEach(row => {
+        console.log(row);  // 각 row가 어떻게 생겼는지 확인
         const [name, url, ctElement] = row;
         const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\))/, '').trim();
         if (!projects[baseName]) {
@@ -89,12 +90,16 @@ function groupByProject(data) {
             projects[baseName].ext2 = url;
         }
     });
+    console.log('Grouped Projects:', projects);  // 그룹화된 결과 확인
     return projects;
 }
 
+
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = ''; // 기존 내용을 초기화
+    console.log('Displaying projects:', projects);  // 출력할 프로젝트 확인
+
     Object.keys(projects).forEach(projectName => {
         if (projectName === '새로 시작하기') return;
 
@@ -116,7 +121,9 @@ function displayProjects(projects) {
                 </div>
             </div>
         `;
+
         card.innerHTML = cardContent;
+        console.log('Appending card for project:', projectName);  // 카드가 추가되기 전에 확인
         container.appendChild(card);
     });
 }
