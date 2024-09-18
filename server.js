@@ -267,6 +267,16 @@ app.get('/test', authenticateUser, (req, res) => {
   res.render('test');  // 'test.ejs' 템플릿을 렌더링
 });
 
+// scratch 렌더링
+app.get('/scratch', authenticateUser, (req, res) => {
+  res.render('scratch');  // 'scratch.ejs' 템플릿을 렌더링
+});
+
+// scratch-gui 리다이렉트
+app.get('/scratch-gui', (req, res) => {
+  res.redirect('http://localhost:8601');
+});
+
 
 // 루트 경로 라우트
 app.get('/', (req, res) => {
