@@ -191,6 +191,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (req.path === '/favicon.ico' || req.path.startsWith('/resource/')) {
+    return next();
+  }
+  // 여기에 인증 로직 추가
+});
+
+
 // 회원가입 및 로그인 라우트 수정
 app.post('/login', async (req, res) => {
   const { userID, password } = req.body;
