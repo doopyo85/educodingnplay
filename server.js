@@ -242,13 +242,7 @@ app.get('/logout', (req, res) => {
 let sheets;
 
 async function initGoogleSheets() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
-
-  const authClient = await auth.getClient();
-  sheets = google.sheets({ version: 'v4', auth: authClient });
+  sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
 }
 
 async function getSheetData(range) {
