@@ -4,7 +4,7 @@ const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
-const { queryDatabase } = require('./db');  // 경로 수정
+const { queryDatabase } = require('./db');
 
 
 // 로그인 페이지 라우트
