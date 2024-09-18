@@ -436,11 +436,30 @@ function loadProblem(problemNumber) {
 
         const iframe = document.getElementById('iframeContent');
         if (iframe) {
-            iframe.src = problemUrl;
+            // 새로운 방식: iframe의 srcdoc 속성을 사용하여 HTML을 직접 삽입
+            fetch(problemUrl)
+                .then(response => response.text())
+                .then(html => {
+                    const modifiedHtml = `
+                        <html>
+                            <head>
+                                <link rel="stylesheet" href="/public/contents.css">
+                            </head>
+                            <body>
+                                ${html}
+                            </body>
+                        </html>
+                    `;
+                    iframe.srcdoc = modifiedHtml;
+                })
+                .catch(error => {
+                    console.error('Error loading problem:', error);
+                    iframe.srcdoc = '<p>Error loading problem content.</p>';
+                });
+
             iframe.onload = function() {
                 resizeIframe(iframe);
             };
-            console.log('iframe src set to:', problemUrl);
         } else {
             console.error('iframe element not found');
         }
