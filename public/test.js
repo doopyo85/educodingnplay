@@ -224,6 +224,29 @@ function loadProblem(problemNumber) {
     }
 }
 
+function loadProblemData(spreadsheetId) {
+    console.log('Loading problem data from spreadsheet:', spreadsheetId);
+    return gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: spreadsheetId,
+        range: '문항정보!A:C',  // 스프레드시트에서 문제 정보가 담긴 범위를 설정
+    }).then((response) => {
+        const data = response.result.values;
+        console.log('Received problem data:', data);
+        if (data && data.length > 0) {
+            // 첫 번째 행이 헤더인 경우 제거
+            if (data[0][0] === 'URL') {
+                data.shift();
+            }
+            return data;
+        } else {
+            throw new Error('No problem data found');
+        }
+    }).catch(error => {
+        console.error('Error loading problem data:', error);
+        throw error;
+    });
+}
+
 function renderMenu(data) {
     const navList = document.getElementById('navList');
     if (!navList) {
@@ -231,7 +254,7 @@ function renderMenu(data) {
         return;
     }
 
-    navList.innerHTML = ''; // Clear existing menu items
+    navList.innerHTML = ''; // 기존 메뉴 항목 제거
 
     if (!data || !Array.isArray(data) || data.length === 0) {
         console.error('Invalid menu data');
@@ -297,7 +320,7 @@ function renderMenu(data) {
             updateToggleIcon(this);
         });
     });
-    
+
     // 아이콘 변경
     function updateToggleIcon(element) {
         const icon = element.querySelector('.bi');
