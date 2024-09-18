@@ -30,9 +30,9 @@ function loadGapi() {
 }
 
 async function initClient() {
-    if (!config || !config.apiKey || !config.spreadsheetId) {
-        console.error('API Key, Spreadsheet ID, or Discovery Docs are missing');
-        displayErrorMessage("API 키 또는 스프레드시트 ID가 누락되었습니다.");
+    if (!config || !config.apiKey || !config.spreadsheetId || !config.discoveryDocs) {
+        console.error('Config is missing required fields:', config);
+        displayErrorMessage("API 설정이 올바르지 않습니다.");
         return;
     }
 
@@ -40,9 +40,10 @@ async function initClient() {
         console.log('Initializing Google API client with config:', config);
         await gapi.client.init({
             apiKey: config.apiKey,
-            discoveryDocs: [config.discoveryDocs],
+            discoveryDocs: config.discoveryDocs,
         });
         console.log('Google API client initialized');
+        await gapi.client.load('sheets', 'v4');
         loadSB2Data();
     } catch (error) {
         console.error('Error initializing Google API client', error);

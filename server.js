@@ -52,9 +52,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 app.get('/config', (req, res) => {
   res.json({
-      apiKey: process.env.GOOGLE_API_KEY,
-      discoveryDocs: process.env.DISCOVERY_DOCS,
-      spreadsheetId: process.env.SPREADSHEET_ID,
+    apiKey: process.env.GOOGLE_API_KEY,
+    discoveryDocs: [process.env.DISCOVERY_DOCS], // 배열로 감싸기
+    spreadsheetId: process.env.SPREADSHEET_ID,
   });
 });
 
