@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
         window.menuLoaded = true;
     }
     setupEventListeners(); // 여기에 추가
-    initializeDefaultProblem(); // 새로 추가된 부분
 });
 
 // initClient 함수 수정
