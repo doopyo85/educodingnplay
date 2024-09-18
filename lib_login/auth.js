@@ -75,16 +75,21 @@ router.post('/login_process', async (req, res) => {
   
       if (user && user.password && password) {
         console.log('Comparing passwords'); // 디버깅을 위한 로그
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (isMatch) {
-          // 로그인 성공
-          req.session.is_logined = true;
-          req.session.userID = user.userID;
-          res.json({ success: true, redirect: '/' });
-        } else {
-          // 비밀번호 불일치
-          res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
-        }
+        try {
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch) {
+              // 로그인 성공
+              req.session.is_logined = true;
+              req.session.userID = user.userID;
+              res.json({ success: true, redirect: '/' });
+            } else {
+              // 비밀번호 불일치
+              res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+            }
+          } catch (err) {
+            console.error('비밀번호 비교 중 오류 발생:', err);
+            res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
+          }
       } else {
         // 사용자 없음 또는 비밀번호 정보 없음
         res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
