@@ -108,7 +108,7 @@ function displayProjects(projects) {
 // Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 따라 다르게 설정해야 할 수 있습니다)
 function loadSB2InScratchGUI(sb2Url) {
     // Scratch-GUI URL 형식에 맞춰 sb2 파일 로드하는 코드 작성
-    window.open(`https://scratch.mit.edu/#editor?url=${sb2Url}`, '_blank');
+    window.open(`https://codingnplay.site/scratch/#editor?url=${sb2Url}`, '_blank');
 }
 
 // 오류 메시지를 화면에 출력하는 함수
