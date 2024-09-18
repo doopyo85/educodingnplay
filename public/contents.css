@@ -9,7 +9,6 @@ body {
 #problem-container img {
     max-width: 100%;  /* 이미지가 컨테이너의 100% 폭을 차지 */
     height: auto;     /* 비율을 유지하며 이미지 크기 조정 */
-    display: block;   /* 이미지 아래에 공백을 없애기 위해 block으로 설정 */
     margin: 0 auto;   /* 이미지를 중앙 정렬 */
 }
 
