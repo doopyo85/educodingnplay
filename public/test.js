@@ -3,7 +3,6 @@ var currentProblemNumber = 1;
 var totalProblems = 10;
 var currentExamName = '';
 var problemData = [];
-
 document.addEventListener("DOMContentLoaded", function() {
     if (!window.menuLoaded) {
         const googleApiKey = document.getElementById('googleApiKey').value;
@@ -21,16 +20,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         window.menuLoaded = true;
     }
-    setupEventListeners();
-
-    // 문제가 선택되지 않았을 때 main.webp 이미지를 표시
-    displayDefaultContent();
-    
-    renderMenu([]); // 빈 배열로 초기화
+    setupEventListeners(); // 여기에 추가
 });
 
 function initClient() {
-    console.log('Initializing Google API client');
     const apiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
     
@@ -39,9 +32,6 @@ function initClient() {
         return;
     }
 
-    console.log('API Key:', apiKey);
-    console.log('Spreadsheet ID:', spreadsheetId);
-    
     gapi.client.init({
         apiKey: apiKey,
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
@@ -68,35 +58,6 @@ function initClient() {
     }).catch(error => {
         console.error('Error in initialization process:', error);
     });
-}
-
-function displayDefaultContent() {
-    const iframe = document.getElementById('iframeContent');
-    const problemContainer = document.getElementById('problem-container');
-
-    if (iframe && problemContainer) {
-        iframe.style.display = 'none'; // 문제를 선택하지 않았으므로 iframe 숨기기
-
-        const img = document.createElement('img');
-        img.src = 'https://<your-s3-bucket-url>/main.webp';  // S3에 있는 main.webp 경로
-        img.alt = '메인 이미지';
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.display = 'block';
-        img.style.margin = '0 auto';
-
-        // 기존에 있던 이미지를 제거하고 새로운 이미지를 추가
-        while (problemContainer.firstChild) {
-            problemContainer.removeChild(problemContainer.firstChild);
-        }
-        problemContainer.appendChild(img);
-    }
-
-    // 문제 네비게이션 좌, 우 버튼 숨기기
-    const prevButton = document.getElementById('prev-problem');
-    const nextButton = document.getElementById('next-problem');
-    if (prevButton) prevButton.style.visibility = 'hidden';
-    if (nextButton) nextButton.style.visibility = 'hidden';
 }
 
 
@@ -136,7 +97,7 @@ function setupEventListeners() {
 function fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
-        fetch('/get-user-session', { credentials: 'include' })
+        fetch('/get-user', { credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -144,7 +105,7 @@ function fetchUserData() {
                 return response.json();
             })
             .then(data => {
-                userNameElement.innerText = data.userID || "로그인 정보 미확인";
+                userNameElement.innerText = data.username || "로그인 정보 미확인";
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
@@ -154,84 +115,25 @@ function fetchUserData() {
 }
   
 function loadMenuData(spreadsheetId) {
-    console.log('Loading menu data from spreadsheet:', spreadsheetId);
     return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
         range: 'menulist!A2:C',
     }).then((response) => {
         const data = response.result.values;
-        console.log('Received menu data:', data);
         if (data && data.length > 0) {
             return data;
         } else {
-            throw new Error('No menu data found or empty data received');
+            throw new Error('No menu data found');
         }
-    }).catch(error => {
-        console.error('Error loading menu data:', error);
-        throw error;
     });
 }
 
-function loadProblem(problemNumber) {
-    console.log('Loading problem:', currentExamName, problemNumber);
-
-    if (!problemData || problemData.length === 0) {
-        console.error('Problem data is not loaded yet');
-        return;
-    }
-
-    const problemInfo = problemData.find(problem => 
-        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
-        problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
-    );
-
-    const problemContainer = document.getElementById('problem-container');
-    const problemNavContainer = document.getElementById('problem-navigation-container');
-    const iframe = document.getElementById('iframeContent');
-    const problemTitleElement = document.getElementById('problem-title');
-
-    if (problemInfo) {
-        const [problemFileName] = problemInfo;
-        const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
-
-        if (iframe) {
-            iframe.src = problemUrl;
-            iframe.style.display = 'block';  // 문제 로드 시 iframe 표시
-        } else {
-            console.error('iframe element not found');
-        }
-
-        if (problemTitleElement) {
-            problemTitleElement.textContent = `${currentExamName} - 문제 ${problemNumber}`;
-        }
-
-        // 문제 내비게이션과 문제 컨테이너 표시
-        problemNavContainer.style.display = 'flex';
-        problemContainer.style.display = 'block';
-
-        // 좌우 화살표 버튼 표시
-        const prevButton = document.getElementById('prev-problem');
-        const nextButton = document.getElementById('next-problem');
-        if (prevButton) prevButton.style.visibility = problemNumber > 1 ? 'visible' : 'hidden';
-        if (nextButton) nextButton.style.visibility = problemNumber < totalProblems ? 'visible' : 'hidden';
-
-        // 문제 수 업데이트 후 네비게이션 다시 렌더링
-        totalProblems = problemData.filter(problem => problem[1].toLowerCase() === currentExamName.toLowerCase()).length;
-        renderProblemNavigation();
-    } else {
-        console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
-        displayDefaultContent();  // 문제가 없을 경우 기본 이미지 표시
-    }
-}
-
 function loadProblemData(spreadsheetId) {
-    console.log('Loading problem data from spreadsheet:', spreadsheetId);
     return gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: spreadsheetId,
-        range: '문항정보!A:C',  // 스프레드시트에서 문제 정보가 담긴 범위를 설정
+        range: '문항정보!A:C',
     }).then((response) => {
         const data = response.result.values;
-        console.log('Received problem data:', data);
         if (data && data.length > 0) {
             // 첫 번째 행이 헤더인 경우 제거
             if (data[0][0] === 'URL') {
@@ -241,9 +143,6 @@ function loadProblemData(spreadsheetId) {
         } else {
             throw new Error('No problem data found');
         }
-    }).catch(error => {
-        console.error('Error loading problem data:', error);
-        throw error;
     });
 }
 
@@ -254,7 +153,7 @@ function renderMenu(data) {
         return;
     }
 
-    navList.innerHTML = ''; // 기존 메뉴 항목 제거
+    navList.innerHTML = ''; // Clear existing menu items
 
     if (!data || !Array.isArray(data) || data.length === 0) {
         console.error('Invalid menu data');
@@ -299,28 +198,28 @@ function renderMenu(data) {
     });
 
     // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-        el.addEventListener('click', function(event) {
-            event.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            const bsCollapse = bootstrap.Collapse.getInstance(target);
-            if (bsCollapse) {
-                if (target.classList.contains('show')) {
-                    bsCollapse.hide();
-                } else {
-                    // 다른 열린 메뉴 닫기
-                    document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
-                        if (openMenu !== target) {
-                            bootstrap.Collapse.getInstance(openMenu).hide();
-                        }
-                    });
-                    bsCollapse.show();
-                }
+document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+    el.addEventListener('click', function(event) {
+        event.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const bsCollapse = bootstrap.Collapse.getInstance(target);
+        if (bsCollapse) {
+            if (target.classList.contains('show')) {
+                bsCollapse.hide();
+            } else {
+                // 다른 열린 메뉴 닫기
+                document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
+                    if (openMenu !== target) {
+                        bootstrap.Collapse.getInstance(openMenu).hide();
+                    }
+                });
+                bsCollapse.show();
             }
-            updateToggleIcon(this);
-        });
+        }
+        updateToggleIcon(this);
     });
-
+});
+    
     // 아이콘 변경
     function updateToggleIcon(element) {
         const icon = element.querySelector('.bi');
@@ -335,6 +234,7 @@ function renderMenu(data) {
         }
     }
 }  
+
 
 function createTopLevelMenuItem(topLevelMenu, index) {
     const topLevelMenuItem = document.createElement('li');
@@ -449,7 +349,6 @@ function renderProblemNavigation() {
 
     navContainer.innerHTML = '';
 
-    // totalProblems 값을 기반으로 문제 네비게이션 버튼 생성
     for (let i = 1; i <= totalProblems; i++) {
         const problemBtn = document.createElement('i');
         problemBtn.classList.add('bi', 'problem-icon');
@@ -510,96 +409,58 @@ function resizeIframe(iframe) {
     };
 }
 
+
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
     console.log('Problem data:', problemData);
-
+    
     if (!problemData || problemData.length === 0) {
         console.error('Problem data is not loaded yet');
         return;
     }
 
-    const problemInfo = problemData.find(problem =>
-        problem[1].toLowerCase() === currentExamName.toLowerCase() &&
+    const problemInfo = problemData.find(problem => 
+        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
         problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
     );
 
-    const problemContainer = document.getElementById('problem-container');
-    const iframe = document.getElementById('iframeContent');
-    const problemTitleElement = document.getElementById('problem-title');
-
     if (problemInfo) {
-        // 문제가 있는 경우 iframe으로 문제 로드
-        const [problemFileName] = problemInfo;
+        const [problemFileName, , ] = problemInfo;
         const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
         console.log('Problem URL:', problemUrl);
 
+        const iframe = document.getElementById('iframeContent');
         if (iframe) {
             iframe.src = problemUrl;
-            iframe.style.display = 'block'; // 문제 로드 시 iframe 표시
-            iframe.onload = function () {
+            iframe.onload = function() {
                 resizeIframe(iframe);
             };
+            console.log('iframe src set to:', problemUrl);
         } else {
             console.error('iframe element not found');
         }
 
+        const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
+        const problemTitleElement = document.getElementById('problem-title');
         if (problemTitleElement) {
-            problemTitleElement.textContent = `${currentExamName} - 문제 ${problemNumber}`;
+            problemTitleElement.textContent = problemTitle;
         } else {
             console.error('problem-title element not found');
         }
 
-        // 이미지가 있으면 제거하고 iframe을 추가
-        while (problemContainer.firstChild) {
-            problemContainer.removeChild(problemContainer.firstChild);
+        // Update the Vue component with the new problem
+        if (typeof window.updateEditorProblem === 'function') {
+            window.updateEditorProblem({
+                title: problemTitle,
+                url: problemUrl,
+                // Add any other relevant problem data here
+            });
         }
-        problemContainer.appendChild(iframe);
-
-        // 좌우 화살표 버튼 활성화
-        const prevButton = document.getElementById('prev-problem');
-        const nextButton = document.getElementById('next-problem');
-        if (prevButton) prevButton.style.visibility = problemNumber > 1 ? 'visible' : 'hidden';
-        if (nextButton) nextButton.style.visibility = problemNumber < totalProblems ? 'visible' : 'hidden';
-
-        // 문제 수 업데이트
-        totalProblems = problemData.filter(problem => problem[1].toLowerCase() === currentExamName.toLowerCase()).length;
-        renderProblemNavigation();  // 문제 네비게이션 다시 렌더링
-
     } else {
         console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
         console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
-
-        // 문제가 없는 경우 기본 이미지를 표시
-        if (iframe) iframe.style.display = 'none';  // iframe 숨기기
-
-        // 이미지를 표시
-        const img = document.createElement('img');
-        img.src = '/resources/main.webp';  // main.webp 파일 경로
-        img.alt = '메인 이미지';
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.display = 'block';
-        img.style.margin = '0 auto';
-
-        // 기존 콘텐츠 제거 후 이미지 추가
-        while (problemContainer.firstChild) {
-            problemContainer.removeChild(problemContainer.firstChild);
-        }
-        problemContainer.appendChild(img);
-
-        // 좌우 화살표 버튼 숨기기
-        const prevButton = document.getElementById('prev-problem');
-        const nextButton = document.getElementById('next-problem');
-        if (prevButton) prevButton.style.visibility = 'hidden';
-        if (nextButton) nextButton.style.visibility = 'hidden';
-
-        if (problemTitleElement) {
-            problemTitleElement.textContent = '';  // 문제 제목도 비우기
-        }
     }
 }
-
 
 // 창 크기가 변경될 때마다 iframe 크기를 조정합니다
 window.addEventListener('resize', function() {
@@ -616,4 +477,3 @@ window.addEventListener('load', function() {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
-
