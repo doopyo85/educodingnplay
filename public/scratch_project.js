@@ -1,4 +1,3 @@
-const RANGE = 'sb2!A2:C';
 let config;
 
 document.addEventListener("DOMContentLoaded", async function() {
@@ -7,6 +6,22 @@ document.addEventListener("DOMContentLoaded", async function() {
     loadGapi();  // gapi 라이브러리 로드
 });
 
+const RANGE = 'sb2!A2:C';
+
+async function loadSB2Data() {
+  try {
+    const data = await fetch('/api/get-sb2-data').then(res => res.json());
+    if (data && data.length > 0) {
+      const projects = groupByProject(data);
+      displayProjects(projects);
+    } else {
+      displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
+    }
+  } catch (error) {
+    console.error('Error loading SB2 data', error);
+    displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
+  }
+}
 async function loadConfig() {
     try {
         const response = await fetch('/config');

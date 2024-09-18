@@ -16,6 +16,8 @@ const mime = require('mime-types');
 const fs = require('fs');
 const app = express();
 const router = express.Router(); // 라우터 정의
+const { google } = require('googleapis');
+
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -205,14 +207,6 @@ app.post('/login', (req, res) => {
   });
 });
 
-// 센터 목록을 보여주기 위한 라우트
-app.get('/center-list', (req, res) => {
-  db.query('SELECT * FROM centers', (err, results) => {
-    if (err) throw err;
-    res.json(results); // 센터 목록을 JSON 형식으로 반환
-  });
-});
-
 app.get('/get-user', (req, res) => {
   if (req.session && req.session.userID) {
     res.json({ username: req.session.userID });
@@ -243,6 +237,68 @@ app.get('/logout', (req, res) => {
     res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
     res.redirect('/auth/login');
   });
+});
+
+let sheets;
+
+async function initGoogleSheets() {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
+
+  const authClient = await auth.getClient();
+  sheets = google.sheets({ version: 'v4', auth: authClient });
+}
+
+async function getSheetData(range) {
+  if (!sheets) {
+    await initGoogleSheets();
+  }
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: range,
+    });
+    return response.data.values;
+  } catch (error) {
+    console.error('Error fetching sheet data:', error);
+    throw error;
+  }
+}
+
+// 서버 시작 시 Google Sheets API 초기화
+initGoogleSheets().catch(console.error);
+
+// getSheetData 함수를 다른 모듈에서 사용할 수 있도록 export
+module.exports = { getSheetData };
+
+app.get('/api/get-sb2-data', async (req, res) => {
+  try {
+    const data = await getSheetData('sb2!A2:C');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'SB2 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+app.get('/api/get-menu-data', async (req, res) => {
+  try {
+    const data = await getSheetData('menulist!A2:C');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '메뉴 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+app.get('/api/get-problem-data', async (req, res) => {
+  try {
+    const data = await getSheetData('문항정보!A:C');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '문제 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
 });
 
 // 파이썬 코드를 실행하는 라우트
