@@ -58,6 +58,8 @@ app.get('/config', (req, res) => {
   });
 });
 
+module.exports = router;
+
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 
