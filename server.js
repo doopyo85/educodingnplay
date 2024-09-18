@@ -18,6 +18,7 @@ const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 
+<link rel="icon" href="/public/favicon.ico"></link>
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -95,6 +96,8 @@ app.use((req, res, next) => {
   }
 });
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());

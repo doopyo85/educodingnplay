@@ -61,7 +61,8 @@ async function testDatabaseConnection() {
 })();
 
 async function getUserByUserID(userID) {
-  return await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
+  const results = await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
+  return results[0]; // 첫 번째 결과만 반환
 }
 
 async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {

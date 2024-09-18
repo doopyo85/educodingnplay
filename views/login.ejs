@@ -100,25 +100,25 @@
               }
 
               $.ajax({
-                  url: '/auth/login_process',
-                  method: 'POST',
-                  data: JSON.stringify({ userID, password }),
-                  contentType: 'application/json',
-                  xhrFields: {
-                      withCredentials: true  // 쿠키 정보를 포함
-                  },
-                  success: function(response) {
-                      if (response.success) {
-                          window.location.href = response.redirect;
-                      }
-                  },
-                  error: function(xhr, status, error) {
-                      console.error('Login error:', xhr.responseJSON);
-                      $('#error-message').text(xhr.responseJSON?.error || "로그인 중 오류가 발생했습니다.");
-                  }
-              });
-          });
-      });
+                url: '/auth/login_process',
+                method: 'POST',
+                data: JSON.stringify({ userID, password }),
+                contentType: 'application/json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.redirect;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Login error:', xhr.responseJSON);
+                    $('#error-message').text(xhr.responseJSON?.error || "로그인 중 오류가 발생했습니다.");
+                }
+            });
+        });
+    });
     </script>
 </body>
 </html>
