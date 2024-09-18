@@ -21,8 +21,10 @@ document.addEventListener("DOMContentLoaded", function() {
         window.menuLoaded = true;
     }
     setupEventListeners(); // 여기에 추가
+    initializeDefaultProblem(); // 새로 추가된 부분
 });
 
+// initClient 함수 수정
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
@@ -45,13 +47,11 @@ function initClient() {
         } else {
             throw new Error('No menu data loaded');
         }
-    }).then((problemData) => {
-        if (problemData && problemData.length > 0) {
+    }).then((loadedProblemData) => {
+        if (loadedProblemData && loadedProblemData.length > 0) {
             console.log('Problem data loaded successfully');
-            window.problemData = problemData; // Store problem data globally
-            if (currentExamName) {
-                loadProblem(currentProblemNumber);
-            }
+            problemData = loadedProblemData; // 전역 변수에 할당
+            initializeDefaultProblem(); // 문제 데이터 로드 후 초기 문제 설정
         } else {
             throw new Error('No problem data loaded');
         }
@@ -93,6 +93,27 @@ function setupEventListeners() {
 
     fetchUserData();
 }
+
+
+// 새로 추가된 함수
+function initializeDefaultProblem() {
+    currentExamName = 'ctrtest_1-1';
+    currentProblemNumber = 1;
+    if (problemData && problemData.length > 0) {
+        loadProblem(currentProblemNumber);
+        renderProblemNavigation();
+    } else {
+        // problemData가 아직 로드되지 않았다면, 로드될 때까지 기다립니다.
+        const checkDataAndLoad = setInterval(() => {
+            if (problemData && problemData.length > 0) {
+                loadProblem(currentProblemNumber);
+                renderProblemNavigation();
+                clearInterval(checkDataAndLoad);
+            }
+        }, 100); // 100ms마다 확인
+    }
+}
+
 
 function fetchUserData() {
     const userNameElement = document.getElementById('userName');
