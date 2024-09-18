@@ -3,6 +3,7 @@ var currentProblemNumber = 1;
 var totalProblems = 0;  // 초기값을 0으로 설정
 var currentExamName = '';
 var problemData = [];
+
 document.addEventListener("DOMContentLoaded", function() {
     if (!window.menuLoaded) {
         const googleApiKey = document.getElementById('googleApiKey').value;
@@ -119,36 +120,36 @@ function fetchUserData() {
     }
 }
   
-function loadMenuData(spreadsheetId) {
-    return gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: 'menulist!A2:C',
-    }).then((response) => {
-        const data = response.result.values;
-        if (data && data.length > 0) {
-            return data;
+// 서버에서 메뉴 데이터 가져오기
+async function loadMenuData() {
+    try {
+        const response = await fetch('/api/get-menu-data'); // 서버의 API 호출
+        const menuData = await response.json();
+        if (menuData && menuData.length > 0) {
+            renderMenu(menuData); // 메뉴 렌더링
+            loadProblemData();    // 문제 데이터 로드
         } else {
-            throw new Error('No menu data found');
+            throw new Error('No menu data loaded');
         }
-    });
+    } catch (error) {
+        console.error('Error loading menu data:', error);
+    }
 }
 
-function loadProblemData(spreadsheetId) {
-    return gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: '문항정보!A:C',
-    }).then((response) => {
-        const data = response.result.values;
-        if (data && data.length > 0) {
-            // 첫 번째 행이 헤더인 경우 제거
-            if (data[0][0] === 'URL') {
-                data.shift();
-            }
-            return data;
+// 서버에서 문제 데이터 가져오기
+async function loadProblemData() {
+    try {
+        const response = await fetch('/api/get-problem-data'); // 서버의 API 호출
+        const problemData = await response.json();
+        if (problemData && problemData.length > 0) {
+            // 문제 데이터를 전역 변수에 저장
+            window.problemData = problemData;
         } else {
-            throw new Error('No problem data found');
+            throw new Error('No problem data loaded');
         }
-    });
+    } catch (error) {
+        console.error('Error loading problem data:', error);
+    }
 }
 
 function renderMenu(data) {
