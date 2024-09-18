@@ -40,12 +40,15 @@ const getCenterListFromSheet = async (spreadsheetId, apiKey) => {
 // 센터 목록 API
 router.get('/api/get-center-list', async (req, res) => {
   try {
-    const centers = await getCenterListFromSheet(process.env.SPREADSHEET_ID, process.env.GOOGLE_API_KEY);
+    const data = await getSheetData('센터목록!A2:B');
+    const centers = data.map(row => ({ id: row[0], name: row[1] }));
     res.json({ centers });
   } catch (error) {
+    console.error('센터 목록을 불러오는 중 오류가 발생했습니다:', error);
     res.status(500).json({ error: '센터 목록을 불러오는 중 오류가 발생했습니다.' });
   }
 });
+
 
 // 센터 목록 DB에서 가져오기
 router.get('/list', (req, res) => {
