@@ -99,16 +99,21 @@ function displayProjects(projects) {
         button.addEventListener('click', function() {
             const sb2Url = this.getAttribute('data-url');
             console.log('Loading SB2 project from URL:', sb2Url);
-            // Scratch GUI에 sb2 파일을 로드하는 코드 추가
+            // Scratch-GUI에 sb2 파일을 로드하는 코드 추가
             loadSB2InScratchGUI(sb2Url);
         });
     });
 }
 
-// Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 따라 다르게 설정해야 할 수 있습니다)
+// Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 맞춰 수정 필요)
 function loadSB2InScratchGUI(sb2Url) {
-    // Scratch-GUI URL 형식에 맞춰 sb2 파일 로드하는 코드 작성
-    window.open(`https://codingnplay.site/scratch/#editor?url=${sb2Url}`, '_blank');
+    // Scratch-GUI로 sb2 파일을 로드하기 위한 URL 형식 (기본적인 예시)
+    // Scratch-GUI가 설치된 URL에 맞게 수정 필요
+    const scratchEditorUrl = `https://codingnplay.site/scratch/#editor?url=${encodeURIComponent(sb2Url)}`;
+    console.log(`Opening Scratch GUI with SB2 URL: ${scratchEditorUrl}`);
+    
+    // 새로운 창으로 Scratch-GUI 열기
+    window.open(scratchEditorUrl, '_blank');
 }
 
 // 오류 메시지를 화면에 출력하는 함수
