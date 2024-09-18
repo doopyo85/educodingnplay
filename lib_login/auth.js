@@ -84,8 +84,16 @@ router.post('/login_process', async (req, res) => {
                 // 로그인 성공 처리
                 req.session.is_logined = true;
                 req.session.userID = user.userID;
-                console.log('Login successful');
-                res.json({ success: true, redirect: '/' });
+
+                // 세션 저장 후 응답 전송
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+                    }
+                    console.log('Login successful, sending response to client');
+                    res.json({ success: true, redirect: '/' });
+                });
             } else {
                 console.log('Incorrect password');
                 res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
@@ -94,7 +102,6 @@ router.post('/login_process', async (req, res) => {
             console.log('User not found or password info missing');
             res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
         }
-       
     } catch (err) {
         console.error('Login process error:', err);
         res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });

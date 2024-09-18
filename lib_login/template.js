@@ -83,13 +83,20 @@ module.exports = {
                 e.preventDefault();
                 const userID = $('input[name="userID"]').val();
                 const password = $('input[name="pwd"]').val();
+                
+                // Check if the input fields are not empty
+                if (!userID || !password) {
+                    $('#error-message').text('아이디와 비밀번호를 입력해주세요.');
+                    return;
+                }
+
                 $.ajax({
                     url: '/auth/login_process',
                     method: 'POST',
                     data: JSON.stringify({ userID, password }),
                     contentType: 'application/json',
                     xhrFields: {
-                        withCredentials: true
+                        withCredentials: true  // 쿠키 정보를 포함
                     },
                     success: function(response) {
                         if (response.success) {
