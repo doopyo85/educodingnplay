@@ -51,7 +51,7 @@ router.get('/login', (request, response) => {
 // 사용자 ID로 사용자 정보 가져오는 함수
 async function getUserByUserID(userID) {
     try {
-        const query = 'SELECT * FROM users WHERE userID = ?';
+        const query = 'SELECT * FROM Users WHERE userID = ?';
         const results = await queryDatabase(query, [userID]);
         if (results.length > 0) {
             return results[0];  // 사용자 정보 반환
