@@ -274,7 +274,11 @@ app.get('/scratch', (req, res) => {
 
 // Scratch 프로젝트 목록 페이지
 app.get('/scratch_project', authenticateUser, (req, res) => {
-  res.render('scratch_project');  // 'scratch_project.ejs' 템플릿을 렌더링
+  console.log('User session:', req.session); // 세션 정보 로깅
+  res.render('scratch_project', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
 });
 
 // 루트 경로 라우트

@@ -8,6 +8,7 @@ function loadConfig() {
         .then(data => {
             console.log('Config loaded:', data);
             config = data;
+            initClient(); // 설정을 로드한 후 initClient 호출
         })
         .catch(error => {
             console.error('Error loading config:', error);
@@ -28,7 +29,6 @@ function initClient() {
         displayErrorMessage("Google API 클라이언트 초기화 중 오류가 발생했습니다.");
     });
 }
-
 function loadSB2Data() {
     console.log('Loading SB2 data');
     gapi.client.sheets.spreadsheets.values.get({
@@ -49,24 +49,61 @@ function loadSB2Data() {
     });
 }
 
-// groupByProject, displayProjects, displayErrorMessage 함수는 이전과 동일
+function groupByProject(data) {
+    const projects = {};
+    data.forEach(row => {
+        const [name, url, ctElement] = row;
+        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\))/, '').trim();
+        if (!projects[baseName]) {
+            projects[baseName] = { ctElement: ctElement, basic: '', ext1: '', ext2: '' };
+        }
+        if (name.includes('(기본)')) {
+            projects[baseName].basic = url;
+        } else if (name.includes('(확장1)')) {
+            projects[baseName].ext1 = url;
+        } else if (name.includes('(확장2)')) {
+            projects[baseName].ext2 = url;
+        }
+    });
+    return projects;
+}
+
+function displayProjects(projects) {
+    const container = document.getElementById('content-container');
+    container.innerHTML = ''; // Clear existing content
+    Object.keys(projects).forEach(projectName => {
+        if (projectName === '새로 시작하기') return;
+
+        const project = projects[projectName];
+        const card = document.createElement('div');
+        card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+        const cardContent = `
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">${projectName}</h5>
+                    <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
+                    <p class="card-text">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요.</p>
+                    <div class="btn-group">
+                        ${project.basic ? `<button class="btn btn-primary load-sb2" data-url="${project.basic}">기본</button>` : ''}
+                        ${project.ext1 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext1}">확장1</button>` : ''}
+                        ${project.ext2 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext2}">확장2</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        card.innerHTML = cardContent;
+        container.appendChild(card);
+    });
+}
+
+function displayErrorMessage(message) {
+    const container = document.getElementById('content-container');
+    container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+}
 
 document.addEventListener("DOMContentLoaded", function() {
-    loadConfig().then(() => {
-        gapi.load('client', initClient);
-    });
-
-    // 기존 프로젝트 로드 버튼 클릭 이벤트
-    $(document).on("click", ".load-sb2", function() {
-        const sb2Url = $(this).data("url");
-        window.location.href = `http://localhost:8601#${sb2Url}`;
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    loadConfig().then(() => {
-        gapi.load('client', initClient);
-    });
+    loadConfig();
 
     // "새로 시작하기" 버튼 클릭 이벤트
     $("#newStartButton").click(function() {
