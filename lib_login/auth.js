@@ -53,6 +53,7 @@ async function getUserByUserID(userID) {
     try {
       const query = 'SELECT * FROM Users WHERE userID = ?';
       const results = await queryDatabase(query, [userID]);
+      console.log('Database query results:', results); // 디버깅을 위한 로그
       if (results.length > 0) {
         return results[0];
       }
@@ -61,7 +62,7 @@ async function getUserByUserID(userID) {
       console.error('Error fetching user:', error);
       throw error;
     }
-}
+  }
 
 // 로그인 처리 로직
 router.post('/login_process', async (req, res) => {
@@ -70,7 +71,10 @@ router.post('/login_process', async (req, res) => {
   
     try {
       const user = await getUserByUserID(userID);
+      console.log('User found:', user); // 디버깅을 위한 로그
+  
       if (user && user.password && password) {
+        console.log('Comparing passwords'); // 디버깅을 위한 로그
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           // 로그인 성공
