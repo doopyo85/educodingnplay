@@ -15,7 +15,7 @@ const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
 const app = express();
-const { queryDatabase } = require('./lib_login/db');
+
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -191,43 +191,27 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  if (req.path === '/favicon.ico' || req.path.startsWith('/resource/')) {
-    return next();
-  }
-  // 여기에 인증 로직 추가
-});
-
-
 // 회원가입 및 로그인 라우트 수정
-app.post('/login', async (req, res) => {
-  const { userID, password } = req.body;
-  try {
-    const results = await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
-    if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
-      req.session.is_logined = true;
-      req.session.userID = results[0].userID;
-      res.redirect('/');
-    } else {
-      res.send('Login Failed');
-    }
-  } catch (err) {
-    console.error('Login Error:', err);
-    res.status(500).send('Internal Server Error');
-  }
+app.post('/login', (req, res) => {
+  const { userID, password } = req.body; // 기존 username을 userID로 변경
+  db.query('SELECT * FROM users WHERE userID = ?', [userID], (err, results) => {
+      if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
+          req.session.is_logined = true;
+          req.session.userID = results[0].userID;
+          res.redirect('/');
+      } else {
+          res.send('Login Failed');
+      }
+  });
 });
 
 // 센터 목록을 보여주기 위한 라우트
-app.get('/center-list', async (req, res) => {
-  try {
-    const results = await queryDatabase('SELECT * FROM centers');
-    res.json(results);
-  } catch (err) {
-    console.error('Error fetching centers:', err);
-    res.status(500).send('Internal Server Error');
-  }
+app.get('/center-list', (req, res) => {
+  db.query('SELECT * FROM centers', (err, results) => {
+    if (err) throw err;
+    res.json(results); // 센터 목록을 JSON 형식으로 반환
+  });
 });
-
 
 // 세션에서 사용자 정보를 가져오는 라우트
 app.get('/get-user-session', (req, res) => {
