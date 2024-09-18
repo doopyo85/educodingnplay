@@ -1,6 +1,6 @@
 // 전역 변수 선언을 파일 맨 위로 이동하고 모두 var로 변경
 var currentProblemNumber = 1;
-var totalProblems = 10;
+var totalProblems = 0;  // 초기값을 0으로 설정
 var currentExamName = '';
 var problemData = [];
 document.addEventListener("DOMContentLoaded", function() {
@@ -328,17 +328,23 @@ function onMenuSelect(examName) {
     console.log('Selected exam:', currentExamName);
     
     if (problemData && problemData.length > 0) {
+        // 선택된 시험의 문제 개수 계산
+        totalProblems = problemData.filter(problem => 
+            problem[1].toLowerCase() === currentExamName.toLowerCase()
+        ).length;
+
         loadProblem(currentProblemNumber);
         renderProblemNavigation();
-        
-        // 추가: Problem Navigation 컨테이너 표시
+
+        // Problem Navigation 컨테이너 표시
         const navContainer = document.getElementById('problem-navigation-container');
         if (navContainer) {
-            navContainer.style.display = 'flex';  // or 'block', depending on your layout
+            navContainer.style.display = 'flex';
         }
     } else {
         console.error('Problem data not loaded yet. Cannot load problem.');
     }
+
 
 }
 
@@ -389,8 +395,8 @@ function updateNavigationButtons() {
     const prevButton = document.getElementById('prev-problem');
     const nextButton = document.getElementById('next-problem');
 
-    if (prevButton) prevButton.style.visibility = currentProblemNumber > 1 ? 'visible' : 'hidden';
-    if (nextButton) nextButton.style.visibility = currentProblemNumber < totalProblems ? 'visible' : 'hidden';
+    if (prevButton) prevButton.disabled = currentProblemNumber <= 1;
+    if (nextButton) nextButton.disabled = currentProblemNumber >= totalProblems;
 }
 
 function resizeIframe(iframe) {
