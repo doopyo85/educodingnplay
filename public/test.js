@@ -102,10 +102,16 @@ function fetchUserData() {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
+                return response.text(); // JSON.parse 대신 text()를 사용
             })
             .then(data => {
-                userNameElement.innerText = data.username || "로그인 정보 미확인";
+                try {
+                    const jsonData = JSON.parse(data);
+                    userNameElement.innerText = jsonData.username || "로그인 정보 미확인";
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    userNameElement.innerText = "로그인 정보 미확인";
+                }
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
@@ -436,14 +442,17 @@ function loadProblem(problemNumber) {
 
         const iframe = document.getElementById('iframeContent');
         if (iframe) {
-            // 새로운 방식: iframe의 srcdoc 속성을 사용하여 HTML을 직접 삽입
             fetch(problemUrl)
                 .then(response => response.text())
                 .then(html => {
                     const modifiedHtml = `
                         <html>
                             <head>
-                                <link rel="stylesheet" href="/public/contents.css">
+                                <base target="_parent">
+                                <link rel="stylesheet" href="/resource/contents.css">
+                                <style>
+                                    body { font-family: Arial, sans-serif; }
+                                </style>
                             </head>
                             <body>
                                 ${html}
