@@ -4,6 +4,8 @@ const template = require('./template.js');
 const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
+const { queryDatabase } = require('../db');  // db.js에서 queryDatabase 함수 가져오기
+
 
 // 로그인 페이지 라우트
 router.get('/login', (request, response) => {
@@ -46,43 +48,40 @@ router.get('/login', (request, response) => {
     response.send(html);
 });
 
-// 로그인 처리 라우트
-router.post('/login_process', async (req, res) => {
+// 사용자 ID로 사용자 정보 가져오는 함수
+async function getUserByUserID(userID) {
     try {
-        const userID = req.body.userID;
-        const password = req.body.pwd;
-
-        console.log('로그인 시도:', { userID });
-
-        if (!userID || !password) {
-            return res.status(400).json({ error: '아이디와 비밀번호를 입력해 주세요.' });
+        const query = 'SELECT * FROM users WHERE userID = ?';
+        const results = await queryDatabase(query, [userID]);
+        if (results.length > 0) {
+            return results[0];  // 사용자 정보 반환
         }
-
-        const user = await getUserByUserID(userID);
-        if (user) {
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (isMatch) {
-                req.session.is_logined = true;
-                req.session.userID = user.userID;
-                req.session.save(err => {
-                    if (err) {
-                        console.error('세션 저장 오류:', err);
-                        return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
-                    }
-                    console.log('로그인 성공:', user.userID);
-                    res.json({ success: true, redirect: '/public' });
-                });
-            } else {
-                console.log('로그인 실패: 비밀번호가 일치하지 않음');
-                res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
-            }
-        } else {
-            console.log('로그인 실패: 사용자 정보를 찾을 수 없음');
-            res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
-        }
+        return null;  // 사용자가 없으면 null 반환
     } catch (error) {
-        console.error('로그인 처리 중 오류 발생:', error);
-        res.status(500).json({ error: '서버 오류' });
+        console.error('사용자 정보를 가져오는 중 오류 발생:', error);
+        throw error;
+    }
+}
+
+// 로그인 처리 로직
+app.post('/login_process', async (req, res) => {
+    const { userID, password } = req.body;
+    console.log('로그인 시도:', { userID });
+
+    try {
+        const user = await getUserByUserID(userID);
+        if (user && bcrypt.compareSync(password, user.password)) {
+            // 로그인 성공
+            req.session.is_logined = true;
+            req.session.userID = user.userID;
+            res.redirect('/');
+        } else {
+            // 로그인 실패
+            res.status(401).send('Login Failed');
+        }
+    } catch (err) {
+        console.error('로그인 처리 중 오류 발생:', err);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -187,19 +186,6 @@ router.post('/register_process', async (req, res) => {
         res.status(500).json({ error: '서버 오류', details: error.message });
     }
 });
-
-// 사용자 ID로 사용자 가져오기
-async function getUserByUserID(userID) {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Users WHERE userID = ?', [userID], (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results.length > 0 ? results[0] : null);
-            }
-        });
-    });
-}
 
 // 사용자 생성 함수
 async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
