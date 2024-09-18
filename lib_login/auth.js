@@ -6,7 +6,6 @@ const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
 
-
 // 로그인 페이지 라우트
 router.get('/login', (request, response) => {
     const title = '로그인';
@@ -75,24 +74,27 @@ router.post('/login_process', async (req, res) => {
         console.log('User found:', user ? 'Yes' : 'No');
 
         if (user && user.password && password) {
-            console.log('Comparing passwords');
+            console.log('Stored password (hashed):', user.password);
+            console.log('Password entered:', password);
+            
             const isMatch = await bcrypt.compare(password, user.password);
-            console.log('Password match:', isMatch);
-
+            console.log('Password match result:', isMatch);
+            
             if (isMatch) {
-                // 로그인 성공
+                // 로그인 성공 처리
                 req.session.is_logined = true;
                 req.session.userID = user.userID;
-                console.log('Login successful, session:', req.session);
+                console.log('Login successful');
                 res.json({ success: true, redirect: '/' });
             } else {
-                console.log('Password mismatch');
+                console.log('Incorrect password');
                 res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
             }
         } else {
             console.log('User not found or password info missing');
             res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
         }
+       
     } catch (err) {
         console.error('Login process error:', err);
         res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
