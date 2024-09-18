@@ -60,4 +60,15 @@ async function testDatabaseConnection() {
   }
 })();
 
-module.exports = { queryDatabase };
+async function getUserByUserID(userID) {
+  return await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
+}
+
+async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
+  return await queryDatabase(
+      'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [userID, password, email, name, phone, birthdate, role, centerID]
+  );
+}
+
+module.exports = { queryDatabase, getUserByUserID, createUser };

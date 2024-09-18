@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { queryDatabase } = require('./db');
+const { getUserByUserID, createUser } = require('./db');  // db.js에서 가져옴
 
 // 로그인 페이지 GET
 router.get('/login', (req, res) => {
@@ -46,17 +46,5 @@ router.post('/register_process', async (req, res) => {
         res.status(500).json({ error: '서버 오류' });
     }
 });
-
-// 유틸리티 함수
-async function getUserByUserID(userID) {
-    return await queryDatabase('SELECT * FROM Users WHERE userID = ?', [userID]);
-}
-
-async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
-    return await queryDatabase(
-        'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [userID, password, email, name, phone, birthdate, role, centerID]
-    );
-}
 
 module.exports = router;
