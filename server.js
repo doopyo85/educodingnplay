@@ -15,7 +15,7 @@ const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
 const app = express();
-
+const router = express.Router(); // 라우터 정의
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');

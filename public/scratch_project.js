@@ -32,6 +32,7 @@ function loadGapi() {
 async function initClient() {
     if (!config || !config.apiKey || !config.spreadsheetId) {
         console.error('API Key, Spreadsheet ID, or Discovery Docs are missing');
+        displayErrorMessage("API 키 또는 스프레드시트 ID가 누락되었습니다.");
         return;
     }
 
@@ -48,6 +49,7 @@ async function initClient() {
         displayErrorMessage("Google API 클라이언트 초기화 중 오류가 발생했습니다.");
     }
 }
+
 
 async function loadSB2Data() {
     try {
@@ -69,6 +71,7 @@ async function loadSB2Data() {
         displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
+
 
 function groupByProject(data) {
     const projects = {};
