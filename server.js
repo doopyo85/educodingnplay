@@ -277,7 +277,6 @@ app.get('/scratch-gui', (req, res) => {
   res.redirect('http://localhost:8601');
 });
 
-
 // 루트 경로 라우트
 app.get('/', (req, res) => {
   if (!req.session.is_logined) {

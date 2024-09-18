@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        function handleClientLoad() {
+            console.log("Google API client loaded");
+            gapi.load('client', initClient);
+        }
+    </script>
+    <script src="https://apis.google.com/js/api.js?onload=handleClientLoad" async defer></script>
     <style>
         .btn-group {
             display: flex;
