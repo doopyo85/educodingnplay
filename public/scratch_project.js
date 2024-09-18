@@ -3,17 +3,19 @@ let config;
 document.addEventListener("DOMContentLoaded", async function() {
     await loadConfig();  // config 로드
     console.log('Config:', config);  // config가 제대로 로드되었는지 확인
-    loadGapi();  // gapi 라이브러리 로드
+    loadSB2Data();  // SB2 데이터를 바로 로드
 });
 
 const RANGE = 'sb2!A2:C';
 
+// 서버의 API에서 SB2 데이터를 가져오는 함수
 async function loadSB2Data() {
   try {
     const data = await fetch('/api/get-sb2-data').then(res => res.json());
+    console.log('SB2 data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
     if (data && data.length > 0) {
       const projects = groupByProject(data);
-      displayProjects(projects);
+      displayProjects(projects);  // 프로젝트를 화면에 출력
     } else {
       displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
     }
@@ -22,6 +24,8 @@ async function loadSB2Data() {
     displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
   }
 }
+
+// 서버에서 config를 가져오는 함수
 async function loadConfig() {
     try {
         const response = await fetch('/config');
@@ -36,59 +40,7 @@ async function loadConfig() {
     }
 }
 
-function loadGapi() {
-    if (typeof gapi === 'undefined') {
-        console.error('Google API not loaded');
-        return;
-    }
-    gapi.load('client', initClient);
-}
-
-async function initClient() {
-    if (!config || !config.apiKey || !config.spreadsheetId || !config.discoveryDocs) {
-        console.error('Config is missing required fields:', config);
-        displayErrorMessage("API 설정이 올바르지 않습니다.");
-        return;
-    }
-
-    try {
-        console.log('Initializing Google API client with config:', config);
-        await gapi.client.init({
-            apiKey: config.apiKey,
-            discoveryDocs: config.discoveryDocs,
-        });
-        console.log('Google API client initialized');
-        await gapi.client.load('sheets', 'v4');
-        loadSB2Data();
-    } catch (error) {
-        console.error('Error initializing Google API client', error);
-        displayErrorMessage("Google API 클라이언트 초기화 중 오류가 발생했습니다.");
-    }
-}
-
-
-async function loadSB2Data() {
-    try {
-        console.log('Loading SB2 data from range:', RANGE);
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: config.spreadsheetId,
-            range: RANGE,
-        });
-        console.log('SB2 data loaded:', response.result);
-        const data = response.result.values;
-        if (data && data.length > 0) {
-            const projects = groupByProject(data);
-            displayProjects(projects);
-        } else {
-            displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
-        }
-    } catch (error) {
-        console.error('Error loading SB2 data', error);
-        displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
-    }
-}
-
-
+// 프로젝트 데이터를 그룹화하는 함수
 function groupByProject(data) {
     const projects = {};
     data.forEach(row => {
@@ -110,7 +62,7 @@ function groupByProject(data) {
     return projects;
 }
 
-
+// 프로젝트를 화면에 출력하는 함수
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = ''; // 기존 내용을 초기화
@@ -144,8 +96,8 @@ function displayProjects(projects) {
     });
 }
 
+// 오류 메시지를 화면에 출력하는 함수
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
     container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
 }
-
