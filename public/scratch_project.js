@@ -105,16 +105,16 @@ function displayProjects(projects) {
     });
 }
 
-// Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 맞춰 수정 필요)
+// Scratch-GUI에서 sb2 파일 로드하는 함수
 function loadSB2InScratchGUI(sb2Url) {
     // URL을 인코딩하여 Scratch-GUI로 전달
-    const encodedUrl = encodeURIComponent(sb2Url);  // URL 인코딩
-    const scratchEditorUrl = `https://codingnplay.site/scratch/#editor?url=${encodedUrl}`;
+    const scratchEditorUrl = `https://codingnplay.site/scratch/?project_file=${encodeURIComponent(sb2Url)}`;
     console.log(`Opening Scratch GUI with SB2 URL: ${scratchEditorUrl}`);
     
     // 새로운 창으로 Scratch-GUI 열기
     window.open(scratchEditorUrl, '_blank');
 }
+
 
 // 오류 메시지를 화면에 출력하는 함수
 function displayErrorMessage(message) {
