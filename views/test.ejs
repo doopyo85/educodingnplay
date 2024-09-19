@@ -53,7 +53,10 @@
                     <button class="btn btn-outline-light me-2" onclick="changeTheme('github')">GitHub</button>
                     <button class="btn btn-outline-light" onclick="changeTheme('tomorrow_night')">Tomorrow Night</button>
                 </div>
-
+                <div class="font-size-controls">
+                    <button id="decreaseFontSize">-</button>
+                    <button id="increaseFontSize">+</button>
+                </div>
                 <!-- Ace Editor -->
                 <div id="editor" class="code-editor" style="height: 400px; width: 100%;"># 여기에 코드를 입력하세요...</div>
 
@@ -80,6 +83,7 @@
     <!-- Custom Scripts -->
     <script src="/public/test.js"></script>
     <script src="iframe-style-injector.js"></script>
+    <script src="ide-font-control.js"></script> 
     
     <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
     <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">

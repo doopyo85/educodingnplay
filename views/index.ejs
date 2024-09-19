@@ -97,22 +97,6 @@
             </div>
         </div>
     </div>
-    <!-- 추가한 자바스크립트 코드 -->
-    <script>
-        // 준비중인 메시지를 표시하는 함수
-        function showComingSoonMessage(event) {
-            event.preventDefault();  // 기본 동작(페이지 이동) 방지
-            alert("아직 준비중입니다. 곧 만날 수 있어요");
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            // 카드 1에 함수 연결
-            document.querySelector('.card[href="/computer_basic"]').addEventListener('click', showComingSoonMessage);
-            
-            // 카드 3에 함수 연결
-            document.querySelector('.card[href="/entry"]').addEventListener('click', showComingSoonMessage);
-        });
-    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
