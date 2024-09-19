@@ -527,3 +527,33 @@ window.addEventListener('load', function() {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
+
+// iframe-style-injector.js
+function injectStyleToIframe(iframe) {
+    iframe.addEventListener('load', function() {
+        var style = document.createElement('style');
+        style.textContent = document.querySelector('style').textContent;
+        
+        var iframeHead = iframe.contentDocument.head || iframe.contentDocument.getElementsByTagName('head')[0];
+        iframeHead.appendChild(style);
+        
+        // 기존 스타일 시트 비활성화
+        var existingStyles = iframe.contentDocument.getElementsByTagName('style');
+        for (var i = 0; i < existingStyles.length; i++) {
+            if (existingStyles[i] !== style) {
+                existingStyles[i].disabled = true;
+            }
+        }
+        
+        var existingLinks = iframe.contentDocument.getElementsByTagName('link');
+        for (var i = 0; i < existingLinks.length; i++) {
+            if (existingLinks[i].rel === 'stylesheet') {
+                existingLinks[i].disabled = true;
+            }
+        }
+    });
+}
+
+// 사용 예:
+var iframe = document.getElementById('iframeContent');
+injectStyleToIframe(iframe);
