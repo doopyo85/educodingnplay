@@ -1,9 +1,9 @@
 /* test_problem.css */
 
 .content-container {
-    width: 50%;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 #problem-navigation-container {
