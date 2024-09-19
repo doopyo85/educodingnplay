@@ -107,9 +107,9 @@ function displayProjects(projects) {
 
 // Scratch-GUI에서 sb2 파일 로드하는 함수 (Scratch 환경에 맞춰 수정 필요)
 function loadSB2InScratchGUI(sb2Url) {
-    // Scratch-GUI로 sb2 파일을 로드하기 위한 URL 형식 (기본적인 예시)
-    // Scratch-GUI가 설치된 URL에 맞게 수정 필요
-    const scratchEditorUrl = `https://codingnplay.site/scratch/#editor?url=${encodeURIComponent(sb2Url)}`;
+    // URL을 인코딩하여 Scratch-GUI로 전달
+    const encodedUrl = encodeURIComponent(sb2Url);  // URL 인코딩
+    const scratchEditorUrl = `https://codingnplay.site/scratch/#editor?url=${encodedUrl}`;
     console.log(`Opening Scratch GUI with SB2 URL: ${scratchEditorUrl}`);
     
     // 새로운 창으로 Scratch-GUI 열기
