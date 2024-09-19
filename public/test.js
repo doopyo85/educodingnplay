@@ -507,8 +507,9 @@ function loadProblem(problemNumber) {
         } else {
             console.error('iframe element not found');
         }
-
-        const problemTitle = `${currentExamName} - 문제 ${problemNumber}`;
+        // 앞의 세 글자만 대문자로 변환
+        const examNameModified = currentExamName.substring(0, 3).toUpperCase() + currentExamName.substring(3);
+        const problemTitle = `${examNameModified} - 문제 ${problemNumber}`;
         const problemTitleElement = document.getElementById('problem-title');
         if (problemTitleElement) {
             problemTitleElement.textContent = problemTitle;
