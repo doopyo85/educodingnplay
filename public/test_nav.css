@@ -1,0 +1,60 @@
+/* test_nav.css */
+
+/* 네비게이션 컨테이너 스타일 */
+.nav-container {
+    width: 250px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    flex-shrink: 0; /* 네비게이션 영역이 줄어들지 않도록 설정 */
+}
+
+/* 메뉴 스타일 */
+.nav-container ul {
+    list-style-type: none;
+    padding-top: 10px;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-container .menu-item {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.nav-container .menu-item a {
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-container .menu-item a:hover,
+.nav-container .sub-menu .menu-item:hover {
+    background-color: #e9ecef;
+}
+
+.nav-container .menu-item.active > a,
+.nav-container .sub-menu .menu-item.active {
+    font-weight: bold;
+    color: #007bff;
+    background-color: #e9ecef;
+}
+
+.nav-container .sub-menu .menu-item.active {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* 소메뉴 컨테이너 스타일 */
+.nav-container .sub-menu {
+    padding-left: 20px;
+    background-color: #f8f9fa;
+    width: 100%;
+}
+
+.nav-container .sub-menu .menu-item {
+    padding: 6px 12px;
+}

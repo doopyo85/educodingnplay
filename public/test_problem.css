@@ -57,3 +57,61 @@ body {
 #problem-container::-webkit-scrollbar-thumb:hover {
     background: #555;  /* 스크롤바 호버 시 색상 */
 }
+
+
+/* test_problem.css */
+
+/* 문제 네비게이션 스타일 */
+#problem-navigation-container {
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 문제 네비게이션 아이콘 스타일 */
+#problem-navigation {
+    display: flex;
+    gap: 10px;
+}
+
+.problem-icon {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+#prev-problem, #next-problem {
+    cursor: pointer;
+    font-size: 24px;
+    padding: 0 10px;
+}
+
+/* 문제 제목 스타일 */
+#problem-title {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* 문제 내용 컨테이너 */
+#problem-container {
+    padding-left: 5%;
+    padding-right: 5%;
+    overflow-x: hidden;
+    line-height: 1.6;
+    color: #333;
+}
+
+#problem-container img {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+#problem-container p, #problem-container li {
+    font-size: 1em;
+}
+
+#problem-container h1, #problem-container h2, #problem-container h3 {
+    font-size: 1.2em;
+}

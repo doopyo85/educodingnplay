@@ -1,0 +1,48 @@
+/* test_ide.css */
+
+/* IDE 컨테이너 */
+.ide-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: #2d2d2d;
+    color: white;
+    padding: 10px;
+}
+
+/* 에디터 스타일 */
+#editor {
+    width: 100%;
+    height: 400px;
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+/* 출력 터미널 스타일 */
+#output-terminal {
+    width: 100%;
+    height: 150px;
+    background-color: #1e1e1e;
+    color: #00ff00;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #333;
+}
+
+/* 실행 버튼 스타일 */
+button#runCodeBtn {
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button#runCodeBtn:hover {
+    background-color: #218838;
+}
