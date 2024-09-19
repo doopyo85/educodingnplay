@@ -24,6 +24,24 @@ document.addEventListener("DOMContentLoaded", function() {
     setupEventListeners(); // 여기에 추가
 });
 
+// 데이터 로딩을 기다리는 함수
+function waitForDataLoading() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const checkData = () => {
+            if (typeof menuData !== 'undefined' && menuData) {
+                resolve();
+            } else if (attempts < 20) {  // 최대 10초 대기
+                attempts++;
+                setTimeout(checkData, 500);
+            } else {
+                reject(new Error("Data loading timeout"));
+            }
+        };
+        checkData();
+    });
+}
+
 // initClient 함수 수정
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;
@@ -527,33 +545,3 @@ window.addEventListener('load', function() {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
-
-// iframe-style-injector.js
-function injectStyleToIframe(iframe) {
-    iframe.addEventListener('load', function() {
-        var style = document.createElement('style');
-        style.textContent = document.querySelector('style').textContent;
-        
-        var iframeHead = iframe.contentDocument.head || iframe.contentDocument.getElementsByTagName('head')[0];
-        iframeHead.appendChild(style);
-        
-        // 기존 스타일 시트 비활성화
-        var existingStyles = iframe.contentDocument.getElementsByTagName('style');
-        for (var i = 0; i < existingStyles.length; i++) {
-            if (existingStyles[i] !== style) {
-                existingStyles[i].disabled = true;
-            }
-        }
-        
-        var existingLinks = iframe.contentDocument.getElementsByTagName('link');
-        for (var i = 0; i < existingLinks.length; i++) {
-            if (existingLinks[i].rel === 'stylesheet') {
-                existingLinks[i].disabled = true;
-            }
-        }
-    });
-}
-
-// 사용 예:
-var iframe = document.getElementById('iframeContent');
-injectStyleToIframe(iframe);
