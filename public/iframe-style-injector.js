@@ -1,6 +1,9 @@
 // iframe-style-injector.js
-function injectStyleToIframe(iframe) {
+function injectStyleAndFixImagesToIframe(iframe) {
     iframe.addEventListener('load', function() {
+        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        
+        // 스타일 주입
         var style = document.createElement('style');
         style.textContent = `
             body {
@@ -31,21 +34,30 @@ function injectStyleToIframe(iframe) {
             }
         `;
         
-        var iframeHead = iframe.contentDocument.head || iframe.contentDocument.getElementsByTagName('head')[0];
-        iframeHead.appendChild(style);
+        iframeDoc.head.appendChild(style);
         
         // 기존 스타일 시트 비활성화
-        var existingStyles = iframe.contentDocument.getElementsByTagName('style');
+        var existingStyles = iframeDoc.getElementsByTagName('style');
         for (var i = 0; i < existingStyles.length; i++) {
             if (existingStyles[i] !== style) {
                 existingStyles[i].disabled = true;
             }
         }
         
-        var existingLinks = iframe.contentDocument.getElementsByTagName('link');
+        var existingLinks = iframeDoc.getElementsByTagName('link');
         for (var i = 0; i < existingLinks.length; i++) {
             if (existingLinks[i].rel === 'stylesheet') {
                 existingLinks[i].disabled = true;
+            }
+        }
+        
+        // 이미지 주소 수정
+        var images = iframeDoc.getElementsByTagName('img');
+        for (var i = 0; i < images.length; i++) {
+            var src = images[i].src;
+            if (src.startsWith('https://codingnplay.site/')) {
+                var newSrc = src.replace('https://codingnplay.site/', 'https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com/');
+                images[i].src = newSrc;
             }
         }
     });
@@ -54,5 +66,5 @@ function injectStyleToIframe(iframe) {
 // 사용 예:
 window.addEventListener('load', function() {
     var iframe = document.getElementById('iframeContent');
-    injectStyleToIframe(iframe);
+    injectStyleAndFixImagesToIframe(iframe);
 });
