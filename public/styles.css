@@ -6,18 +6,12 @@ body {
     min-height: 100vh;
 }
 
-.navbar {
-    position: relative;
-    z-index: 1000; /* 헤더의 z-index를 높게 설정 */
-}
-
-.navbar-brand img {
-    margin-right: 10px;
-}
-
-.navbar-brand span {
-    font-size: 1.25rem;
-    font-weight: bold;
+.multicolor-text {
+    font-size: 2.5rem; /* 적절한 폰트 크기 */
+    font-weight: bold; /* 굵은 폰트 */
+    background: linear-gradient(to right, #4a90e2, #e94e77); /* 파란색에서 분홍색으로 그라디언트 */
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .header-content {
@@ -152,16 +146,7 @@ p {
     color: #6c757d;
 }
 
-.card-img-top {
-    width: 100%;
-    max-height: 60%;
-    object-fit: contain;
-    padding: 10px;
-}
-
-.card-img-entry {
-    width: 80%; /* entry 이미지 80%로 축소 */
-    max-height: 60%;
+.card-img-top, .card-img-entry {
     object-fit: contain;
     padding: 10px;
 }
