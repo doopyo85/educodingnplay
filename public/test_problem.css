@@ -41,6 +41,7 @@
 
 #problem-container {
     flex: 1;
+    width: 100%;
     padding: 20px 5%;
     overflow-y: auto;
     line-height: 1.6;
