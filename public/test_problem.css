@@ -59,19 +59,20 @@ body {
 }
 
 
-/* test_problem.css */
-
 /* 문제 네비게이션 스타일 */
 #problem-navigation-container {
     padding: 10px 0;
     display: flex;
+    flex-direction: column; /* 세로 정렬 */
     justify-content: center;
     align-items: center;
+    gap: 15px; /* 버튼 간격 추가 */
 }
 
 /* 문제 네비게이션 아이콘 스타일 */
 #problem-navigation {
     display: flex;
+    flex-direction: column; /* 세로 정렬 */
     gap: 10px;
 }
 
@@ -83,7 +84,7 @@ body {
 #prev-problem, #next-problem {
     cursor: pointer;
     font-size: 24px;
-    padding: 0 10px;
+    padding: 10px 0; /* 위아래 여백 추가 */
 }
 
 /* 문제 제목 스타일 */
