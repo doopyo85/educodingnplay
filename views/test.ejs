@@ -39,6 +39,14 @@
                 </div>
             </div>
             <div class="ide-container" style="width: 100%; height: 100%;">
+                <!-- Theme Change Button -->
+                <div class="theme-buttons mb-3">
+                    <button class="btn btn-secondary" onclick="changeTheme('monokai')">Monokai</button>
+                    <button class="btn btn-secondary" onclick="changeTheme('github')">GitHub</button>
+                    <button class="btn btn-secondary" onclick="changeTheme('tomorrow_night')">Tomorrow Night</button>
+                </div>
+
+                <!-- Ace Editor -->
                 <div id="editor" style="height: 400px; width: 100%;"># 여기에 코드를 입력하세요...</div>
                 <button id="runCodeBtn" class="btn btn-primary mt-3">Run Code</button>
                 <div id="output-terminal" class="mt-3">
@@ -66,6 +74,11 @@
         var editor = ace.edit("editor");
         editor.session.setMode("ace/mode/python");
         editor.setTheme("ace/theme/tomorrow_night_bright");
+
+        // 테마 변경 함수
+        function changeTheme(themeName) {
+            editor.setTheme("ace/theme/" + themeName);
+        }
 
         document.getElementById("runCodeBtn").addEventListener("click", function() {
             var code = editor.getValue();
