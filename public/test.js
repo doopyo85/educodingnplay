@@ -168,15 +168,26 @@ const ExamApp = (function() {
         elements.navList.innerHTML = '';
 
         const topLevelMenus = new Map();
-        data.forEach(function(row) {
-            if (row && row.length >= 3) {
-                const [topLevelMenu, subMenu, examName] = row;
-                if (!topLevelMenus.has(topLevelMenu)) {
-                    topLevelMenus.set(topLevelMenu, []);
-                }
-                topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
+        data.forEach(function(row, index) {
+        if (row && row.length >= 3) {
+            const [topLevelMenu, subMenu, examName] = row;
+            
+            if (!topLevelMenus.has(topLevelMenu)) {
+            topLevelMenus.set(topLevelMenu, []);  // Map에 메뉴 추가
             }
+            
+            topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
+            
+            // index 값을 사용하여 선택자 생성
+            const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
+            const subMenuItems = createSubMenuItems(topLevelMenus.get(topLevelMenu), index);
+            
+            // navList에 메뉴 추가
+            navList.appendChild(topLevelMenuItem);
+            navList.appendChild(subMenuItems);
+        }
         });
+
 
         topLevelMenus.forEach((subMenus, topLevelMenu, index) => {
             const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
@@ -218,7 +229,7 @@ const ExamApp = (function() {
     // 하위 메뉴 아이템 생성
     function createSubMenuItems(subMenus, index) {
         const subMenuContainer = document.createElement('div');
-        subMenuContainer.id = `collapse-${index}`;
+        subMenuContainer.id = `collapse${index}`;
         subMenuContainer.classList.add('collapse');
 
         const subMenuList = document.createElement('ul');
