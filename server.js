@@ -194,6 +194,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// queryDatabase 함수 불러오기 (lib_login 폴더에서 가져옴)
+const { queryDatabase } = require('./lib_login/db');
+
 // 로그인 라우트 수정
 app.post('/login', async (req, res) => {
   const { userID, password } = req.body; // 기존 username을 userID로 변경
