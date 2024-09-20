@@ -164,38 +164,30 @@ const ExamApp = (function() {
             showError('Navigation list element not found');
             return;
         }
-
+    
         elements.navList.innerHTML = '';
-
+    
         const topLevelMenus = new Map();
         data.forEach(function(row, index) {
-        if (row && row.length >= 3) {
-            const [topLevelMenu, subMenu, examName] = row;
-            
-            if (!topLevelMenus.has(topLevelMenu)) {
-            topLevelMenus.set(topLevelMenu, []);  // Map에 메뉴 추가
+            if (row && row.length >= 3) {
+                const [topLevelMenu, subMenu, examName] = row;
+                
+                if (!topLevelMenus.has(topLevelMenu)) {
+                    topLevelMenus.set(topLevelMenu, []);
+                }
+                
+                topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
+                
+                // index 값을 사용하여 선택자 생성
+                const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
+                const subMenuItems = createSubMenuItems(topLevelMenus.get(topLevelMenu), index);
+                
+                // navList에 메뉴 추가
+                elements.navList.appendChild(topLevelMenuItem);
+                elements.navList.appendChild(subMenuItems);
             }
-            
-            topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
-            
-            // index 값을 사용하여 선택자 생성
-            const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
-            const subMenuItems = createSubMenuItems(topLevelMenus.get(topLevelMenu), index);
-            
-            // navList에 메뉴 추가
-            navList.appendChild(topLevelMenuItem);
-            navList.appendChild(subMenuItems);
-        }
         });
-
-
-        topLevelMenus.forEach((subMenus, topLevelMenu, index) => {
-            const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
-            const subMenuItems = createSubMenuItems(subMenus, index);
-            elements.navList.appendChild(topLevelMenuItem);
-            elements.navList.appendChild(subMenuItems);
-        });
-
+    
         initializeCollapseListeners();
     }
 
@@ -227,9 +219,35 @@ const ExamApp = (function() {
     }
 
     // 하위 메뉴 아이템 생성
+    function createTopLevelMenuItem(topLevelMenu, index) {
+        const topLevelMenuItem = document.createElement('li');
+        topLevelMenuItem.classList.add('menu-item');
+
+        const link = document.createElement('a');
+        link.href = `#collapse-${index}`; // 수정된 부분
+        link.setAttribute('data-bs-toggle', 'collapse');
+        link.setAttribute('role', 'button');
+        link.setAttribute('aria-expanded', 'false');
+        link.setAttribute('aria-controls', `collapse-${index}`); // 수정된 부분
+        link.textContent = topLevelMenu;
+        link.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+
+        const arrow = document.createElement('i');
+        arrow.classList.add('bi', 'bi-chevron-down');
+        link.appendChild(arrow);
+
+        topLevelMenuItem.appendChild(link);
+
+        link.addEventListener('click', function() {
+            arrow.classList.toggle('rotate');
+        });
+
+        return topLevelMenuItem;
+    }
+
     function createSubMenuItems(subMenus, index) {
         const subMenuContainer = document.createElement('div');
-        subMenuContainer.id = `collapse${index}`;
+        subMenuContainer.id = `collapse-${index}`; // 수정된 부분
         subMenuContainer.classList.add('collapse');
 
         const subMenuList = document.createElement('ul');
