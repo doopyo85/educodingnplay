@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');  // MySQL 연결 가져오기
+const db = require('../lib_login/db'); // MySQL 연결 가져오기
 
 // 중복 제거 후
 router.get('/', (req, res) => {
