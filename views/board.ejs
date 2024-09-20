@@ -54,19 +54,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <!-- 여기에 게시글 데이터가 렌더링됨 -->
+                <!-- DB에서 가져온 게시글을 동적으로 렌더링 -->
+                <% posts.forEach(post => { %>
                 <tr>
-                    <td><a href="/board/1">첫글</a></td>
-                    <td>#java</td>
-                    <td>Uno</td>
-                    <td>2022-01-01</td>
+                    <td><a href="/board/<%= post.id %>"><%= post.title %></a></td>
+                    <td><%= post.hashtag %></td>
+                    <td><%= post.author %></td>
+                    <td><%= post.created_at %></td>
                 </tr>
-                <tr>
-                    <td><a href="/board/2">두번째글</a></td>
-                    <td>#spring</td>
-                    <td>Uno</td>
-                    <td>2022-01-02</td>
-                </tr>
+                <% }); %>
                 </tbody>
             </table>
         </div>

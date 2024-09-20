@@ -1,10 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db');  // MySQL 연결 가져오기
 
-// 게시판 메인 페이지
+// 중복 제거 후
 router.get('/', (req, res) => {
-    res.render('board', { title: '게시판' });
+    const query = 'SELECT * FROM posts ORDER BY created_at DESC';
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('DB 에러:', err);
+        return res.status(500).send('DB 에러 발생');
+      }
+      res.render('board', { posts: results });
+    });
 });
+
 
 // 검색 처리
 router.get('/search', (req, res) => {
@@ -13,10 +22,24 @@ router.get('/search', (req, res) => {
     res.render('board', { title: '검색 결과' });
 });
 
-// 글쓰기 페이지
+// 글쓰기 페이지 렌더링
 router.get('/write', (req, res) => {
-    res.render('write', { title: '글쓰기' });
-});
+    res.render('write');
+  });
+  
+  // 글쓰기 처리
+  router.post('/write', (req, res) => {
+    const { title, content, author } = req.body;
+    const query = 'INSERT INTO posts (title, content, author) VALUES (?, ?, ?)';
+    
+    db.query(query, [title, content, author], (err, result) => {
+      if (err) {
+        console.error('DB 에러:', err);
+        return res.status(500).send('DB 에러 발생');
+      }
+      res.redirect('/board');  // 글쓰기 후 게시판 목록으로 리다이렉션
+    });
+  });
 
 router.get('/check-new-posts', (req, res) => {
     // 데이터베이스에서 새 글 확인 로직 구현 (여기서는 예시로 처리)
