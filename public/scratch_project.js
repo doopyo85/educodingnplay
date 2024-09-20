@@ -1,50 +1,41 @@
-let config;
 let RANGE;  // 계정 유형에 따라 동적으로 변경될 변수
 
 document.addEventListener("DOMContentLoaded", async function() {
-    await loadConfig();  // config 로드
-    console.log('Config:', config);  // config가 제대로 로드되었는지 확인
-    loadSB2Data();  // SB2 데이터를 바로 로드
+    try {
+        const userType = await getUserType();  // 사용자 계정 유형을 가져옴
+        RANGE = userType === 'student' ? 'sb3!A2:C' : 'sb2!A2:C';  // 계정 유형에 따라 RANGE 설정
+        console.log('RANGE set to:', RANGE);
+        loadSB2Data();  // SB2 데이터를 바로 로드
+    } catch (error) {
+        console.error('Error loading user type:', error);
+        displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
+    }
 });
+
+// 사용자 계정 유형을 가져오는 함수
+async function getUserType() {
+    const response = await fetch('/api/get-user-type');
+    if (!response.ok) {
+        throw new Error('HTTP error! status: ' + response.status);
+    }
+    const { userType } = await response.json();
+    return userType;
+}
 
 // 서버의 API에서 SB2 데이터를 가져오는 함수
 async function loadSB2Data() {
     try {
-      const data = await fetch('/api/get-sb2-data').then(res => res.json());
-      console.log('SB2 data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
-      if (data && data.length > 0) {
-        const projects = groupByProject(data);
-        displayProjects(projects);  // 프로젝트를 화면에 출력
-      } else {
-        displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
-      }
-    } catch (error) {
-      console.error('Error loading SB2 data', error);
-      displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
-    }
-  }
-
-// 서버에서 config 및 사용자 정보를 가져오는 함수
-async function loadConfig() {
-    try {
-        const response = await fetch('/config');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await fetch('/api/get-sb2-data').then(res => res.json());
+        console.log('SB2 data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
+        if (data && data.length > 0) {
+            const projects = groupByProject(data);
+            displayProjects(projects);  // 프로젝트를 화면에 출력
+        } else {
+            displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
-        config = await response.json();
-
-        // 계정 유형에 따라 RANGE 값을 설정
-        if (config.userType === 'student') {
-            RANGE = 'sb3!A2:C';  // 학생용 범위
-        } else if (config.userType === 'teacher' || config.userType === 'director') {
-            RANGE = 'sb2!A2:C';  // 강사/원장용 범위
-        }
-
-        console.log('Config loaded:', config);
-        console.log('RANGE set to:', RANGE);  // 설정된 RANGE 확인
     } catch (error) {
-        console.error('Error loading config:', error);
-        displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading SB2 data', error);
+        displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
 
@@ -122,7 +113,6 @@ function loadSB2InScratchGUI(sb2Url) {
     // 새로운 창으로 Scratch-GUI 열기
     window.open(scratchEditorUrl, '_blank');
 }
-
 
 // 오류 메시지를 화면에 출력하는 함수
 function displayErrorMessage(message) {

@@ -201,6 +201,7 @@ app.post('/login', (req, res) => {
       if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
           req.session.is_logined = true;
           req.session.userID = results[0].userID;
+          req.session.userType = results[0].userType;  // 계정 유형 저장
           res.redirect('/');
       } else {
           res.send('Login Failed');
@@ -215,6 +216,15 @@ app.get('/get-user', (req, res) => {
     res.status(401).json({ error: '인증되지 않은 사용자' });
   }
 });
+
+app.get('/api/get-user-type', (req, res) => {
+  if (req.session && req.session.userID) {
+    res.json({ userType: req.session.userType });
+  } else {
+    res.status(401).json({ error: '로그인되지 않은 사용자입니다.' });
+  }
+});
+
 
 // 세션에서 사용자 정보를 가져오는 라우트
 app.get('/get-user-session', (req, res) => {
