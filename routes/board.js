@@ -2,17 +2,16 @@ const express = require('express');
 const router = express.Router();
 const db = require('../lib_login/db'); // MySQL 연결 가져오기
 
-// 중복 제거 후
-router.get('/', (req, res) => {
-    const query = 'SELECT * FROM posts ORDER BY created_at DESC';
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error('DB 에러:', err);
-        return res.status(500).send('DB 에러 발생');
-      }
+router.get('/', async (req, res) => {
+    try {
+      const query = 'SELECT * FROM posts ORDER BY created_at DESC';
+      const results = await db.queryDatabase(query);
       res.render('board', { posts: results });
-    });
-});
+    } catch (err) {
+      console.error('DB 에러:', err);
+      res.status(500).send('DB 에러 발생');
+    }
+  });
 
 
 // 검색 처리
