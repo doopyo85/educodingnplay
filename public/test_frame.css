@@ -34,10 +34,13 @@ body, html {
 .nav-container {
     width: 250px;
     min-width: 250px;
-    height: 100%;
+    height: calc(100% - 60px); /* 헤더 높이를 뺀 나머지 높이 */
     overflow-y: auto;
     background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
+    position: fixed;
+    top: 60px; /* 헤더 높이만큼 아래로 이동 */
+    left: 0;
 }
 
 .contents {
@@ -45,6 +48,7 @@ body, html {
     flex: 1;
     margin-left: 250px;
     height: 100%;
+    margin-top: 60px; /* 헤더 높이만큼 여백 추가 */
 }
 
 .content-container, .ide-container {
