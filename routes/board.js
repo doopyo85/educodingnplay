@@ -24,21 +24,19 @@ router.get('/search', (req, res) => {
 // 글쓰기 페이지 렌더링
 router.get('/write', (req, res) => {
     res.render('write');
-  });
+});
   
-  // 글쓰기 처리
-  router.post('/write', (req, res) => {
+router.post('/write', async (req, res) => {
     const { title, content, author } = req.body;
     const query = 'INSERT INTO posts (title, content, author) VALUES (?, ?, ?)';
-    
-    db.query(query, [title, content, author], (err, result) => {
-      if (err) {
+    try {
+        await db.queryDatabase(query, [title, content, author]);
+        res.redirect('/board');
+    } catch (err) {
         console.error('DB 에러:', err);
-        return res.status(500).send('DB 에러 발생');
-      }
-      res.redirect('/board');  // 글쓰기 후 게시판 목록으로 리다이렉션
-    });
-  });
+        res.status(500).send('DB 에러 발생');
+    }
+});
 
 router.get('/check-new-posts', (req, res) => {
     // 데이터베이스에서 새 글 확인 로직 구현 (여기서는 예시로 처리)
