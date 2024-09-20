@@ -358,6 +358,24 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
   });
 });
 
+// 누적 회원 수 및 현재 접속자 수를 반환하는 API
+app.get('/api/stats', async (req, res) => {
+  try {
+      // DB 또는 세션 관리에서 데이터를 가져옵니다. (예: MySQL, Redis 등)
+      const totalUsers = await db.query('SELECT COUNT(*) as count FROM users');
+      const activeUsers = await redisClient.scard('active_users'); // 현재 접속자 수 Redis로 관리 가능
+
+      res.json({
+          totalUsers: totalUsers[0].count, // 누적 회원 수
+          activeUsers: activeUsers        // 현재 접속자 수
+      });
+  } catch (error) {
+      console.error('Error fetching stats:', error);
+      res.status(500).json({ error: '통계를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+
 const boardRouter = require('./routes/board');
 
 app.use('/board', boardRouter);
