@@ -2,16 +2,23 @@ const express = require('express');
 const router = express.Router();
 const db = require('../lib_login/db'); // MySQL 연결 가져오기
 
+// 게시글 목록 가져오기 라우트
 router.get('/', async (req, res) => {
-    try {
-      const query = 'SELECT * FROM posts ORDER BY created_at DESC';
+  console.log('1. 게시글 목록 요청 시작'); // 첫 번째 로그 추가
+  const query = 'SELECT * FROM posts ORDER BY created_at DESC';
+
+  try {
+      console.log('2. DB 쿼리 실행 중'); // 두 번째 로그 추가
       const results = await db.queryDatabase(query);
+      console.log('3. DB 쿼리 성공:', results); // 세 번째 로그 추가
+
       res.render('board', { posts: results });
-    } catch (err) {
-      console.error('DB 에러:', err);
+      console.log('4. 페이지 렌더링 성공'); // 네 번째 로그 추가
+  } catch (err) {
+      console.error('DB 에러 발생:', err);
       res.status(500).send('DB 에러 발생');
-    }
-  });
+  }
+});
 
 
 // 검색 처리
