@@ -31,16 +31,19 @@ body, html {
     width: 100%;
 }
 
+/* 네비게이션 스타일 */
 .nav-container {
-    width: 250px;
-    min-width: 250px;
-    height: calc(100% - 60px); /* 헤더 높이를 뺀 나머지 높이 */
-    overflow-y: auto;
-    background-color: #f8f9fa;
-    border-right: 1px solid #dee2e6;
     position: fixed;
-    top: 60px; /* 헤더 높이만큼 아래로 이동 */
+    top: 0; /* 페이지 최상단에서 시작 */
     left: 0;
+    width: 250px;
+    height: 100vh; /* 전체 높이 */
+    background-color: #f8f9fa;
+    overflow-y: auto;
+    z-index: 100; /* 헤더보다 낮은 z-index */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    border-right: 1px solid #dee2e6;
+    padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
 }
 
 .contents {

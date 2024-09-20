@@ -1,16 +1,18 @@
 /* 헤더 전체 영역 스타일 */
 .header {
-    background-color: #343a40;  /* 헤더 배경색 */
-    color: white;  /* 텍스트 색상 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* 헤더 높이 설정 */
+    background-color: #343a40;
+    color: white;
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000;
+    z-index: 1000; /* 높은 z-index 값 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* 로고 및 좌측 콘텐츠 */
