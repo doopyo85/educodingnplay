@@ -168,7 +168,9 @@ const ExamApp = (function() {
         elements.navList.innerHTML = '';
     
         const topLevelMenus = new Map();
-        data.forEach(function(row, index) {
+        
+        // 데이터를 그룹화
+        data.forEach(function(row) {
             if (row && row.length >= 3) {
                 const [topLevelMenu, subMenu, examName] = row;
                 
@@ -177,15 +179,19 @@ const ExamApp = (function() {
                 }
                 
                 topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
-                
-                // index 값을 사용하여 선택자 생성
-                const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
-                const subMenuItems = createSubMenuItems(topLevelMenus.get(topLevelMenu), index);
-                
-                // navList에 메뉴 추가
-                elements.navList.appendChild(topLevelMenuItem);
-                elements.navList.appendChild(subMenuItems);
             }
+        });
+    
+        // 그룹화된 데이터를 기반으로 메뉴 생성
+        let index = 0;
+        topLevelMenus.forEach((subMenus, topLevelMenu) => {
+            const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
+            const subMenuItems = createSubMenuItems(subMenus, index);
+            
+            elements.navList.appendChild(topLevelMenuItem);
+            elements.navList.appendChild(subMenuItems);
+            
+            index++;
         });
     
         initializeCollapseListeners();
