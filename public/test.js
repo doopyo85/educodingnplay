@@ -194,7 +194,7 @@ const ExamApp = (function() {
         topLevelMenuItem.classList.add('menu-item');
 
         const link = document.createElement('a');
-        link.href = `#collapse${index}`;
+        link.href = `#collapse-${index}`;
         link.setAttribute('data-bs-toggle', 'collapse');
         link.setAttribute('role', 'button');
         link.setAttribute('aria-expanded', 'false');
@@ -218,7 +218,7 @@ const ExamApp = (function() {
     // 하위 메뉴 아이템 생성
     function createSubMenuItems(subMenus, index) {
         const subMenuContainer = document.createElement('div');
-        subMenuContainer.id = `collapse${index}`;
+        subMenuContainer.id = `collapse-${index}`;
         subMenuContainer.classList.add('collapse');
 
         const subMenuList = document.createElement('ul');
