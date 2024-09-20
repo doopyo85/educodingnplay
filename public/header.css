@@ -1,0 +1,54 @@
+/* 헤더 전체 영역 스타일 */
+.header {
+    background-color: #343a40;  /* 헤더 배경색 */
+    color: white;  /* 텍스트 색상 */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* 로고 및 좌측 콘텐츠 */
+.header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+/* 유저 정보와 로그아웃 버튼 */
+.header .user-info {
+    display: flex;
+    align-items: center;
+}
+
+.header .user-info span {
+    margin-right: 15px;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.header .logout-button {
+    background-color: #ff6b6b;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.header .logout-button:hover {
+    background-color: #ff5252;
+}
+
+#toggle-dark-mode, #notification-icon, #app-drawer-button {
+    font-size: 2rem;
+    cursor: pointer;
+}
+
