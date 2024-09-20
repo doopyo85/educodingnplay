@@ -194,20 +194,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// 회원가입 및 로그인 라우트 수정
-app.post('/login', (req, res) => {
+// 로그인 라우트 수정
+app.post('/login', async (req, res) => {
   const { userID, password } = req.body; // 기존 username을 userID로 변경
-  db.query('SELECT * FROM users WHERE userID = ?', [userID], (err, results) => {
-      if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
-          req.session.is_logined = true;
-          req.session.userID = results[0].userID;
-          req.session.userType = results[0].userType;  // 계정 유형 저장
-          res.redirect('/');
-      } else {
-          res.send('Login Failed');
-      }
-  });
+  try {
+    // queryDatabase를 사용하여 데이터베이스 조회
+    const query = 'SELECT * FROM Users WHERE userID = ?';
+    const results = await queryDatabase(query, [userID]);
+
+    // 사용자 정보가 있고, 비밀번호가 일치하는지 확인
+    if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
+      req.session.is_logined = true;
+      req.session.userID = results[0].userID;
+      req.session.userType = results[0].userType;  // 계정 유형 저장
+      res.redirect('/');
+    } else {
+      res.status(401).send('Login Failed');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 app.get('/get-user', (req, res) => {
   if (req.session && req.session.userID) {
@@ -361,20 +370,23 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
 // 누적 회원 수 및 현재 접속자 수를 반환하는 API
 app.get('/api/stats', async (req, res) => {
   try {
-      const totalUsers = await db.query('SELECT COUNT(*) as count FROM Users');
-      const activeUsers = await redisClient.scard('active_users'); // Redis 또는 세션 처리 방식 확인
+    // queryDatabase를 사용하여 전체 사용자 수 조회
+    const totalUsersQuery = 'SELECT COUNT(*) as count FROM Users';
+    const totalUsers = await queryDatabase(totalUsersQuery);
 
-      res.json({
-          totalUsers: totalUsers[0].count,
-          activeUsers: activeUsers
-      });
+    // Redis를 사용하여 현재 접속자 수 조회
+    const activeUsers = await redisClient.scard('active_users'); // Redis 또는 세션 처리 방식 확인
+
+    // 결과를 JSON으로 반환
+    res.json({
+      totalUsers: totalUsers[0].count,  // 회원 수
+      activeUsers: activeUsers  // 현재 접속자 수
+    });
   } catch (error) {
-      console.error('Error fetching stats:', error);
-      res.status(500).json({ error: '통계를 불러오는 중 오류가 발생했습니다.' });
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: '통계를 불러오는 중 오류가 발생했습니다.' });
   }
 });
-
-
 
 const boardRouter = require('./routes/board');
 
