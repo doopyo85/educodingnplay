@@ -378,7 +378,7 @@ app.get('/api/stats', async (req, res) => {
     const totalUsers = await queryDatabase(totalUsersQuery);
 
     // Redis를 사용하여 현재 접속자 수 조회
-    const activeUsers = await redisClient.scard('active_users'); // Redis 또는 세션 처리 방식 확인
+    const activeUsers = await redisClient.sCard('active_users');
 
     // 결과를 JSON으로 반환
     res.json({
