@@ -348,6 +348,10 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
   });
 });
 
+const boardRouter = require('./routes/board');
+
+app.use('/board', boardRouter);
+
 // 루트 경로 라우트
 app.get('/', (req, res) => {
   if (!req.session.is_logined) {

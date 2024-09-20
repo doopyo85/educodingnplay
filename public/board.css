@@ -1,0 +1,24 @@
+.search-form {
+  width: 80%;
+  margin: 1rem auto;
+}
+
+.search-form input, .search-form select {
+  background: transparent;
+  border: 0;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+.search-form button {
+  width: 100%;
+  font-size: 1rem;
+}
+
+.card-margin {
+  margin-bottom: 1.875rem;
+}
+
+.table {
+  margin-top: 1rem;
+}
