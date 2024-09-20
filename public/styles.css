@@ -6,6 +6,26 @@ body {
     min-height: 100vh;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex-grow: 1;  /* 콘텐츠가 부족해도 footer를 하단으로 밀기 위한 설정 */
+}
+
+footer {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
 .multicolor-text {
     font-size: 2.5rem; /* 적절한 폰트 크기 */
     font-weight: bold; /* 굵은 폰트 */
