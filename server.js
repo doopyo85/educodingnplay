@@ -299,12 +299,12 @@ initGoogleSheets().catch(console.error);
 // getSheetData 함수를 다른 모듈에서 사용할 수 있도록 export
 module.exports = { getSheetData };
 
-app.get('/api/get-sb2-data', async (req, res) => {
+app.get('/api/get-sb3-data', async (req, res) => {
   try {
-    const data = await getSheetData('sb2!A2:C');
+    const data = await getSheetData('sb3!A2:C');
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'SB2 데이터를 불러오는 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: 'sb3 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 

@@ -3,9 +3,9 @@ let RANGE;  // 계정 유형에 따라 동적으로 변경될 변수
 document.addEventListener("DOMContentLoaded", async function() {
     try {
         const userType = await getUserType();  // 사용자 계정 유형을 가져옴
-        RANGE = userType === 'student' ? 'sb3!A2:C' : 'sb2!A2:C';  // 계정 유형에 따라 RANGE 설정
+        RANGE = userType === 'student' ? 'sb3!A2:C' : 'sb3!A2:C';  // 계정 유형에 따라 RANGE 설정
         console.log('RANGE set to:', RANGE);
-        loadSB2Data();  // SB2 데이터를 바로 로드
+        loadsb3Data();  // sb3 데이터를 바로 로드
     } catch (error) {
         console.error('Error loading user type:', error);
         displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
@@ -22,11 +22,11 @@ async function getUserType() {
     return userType;
 }
 
-// 서버의 API에서 SB2 데이터를 가져오는 함수
-async function loadSB2Data() {
+// 서버의 API에서 sb3 데이터를 가져오는 함수
+async function loadsb3Data() {
     try {
-        const data = await fetch('/api/get-sb2-data').then(res => res.json());
-        console.log('SB2 data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
+        const data = await fetch('/api/get-sb3-data').then(res => res.json());
+        console.log('sb3 data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
         if (data && data.length > 0) {
             const projects = groupByProject(data);
             displayProjects(projects);  // 프로젝트를 화면에 출력
@@ -34,8 +34,8 @@ async function loadSB2Data() {
             displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading SB2 data', error);
-        displayErrorMessage("SB2 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading sb3 data', error);
+        displayErrorMessage("sb3 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
 
@@ -81,9 +81,9 @@ function displayProjects(projects) {
                     <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
                     <p class="card-text">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요.</p>
                     <div class="btn-group">
-                        ${project.basic ? `<button class="btn btn-primary load-sb2" data-url="${project.basic}">기본</button>` : ''}
-                        ${project.ext1 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext1}">확장1</button>` : ''}
-                        ${project.ext2 ? `<button class="btn btn-secondary load-sb2" data-url="${project.ext2}">확장2</button>` : ''}
+                        ${project.basic ? `<button class="btn btn-primary load-sb3" data-url="${project.basic}">기본</button>` : ''}
+                        ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
+                        ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
                     </div>
                 </div>
             </div>
@@ -93,22 +93,22 @@ function displayProjects(projects) {
         container.appendChild(card);
     });
 
-    // "load-sb2" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
-    document.querySelectorAll('.load-sb2').forEach(button => {
+    // "load-sb3" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
+    document.querySelectorAll('.load-sb3').forEach(button => {
         button.addEventListener('click', function() {
-            const sb2Url = this.getAttribute('data-url');
-            console.log('Loading SB2 project from URL:', sb2Url);
-            // Scratch-GUI에 sb2 파일을 로드하는 코드 추가
-            loadSB2InScratchGUI(sb2Url);
+            const sb3Url = this.getAttribute('data-url');
+            console.log('Loading sb3 project from URL:', sb3Url);
+            // Scratch-GUI에 sb3 파일을 로드하는 코드 추가
+            loadsb3InScratchGUI(sb3Url);
         });
     });
 }
 
-// Scratch-GUI에서 sb2 파일 로드하는 함수
-function loadSB2InScratchGUI(sb2Url) {
+// Scratch-GUI에서 sb3 파일 로드하는 함수
+function loadsb3InScratchGUI(sb3Url) {
     // URL을 인코딩하여 Scratch-GUI로 전달
-    const scratchEditorUrl = `https://codingnplay.site/scratch/?project_file=${encodeURIComponent(sb2Url)}`;
-    console.log(`Opening Scratch GUI with SB2 URL: ${scratchEditorUrl}`);
+    const scratchEditorUrl = `https://codingnplay.site/scratch/?project_file=${encodeURIComponent(sb3Url)}`;
+    console.log(`Opening Scratch GUI with sb3 URL: ${scratchEditorUrl}`);
     
     // 새로운 창으로 Scratch-GUI 열기
     window.open(scratchEditorUrl, '_blank');
