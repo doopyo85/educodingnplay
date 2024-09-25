@@ -370,6 +370,16 @@ app.get('/computer', authenticateUser, (req, res) => {
   });
 });
 
+app.get('/api/get-computer-data', async (req, res) => {
+  try {
+      const data = await getSheetData('computer!A2:E');
+      res.json(data);
+  } catch (error) {
+      console.error('Error fetching computer data:', error);
+      res.status(500).json({ error: '컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
   res.redirect('http://localhost:8601');
