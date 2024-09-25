@@ -356,6 +356,20 @@ app.get('/test', authenticateUser, (req, res) => {
   res.render('test');  // 'test.ejs' 템플릿을 렌더링
 });
 
+// 기존의 라우트 설정 아래에 새로운 컴퓨터 관련 라우트를 추가합니다.
+
+// /computer 라우트 추가
+app.get('/computer', authenticateUser, (req, res) => {
+  // 세션 정보 로깅 (필요시)
+  console.log('User session:', req.session); 
+
+  // 'computer.ejs' 템플릿 렌더링
+  res.render('computer', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
+});
+
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
   res.redirect('http://localhost:8601');
