@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scratch 프로젝트 선택</title>
+    <title>컴퓨터 활용 콘텐츠 선택</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/styles.css">
-    <script src="https://apis.google.com/js/api.js"></script> <!-- Google API 추가 -->
+    <script src="https://apis.google.com/js/api.js"></script>
     <style>
         .btn-group {
             display: flex;
@@ -25,19 +25,56 @@
     <%- include('partials/header') %>
     
     <div class="container mt-5">
-        <h1 class="text-center">Scratch 프로젝트 선택</h1>
-        <div class="text-center mb-4">
-            <a href="/scratch" class="btn btn-success">새로 시작하기</a>
-        </div>
+        <h1 class="text-center">컴퓨터 활용 콘텐츠 선택</h1>
         <div class="row" id="content-container">
-            <!-- sb3 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
+            <!-- 카드를 동적으로 생성하는 부분 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='https://studio.code.org/s/pre-express-2022/lessons/1/levels/1'">
+                    <div class="card-body">
+                        <h5 class="card-title">마우스 클릭연습(기초)</h5>
+                        <p class="card-text">마우스 클릭연습</p>
+                        <a href="https://studio.code.org/s/pre-express-2022/lessons/1/levels/1" class="btn btn-primary">시작하기</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='https://blockly.games/puzzle?lang=ko'">
+                    <div class="card-body">
+                        <h5 class="card-title">마우스 클릭연습(블럭)</h5>
+                        <p class="card-text">블럭에 속성을 입력하여 알맞게 코딩해보세요</p>
+                        <a href="https://blockly.games/puzzle?lang=ko" class="btn btn-primary">시작하기</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='https://studio.code.org/s/aquatic/lessons/1/levels/1'">
+                    <div class="card-body">
+                        <h5 class="card-title">수중세계 탐험</h5>
+                        <p class="card-text">수중 세계를 탐험하며 문제 해결 능력을 발휘해보세요.</p>
+                        <a href="https://studio.code.org/s/aquatic/lessons/1/levels/1" class="btn btn-primary">시작하기</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card h-100" onclick="location.href='https://studio.code.org/s/hero/lessons/1/levels/1'">
+                    <div class="card-body">
+                        <h5 class="card-title">히어로의 여정</h5>
+                        <p class="card-text">에이전트에게 명령을 내리고 장애물을 극복하세요</p>
+                        <a href="https://studio.code.org/s/hero/lessons/1/levels/1" class="btn btn-primary">시작하기</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 다른 카드들도 위와 같은 방식으로 추가 -->
         </div>
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/header.js"></script>
-    <script src="/public/scratch_project.js"></script>
 </body>
 </html>
