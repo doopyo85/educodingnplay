@@ -318,6 +318,15 @@ app.get('/api/get-sb3-data', async (req, res) => {
   }
 });
 
+app.get('/api/get-ent-data', async (req, res) => {
+  try {
+    const data = await getSheetData('ent!A2:E'); // 'ent' 시트의 A2:E 범위에서 데이터를 가져옴
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'ENT 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 app.get('/api/get-menu-data', async (req, res) => {
   try {
     const data = await getSheetData('menulist!A2:C');
@@ -360,6 +369,15 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
   res.redirect('http://localhost:8601');
+});
+
+// entry 렌더링
+app.get('/entry_project', authenticateUser, (req, res) => {
+  console.log('User session:', req.session); // 세션 정보 로깅
+  res.render('entry_project', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
 });
 
 // test 렌더링
