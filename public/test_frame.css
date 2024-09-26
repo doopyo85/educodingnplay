@@ -45,7 +45,6 @@ body, html {
 .contents {
     display: flex;
     flex: 1;
-    margin-left: 250px;
     height: 100%;
 }
 
