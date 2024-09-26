@@ -62,7 +62,6 @@ nav {
     width: 200px;
     height: 100%;
     background-color: #f8f9fa;
-    padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     overflow-y: auto;
     z-index: 500; /* 네비게이션 바의 z-index를 낮게 설정 */
