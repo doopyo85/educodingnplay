@@ -15,7 +15,7 @@ async function loadComputerData() {
         
         if (data && data.length > 0) {
             const projects = groupByCategory(data);
-            displayProjects(projects); // HTML에 프로젝트 데이터 표시
+            displayTabsAndProjects(projects); // HTML에 탭과 프로젝트 데이터 표시
         } else {
             displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
@@ -25,9 +25,10 @@ async function loadComputerData() {
     }
 }
 
-// 데이터를 카테고리별로 그룹화하는 함수 (변경 없음)
+// 데이터를 카테고리별로 그룹화하는 함수
 function groupByCategory(data) {
     const projects = {};
+
     data.forEach(row => {
         const [category, name, description, stageURL, imgURL] = row;
         if (!projects[category]) {
@@ -35,22 +36,44 @@ function groupByCategory(data) {
         }
         projects[category].push({ name, description, stageURL, imgURL });
     });
+
     return projects;
 }
 
-// HTML에 프로젝트 데이터를 표시하는 함수 (변경 없음)
-function displayProjects(projects) {
-    const container = document.getElementById('content-container');
-    container.innerHTML = ''; // 기존 내용을 지우고 새로 표시
+// 동적으로 탭과 프로젝트 데이터를 HTML에 표시하는 함수
+function displayTabsAndProjects(projects) {
+    const tabsContainer = document.getElementById('categoryTabs');
+    const contentContainer = document.getElementById('content-container');
+    
+    let firstTab = true;
 
-    Object.keys(projects).forEach(category => {
-        const categoryHeader = document.createElement('h2');
-        categoryHeader.textContent = category;
-        container.appendChild(categoryHeader);
+    // 기존 탭과 콘텐츠 초기화
+    tabsContainer.innerHTML = '';
+    contentContainer.innerHTML = '';
 
-        const row = document.createElement('div');
-        row.className = 'row';
+    Object.keys(projects).forEach((category, index) => {
+        // 동적 탭 생성
+        const tabId = `tab-${index}`;
+        const paneId = `pane-${index}`;
 
+        const tab = document.createElement('li');
+        tab.className = 'nav-item';
+        tab.innerHTML = `
+            <button class="nav-link ${firstTab ? 'active' : ''}" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab" aria-controls="${paneId}" aria-selected="${firstTab}">
+                ${category}
+            </button>
+        `;
+        tabsContainer.appendChild(tab);
+
+        // 동적 콘텐츠 생성
+        const tabContent = document.createElement('div');
+        tabContent.className = `tab-pane fade ${firstTab ? 'show active' : ''}`;
+        tabContent.id = paneId;
+        tabContent.role = 'tabpanel';
+        tabContent.setAttribute('aria-labelledby', tabId);
+
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
         projects[category].forEach(project => {
             const card = document.createElement('div');
             card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
@@ -66,15 +89,24 @@ function displayProjects(projects) {
                 </div>
             `;
             card.innerHTML = cardContent;
-            row.appendChild(card);
+            rowDiv.appendChild(card);
         });
 
-        container.appendChild(row);
+        tabContent.appendChild(rowDiv);
+        contentContainer.appendChild(tabContent);
+
+        // 첫 번째 탭이 끝나면 false로 전환
+        firstTab = false;
     });
 }
 
-// 오류 메시지를 표시하는 함수 (변경 없음)
+// 오류 메시지를 표시하는 함수
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
+    if (!container) {
+        console.error('Element with id "content-container" not found.');
+        return;
+    }
+
     container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
 }
