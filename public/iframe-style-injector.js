@@ -7,8 +7,8 @@ function injectStyleAndFixImagesToIframe(iframe) {
         var style = document.createElement('style');
         style.textContent = `
             body {
-                font-family: Arial, sans-serif !important;
-                font-size: 14px !important;
+                font-family: 'Noto Sans KR', sans-serif; !important;
+                font-size: 16px !important;
                 line-height: 1.6 !important;
                 color: #333 !important;
                 padding: 5% 5% 0 5% !important;
