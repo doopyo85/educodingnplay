@@ -300,6 +300,15 @@ initGoogleSheets().catch(console.error);
 // getSheetData 함수를 다른 모듈에서 사용할 수 있도록 export
 module.exports = { getSheetData };
 
+app.get('/api/get-computer-data', async (req, res) => {
+  try {
+    const data = await getSheetData('computer!A2:E'); // 'computer' 시트에서 A2:E 범위의 데이터를 가져옴
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 app.get('/api/get-sb3-data', async (req, res) => {
   try {
     const data = await getSheetData('sb3!A2:C');
@@ -327,6 +336,37 @@ app.get('/api/get-problem-data', async (req, res) => {
   }
 });
 
+// /computer 라우트 추가
+app.get('/computer', authenticateUser, (req, res) => {
+  // 세션 정보 로깅 (필요시)
+  console.log('User session:', req.session); 
+
+  // 'computer.ejs' 템플릿 렌더링
+  res.render('computer', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
+});
+
+// Scratch 프로젝트 목록 페이지
+app.get('/scratch_project', authenticateUser, (req, res) => {
+  console.log('User session:', req.session); // 세션 정보 로깅
+  res.render('scratch_project', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
+});
+
+// Scratch GUI로 리다이렉트
+app.get('/scratch', (req, res) => {
+  res.redirect('http://localhost:8601');
+});
+
+// test 렌더링
+app.get('/test', authenticateUser, (req, res) => {
+  res.render('test');  // 'test.ejs' 템플릿을 렌더링
+});
+
 // 파이썬 코드를 실행하는 라우트
 app.post('/run-python', (req, res) => {
   const userCode = req.body.code; // 클라이언트로부터 받은 코드
@@ -352,49 +392,6 @@ app.post('/run-python', (req, res) => {
   });
 });
 
-// test 렌더링
-app.get('/test', authenticateUser, (req, res) => {
-  res.render('test');  // 'test.ejs' 템플릿을 렌더링
-});
-
-// 기존의 라우트 설정 아래에 새로운 컴퓨터 관련 라우트를 추가합니다.
-
-// /computer 라우트 추가
-app.get('/computer', authenticateUser, (req, res) => {
-  // 세션 정보 로깅 (필요시)
-  console.log('User session:', req.session); 
-
-  // 'computer.ejs' 템플릿 렌더링
-  res.render('computer', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
-  });
-});
-
-app.get('/api/get-computer-data', async (req, res) => {
-  try {
-      const data = await getSheetData('computer!A2:E');
-      res.json(data);
-  } catch (error) {
-      console.error('Error fetching computer data:', error);
-      res.status(500).json({ error: '컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.' });
-  }
-});
-
-// Scratch GUI로 리다이렉트
-app.get('/scratch', (req, res) => {
-  res.redirect('http://localhost:8601');
-});
-
-// Scratch 프로젝트 목록 페이지
-app.get('/scratch_project', authenticateUser, (req, res) => {
-  console.log('User session:', req.session); // 세션 정보 로깅
-  res.render('scratch_project', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
-  });
-});
-
 // 누적 회원 수 및 현재 접속자 수를 반환하는 API
 app.get('/api/stats', async (req, res) => {
   try {
@@ -417,7 +414,6 @@ app.get('/api/stats', async (req, res) => {
 });
 
 const boardRouter = require('./routes/board');
-
 app.use('/board', boardRouter);
 
 // 루트 경로 라우트

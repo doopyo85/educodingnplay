@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const increaseFontSizeBtn = document.getElementById('increaseFontSize');
     const decreaseFontSizeBtn = document.getElementById('decreaseFontSize');
     
-    let currentFontSize = 14; // 기본 폰트 크기
+    let currentFontSize = 16; // 기본 폰트 크기
     
     function updateFontSize(size) {
         editor.style.fontSize = size + 'px';
