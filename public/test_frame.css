@@ -31,19 +31,13 @@ body, html {
     width: 100%;
 }
 
-/* 네비게이션 스타일 */
 .nav-container {
-    position: fixed;
-    top: 0; /* 페이지 최상단에서 시작 */
-    left: 0;
     width: 250px;
-    height: 100vh; /* 전체 높이 */
-    background-color: #f8f9fa;
+    min-width: 250px;
+    height: 100%;
     overflow-y: auto;
-    z-index: 100; /* 헤더보다 낮은 z-index */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
-    padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
 }
 
 .contents {
@@ -51,7 +45,6 @@ body, html {
     flex: 1;
     margin-left: 250px;
     height: 100%;
-    margin-top: 60px; /* 헤더 높이만큼 여백 추가 */
 }
 
 .content-container, .ide-container {
@@ -79,31 +72,8 @@ body, html {
     align-items: center;
 }
 
-/* 밝은 회색 하이라이트 */
-.nav-link.active {
-    background-color: #f8f9fa; /* 밝은 회색 배경 */
-    border-left: 3px solid #ced4da; /* 왼쪽에 얇은 회색 줄 */
-}
-
-
-/* 하위 메뉴의 들여쓰기와 앞에 얇은 줄 */
-.nav .submenu {
-    margin-left: 20px; /* 들여쓰기 */
-    border-left: 1px solid #ced4da; /* 얇은 회색 줄 */
-    padding-left: 10px;
-}
-
-/* 토글 아이콘을 v 모양에서 + 모양으로 변경 */
-.nav-item .bi-chevron-down::before {
-    content: '\f068'; /* FontAwesome Plus Icon */
-}
-.nav-item .bi-chevron-up::before {
-    content: '\f067'; /* FontAwesome Minus Icon */
-}
-
 .nav-container .menu-item a:hover,
 .nav-container .menu-item a.active {
-    color: #6c757d; /* 회색 텍스트 색상 */
-    background-color: #f8f9fa; /* 밝은 회색 배경 */
+    color: #007bff;
+    background-color: #e9ecef;
 }
-
