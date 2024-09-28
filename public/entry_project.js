@@ -105,7 +105,7 @@ function displayTabsAndProjects(projects) {
             card.innerHTML = cardContent;
             rowDiv.appendChild(card);
         });
-
+//수정
         tabContent.appendChild(rowDiv);
         contentContainer.appendChild(tabContent);
 
