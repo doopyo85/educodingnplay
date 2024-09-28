@@ -380,9 +380,9 @@ app.get('/entry_project', authenticateUser, (req, res) => {
   });
 });
 
-// entry 렌더링
+// entry 렌더링 (잘못된 부분 수정)
 app.get('/entry', (req, res) => {
-  res.render('http://localhost:8080');  // 'entry_project.ejs' 템플릿을 렌더링
+  res.redirect('http://localhost:8080');  // 8080 포트로 리다이렉션
 });
 
 // test 렌더링
