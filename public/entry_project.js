@@ -23,7 +23,12 @@ async function getUserType() {
 
 async function loadEntryData() {
     try {
-        const data = await fetch('/api/get-entry-data').then(res => res.json());
+        const response = await fetch('/api/get-entry-data');
+        if (!response.ok) {
+            throw new Error(`Error fetching entry data: ${response.status}`);
+        }
+        const data = await response.json();
+
         console.log('Entry data loaded:', data);
         if (data && data.length > 0) {
             const projects = groupByProject(data);
