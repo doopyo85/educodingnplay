@@ -79,7 +79,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://code.org https://blockly.games; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://cdn.jsdelivr.net; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com;"
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://codingnplay.site:8080;"
   );
   next();
 });
@@ -373,16 +373,16 @@ app.get('/scratch', (req, res) => {
 
 // entry 프로젝트 목록페이지
 app.get('/entry_project', authenticateUser, (req, res) => {
-  console.log('User session:', req.session); // 세션 정보 로깅
+  console.log('User session:', req.session);
   res.render('entry_project', {
     userID: req.session.userID || null,
     is_logined: req.session.is_logined || false
   });
 });
 
-// entry 렌더링 (잘못된 부분 수정)
+// entry 렌더링 (수정된 버전)
 app.get('/entry', (req, res) => {
-  res.redirect('http://localhost:8080');  // 8080 포트로 리다이렉션
+  res.redirect('https://codingnplay.site:8080');  // HTTPS로 변경하고 도메인 사용
 });
 
 // test 렌더링
