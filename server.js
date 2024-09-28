@@ -382,7 +382,7 @@ app.get('/entry_project', authenticateUser, (req, res) => {
 
 // entry 렌더링
 app.get('/entry', (req, res) => {
-  res.render('entry_project');  // 'entry_project.ejs' 템플릿을 렌더링
+  res.render('http://localhost:8080');  // 'entry_project.ejs' 템플릿을 렌더링
 });
 
 // test 렌더링
