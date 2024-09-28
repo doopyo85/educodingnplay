@@ -456,22 +456,23 @@ app.use((err, req, res, next) => {
 
 // 서버 시작 함수
 const DEFAULT_PORT = 3000;
+let currentPort = DEFAULT_PORT;
 
 function startServer(port) {
-  app.listen(port, (err) => {
-    if (err) {
-      if (err.code === 'EADDRINUSE') {
-        console.log(`Port ${port} is in use, trying another port...`);
-        startServer(port + 1);
-      } else {
-        console.error(err);
-        process.exit(1);
-      }
-    } else {
-      console.log(`Server is running on http://localhost:${port}`);
-    }
-  });
+    const server = app.listen(port)
+        .on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.log(`Port ${port} is in use, trying ${port + 1}...`);
+                currentPort++;
+                startServer(currentPort);
+            } else {
+                console.error('Error starting server:', err);
+            }
+        })
+        .on('listening', () => {
+            console.log(`Server is running on http://localhost:${port}`);
+        });
 }
 
-startServer(DEFAULT_PORT);
+startServer(currentPort);
 

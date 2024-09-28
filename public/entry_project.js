@@ -57,6 +57,12 @@ function displayTabsAndProjects(projects) {
     const tabsContainer = document.getElementById('categoryTabs');
     const contentContainer = document.getElementById('content-container');
     
+    if (!tabsContainer || !contentContainer) {
+        console.error('Required DOM elements not found');
+        displayErrorMessage("페이지 로딩 중 오류가 발생했습니다.");
+        return;
+    }
+
     let firstTab = true;
 
     tabsContainer.innerHTML = '';
