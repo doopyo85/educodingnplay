@@ -95,7 +95,6 @@ function displayTabsAndProjects(projects) {
 
             const cardContent = `
                 <div class="card h-100">
-                    <img src="${sanitizeURL(project.imgURL)}" class="card-img-top" alt="${escapeHTML(project.name)}" onerror="this.src='/path/to/default/image.jpg'">
                     <div class="card-body">
                         <h5 class="card-title">${escapeHTML(project.name)}</h5>
                         <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${escapeHTML(project.ctElement || '정보 없음')}</p>
