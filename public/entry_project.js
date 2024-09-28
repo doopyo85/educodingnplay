@@ -1,13 +1,9 @@
-let RANGE;
-
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const userType = await getUserType();
-        RANGE = userType === 'student' ? 'ent!A2:E' : 'ent!A2:F'; // 교사용 범위를 다르게 설정
         await loadEntryData();
     } catch (error) {
-        console.error('Error initializing:', error);
-        displayErrorMessage("초기 설정을 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading entry data:', error);
+        displayErrorMessage("Entry 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 });
 
@@ -27,40 +23,89 @@ async function getUserType() {
 
 async function loadEntryData() {
     try {
-        const response = await fetch('/api/get-ent-data'); // 수정된 API 엔드포인트
+        const response = await fetch('/api/get-ent-data');
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('데이터를 찾을 수 없습니다.');
-            } else {
-                throw new Error(`서버 오류: ${response.status}`);
-            }
+            throw new Error(`Error fetching entry data: ${response.status}`);
         }
         const data = await response.json();
 
         if (data && data.length > 0) {
-            const projects = groupByProject(data);
-            displayProjects(projects);
+            const projects = groupByCategory(data);
+            displayTabsAndProjects(projects);
         } else {
             throw new Error("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading entry data:', error);
+        console.error('Error loading entry data', error);
         displayErrorMessage(error.message);
     }
 }
 
-function groupByProject(data) {
+function groupByCategory(data) {
     const projects = {};
     data.forEach(row => {
-        const [name, url, ctElement, imgURL] = row;
-        const baseName = name.trim();
-        projects[baseName] = { 
-            ctElement: ctElement || '정보 없음', 
-            url: sanitizeURL(url), 
-            imgURL: sanitizeURL(imgURL) || '/path/to/default/image.jpg'
-        };
+        const [category, name, entURL, ctElement, imgURL] = row;
+        if (!projects[category]) {
+            projects[category] = [];
+        }
+        projects[category].push({ name, entURL, ctElement, imgURL });
     });
     return projects;
+}
+
+function displayTabsAndProjects(projects) {
+    const tabsContainer = document.getElementById('categoryTabs');
+    const contentContainer = document.getElementById('content-container');
+    
+    let firstTab = true;
+
+    tabsContainer.innerHTML = '';
+    contentContainer.innerHTML = '';
+
+    Object.keys(projects).forEach((category, index) => {
+        const tabId = `tab-${index}`;
+        const paneId = `pane-${index}`;
+
+        const tab = document.createElement('li');
+        tab.className = 'nav-item';
+        tab.innerHTML = `
+            <button class="nav-link ${firstTab ? 'active' : ''}" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab" aria-controls="${paneId}" aria-selected="${firstTab}">
+                ${category}
+            </button>
+        `;
+        tabsContainer.appendChild(tab);
+
+        const tabContent = document.createElement('div');
+        tabContent.className = `tab-pane fade ${firstTab ? 'show active' : ''}`;
+        tabContent.id = paneId;
+        tabContent.role = 'tabpanel';
+        tabContent.setAttribute('aria-labelledby', tabId);
+
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
+        projects[category].forEach(project => {
+            const card = document.createElement('div');
+            card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+            const cardContent = `
+                <div class="card h-100">
+                    <img src="${sanitizeURL(project.imgURL)}" class="card-img-top" alt="${escapeHTML(project.name)}" onerror="this.src='/path/to/default/image.jpg'">
+                    <div class="card-body">
+                        <h5 class="card-title">${escapeHTML(project.name)}</h5>
+                        <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${escapeHTML(project.ctElement || '정보 없음')}</p>
+                        <a href="${sanitizeURL(project.entURL)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">프로젝트 시작</a>
+                    </div>
+                </div>
+            `;
+            card.innerHTML = cardContent;
+            rowDiv.appendChild(card);
+        });
+
+        tabContent.appendChild(rowDiv);
+        contentContainer.appendChild(tabContent);
+
+        firstTab = false;
+    });
 }
 
 function sanitizeURL(url) {
@@ -73,33 +118,6 @@ function sanitizeURL(url) {
         console.warn('Invalid URL:', url);
         return '';
     }
-}
-
-function displayProjects(projects) {
-    const container = document.getElementById('content-container');
-    container.innerHTML = '';
-
-    Object.keys(projects).forEach(projectName => {
-        if (projectName === '새로 시작하기') return;
-
-        const project = projects[projectName];
-        const card = document.createElement('div');
-        card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
-
-        const cardContent = `
-            <div class="card h-100">
-                <img src="${project.imgURL}" class="card-img-top" alt="Project Image" onerror="this.src='/path/to/default/image.jpg'">
-                <div class="card-body">
-                    <h5 class="card-title">${escapeHTML(projectName)}</h5>
-                    <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${escapeHTML(project.ctElement)}</p>
-                    ${project.url ? `<a href="${project.url}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">프로젝트 시작</a>` : ''}
-                </div>
-            </div>
-        `;
-
-        card.innerHTML = cardContent;
-        container.appendChild(card);
-    });
 }
 
 function escapeHTML(str) {
