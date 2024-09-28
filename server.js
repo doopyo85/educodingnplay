@@ -371,13 +371,18 @@ app.get('/scratch', (req, res) => {
   res.redirect('http://localhost:8601');
 });
 
-// entry 렌더링
+// entry 프로젝트 목록페이지
 app.get('/entry_project', authenticateUser, (req, res) => {
   console.log('User session:', req.session); // 세션 정보 로깅
   res.render('entry_project', {
     userID: req.session.userID || null,
     is_logined: req.session.is_logined || false
   });
+});
+
+// entry 렌더링
+app.get('/entry', (req, res) => {
+  res.render('entry_project');  // 'entry_project.ejs' 템플릿을 렌더링
 });
 
 // test 렌더링
