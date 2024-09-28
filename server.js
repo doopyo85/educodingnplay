@@ -320,9 +320,10 @@ app.get('/api/get-sb3-data', async (req, res) => {
 
 app.get('/api/get-ent-data', async (req, res) => {
   try {
-    const data = await getSheetData('ent!A2:E'); // 'ent' 시트의 A2:E 범위에서 데이터를 가져옴
+    const data = await getSheetData('ent!A2:E');
     res.json(data);
   } catch (error) {
+    console.error('Error fetching ENT data:', error);
     res.status(500).json({ error: 'ENT 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });

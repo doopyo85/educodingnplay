@@ -3,55 +3,76 @@ let RANGE;
 document.addEventListener("DOMContentLoaded", async function() {
     try {
         const userType = await getUserType();
-        RANGE = userType === 'student' ? 'ent!A2:E' : 'ent!A2:E';
-        console.log('RANGE set to:', RANGE);
-        loadEntryData();
+        RANGE = userType === 'student' ? 'ent!A2:E' : 'ent!A2:F'; // 교사용 범위를 다르게 설정
+        await loadEntryData();
     } catch (error) {
-        console.error('Error loading user type:', error);
-        displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
+        console.error('Error initializing:', error);
+        displayErrorMessage("초기 설정을 불러오는 중 오류가 발생했습니다.");
     }
 });
 
 async function getUserType() {
-    const response = await fetch('/api/get-user-type');
-    if (!response.ok) {
-        throw new Error('HTTP error! status: ' + response.status);
+    try {
+        const response = await fetch('/api/get-user-type');
+        if (!response.ok) {
+            throw new Error('사용자 유형을 가져오는 데 실패했습니다.');
+        }
+        const { userType } = await response.json();
+        return userType;
+    } catch (error) {
+        console.error('Error getting user type:', error);
+        throw error;
     }
-    const { userType } = await response.json();
-    return userType;
 }
 
 async function loadEntryData() {
     try {
-        const response = await fetch('/api/get-entry-data');
+        const response = await fetch('/api/get-ent-data'); // 수정된 API 엔드포인트
         if (!response.ok) {
-            throw new Error(`Error fetching entry data: ${response.status}`);
+            if (response.status === 404) {
+                throw new Error('데이터를 찾을 수 없습니다.');
+            } else {
+                throw new Error(`서버 오류: ${response.status}`);
+            }
         }
         const data = await response.json();
 
-        console.log('Entry data loaded:', data);
         if (data && data.length > 0) {
             const projects = groupByProject(data);
             displayProjects(projects);
         } else {
-            displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
+            throw new Error("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading entry data', error);
-        displayErrorMessage("Entry 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading entry data:', error);
+        displayErrorMessage(error.message);
     }
 }
 
 function groupByProject(data) {
     const projects = {};
     data.forEach(row => {
-        console.log(row);
         const [name, url, ctElement, imgURL] = row;
         const baseName = name.trim();
-        projects[baseName] = { ctElement: ctElement, url: url, imgURL: imgURL || '' };
+        projects[baseName] = { 
+            ctElement: ctElement || '정보 없음', 
+            url: sanitizeURL(url), 
+            imgURL: sanitizeURL(imgURL) || '/path/to/default/image.jpg'
+        };
     });
-    console.log('Grouped Projects:', projects);
     return projects;
+}
+
+function sanitizeURL(url) {
+    // 기본적인 URL 검증
+    if (!url) return '';
+    try {
+        new URL(url);
+        return url;
+    } catch {
+        console.warn('Invalid URL:', url);
+        return '';
+    }
 }
 
 function displayProjects(projects) {
@@ -67,11 +88,11 @@ function displayProjects(projects) {
 
         const cardContent = `
             <div class="card h-100">
-                <img src="${project.imgURL}" class="card-img-top" alt="Project Image">
+                <img src="${project.imgURL}" class="card-img-top" alt="Project Image" onerror="this.src='/path/to/default/image.jpg'">
                 <div class="card-body">
-                    <h5 class="card-title">${projectName}</h5>
-                    <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
-                    <a href="${project.url}" class="btn btn-primary" target="_blank">프로젝트 시작</a>
+                    <h5 class="card-title">${escapeHTML(projectName)}</h5>
+                    <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${escapeHTML(project.ctElement)}</p>
+                    ${project.url ? `<a href="${project.url}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">프로젝트 시작</a>` : ''}
                 </div>
             </div>
         `;
@@ -81,7 +102,19 @@ function displayProjects(projects) {
     });
 }
 
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
-    container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+    container.innerHTML = `<div class="alert alert-danger" role="alert">${escapeHTML(message)}</div>`;
 }
