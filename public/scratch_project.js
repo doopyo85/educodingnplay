@@ -61,7 +61,7 @@ function groupByProject(data) {
     return projects;
 }
 
-// 프로젝트를 화면에 출력하는 함수 (ppt 버튼 추가)
+// 프로젝트를 화면에 출력하는 함수 (ppt 버튼을 상자 형태로 변경)
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = ''; 
@@ -74,9 +74,9 @@ function displayProjects(projects) {
         const cardContent = `
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title d-flex align-items-center">
                         ${projectName}
-                        ${project.ppt ? `<button class="btn btn-link btn-sm open-ppt" data-url="${project.ppt}">[ppt]</button>` : ''}
+                        ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm ml-2 open-ppt" data-url="${project.ppt}">ppt</button>` : ''}
                     </h5>
                     <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
                     <p class="card-text">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요.</p>
@@ -93,7 +93,7 @@ function displayProjects(projects) {
         container.appendChild(card);
     });
 
-    // "load-sb3" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
+    // sb3 파일 로드 이벤트 리스너 추가
     document.querySelectorAll('.load-sb3').forEach(button => {
         button.addEventListener('click', function() {
             const sb3Url = this.getAttribute('data-url');
@@ -101,7 +101,7 @@ function displayProjects(projects) {
         });
     });
 
-    // "open-ppt" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
+    // ppt 버튼 클릭 이벤트 리스너 추가
     document.querySelectorAll('.open-ppt').forEach(button => {
         button.addEventListener('click', function() {
             const pptUrl = this.getAttribute('data-url');
@@ -109,6 +109,7 @@ function displayProjects(projects) {
         });
     });
 }
+
 
 
 // Scratch-GUI에서 sb3 파일 로드하는 함수
