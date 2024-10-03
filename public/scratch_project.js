@@ -39,15 +39,14 @@ async function loadsb3Data() {
     }
 }
 
-// 프로젝트 데이터를 그룹화하는 함수
+// 프로젝트 데이터를 그룹화하는 함수 (ppt URL 포함)
 function groupByProject(data) {
     const projects = {};
     data.forEach(row => {
-        console.log(row);  // 각 row가 어떻게 생겼는지 확인
         const [name, url, ctElement] = row;
-        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\))/, '').trim();
+        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\)|\(ppt\))/, '').trim();
         if (!projects[baseName]) {
-            projects[baseName] = { ctElement: ctElement, basic: '', ext1: '', ext2: '' };
+            projects[baseName] = { ctElement: ctElement, basic: '', ext1: '', ext2: '', ppt: '' };
         }
         if (name.includes('(기본)')) {
             projects[baseName].basic = url;
@@ -55,13 +54,14 @@ function groupByProject(data) {
             projects[baseName].ext1 = url;
         } else if (name.includes('(확장2)')) {
             projects[baseName].ext2 = url;
+        } else if (name.includes('(ppt)')) {
+            projects[baseName].ppt = url;  // ppt URL 추가
         }
     });
-    console.log('Grouped Projects:', projects);  // 그룹화된 결과 확인
     return projects;
 }
 
-// displayProjects 함수 수정: Google Slides URL을 iframe으로 삽입
+// 프로젝트를 화면에 출력하는 함수 (ppt 버튼 추가)
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = ''; 
@@ -74,7 +74,10 @@ function displayProjects(projects) {
         const cardContent = `
             <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">${projectName}</h5>
+                    <h5 class="card-title">
+                        ${projectName}
+                        ${project.ppt ? `<button class="btn btn-link btn-sm open-ppt" data-url="${project.ppt}">[ppt]</button>` : ''}
+                    </h5>
                     <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}</p>
                     <p class="card-text">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요.</p>
                     <div class="btn-group">
@@ -82,7 +85,6 @@ function displayProjects(projects) {
                         ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
                         ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
                     </div>
-                    ${project.googleSlidesUrl ? `<iframe src="${project.googleSlidesUrl}" frameborder="0" width="100%" height="300px" allowfullscreen="true"></iframe>` : ''}
                 </div>
             </div>
         `;
@@ -95,12 +97,19 @@ function displayProjects(projects) {
     document.querySelectorAll('.load-sb3').forEach(button => {
         button.addEventListener('click', function() {
             const sb3Url = this.getAttribute('data-url');
-            console.log('Loading sb3 project from URL:', sb3Url);
-            // Scratch-GUI에 sb3 파일을 로드하는 코드 추가
             loadsb3InScratchGUI(sb3Url);
         });
     });
+
+    // "open-ppt" 클래스를 가진 모든 버튼에 클릭 이벤트 리스너 추가
+    document.querySelectorAll('.open-ppt').forEach(button => {
+        button.addEventListener('click', function() {
+            const pptUrl = this.getAttribute('data-url');
+            window.open(pptUrl, '_blank');  // 새 창에서 Google Slides 열기
+        });
+    });
 }
+
 
 // Scratch-GUI에서 sb3 파일 로드하는 함수
 function loadsb3InScratchGUI(sb3Url) {
