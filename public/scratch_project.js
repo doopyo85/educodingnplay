@@ -78,12 +78,12 @@ function displayProjects(projects) {
                         <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                     </p>
                     <div class="btn-group">
-                        ${project.basic ? `<button class="btn btn-primary btn-sm load-sb3" data-url="${project.basic}"><i class="bi bi-play-fill"></i> 기본</button>` : ''}
-                        ${project.ext1 ? `<button class="btn btn-info btn-sm load-sb3" data-url="${project.ext1}"><i class="bi bi-stars"></i> 확장1</button>` : ''}
-                        ${project.ext2 ? `<button class="btn btn-success btn-sm load-sb3" data-url="${project.ext2}"><i class="bi bi-rocket-takeoff"></i> 확장2</button>` : ''}
+                        ${project.basic ? `<button class="btn load-sb3" data-url="${project.basic}">기본</button>` : ''}
+                        ${project.ext1 ? `<button class="btn load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
+                        ${project.ext2 ? `<button class="btn load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
                     </div>
                 </div>
-                ${project.ppt ? `<button class="btn btn-light open-ppt" data-url="${project.ppt}"><i class="bi bi-file-earmark-slides"></i></button>` : ''}
+                ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm open-ppt" data-url="${project.ppt}">ppt</button>` : ''}
             </div>
         `;
 

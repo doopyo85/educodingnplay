@@ -14,7 +14,6 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            overflow: hidden;
         }
         .card-body {
             flex-grow: 1;
@@ -32,7 +31,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             margin-bottom: 0.5rem;
-            padding-right: 40px; /* PPT 버튼 공간 확보 */
+            padding-right: 50px; /* PPT 버튼 공간 확보 */
         }
         .card-text {
             font-size: 0.9rem;
@@ -48,22 +47,24 @@
             font-size: 0.875rem;
             border-radius: 20px;
             margin: 0 0.25rem;
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-group .btn:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .open-ppt {
             position: absolute;
             top: 0.5rem;
             right: 0.5rem;
-            padding: 0.25rem 0.5rem;
+            padding: 3px 8px;
             font-size: 0.75rem;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background-color: #f8f9fa;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #ced4da;
+            border-radius: 5px;
         }
         .open-ppt:hover {
             background-color: #e2e6ea;
