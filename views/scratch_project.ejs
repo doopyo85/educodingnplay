@@ -11,7 +11,7 @@
     <style>
         .btn-group {
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* 가운데 정렬 */
         }
 
         .btn-group .btn {
@@ -31,7 +31,7 @@
             background-color: #e2e6ea;
         }
 
-        /* 제목 영역을 2줄로 고정하고 왼쪽 정렬 */
+        /* 제목 영역을 2줄로 고정하고 위쪽 정렬 */
         .card-title {
             text-align: left;
             display: -webkit-box;
@@ -40,12 +40,15 @@
             overflow: hidden;
             max-height: 3rem; /* 두 줄 높이 */
             padding-right: 50px; /* 제목과 ppt 버튼 겹침 방지 */
+            line-height: 1.2;  /* 위쪽 정렬을 위한 줄 간격 조정 */
         }
 
-        /* c.t 학습 요소 왼쪽 및 위쪽 정렬 */
+        /* C.T 학습 요소 영역 */
         .card-text {
             text-align: left;
-            margin-top: 10px; /* 위쪽 여백 추가 */
+            margin-top: 10px;
+            margin-bottom: 10px;
+            line-height: 1.2; /* C.T 학습 요소 간격 조정 */
         }
 
         .position-absolute {
@@ -62,6 +65,11 @@
 
         .m-2 {
             margin: 0.5rem;
+        }
+
+        /* 제목 영역 길이 증가 */
+        .card {
+            max-width: 20rem; /* 카드 너비 확장 */
         }
     </style>
 </head>

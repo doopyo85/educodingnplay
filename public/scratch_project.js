@@ -72,12 +72,12 @@ function displayProjects(projects) {
 
         const cardContent = `
             <div class="card h-100 position-relative">
-                <div class="card-body" style="padding-right: 50px;"> <!-- ppt 버튼과 제목이 겹치지 않도록 우측 padding 추가 -->
+                <div class="card-body" style="padding-right: 50px;"> <!-- ppt 버튼과 제목이 겹치지 않도록 우측 padding -->
                     <h5 class="card-title text-start text-truncate-2">${projectName}</h5>
                     <p class="card-text text-start">
                         <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                     </p>
-                    <div class="btn-group">
+                    <div class="btn-group justify-content-center"> <!-- 가운데 정렬 -->
                         ${project.basic ? `<button class="btn btn-primary load-sb3" data-url="${project.basic}">기본</button>` : ''}
                         ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
                         ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
@@ -103,7 +103,7 @@ function displayProjects(projects) {
     document.querySelectorAll('.open-ppt').forEach(button => {
         button.addEventListener('click', function() {
             const pptUrl = this.getAttribute('data-url');
-            window.open(pptUrl, '_blank');  // 새 창에서 Google Slides 열기
+            window.open(pptUrl, '_blank');
         });
     });
 }
