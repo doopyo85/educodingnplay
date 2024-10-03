@@ -72,31 +72,23 @@ function displayProjects(projects) {
 
         const cardContent = `
             <div class="card h-100 position-relative">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h5 class="card-title text-start text-truncate-2">${projectName}</h5>
-                        ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm open-ppt position-absolute top-0 end-0 m-2" data-url="${project.ppt}">ppt</button>` : ''}
-                    </div>
-                    <p class="card-text text-start">${project.ctElement || '정보 없음'}</p>
+                <div class="card-body" style="padding-right: 50px;"> <!-- ppt 버튼과 제목이 겹치지 않도록 우측 padding 추가 -->
+                    <h5 class="card-title text-start text-truncate-2">${projectName}</h5>
+                    <p class="card-text text-start">
+                        <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
+                    </p>
                     <div class="btn-group">
                         ${project.basic ? `<button class="btn btn-primary load-sb3" data-url="${project.basic}">기본</button>` : ''}
                         ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
                         ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
                     </div>
                 </div>
+                ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm open-ppt position-absolute top-0 end-0 m-2" data-url="${project.ppt}">ppt</button>` : ''}
             </div>
         `;
 
         card.innerHTML = cardContent;
         container.appendChild(card);
-    });
-
-    // ppt 클릭 이벤트 리스너 추가
-    document.querySelectorAll('.open-ppt').forEach(button => {
-        button.addEventListener('click', function() {
-            const pptUrl = this.getAttribute('data-url');
-            window.open(pptUrl, '_blank');
-        });
     });
 
     // sb3 파일 로드 이벤트 리스너 추가
@@ -106,8 +98,15 @@ function displayProjects(projects) {
             loadsb3InScratchGUI(sb3Url);
         });
     });
-}
 
+    // ppt 버튼 클릭 이벤트 리스너 추가
+    document.querySelectorAll('.open-ppt').forEach(button => {
+        button.addEventListener('click', function() {
+            const pptUrl = this.getAttribute('data-url');
+            window.open(pptUrl, '_blank');  // 새 창에서 Google Slides 열기
+        });
+    });
+}
 
 
 // Scratch-GUI에서 sb3 파일 로드하는 함수
