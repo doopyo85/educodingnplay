@@ -61,15 +61,12 @@ function groupByProject(data) {
     return projects;
 }
 
-// 프로젝트를 화면에 출력한 후 버튼 클릭 이벤트 리스너 추가
+// displayProjects 함수 수정: Google Slides URL을 iframe으로 삽입
 function displayProjects(projects) {
     const container = document.getElementById('content-container');
-    container.innerHTML = ''; // 기존 내용을 초기화
-    console.log('Displaying projects:', projects);  // 출력할 프로젝트 확인
+    container.innerHTML = ''; 
 
     Object.keys(projects).forEach(projectName => {
-        if (projectName === '새로 시작하기') return;
-
         const project = projects[projectName];
         const card = document.createElement('div');
         card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
@@ -85,6 +82,7 @@ function displayProjects(projects) {
                         ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
                         ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
                     </div>
+                    ${project.googleSlidesUrl ? `<iframe src="${project.googleSlidesUrl}" frameborder="0" width="100%" height="300px" allowfullscreen="true"></iframe>` : ''}
                 </div>
             </div>
         `;
