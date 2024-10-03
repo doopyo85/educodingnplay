@@ -74,7 +74,7 @@ function displayProjects(projects) {
             <div class="card h-100 position-relative">
                 <div class="card-body" style="padding-right: 50px;"> <!-- ppt 버튼과 제목이 겹치지 않도록 우측 padding -->
                     <h5 class="card-title text-start text-truncate-2">${projectName}</h5>
-                    <p class="card-text text-start">
+                    <p class="card-text text-start full-width">
                         <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                     </p>
                     <div class="btn-group justify-content-center"> <!-- 가운데 정렬 -->
