@@ -15,7 +15,6 @@
         }
 
         .btn-group .btn {
-            flex: 1;
             margin: 2px;
             border-radius: 10px;
         }
@@ -31,7 +30,7 @@
             background-color: #e2e6ea;
         }
 
-        /* 제목 영역을 2줄로 고정하고 위쪽 정렬 */
+        /* 제목 영역 고정 및 위쪽 정렬 (빨간색 상자) */
         .card-title {
             text-align: left;
             display: -webkit-box;
@@ -39,18 +38,27 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             max-height: 3rem; /* 두 줄 높이 */
-            padding-right: 50px; /* 제목과 ppt 버튼 겹침 방지 */
+            padding-right: 50px; /* ppt 버튼과 겹침 방지 */
             line-height: 1.2;  /* 위쪽 정렬을 위한 줄 간격 조정 */
-            align-items: flex-start; /* 제목을 위쪽에 고정 */
+            align-items: flex-start;
         }
 
-        /* C.T 학습 요소 영역 좌우를 꽉 채우고 동일한 여백 */
+        /* C.T 학습 요소 영역 좌우를 꽉 채움 (파란색 상자) */
         .card-text {
             text-align: left;
             margin-top: 10px;
             margin-bottom: 10px;
-            line-height: 1.2; /* C.T 학습 요소 간격 조정 */
+            line-height: 1.2;
             width: 100%; /* 카드 너비에 맞추어 꽉 채움 */
+            padding-right: 10px; /* 오른쪽 여백 */
+        }
+
+        /* 버튼 영역 (노란색 상자) */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 10px 0;
         }
 
         .position-absolute {
@@ -69,9 +77,10 @@
             margin: 0.5rem;
         }
 
-        /* 제목 영역 길이 증가 */
+        /* 카드 전체 너비 */
         .card {
             max-width: 22rem; /* 카드 너비 확장 */
+            height: auto;
         }
     </style>
 </head>
