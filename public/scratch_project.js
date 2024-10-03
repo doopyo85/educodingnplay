@@ -109,6 +109,7 @@ function displayProjects(projects) {
 }
 
 
+
 // Scratch-GUI에서 sb3 파일 로드하는 함수
 function loadsb3InScratchGUI(sb3Url) {
     // URL을 인코딩하여 Scratch-GUI로 전달
