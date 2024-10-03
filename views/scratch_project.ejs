@@ -9,78 +9,46 @@
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script> <!-- Google API 추가 -->
     <style>
-        .btn-group {
+        .card {
+            height: 280px; /* 카드 높이 고정 */
             display: flex;
-            justify-content: center; /* 가운데 정렬 */
+            flex-direction: column;
         }
-
-        .btn-group .btn {
-            margin: 2px;
-            border-radius: 10px;
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-
-        .open-ppt {
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            padding: 3px 8px;
-            border-radius: 5px;
-        }
-
-        .open-ppt:hover {
-            background-color: #e2e6ea;
-        }
-
-        /* 제목 영역 고정 및 위쪽 정렬 (빨간색 상자) */
         .card-title {
-            text-align: left;
+            font-size: 1rem;
+            line-height: 1.2;
+            max-height: 2.4em;
+            overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-            overflow: hidden;
-            max-height: 3rem; /* 두 줄 높이 */
-            padding-right: 50px; /* ppt 버튼과 겹침 방지 */
-            line-height: 1.2;  /* 위쪽 정렬을 위한 줄 간격 조정 */
-            align-items: flex-start;
+            margin-bottom: 0.5rem;
         }
-
-        /* C.T 학습 요소 영역 좌우를 꽉 채움 (파란색 상자) */
         .card-text {
-            text-align: left;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            line-height: 1.2;
-            width: 100%; /* 카드 너비에 맞추어 꽉 채움 */
-            padding-right: 10px; /* 오른쪽 여백 */
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
-
-        /* 버튼 영역 (노란색 상자) */
         .btn-group {
-            display: flex;
             justify-content: center;
-            width: 100%;
-            padding: 30px;
+            margin-top: auto;
+            padding: 0.5rem 0;
         }
-
-        .position-absolute {
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .open-ppt {
             position: absolute;
-        }
-
-        .top-0 {
-            top: 0;
-        }
-
-        .end-0 {
-            right: 0;
-        }
-
-        .m-2 {
-            margin: 0.5rem;
-        }
-
-        /* 카드 전체 너비 */
-        .card {
-            max-width: 22rem; /* 카드 너비 확장 */
-            height: auto;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
         }
     </style>
 </head>

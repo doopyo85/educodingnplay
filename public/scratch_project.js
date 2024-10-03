@@ -71,19 +71,19 @@ function displayProjects(projects) {
         card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
         const cardContent = `
-            <div class="card h-100 d-flex flex-column justify-content-between position-relative">
+            <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title text-start text-truncate-2">${projectName}</h5>
-                    <p class="card-text text-start full-width">
+                    <h5 class="card-title">${projectName}</h5>
+                    <p class="card-text">
                         <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                     </p>
+                    <div class="btn-group">
+                        ${project.basic ? `<button class="btn btn-primary btn-sm load-sb3" data-url="${project.basic}">기본</button>` : ''}
+                        ${project.ext1 ? `<button class="btn btn-secondary btn-sm load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
+                        ${project.ext2 ? `<button class="btn btn-secondary btn-sm load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
+                    </div>
                 </div>
-                <div class="btn-group justify-content-center mb-3">
-                    ${project.basic ? `<button class="btn btn-primary load-sb3" data-url="${project.basic}">기본</button>` : ''}
-                    ${project.ext1 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext1}">확장1</button>` : ''}
-                    ${project.ext2 ? `<button class="btn btn-secondary load-sb3" data-url="${project.ext2}">확장2</button>` : ''}
-                </div>
-                ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm open-ppt position-absolute top-0 end-0 m-2" data-url="${project.ppt}">ppt</button>` : ''}
+                ${project.ppt ? `<button class="btn btn-outline-secondary btn-sm open-ppt" data-url="${project.ppt}">ppt</button>` : ''}
             </div>
         `;
 
