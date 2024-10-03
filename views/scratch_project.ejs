@@ -31,12 +31,20 @@
             background-color: #e2e6ea;
         }
 
+        /* 제목 영역을 2줄로 고정 */
         .card-title {
             text-align: left;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-height: 3rem; /* 두 줄 높이 */
         }
 
+        /* c.t 학습 요소 왼쪽 및 위쪽 정렬 */
         .card-text {
             text-align: left;
+            margin-top: 10px; /* 위쪽 여백 추가 */
         }
 
         .position-absolute {
@@ -61,7 +69,7 @@
     
     <div class="container mt-5">
         <h1 class="text-center">Scratch 프로젝트 선택</h1>
-        <p class="text-center">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요</p> <!-- 설명 문구 추가 -->
+        <p class="text-center">이 콘텐츠를 통해 재미있는 프로젝트를 경험해보세요</p>
         <div class="text-center mb-4">
             <a href="/scratch" class="btn btn-success">새로 시작하기</a>
         </div>
