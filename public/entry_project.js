@@ -21,6 +21,7 @@ async function getUserType() {
     }
 }
 
+//수정을 했어요. 
 async function loadEntryData() {
     try {
         const response = await fetch('/api/get-ent-data');
@@ -105,7 +106,7 @@ function displayTabsAndProjects(projects) {
             card.innerHTML = cardContent;
             rowDiv.appendChild(card);
         });
-//수정
+        
         tabContent.appendChild(rowDiv);
         contentContainer.appendChild(tabContent);
 
