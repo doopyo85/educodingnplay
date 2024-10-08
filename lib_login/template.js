@@ -1,5 +1,5 @@
 module.exports = {
-    HTML: function (title, body, authStatusUI) {
+    HTML: function (title, body) {
         return `
     <!doctype html>
     <html>
@@ -28,11 +28,6 @@ module.exports = {
             width: 300px;
         }
 
-        .logo {
-            width: 60px;
-            margin-bottom: 10px;
-        }
-
         h2 {
             color: #333;
             margin: 0 0 15px;
@@ -55,30 +50,6 @@ module.exports = {
             background-color: #f8f9fa;
             font-size: 14px;
             box-sizing: border-box;
-        }
-
-        .login-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-container label {
-            margin-left: 5px;
-            color: #666;
-        }
-
-        .forgot-password {
-            color: #666;
-            text-decoration: none;
         }
 
         .btn {            

@@ -96,7 +96,6 @@ router.post('/login_process', async (req, res) => {
 });
 
 // 회원가입 페이지 라우트
-// auth.js - 회원가입 부분
 router.get('/register', async (req, res) => {
     const title = '회원가입';
     
