@@ -27,11 +27,9 @@ router.get('/login', (request, response) => {
             <input class="btn" type="submit" value="로그인">
         </form>
         <p class="register-link">아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
-    `, '');
+    `);
     response.send(html);
 });
-
-
 
 // 사용자 ID로 사용자 정보 가져오는 함수
 async function getUserByUserID(userID) {
