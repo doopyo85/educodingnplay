@@ -25,9 +25,7 @@ module.exports = {
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 320px;
-            max-height: 90vh;
-            overflow-y: auto;
+            width: 300px;
         }
 
         .logo {
@@ -38,7 +36,7 @@ module.exports = {
         h2 {
             color: #333;
             margin: 0 0 15px;
-            font-size: 16px;
+            font-size: 18px;
             text-align: center;
         }
 
@@ -51,7 +49,7 @@ module.exports = {
         .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%;
             padding: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -92,11 +90,11 @@ module.exports = {
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         .register-link {
-            margin-top: 10px;
+            margin-top: 15px;
             color: #666;
             font-size: 12px;
             text-align: center;
