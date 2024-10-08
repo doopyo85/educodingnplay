@@ -39,19 +39,20 @@ router.get('/login', (request, response) => {
             }
             .login-container {
                 background-color: white;
-                padding: 40px;
+                padding: 30px;
                 border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 text-align: center;
-                width: 400px;
+                width: 360px;
             }
             .logo {
-                width: 100px;
-                margin-bottom: 20px;
+                width: 80px;
+                margin-bottom: 15px;
             }
             h2 {
                 color: #333;
-                margin-bottom: 20px;
+                margin: 0 0 15px;
+                font-size: 18px;
             }
             .login-form {
                 display: flex;
@@ -59,7 +60,7 @@ router.get('/login', (request, response) => {
             }
             .login-input {
                 padding: 10px;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 background-color: #f8f9fa;
@@ -68,7 +69,8 @@ router.get('/login', (request, response) => {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 15px;
+                margin: 5px 0 10px;
+                font-size: 14px;
             }
             .checkbox-container {
                 display: flex;
@@ -81,7 +83,6 @@ router.get('/login', (request, response) => {
             .forgot-password {
                 color: #666;
                 text-decoration: none;
-                font-size: 0.9em;
             }
             .login-button {
                 background-color: black;
@@ -91,10 +92,12 @@ router.get('/login', (request, response) => {
                 border-radius: 4px;
                 cursor: pointer;
                 font-size: 16px;
+                margin-top: 5px;
             }
             .register-link {
-                margin-top: 20px;
+                margin-top: 15px;
                 color: #666;
+                font-size: 14px;
             }
             .register-link a {
                 color: #333;
@@ -131,6 +134,7 @@ router.get('/login', (request, response) => {
     `, '');
     response.send(html);
 });
+
 
 
 // 사용자 ID로 사용자 정보 가져오는 함수
