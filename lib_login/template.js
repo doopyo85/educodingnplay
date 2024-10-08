@@ -20,23 +20,22 @@ module.exports = {
             height: 100vh;
         }
 
-        .background {
+        .container {
             background-color: white;
-            padding: 40px;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
             width: 360px;
         }
 
         .logo {
             width: 80px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         h2 {
             color: #333;
-            margin: 0 0 20px;
+            margin: 0 0 15px;
             font-size: 18px;
         }
 
@@ -49,7 +48,7 @@ module.exports = {
         .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -62,8 +61,8 @@ module.exports = {
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            margin-bottom: 15px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
         }
 
         .checkbox-container {
@@ -85,22 +84,18 @@ module.exports = {
             width: 100%;
             background-color: black;
             color: white;
-            padding: 12px;
+            padding: 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
-            transition: .2s;
-        }
-        .btn:hover {
-            background-color: #333;
+            margin-top: 5px;
         }
 
         .register-link {
-            margin-top: 20px;
+            margin-top: 15px;
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .register-link a {
@@ -112,12 +107,12 @@ module.exports = {
         .error-message {
             color: red;
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 13px;
         }
       </style>
     </head>
     <body>
-      <div class="login-container">
+      <div class="container">
         ${authStatusUI}
         ${body}
         <div id="error-message" class="error-message"></div>
