@@ -4,74 +4,111 @@ module.exports = {
     <!doctype html>
     <html>
     <head>
-      <title>Login TEST - ${title}</title>
+      <title>코딩앤플레이 - ${title}</title>
       <meta charset="utf-8">
       <style>
         @import url(https://fonts.googleapis.com/earlyaccess/notosanskr.css);
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #AAA2C2;
-            margin: 50px;
-        }
-
-        .background {
-            background-color: white;
-            height: auto;
-            width: 90%;
-            max-width: 450px;
-            padding: 10px;
-            margin: 0 auto;
-            border-radius: 5px;
-            box-shadow: 0px 40px 30px -20px rgba(0, 0, 0, 0.3);
-            text-align: center;
-        }
-
-        form {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
             display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: white;
             padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 360px;
+        }
+
+        .logo {
+            width: 80px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #333;
+            margin: 0 0 15px;
+            font-size: 18px;
+        }
+
+        .login-form {
+            display: flex;
             flex-direction: column;
         }
 
-        .login {
-            border: none;
-            border-bottom: 2px solid #D1D1D4;
-            background: none;
+        .login-input {
             padding: 10px;
-            font-weight: 700;
-            transition: .2s;
-            width: 75%;
-        }
-        .login:active,
-        .login:focus,
-        .login:hover {
-            outline: none;
-            border-bottom-color: #6A679E;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
         }
 
-        .btn {            
-            border: none;
-            width: 75%;
-            background-color: #6A679E;
-            color: white;
-            padding: 15px 0;
-            font-weight: 600;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: .2s;
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0 10px;
+            font-size: 14px;
         }
-        .btn:hover {
-            background-color: #595787;
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-container label {
+            margin-left: 5px;
+            color: #666;
+        }
+
+        .forgot-password {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-button {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .register-link {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
         }
 
         .error-message {
             color: red;
             margin-top: 10px;
+            font-size: 14px;
         }
-    </style>
+      </style>
     </head>
     <body>
-      <div class="background">
+      <div class="login-container">
         ${authStatusUI}
         ${body}
         <div id="error-message" class="error-message"></div>
@@ -84,7 +121,6 @@ module.exports = {
                 const userID = $('input[name="userID"]').val();
                 const password = $('input[name="pwd"]').val();
                 
-                // Check if the input fields are not empty
                 if (!userID || !password) {
                     $('#error-message').text('아이디와 비밀번호를 입력해주세요.');
                     return;
@@ -96,7 +132,7 @@ module.exports = {
                     data: JSON.stringify({ userID, password }),
                     contentType: 'application/json',
                     xhrFields: {
-                        withCredentials: true  // 쿠키 정보를 포함
+                        withCredentials: true
                     },
                     success: function(response) {
                         if (response.success) {
