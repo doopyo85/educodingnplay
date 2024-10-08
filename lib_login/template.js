@@ -17,26 +17,28 @@ module.exports = {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .container {
             background-color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 360px;
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .logo {
-            width: 80px;
-            margin-bottom: 15px;
+            width: 60px;
+            margin-bottom: 10px;
         }
 
         h2 {
             color: #333;
-            margin: 0 0 20px;
-            font-size: 18px;
+            margin: 0 0 15px;
+            font-size: 16px;
             text-align: center;
         }
 
@@ -48,8 +50,8 @@ module.exports = {
 
         .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 8px;
+            margin-bottom: 6px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -62,8 +64,8 @@ module.exports = {
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            margin-bottom: 15px;
-            font-size: 13px;
+            margin-bottom: 10px;
+            font-size: 12px;
         }
 
         .checkbox-container {
@@ -89,14 +91,14 @@ module.exports = {
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             margin-top: 5px;
         }
 
         .register-link {
-            margin-top: 15px;
+            margin-top: 10px;
             color: #666;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
         }
 
@@ -109,7 +111,7 @@ module.exports = {
         .error-message {
             color: red;
             margin-top: 10px;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
         }
       </style>
