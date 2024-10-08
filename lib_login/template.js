@@ -35,7 +35,7 @@ module.exports = {
 
         h2 {
             color: #333;
-            margin: 0 0 15px;
+            margin: 0 0 20px;
             font-size: 18px;
             text-align: center;
         }
@@ -49,7 +49,7 @@ module.exports = {
         .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -62,7 +62,7 @@ module.exports = {
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 13px;
         }
 
