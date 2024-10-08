@@ -20,9 +20,9 @@ module.exports = {
             height: 100vh;
         }
 
-        .login-container {
+        .background {
             background-color: white;
-            padding: 30px;
+            padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
@@ -31,33 +31,38 @@ module.exports = {
 
         .logo {
             width: 80px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         h2 {
             color: #333;
-            margin: 0 0 15px;
+            margin: 0 0 20px;
             font-size: 18px;
         }
 
-        .login-form {
+        form {
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
 
-        .login-input {
+        .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
+            font-size: 14px;
+            box-sizing: border-box;
         }
 
         .login-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 5px 0 10px;
+            width: 100%;
+            margin-bottom: 15px;
             font-size: 14px;
         }
 
@@ -74,22 +79,26 @@ module.exports = {
         .forgot-password {
             color: #666;
             text-decoration: none;
-            font-size: 14px;
         }
 
-        .login-button {
+        .btn {            
+            width: 100%;
             background-color: black;
             color: white;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 5px;
+            margin-top: 10px;
+            transition: .2s;
+        }
+        .btn:hover {
+            background-color: #333;
         }
 
         .register-link {
-            margin-top: 15px;
+            margin-top: 20px;
             color: #666;
             font-size: 14px;
         }

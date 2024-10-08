@@ -10,127 +10,21 @@ const { queryDatabase } = require('./db');
 router.get('/login', (request, response) => {
     const title = '로그인';
     const html = template.HTML(title, `
-        <div class="login-container">
-            <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo">
-            <h2>계정에 로그인 하세요</h2>
-            <form id="loginForm" class="login-form">
-                <input class="login-input" type="text" name="userID" placeholder="아이디" required>
-                <input class="login-input" type="password" name="pwd" placeholder="비밀번호" required>
-                <div class="login-options">
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="rememberMe">
-                        <label for="rememberMe">로그인 저장</label>
-                    </div>
-                    <a href="/auth/forgot_password" class="forgot-password">비밀번호 찾기</a>
+        <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo">
+        <h2>계정에 로그인 하세요</h2>
+        <form id="loginForm" class="login-form">
+            <input class="login" type="text" name="userID" placeholder="아이디" required>
+            <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
+            <div class="login-options">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">로그인 저장</label>
                 </div>
-                <button class="login-button" type="submit">로그인</button>
-            </form>
-            <p class="register-link">아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
-        </div>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f0f0f0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-            .login-container {
-                background-color: white;
-                padding: 30px;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                text-align: center;
-                width: 360px;
-            }
-            .logo {
-                width: 80px;
-                margin-bottom: 15px;
-            }
-            h2 {
-                color: #333;
-                margin: 0 0 15px;
-                font-size: 18px;
-            }
-            .login-form {
-                display: flex;
-                flex-direction: column;
-            }
-            .login-input {
-                padding: 10px;
-                margin-bottom: 8px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                background-color: #f8f9fa;
-            }
-            .login-options {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin: 5px 0 10px;
-                font-size: 14px;
-            }
-            .checkbox-container {
-                display: flex;
-                align-items: center;
-            }
-            .checkbox-container label {
-                margin-left: 5px;
-                color: #666;
-            }
-            .forgot-password {
-                color: #666;
-                text-decoration: none;
-            }
-            .login-button {
-                background-color: black;
-                color: white;
-                padding: 10px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-                margin-top: 5px;
-            }
-            .register-link {
-                margin-top: 15px;
-                color: #666;
-                font-size: 14px;
-            }
-            .register-link a {
-                color: #333;
-                text-decoration: none;
-                font-weight: bold;
-            }
-        </style>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-        $(document).ready(function() {
-            $('#loginForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '/auth/login_process',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = response.redirect;
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        const response = xhr.responseJSON;
-                        if (response && response.error) {
-                            alert(response.error);
-                        } else {
-                            alert("로그인 중 오류가 발생했습니다.");
-                        }
-                    }
-                });
-            });
-        });
-        </script>
+                <a href="/auth/forgot_password" class="forgot-password">비밀번호 찾기</a>
+            </div>
+            <input class="btn" type="submit" value="로그인">
+        </form>
+        <p class="register-link">아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
     `, '');
     response.send(html);
 });
