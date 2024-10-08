@@ -39,9 +39,9 @@ router.get('/login', (request, response) => {
                 background-color: white;
                 padding: 40px;
                 border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                 text-align: center;
-                width: 300px;
+                width: 400px;
             }
             .logo {
                 width: 150px;
@@ -60,6 +60,7 @@ router.get('/login', (request, response) => {
                 margin-bottom: 10px;
                 border: 1px solid #ddd;
                 border-radius: 4px;
+                background-color: #f8f9fa;
             }
             .checkbox-container {
                 display: flex;
