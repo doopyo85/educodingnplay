@@ -87,8 +87,6 @@ module.exports = {
     </head>
     <body>
       <div class="container">
-        <h2>${title}</h2>
-        ${authStatusUI}
         ${body}
         <div id="error-message" class="error-message"></div>
       </div>
