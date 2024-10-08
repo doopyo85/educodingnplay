@@ -14,44 +14,85 @@ router.get('/login', (request, response) => {
             <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo">
             <h2>계정에 로그인 하세요</h2>
             <form id="loginForm" class="login-form">
-                <p><input class="login-input" type="text" name="userID" placeholder="아이디" required></p>
-                <p><input class="login-input" type="password" name="pwd" placeholder="비밀번호" required></p>
-                <p><input type="checkbox" id="rememberMe"><label for="rememberMe">로그인 저장</label></p>
-                <p><input class="btn" type="submit" value="로그인"></p>
+                <input class="login-input" type="text" name="userID" placeholder="아이디" required>
+                <input class="login-input" type="password" name="pwd" placeholder="비밀번호" required>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">로그인 저장</label>
+                </div>
+                <button class="login-button" type="submit">로그인</button>
             </form>
-            <p><a href="/auth/forgot_password">비밀번호 찾기</a></p>
-            <p>아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
+            <a href="/auth/forgot_password" class="forgot-password">비밀번호 찾기</a>
+            <p class="register-link">아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
         </div>
         <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
             .login-container {
-                max-width: 400px;
-                margin: 0 auto;
+                background-color: white;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
                 text-align: center;
+                width: 300px;
             }
             .logo {
                 width: 150px;
                 margin-bottom: 20px;
             }
+            h2 {
+                color: #333;
+                margin-bottom: 20px;
+            }
             .login-form {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
             }
             .login-input {
-                width: 100%;
                 padding: 10px;
-                margin: 10px 0;
+                margin-bottom: 10px;
                 border: 1px solid #ddd;
-                border-radius: 5px;
+                border-radius: 4px;
             }
-            .btn {
-                width: 100%;
-                padding: 10px;
+            .checkbox-container {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .checkbox-container label {
+                margin-left: 5px;
+                color: #666;
+            }
+            .login-button {
                 background-color: black;
                 color: white;
+                padding: 10px;
                 border: none;
-                border-radius: 5px;
+                border-radius: 4px;
                 cursor: pointer;
+                font-size: 16px;
+            }
+            .forgot-password {
+                display: block;
+                margin-top: 15px;
+                color: #666;
+                text-decoration: none;
+            }
+            .register-link {
+                margin-top: 20px;
+                color: #666;
+            }
+            .register-link a {
+                color: #333;
+                text-decoration: none;
+                font-weight: bold;
             }
         </style>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
