@@ -18,12 +18,12 @@ router.get('/login', (request, response) => {
             <input class="login" type="text" name="userID" placeholder="아이디" required>
             <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
             <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
-                <div class="checkbox-container" style="display: flex; align-items: center;">
-                    <input type="checkbox" id="rememberMe" style="margin-right: 5px;">
-                    <label for="rememberMe" style="font-size: 12px;">로그인 저장</label>
-                </div>
-                <a href="/auth/forgot_password" class="forgot-password" style="font-size: 12px; text-decoration: none; color: #666;">비밀번호 찾기</a>
+            <div class="checkbox-container" style="display: flex; align-items: center;">
+                <input type="checkbox" id="rememberMe" style="margin-right: 5px;">
+                <label for="rememberMe" style="font-size: 12px;">로그인 저장</label>
             </div>
+            <a href="/auth/forgot_password" class="forgot-password" style="font-size: 12px; text-decoration: none; color: #666;">비밀번호 찾기</a>
+        </div>
             <input class="btn" type="submit" value="로그인" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
         </form>
         <p class="register-link" style="text-align: center; margin-top: 20px; font-size: 14px;">아직 계정이 없으신가요? <a href="/auth/register" style="color: #333; text-decoration: none; font-weight: bold;">가입하기</a></p>
