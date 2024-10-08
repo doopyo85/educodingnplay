@@ -17,13 +17,13 @@ router.get('/login', (request, response) => {
         <form id="loginForm" class="login-form">
             <input class="login" type="text" name="userID" placeholder="아이디" required>
             <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
-            <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
-            <div class="checkbox-container" style="display: flex; align-items: center;">
-                <input type="checkbox" id="rememberMe" style="margin-right: 5px;">
-                <label for="rememberMe" style="font-size: 12px;">로그인 저장</label>
+            <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; width: 100%;">
+                <div class="checkbox-container" style="display: flex; align-items: center;">
+                    <input type="checkbox" id="rememberMe" style="margin-right: 5px;">
+                    <label for="rememberMe" style="font-size: 12px;">로그인 저장</label>
+                </div>
+                <a href="/auth/forgot_password" class="forgot-password" style="font-size: 12px; text-decoration: none; color: #666;">비밀번호 찾기</a>
             </div>
-            <a href="/auth/forgot_password" class="forgot-password" style="font-size: 12px; text-decoration: none; color: #666;">비밀번호 찾기</a>
-        </div>
             <input class="btn" type="submit" value="로그인" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
         </form>
         <p class="register-link" style="text-align: center; margin-top: 20px; font-size: 14px;">아직 계정이 없으신가요? <a href="/auth/register" style="color: #333; text-decoration: none; font-weight: bold;">가입하기</a></p>
@@ -93,7 +93,7 @@ router.post('/login_process', async (req, res) => {
     console.log('로그인 처리 종료');
 });
 
-// 회원가입 페이지 라우트
+// auth.js - 회원가입 부분
 router.get('/register', async (req, res) => {
     const title = '회원가입';
     
@@ -108,6 +108,7 @@ router.get('/register', async (req, res) => {
         const centerOptions = centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
 
         const html = template.HTML(title, `
+            <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">회원정보를 입력하세요</h2>
             <form id="registerForm">
                 <input class="login" type="text" name="userID" placeholder="아이디" required>
                 <input class="login" type="password" name="password" placeholder="비밀번호" required>
@@ -124,9 +125,13 @@ router.get('/register', async (req, res) => {
                     <option value="">센터를 선택하세요</option>
                     ${centerOptions}
                 </select>
-                <input class="btn" type="submit" value="가입하기">
+                <div style="margin: 10px 0;">
+                    <input type="checkbox" id="privacyAgreement" required>
+                    <label for="privacyAgreement" style="font-size: 12px;">개인정보 취급방침에 동의합니다.</label>
+                </div>
+                <input class="btn" type="submit" value="가입하기" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
             </form>
-            <p class="register-link">이미 계정이 있으신가요? <a href="/auth/login">로그인</a></p>
+            <p class="login-link" style="text-align: center; margin-top: 20px; font-size: 14px;">이미 계정이 있으신가요? <a href="/auth/login" style="color: #333; text-decoration: none; font-weight: bold;">로그인</a></p>
         `);
         res.send(html);
     } catch (error) {
