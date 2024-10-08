@@ -6,12 +6,14 @@ const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
 
-// 로그인 페이지 라우트
+// auth.js
 router.get('/login', (request, response) => {
     const title = '로그인';
     const html = template.HTML(title, `
-        <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo">
-        <h2>계정에 로그인 하세요</h2>
+        <div style="text-align: center;">
+            <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo" style="display: inline-block;">
+            <h2 style="text-align: center;">계정에 로그인 하세요</h2>
+        </div>
         <form id="loginForm" class="login-form">
             <input class="login" type="text" name="userID" placeholder="아이디" required>
             <input class="login" type="password" name="pwd" placeholder="비밀번호" required>

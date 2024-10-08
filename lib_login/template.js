@@ -37,6 +37,7 @@ module.exports = {
             color: #333;
             margin: 0 0 15px;
             font-size: 18px;
+            text-align: center;
         }
 
         form {
@@ -48,7 +49,7 @@ module.exports = {
         .login, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -96,6 +97,7 @@ module.exports = {
             margin-top: 15px;
             color: #666;
             font-size: 13px;
+            text-align: center;
         }
 
         .register-link a {
@@ -108,11 +110,13 @@ module.exports = {
             color: red;
             margin-top: 10px;
             font-size: 13px;
+            text-align: center;
         }
       </style>
     </head>
     <body>
       <div class="container">
+        <h2>${title}</h2>
         ${authStatusUI}
         ${body}
         <div id="error-message" class="error-message"></div>
