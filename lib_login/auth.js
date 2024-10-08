@@ -16,13 +16,15 @@ router.get('/login', (request, response) => {
             <form id="loginForm" class="login-form">
                 <input class="login-input" type="text" name="userID" placeholder="아이디" required>
                 <input class="login-input" type="password" name="pwd" placeholder="비밀번호" required>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="rememberMe">
-                    <label for="rememberMe">로그인 저장</label>
+                <div class="login-options">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">로그인 저장</label>
+                    </div>
+                    <a href="/auth/forgot_password" class="forgot-password">비밀번호 찾기</a>
                 </div>
                 <button class="login-button" type="submit">로그인</button>
             </form>
-            <a href="/auth/forgot_password" class="forgot-password">비밀번호 찾기</a>
             <p class="register-link">아직 계정이 없으신가요? <a href="/auth/register">가입하기</a></p>
         </div>
         <style>
@@ -44,7 +46,7 @@ router.get('/login', (request, response) => {
                 width: 400px;
             }
             .logo {
-                width: 150px;
+                width: 100px;
                 margin-bottom: 20px;
             }
             h2 {
@@ -62,14 +64,24 @@ router.get('/login', (request, response) => {
                 border-radius: 4px;
                 background-color: #f8f9fa;
             }
+            .login-options {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
             .checkbox-container {
                 display: flex;
                 align-items: center;
-                margin-bottom: 15px;
             }
             .checkbox-container label {
                 margin-left: 5px;
                 color: #666;
+            }
+            .forgot-password {
+                color: #666;
+                text-decoration: none;
+                font-size: 0.9em;
             }
             .login-button {
                 background-color: black;
@@ -79,12 +91,6 @@ router.get('/login', (request, response) => {
                 border-radius: 4px;
                 cursor: pointer;
                 font-size: 16px;
-            }
-            .forgot-password {
-                display: block;
-                margin-top: 15px;
-                color: #666;
-                text-decoration: none;
             }
             .register-link {
                 margin-top: 20px;
