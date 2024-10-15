@@ -1,3 +1,6 @@
+import $ from 'jquery';   // jQuery 로드
+import 'turn.js';         // Turn.js 로드
+
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     const pdfUrl = urlParams.get('pdfUrl');
