@@ -357,6 +357,25 @@ app.get('/computer', authenticateUser, (req, res) => {
   });
 });
 
+// 구글 시트에서 books 데이터를 가져오는 API
+app.get('/api/get-books-data', async (req, res) => {
+  try {
+    const data = await getSheetData('books!A2:C');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '책 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// /books 페이지를 렌더링하는 라우트
+app.get('/books', authenticateUser, (req, res) => {
+  console.log('User session:', req.session);  // 세션 정보 로깅
+  res.render('books', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
+});
+
 // Scratch 프로젝트 목록 페이지
 app.get('/scratch_project', authenticateUser, (req, res) => {
   console.log('User session:', req.session); // 세션 정보 로깅
