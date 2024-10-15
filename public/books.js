@@ -28,7 +28,7 @@ function displayBooks(data) {
         card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
         const cardContent = `
-            <div class="card">
+            <div class="card clickable-card" style="cursor: pointer;">
                 <img src="${thumbnailUrl}" class="card-img-top" alt="${title} 이미지">
                 <div class="card-body">
                     <h5 class="card-title" style="font-size: 14px;">${title}</h5> <!-- 폰트 크기 줄이기 -->
@@ -38,6 +38,10 @@ function displayBooks(data) {
         `;
 
         card.innerHTML = cardContent;
+        card.addEventListener('click', function() {
+            window.location.href = `/reader?pdfUrl=${encodeURIComponent(pdfUrl)}`;  // 클릭 시 /reader로 이동
+        });
+
         container.appendChild(card);
     });
 }
