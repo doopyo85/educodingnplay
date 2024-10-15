@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async function() {
+document.addEventListener("DOMContentLoaded", async function() { 
     loadBookData();  // 책 데이터를 로드
 });
 
@@ -29,11 +29,10 @@ function displayBooks(data) {
 
         const cardContent = `
             <div class="card">
-                <img src="${thumbnailUrl}" class="card-img-top" alt="${title}">
+                <img src="${thumbnailUrl}" class="card-img-top" alt="${title} 이미지">
                 <div class="card-body">
                     <h5 class="card-title">${title}</h5>
-                    <p class="card-text">카테고리: ${category}</p>
-                    <p class="card-text">C.T 요소: ${ctElement}</p>
+                    <p class="card-text">C.T 요소: ${ctElement ? ctElement : '정보 없음'}</p>
                     <a href="/reader?pdfUrl=${encodeURIComponent(pdfUrl)}" class="btn btn-primary">보기</a>  <!-- reader 페이지로 이동 -->
                 </div>
             </div>

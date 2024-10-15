@@ -362,7 +362,7 @@ app.get('/computer', authenticateUser, (req, res) => {
 // 구글 시트에서 books 데이터를 가져오는 API
 app.get('/api/get-books-data', async (req, res) => {
   try {
-    const data = await getSheetData('books!A2:C');
+    const data = await getSheetData('books!A2:e');
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '책 데이터를 불러오는 중 오류가 발생했습니다.' });
