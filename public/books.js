@@ -31,9 +31,8 @@ function displayBooks(data) {
             <div class="card">
                 <img src="${thumbnailUrl}" class="card-img-top" alt="${title} 이미지">
                 <div class="card-body">
-                    <h5 class="card-title">${title}</h5>
+                    <h5 class="card-title" style="font-size: 14px;">${title}</h5> <!-- 폰트 크기 줄이기 -->
                     <p class="card-text">C.T 요소: ${ctElement ? ctElement : '정보 없음'}</p>
-                    <a href="/reader?pdfUrl=${encodeURIComponent(pdfUrl)}" class="btn btn-primary">보기</a>  <!-- reader 페이지로 이동 -->
                 </div>
             </div>
         `;
