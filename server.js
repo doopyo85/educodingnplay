@@ -376,6 +376,17 @@ app.get('/books', authenticateUser, (req, res) => {
   });
 });
 
+// /reader 페이지 라우트 추가 (pdfUrl을 쿼리 파라미터로 받아서 처리)
+app.get('/reader', authenticateUser, (req, res) => {
+  const pdfUrl = req.query.pdfUrl;  // 쿼리 파라미터에서 PDF URL을 받아옴
+  if (pdfUrl) {
+      res.render('reader', { pdfUrl: pdfUrl });
+  } else {
+      res.status(400).send('PDF URL이 제공되지 않았습니다.');
+  }
+});
+
+
 // Scratch 프로젝트 목록 페이지
 app.get('/scratch_project', authenticateUser, (req, res) => {
   console.log('User session:', req.session); // 세션 정보 로깅
