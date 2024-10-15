@@ -31,7 +31,8 @@
     "mysql": "^2.18.1",
     "path": "^0.12.7",
     "redis": "^4.7.0",
-    "session-file-store": "^1.5.0"
+    "session-file-store": "^1.5.0",
+    "turn.js": "^1.0.5"
   },
   "devDependencies": {
     "bootstrap": "^5.3.3",
