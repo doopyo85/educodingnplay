@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     loadBookData();  // 책 데이터를 로드
 });
 
+// PDF.js 웹 워커 비활성화 (CSP 문제 해결)
+pdfjsLib.GlobalWorkerOptions.workerSrc = null;
+
 // 책 데이터를 불러오는 함수
 async function loadBookData() {
     try {
@@ -59,8 +62,10 @@ function loadPDFInFlipbook(pdfUrl) {
     flipbook.innerHTML = '';  // 기존 내용을 초기화
 
     pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
+        let promises = [];
+
         for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-            pdfDoc.getPage(pageNum).then(page => {
+            promises.push(pdfDoc.getPage(pageNum).then(page => {
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 const viewport = page.getViewport({ scale: 1.5 });
@@ -73,17 +78,19 @@ function loadPDFInFlipbook(pdfUrl) {
                     viewport: viewport
                 };
 
-                page.render(renderContext).promise.then(() => {
+                return page.render(renderContext).promise.then(() => {
                     flipbook.appendChild(canvas);  // Flipbook에 페이지 추가
                 });
-            });
+            }));
         }
 
-        // Turn.js로 Flipbook 기능 활성화
-        $("#flipbook").turn({
-            width: 800,
-            height: 600,
-            autoCenter: true
+        // 모든 페이지가 렌더링된 후 Flipbook 초기화
+        Promise.all(promises).then(() => {
+            $(flipbook).turn({
+                width: 800,
+                height: 600,
+                autoCenter: true
+            });
         });
     });
 }
