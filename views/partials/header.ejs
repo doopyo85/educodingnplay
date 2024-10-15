@@ -18,7 +18,8 @@
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <img src="/resource/logo.png" alt="Logo" style="width: 40px; height: 40px;">
-            <span class="ms-2">코딩앤아카데미</span>
+            <!-- "코딩앤아카데미" 문구를 Noto Sans KR로 설정 -->
+            <span class="ms-2" style="font-family: 'Noto Sans KR', sans-serif;">코딩앤아카데미</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -39,8 +40,8 @@
                     </span>
                 </div>
 
-                <!-- 앱서랍 버튼 (게시판으로 이동) -->
-                <i id="app-drawer-button" class="bi bi-grid me-3" style="font-size: 2rem; cursor: pointer;"></i>
+                <!-- 메시지 아이콘 (메시지 화면으로 이동) -->
+                <i id="app-drawer-button" class="bi bi-chat me-3" style="font-size: 2rem; cursor: pointer;"></i>
 
                 <!-- 프로필 아이콘 -->
                 <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
@@ -56,9 +57,9 @@
 <!-- 스크립트 부분 -->
 <script defer src="/public/header.js"></script>
 <script>
-    // 게시판으로 이동
+    // 메시지 화면으로 이동
     document.getElementById('app-drawer-button').addEventListener('click', function() {
-        window.location.href = '/board';
+        window.location.href = '/messages';  // 메시지 화면으로 이동
     });
 
     // 알림 배지 표시 처리 (새 글이 있으면 표시)
