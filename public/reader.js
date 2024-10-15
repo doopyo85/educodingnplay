@@ -1,10 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const pdfUrl = urlParams.get('pdfUrl');  // 쿼리 파라미터에서 PDF URL을 가져옴
+    const pdfUrl = urlParams.get('pdfUrl');
     if (pdfUrl) {
-        loadPDFInFlipbook(pdfUrl);  // PDF를 Flipbook으로 로드
+        loadPDFInFlipbook(pdfUrl);
     } else {
         displayErrorMessage("PDF URL이 없습니다.");
+    }
+
+    // Turn.js 로드 확인
+    if (typeof $.fn.turn === 'undefined') {
+        console.error('Turn.js가 로드되지 않았습니다.');
+        displayErrorMessage("Turn.js를 로드할 수 없습니다.");
     }
 });
 
