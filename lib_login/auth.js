@@ -6,94 +6,7 @@ const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
 
-// auth.js - 로그인 부분
-router.get('/login', (request, response) => {
-    const title = '로그인';
-    const html = template.HTML(title, `
-        <div style="text-align: center;">
-            <img src="/public/resource/logo.png" alt="코딩앤플레이 로고" class="logo" style="width: 80px; margin-bottom: 20px;">
-            <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">계정에 로그인 하세요</h2>
-        </div>
-        <form id="loginForm" class="login-form">
-            <input class="login" type="text" name="userID" placeholder="아이디" required>
-            <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
-            <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0; width: 100%;">
-                <div class="checkbox-container" style="display: flex; align-items: center;">
-                    <input type="checkbox" id="rememberMe" style="margin-right: 5px;">
-                    <label for="rememberMe" style="font-size: 12px;">로그인 저장</label>
-                </div>
-                <a href="/auth/forgot_password" class="forgot-password" style="font-size: 12px; text-decoration: none; color: #666;">비밀번호 찾기</a>
-            </div>
-            <input class="btn" type="submit" value="로그인" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
-        </form>
-        <p class="register-link" style="text-align: center; margin-top: 20px; font-size: 14px;">아직 계정이 없으신가요? <a href="/auth/register" style="color: #333; text-decoration: none; font-weight: bold;">가입하기</a></p>
-    `);
-    response.send(html);
-});
-
-// 사용자 ID로 사용자 정보 가져오는 함수
-async function getUserByUserID(userID) {
-    try {
-      const query = 'SELECT * FROM Users WHERE userID = ?';
-      const results = await queryDatabase(query, [userID]);
-      console.log('Database query results:', results); // 디버깅을 위한 로그
-      if (results.length > 0) {
-        return results[0];
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
-  }
-
-// 로그인 처리 로직
-router.post('/login_process', async (req, res) => {
-    console.log('로그인 처리 시작');
-    const { userID, password } = req.body;
-    console.log('Login attempt:', { userID, passwordLength: password ? password.length : 0 });
-
-    try {
-        const user = await getUserByUserID(userID);
-        console.log('User found:', user ? 'Yes' : 'No');
-
-        if (user && user.password && password) {
-            console.log('Stored password (hashed):', user.password);
-            console.log('Password entered:', password);
-            
-            const isMatch = await bcrypt.compare(password, user.password);
-            console.log('Password match result:', isMatch);
-            
-            if (isMatch) {
-                // 로그인 성공 처리
-                req.session.is_logined = true;
-                req.session.userID = user.userID;
-
-                // 세션 저장 후 응답 전송
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Session save error:', err);
-                        return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
-                    }
-                    console.log('Login successful, sending response to client');
-                    res.json({ success: true, redirect: '/' });
-                });
-            } else {
-                console.log('Incorrect password');
-                res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
-            }
-        } else {
-            console.log('User not found or password info missing');
-            
-        }
-    } catch (err) {
-        console.error('Login process error:', err);
-        res.status(500).json({ error: '서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.' });
-    }
-    console.log('로그인 처리 종료');
-});
-
-// auth.js - 회원가입 부분
+// 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
     const title = '회원가입';
     
@@ -125,13 +38,51 @@ router.get('/register', async (req, res) => {
                     <option value="">센터를 선택하세요</option>
                     ${centerOptions}
                 </select>
+                
+                <!-- 개인정보 처리방침 동의 체크박스 -->
                 <div style="margin: 10px 0;">
                     <input type="checkbox" id="privacyAgreement" required>
-                    <label for="privacyAgreement" style="font-size: 12px;">개인정보 취급방침에 동의합니다.</label>
+                    <label for="privacyAgreement" style="font-size: 12px;">
+                        개인정보 취급방침에 동의합니다. <a href="#" id="privacyPolicyLink">자세히 보기</a>
+                    </label>
                 </div>
+
                 <input class="btn" type="submit" value="가입하기" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
             </form>
-            <p class="login-link" style="text-align: center; margin-top: 20px; font-size: 14px;">이미 계정이 있으신가요? <a href="/auth/login" style="color: #333; text-decoration: none; font-weight: bold;">로그인</a></p>
+
+            <!-- 개인정보 처리방침 모달 -->
+            <div id="privacyPolicyModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span id="closeModal" style="cursor:pointer;">&times;</span>
+                    <h3>개인정보 처리방침</h3>
+                    <p>여기에 개인정보 처리방침의 내용을 작성하세요...</p>
+                </div>
+            </div>
+
+            <p class="login-link" style="text-align: center; margin-top: 20px; font-size: 14px;">
+                이미 계정이 있으신가요? <a href="/auth/login" style="color: #333; text-decoration: none; font-weight: bold;">로그인</a>
+            </p>
+
+            <script>
+                // 개인정보 취급방침 체크 확인
+                document.getElementById('registerForm').addEventListener('submit', function(event) {
+                    if (!document.getElementById('privacyAgreement').checked) {
+                        alert('개인정보 취급방침에 동의해야 합니다.');
+                        event.preventDefault();  // 폼 제출 방지
+                    }
+                });
+
+                // 개인정보 처리방침 모달 창 열기
+                document.getElementById('privacyPolicyLink').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    document.getElementById('privacyPolicyModal').style.display = 'block';
+                });
+
+                // 모달 닫기
+                document.getElementById('closeModal').addEventListener('click', function() {
+                    document.getElementById('privacyPolicyModal').style.display = 'none';
+                });
+            </script>
         `);
         res.send(html);
     } catch (error) {
@@ -139,47 +90,5 @@ router.get('/register', async (req, res) => {
         res.status(500).send('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
 });
-
-// 회원가입 처리 라우트
-router.post('/register_process', async (req, res) => {
-    try {
-        const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
-        console.log('Registration attempt:', { userID, email, name, role, centerID });
-
-        if (!userID || !password || !email || !name || !centerID) {
-            return res.status(400).json({ error: '필수 필드를 모두 입력해주세요.' });
-        }
-
-        const existingUser = await getUserByUserID(userID);
-        if (existingUser) {
-            return res.status(400).json({ error: '이미 존재하는 ID입니다. 다른 ID를 입력하세요.' });
-        }
-
-        await createUser(userID, password, email, name, phone, birthdate, role, centerID);
-
-        res.json({ 
-            success: true, 
-            message: '회원가입이 완료되었습니다. 가입한 ID로 로그인 하세요.' 
-        });
-    } catch (error) {
-        console.error('회원가입 처리 중 오류 발생:', error);
-        res.status(500).json({ error: '서버 오류', details: error.message });
-    }
-});
-
-// 사용자 생성 함수
-async function createUser(userID, password, email, name, phone, birthdate, role, centerID) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const query = 'INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
-    
-    try {
-        const results = await queryDatabase(query, values);
-        return results;
-    } catch (error) {
-        console.error('Error creating user:', error);
-        throw error;
-    }
-}
 
 module.exports = router;
