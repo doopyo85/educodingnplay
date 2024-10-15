@@ -8,7 +8,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = null;
 // 책 데이터를 불러오는 함수
 async function loadBookData() {
     try {
-        // API 호출로 구글 시트에서 책 데이터를 가져옴
         const data = await fetch('/api/get-books-data').then(res => res.json());
         if (data && data.length > 0) {
             displayBooks(data);  // 책 목록을 화면에 출력
@@ -20,7 +19,6 @@ async function loadBookData() {
         displayErrorMessage("책 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
-
 // 책 목록을 화면에 출력하는 함수
 function displayBooks(data) {
     const container = document.getElementById('book-container');
@@ -38,60 +36,13 @@ function displayBooks(data) {
                     <h5 class="card-title">${title}</h5>
                     <p class="card-text">카테고리: ${category}</p>
                     <p class="card-text">C.T 요소: ${ctElement}</p>
-                    <button class="btn btn-primary load-pdf" data-url="${pdfUrl}">보기</button>
+                    <a href="/reader?pdfUrl=${encodeURIComponent(pdfUrl)}" class="btn btn-primary">보기</a>  <!-- reader 페이지로 이동 -->
                 </div>
             </div>
         `;
 
         card.innerHTML = cardContent;
         container.appendChild(card);
-    });
-
-    // PDF 보기 버튼 클릭 이벤트 리스너 추가
-    document.querySelectorAll('.load-pdf').forEach(button => {
-        button.addEventListener('click', function() {
-            const pdfUrl = this.getAttribute('data-url');
-            loadPDFInFlipbook(pdfUrl);  // PDF를 Flipbook으로 로드
-        });
-    });
-}
-
-// PDF를 Flipbook으로 로드하는 함수
-function loadPDFInFlipbook(pdfUrl) {
-    const flipbook = document.getElementById('flipbook');
-    flipbook.innerHTML = '';  // 기존 내용을 초기화
-
-    pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
-        let promises = [];
-
-        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-            promises.push(pdfDoc.getPage(pageNum).then(page => {
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                const viewport = page.getViewport({ scale: 1.5 });
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-
-                return page.render(renderContext).promise.then(() => {
-                    flipbook.appendChild(canvas);  // Flipbook에 페이지 추가
-                });
-            }));
-        }
-
-        // 모든 페이지가 렌더링된 후 Flipbook 초기화
-        Promise.all(promises).then(() => {
-            $(flipbook).turn({
-                width: 800,
-                height: 600,
-                autoCenter: true
-            });
-        });
     });
 }
 
