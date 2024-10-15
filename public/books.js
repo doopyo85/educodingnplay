@@ -2,9 +2,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     loadBookData();  // 책 데이터를 로드
 });
 
-// PDF.js 웹 워커 비활성화 (CSP 문제 해결)
-pdfjsLib.GlobalWorkerOptions.workerSrc = null;
-
 // 책 데이터를 불러오는 함수
 async function loadBookData() {
     try {
@@ -19,6 +16,7 @@ async function loadBookData() {
         displayErrorMessage("책 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
+
 // 책 목록을 화면에 출력하는 함수
 function displayBooks(data) {
     const container = document.getElementById('book-container');
