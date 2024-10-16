@@ -50,18 +50,20 @@ router.get('/register', async (req, res) => {
     const title = '회원가입';
     
     try {
-        const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
-            headers: {
-                'Authorization': `Bearer ${your_access_token}`  // 필요한 경우 토큰을 추가
-            },        
-            
-            httpsAgent: new (require('https').Agent)({  
-                rejectUnauthorized: false
-            })
-        });
-        const centers = response.data.centers;
+        let centerOptions = '<option value="">센터를 선택하세요</option>';
         
-        const centerOptions = centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
+        try {
+            const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+                headers: {
+                    'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`  // 환경 변수에서 토큰을 가져옵니다
+                }
+            });
+            const centers = response.data.centers;
+            centerOptions += centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
+        } catch (apiError) {
+            console.error('API call error:', apiError);
+            // API 호출에 실패하더라도 회원가입 페이지는 렌더링합니다
+        }
 
         const html = template.HTML(title, `
             <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">회원정보를 입력하세요</h2>
