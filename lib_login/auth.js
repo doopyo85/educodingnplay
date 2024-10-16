@@ -6,6 +6,24 @@ const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
 
+// 로그인 페이지 렌더링
+router.get('/login', (req, res) => {
+    const title = '로그인';
+    const body = `
+      <h2>로그인</h2>
+      <form id="loginForm">
+        <input class="login" type="text" name="userID" placeholder="아이디" required>
+        <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
+        <input class="btn" type="submit" value="로그인">
+      </form>
+      <p class="register-link">
+        계정이 없으신가요? <a href="/auth/register">회원가입</a>
+      </p>
+    `;
+    const html = template.HTML(title, body);
+    res.send(html);
+  });
+
 // 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
     const title = '회원가입';
