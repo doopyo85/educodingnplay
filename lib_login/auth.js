@@ -162,6 +162,22 @@ router.post('/register', async (req, res) => {
         
         console.log('Received registration data:', req.body); // 로깅 추가
 
+        // 역할 매핑
+        let mappedRole;
+        switch(role) {
+            case 'student':
+                mappedRole = 'student';
+                break;
+            case 'teacher':
+                mappedRole = 'teacher';
+                break;
+            case 'center':
+                mappedRole = 'center';
+                break;
+            default:
+                throw new Error('Invalid role');
+        }
+
         // 비밀번호 해싱
         const hashedPassword = await bcrypt.hash(password, 10);
 
