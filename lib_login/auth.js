@@ -8,12 +8,11 @@ const { queryDatabase } = require('./db');
 
 // 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
-    const title = '코딩앤아카데미 로그인';
+    const title = '로그인';
     const body = `
       <div style="text-align: center;">
         <img src="/resource/coding&academy_logo150x500.png" alt="로고" style="width: 150px; height: auto;"/>
       </div>
-      <h2>로그인</h2>
       <form id="loginForm">
         <input class="login" type="text" name="userID" placeholder="아이디" required>
         <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
