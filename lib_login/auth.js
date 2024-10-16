@@ -24,6 +24,27 @@ router.get('/login', (req, res) => {
     res.send(html);
   });
 
+// 로그인 프로세스
+router.post('/login_process', async (req, res) => {
+    const { userID, password } = req.body;
+    try {
+      // 데이터베이스에서 사용자 확인 및 비밀번호 검증
+      // 성공 시 세션 생성
+      req.session.is_logined = true;
+      req.session.userID = userID;
+      req.session.save(err => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+        }
+        res.json({ success: true, redirect: '/' });
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(401).json({ error: '로그인에 실패했습니다.' });
+    }
+});
+
 // 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
     const title = '회원가입';
