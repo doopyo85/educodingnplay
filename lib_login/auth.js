@@ -22,7 +22,7 @@ router.get('/login', (req, res) => {
     `;
     const html = template.HTML(title, body);
     res.send(html);
-  });
+});
 
 // 로그인 프로세스
 router.post('/login_process', async (req, res) => {
@@ -55,14 +55,13 @@ router.get('/register', async (req, res) => {
         try {
             const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
                 headers: {
-                    'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`  // 환경 변수에서 토큰을 가져옵니다
+                    'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
                 }
             });
             const centers = response.data.centers;
             centerOptions += centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
         } catch (apiError) {
             console.error('API call error:', apiError);
-            // API 호출에 실패하더라도 회원가입 페이지는 렌더링합니다
         }
 
         const html = template.HTML(title, `
@@ -77,14 +76,12 @@ router.get('/register', async (req, res) => {
                 <select class="login" name="role">
                     <option value="student">학생</option>
                     <option value="teacher">선생님</option>
-                    <option value="principal">원장님</option>
+                    <option value="manager">원장님</option>
                 </select>
                 <select class="login" name="centerID" required>
-                    <option value="">센터를 선택하세요</option>
                     ${centerOptions}
                 </select>
                 
-                <!-- 개인정보 처리방침 동의 체크박스 -->
                 <div style="margin: 10px 0;">
                     <input type="checkbox" id="privacyAgreement" required>
                     <label for="privacyAgreement" style="font-size: 12px;">
@@ -95,7 +92,6 @@ router.get('/register', async (req, res) => {
                 <input class="btn" type="submit" value="가입하기" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
             </form>
 
-            <!-- 개인정보 처리방침 모달 -->
             <div id="privacyPolicyModal" class="modal" style="display:none;">
                 <div class="modal-content">
                     <span id="closeModal" style="cursor:pointer;">&times;</span>
@@ -109,21 +105,44 @@ router.get('/register', async (req, res) => {
             </p>
 
             <script>
-                // 개인정보 취급방침 체크 확인
                 document.getElementById('registerForm').addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
                     if (!document.getElementById('privacyAgreement').checked) {
                         alert('개인정보 취급방침에 동의해야 합니다.');
-                        event.preventDefault();  // 폼 제출 방지
+                        return;
                     }
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+
+                    fetch('/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            alert(data.message);
+                            window.location.href = '/auth/login';
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('회원가입 중 오류가 발생했습니다.');
+                    });
                 });
 
-                // 개인정보 처리방침 모달 창 열기
                 document.getElementById('privacyPolicyLink').addEventListener('click', function(event) {
                     event.preventDefault();
                     document.getElementById('privacyPolicyModal').style.display = 'block';
                 });
 
-                // 모달 닫기
                 document.getElementById('closeModal').addEventListener('click', function() {
                     document.getElementById('privacyPolicyModal').style.display = 'none';
                 });
@@ -133,6 +152,32 @@ router.get('/register', async (req, res) => {
     } catch (error) {
         console.error('Error rendering register page:', error);
         res.status(500).send('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    }
+});
+
+// 회원가입 처리
+router.post('/register', async (req, res) => {
+    try {
+        const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
+        
+        console.log('Received registration data:', req.body); // 로깅 추가
+
+        // 비밀번호 해싱
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 데이터베이스에 사용자 정보 저장
+        const query = `
+            INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
+
+        await queryDatabase(query, values);
+
+        res.status(201).json({ message: '회원가입이 완료되었습니다.' });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ error: '회원가입 중 오류가 발생했습니다.' });
     }
 });
 
