@@ -12,6 +12,10 @@ router.get('/register', async (req, res) => {
     
     try {
         const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+            headers: {
+                'Authorization': `Bearer ${your_access_token}`  // 필요한 경우 토큰을 추가
+            },        
+            
             httpsAgent: new (require('https').Agent)({  
                 rejectUnauthorized: false
             })

@@ -150,6 +150,15 @@ app.use((req, res, next) => {
   next();
 });
 
+req.session.save((err) => {
+  if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+  }
+  res.json({ success: true, redirect: '/' });
+});
+
+
 // static 파일 제공 및 기타 라우트 설정
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path, stat) => {
