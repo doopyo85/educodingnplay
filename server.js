@@ -150,14 +150,6 @@ app.use((req, res, next) => {
   next();
 });
 
-req.session.save((err) => {
-  if (err) {
-      console.error('Session save error:', err);
-      return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
-  }
-  res.json({ success: true, redirect: '/' });
-});
-
 
 // static 파일 제공 및 기타 라우트 설정
 app.use('/public', express.static(path.join(__dirname, 'public'), {
@@ -209,6 +201,7 @@ app.use((req, res, next) => {
 const { queryDatabase } = require('./lib_login/db');
 
 // 로그인 라우트 수정
+// 로그인 라우트 수정
 app.post('/login', async (req, res) => {
   const { userID, password } = req.body; // 기존 username을 userID로 변경
   try {
@@ -218,10 +211,20 @@ app.post('/login', async (req, res) => {
 
     // 사용자 정보가 있고, 비밀번호가 일치하는지 확인
     if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
+      // 세션에 로그인 정보 저장
       req.session.is_logined = true;
       req.session.userID = results[0].userID;
       req.session.userType = results[0].userType;  // 계정 유형 저장
-      res.redirect('/');
+
+      // 세션 저장 후 리다이렉트
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+        }
+        // 세션 저장이 성공하면 메인 페이지로 리다이렉트
+        res.json({ success: true, redirect: '/' });
+      });
     } else {
       res.status(401).send('Login Failed');
     }
