@@ -1,16 +1,20 @@
-// pdf.js 설정
-import pdfjsLib from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.entry';
-
-// turn.js는 npm으로 설치했다고 가정합니다.
-import 'turn.js';
+// pdf.js와 turn.js는 CDN으로 로드된다고 가정합니다.
 
 document.addEventListener("DOMContentLoaded", function() {
+    if (typeof pdfjsLib === 'undefined') {
+        console.error('PDF.js가 로드되지 않았습니다.');
+        displayErrorMessage("PDF.js를 로드할 수 없습니다.");
+        return;
+    }
+
     if (typeof $.fn.turn === 'undefined') {
         console.error('Turn.js가 로드되지 않았습니다.');
         displayErrorMessage("Turn.js를 로드할 수 없습니다.");
         return;
     }
+
+    // PDF.js 워커 설정
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
 
     const urlParams = new URLSearchParams(window.location.search);
     const pdfUrl = urlParams.get('pdfUrl');
@@ -60,5 +64,3 @@ function displayErrorMessage(message) {
     const flipbook = document.getElementById('flipbook');
     flipbook.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
 }
-
-export { loadPDFInFlipbook, displayErrorMessage };
