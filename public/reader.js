@@ -1,7 +1,17 @@
-import $ from 'jquery';   // jQuery 로드
-import 'turn.js';         // Turn.js 로드
+// pdf.js 설정
+import pdfjsLib from 'pdfjs-dist';
+import 'pdfjs-dist/build/pdf.worker.entry';
+
+// turn.js는 npm으로 설치했다고 가정합니다.
+import 'turn.js';
 
 document.addEventListener("DOMContentLoaded", function() {
+    if (typeof $.fn.turn === 'undefined') {
+        console.error('Turn.js가 로드되지 않았습니다.');
+        displayErrorMessage("Turn.js를 로드할 수 없습니다.");
+        return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const pdfUrl = urlParams.get('pdfUrl');
     if (pdfUrl) {
@@ -9,21 +19,11 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         displayErrorMessage("PDF URL이 없습니다.");
     }
-
-    // Turn.js 로드 확인
-    if (typeof $.fn.turn === 'undefined') {
-        console.error('Turn.js가 로드되지 않았습니다.');
-        displayErrorMessage("Turn.js를 로드할 수 없습니다.");
-    }
 });
 
-// PDF를 Flipbook으로 로드하는 함수
 function loadPDFInFlipbook(pdfUrl) {
     const flipbook = document.getElementById('flipbook');
-    flipbook.innerHTML = '';  // 기존 내용을 초기화
-
-    // PDF.js 웹 워커 비활성화
-    pdfjsLib.GlobalWorkerOptions.workerSrc = null;
+    flipbook.innerHTML = '';
 
     pdfjsLib.getDocument(pdfUrl).promise.then(pdfDoc => {
         let promises = [];
@@ -37,29 +37,18 @@ function loadPDFInFlipbook(pdfUrl) {
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-
-                return page.render(renderContext).promise.then(() => {
-                    flipbook.appendChild(canvas);  // Flipbook에 페이지 추가
+                return page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
+                    flipbook.appendChild(canvas);
                 });
             }));
         }
 
-        // 모든 페이지가 렌더링된 후 Flipbook 초기화
         Promise.all(promises).then(() => {
-            if (typeof $.fn.turn !== 'undefined') {
-                $(flipbook).turn({
-                    width: 800,
-                    height: 600,
-                    autoCenter: true
-                });
-            } else {
-                console.error("Turn.js가 로드되지 않았습니다.");
-                displayErrorMessage("Flipbook을 사용할 수 없습니다.");
-            }
+            $(flipbook).turn({
+                width: 800,
+                height: 600,
+                autoCenter: true
+            });
         });
     }).catch(error => {
         console.error("PDF를 로드하는 중 오류가 발생했습니다: ", error);
@@ -67,8 +56,9 @@ function loadPDFInFlipbook(pdfUrl) {
     });
 }
 
-// 오류 메시지를 출력하는 함수
 function displayErrorMessage(message) {
     const flipbook = document.getElementById('flipbook');
     flipbook.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
 }
+
+export { loadPDFInFlipbook, displayErrorMessage };
