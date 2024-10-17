@@ -151,12 +151,11 @@ app.use((req, res, next) => {
 });
 
 
-// static 파일 제공 및 기타 라우트 설정
-app.use('/public', express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path, stat) => {
-    if (path.endsWith('.js')) {
-      res.set('Content-Type', 'application/javascript');
-    }
+const mime = require('mime-types');
+
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
   }
 }));
 
