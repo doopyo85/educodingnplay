@@ -152,9 +152,6 @@ app.use((req, res, next) => {
 
 
 // static 파일 제공 및 기타 라우트 설정
-const mime = require('mime-types');
-
-// 기존의 정적 파일 서빙 설정 유지
 app.use('/public', express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path, stat) => {
     if (path.endsWith('.js')) {
@@ -162,12 +159,6 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
     }
   }
 }));
-
-// reader.js에 대한 특별한 처리 추가
-app.get('/reader.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'public', 'reader.js'));
-});
 
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
