@@ -19,6 +19,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
-    <script src="/public/reader.js"></script>
+    <script>
+        // 라이브러리 로딩 확인
+        window.addEventListener('load', function() {
+            if (typeof $ === 'undefined') {
+                console.error('jQuery가 로드되지 않았습니다.');
+            } else if (typeof $.fn.turn === 'undefined') {
+                console.error('Turn.js가 로드되지 않았습니다.');
+            } else if (typeof pdfjsLib === 'undefined') {
+                console.error('PDF.js가 로드되지 않았습니다.');
+            } else {
+                console.log('모든 필요한 라이브러리가 로드되었습니다.');
+            }
+        });
+    </script>
+    <script src="/reader.js"></script>
 </body>
 </html>

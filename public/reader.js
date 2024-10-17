@@ -7,11 +7,19 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
+    if (typeof $ === 'undefined') {
+        console.error('jQuery가 로드되지 않았습니다.');
+        displayErrorMessage("jQuery를 로드할 수 없습니다.");
+        return;
+    }
+
     if (typeof $.fn.turn === 'undefined') {
         console.error('Turn.js가 로드되지 않았습니다.');
         displayErrorMessage("Turn.js를 로드할 수 없습니다.");
         return;
     }
+
+    console.log('모든 필요한 라이브러리가 로드되었습니다.');
 
     // PDF.js 워커 설정
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
