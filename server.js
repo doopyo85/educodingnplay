@@ -163,6 +163,8 @@ app.use('/public', express.static(path.join(__dirname, 'public'), {
   }
 }));
 
+app.use('/js/turn.js', express.static(path.join(__dirname, 'node_modules/turn.js/turn.min.js')));
+
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
 
@@ -425,6 +427,12 @@ app.get('/reader.js', (req, res) => {
     }
   });
 });
+
+app.get('/js/turn.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'node_modules/turn.js/turn.min.js'));
+});
+
 
 // Turn.js CSS 파일을 제공하는 라우트 (CSS 파일이 있는 경우)
 app.get('/css/turn.css', (req, res) => {
