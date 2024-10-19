@@ -1,13 +1,13 @@
 // 라이브러리 로딩 확인
 function checkLibraries() {
     const libraries = {
-        'jQuery': $,
-        'Turn.js': $.fn.turn,
-        'PDF.js': pdfjsLib
+        'jQuery': typeof $,
+        'Turn.js': typeof $.fn.turn,
+        'PDF.js': typeof pdfjsLib
     };
 
     for (const [name, lib] of Object.entries(libraries)) {
-        if (typeof lib === 'undefined') {
+        if (lib === 'undefined') {
             console.error(`${name}가 로드되지 않았습니다.`);
             return false;
         }
