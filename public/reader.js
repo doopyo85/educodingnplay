@@ -1,21 +1,32 @@
 console.log('reader.js loaded');
 
 document.addEventListener("DOMContentLoaded", function() {
+    console.log('DOMContentLoaded event fired');
+
     if (typeof $ === 'undefined') {
         console.error('jQuery가 로드되지 않았습니다.');
         return;
     }
+    console.log('jQuery loaded successfully');
 
     if (typeof $.fn.turn === 'undefined') {
         console.error('Turn.js가 로드되지 않았습니다.');
         return;
     }
+    console.log('Turn.js loaded successfully');
 
     if (typeof pdfjsLib === 'undefined') {
         console.error('PDF.js가 로드되지 않았습니다.');
         return;
     }
+    console.log('PDF.js loaded successfully');
 
+    // Turn.js 초기화
+    $("#flipbook").turn({
+        width: 800,
+        height: 600,
+        autoCenter: true
+    });
     console.log('All libraries loaded successfully');
     
     // PDF.js 워커 설정

@@ -411,6 +411,18 @@ app.get('/reader.js', (req, res) => {
   });
 });
 
+// Turn.js 파일을 제공하는 라우트
+app.get('/js/turn.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'node_modules/turn.js/turn.js'));
+});
+
+// Turn.js CSS 파일을 제공하는 라우트 (CSS 파일이 있는 경우)
+app.get('/css/turn.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'node_modules/turn.js/turn.css'));
+});
+
+
+
 // Scratch 프로젝트 목록 페이지
 app.get('/scratch_project', authenticateUser, (req, res) => {
   console.log('User session:', req.session); // 세션 정보 로깅
@@ -449,7 +461,6 @@ app.post('/run-python', (req, res) => {
   const userCode = req.body.code; // 클라이언트로부터 받은 코드
 
   // 임시 파이썬 파일로 저장한 후 실행
-  const fs = require('fs');
   const path = './temp.py';
   
   fs.writeFileSync(path, userCode); // 파일에 코드 작성
