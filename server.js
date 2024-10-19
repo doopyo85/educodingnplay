@@ -429,10 +429,15 @@ app.get('/reader.js', (req, res) => {
 });
 
 app.get('/js/turn.js', (req, res) => {
+  const turnJsPath = path.join(__dirname, 'node_modules/turn.js/index.js');
   res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'node_modules/turn.js/turn.min.js'));
+  res.sendFile(turnJsPath, (err) => {
+    if (err) {
+      console.error('Error sending turn.js:', err);
+      res.status(err.status || 500).end();
+    }
+  });
 });
-
 
 // Turn.js CSS 파일을 제공하는 라우트 (CSS 파일이 있는 경우)
 app.get('/css/turn.css', (req, res) => {
