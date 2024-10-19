@@ -152,11 +152,14 @@ app.use((req, res, next) => {
 
 
 // static 파일 제공 및 기타 라우트 설정
+// 정적 파일 제공 설정
 app.use('/public', express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path, stat) => {
-    if (path.endsWith('.js')) {
-      res.set('Content-Type', 'application/javascript');
-    }
+  setHeaders: (res, filePath, stat) => {
+    // 모든 파일 타입에 대해 적절한 Content-Type 설정
+    res.set('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
+    
+    // 캐싱 정책 설정 (옵션)
+    res.set('Cache-Control', 'public, max-age=3600'); // 1시간 동안 캐시
   }
 }));
 
@@ -411,9 +414,16 @@ app.get('/reader.js', (req, res) => {
   });
 });
 
-// Turn.js 파일을 제공하는 라우트
-app.get('/js/turn.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'node_modules/turn.js/turn.js'));
+// Turn.js 라이브러리 제공 (node_modules에서)
+app.use('/js/turn.js', express.static(path.join(__dirname, 'node_modules/turn.js/turn.min.js')));
+
+// reader.js에 대한 특별한 라우트 추가
+app.get('/reader.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'reader.js'), {
+    headers: {
+      'Content-Type': 'application/javascript'
+    }
+  });
 });
 
 // Turn.js CSS 파일을 제공하는 라우트 (CSS 파일이 있는 경우)
