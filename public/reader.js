@@ -1,8 +1,8 @@
 // 라이브러리 로딩 확인
 function checkLibraries() {
     const libraries = {
-        'jQuery': typeof $ !== 'undefined',
-        'Turn.js': typeof $ !== 'undefined' && typeof $.fn.turn !== 'undefined',
+        'jQuery': typeof jQuery !== 'undefined',
+        'Turn.js': typeof jQuery !== 'undefined' && typeof jQuery.fn.turn !== 'undefined',
         'PDF.js': typeof pdfjsLib !== 'undefined'
     };
 
@@ -18,7 +18,7 @@ function checkLibraries() {
 }
 
 function initializeTurn(flipbook) {
-    $(flipbook).turn({
+    jQuery(flipbook).turn({
         width: 800,
         height: 600,
         autoCenter: true
@@ -62,7 +62,7 @@ function loadPDFInFlipbook(pdfUrl) {
         });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+function initializeReader() {
     console.log('DOMContentLoaded event fired');
 
     if (!checkLibraries()) {
@@ -79,4 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('PDF URL이 제공되지 않았습니다.');
         document.getElementById('flipbook').innerHTML = `<div class="alert alert-warning" role="alert">PDF URL이 제공되지 않았습니다.</div>`;
     }
-});
+}
+
+// 스크립트가 비동기적으로 로드되므로, DOMContentLoaded 이벤트 대신 즉시 실행
+initializeReader();
