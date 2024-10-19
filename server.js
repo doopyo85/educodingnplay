@@ -380,7 +380,6 @@ app.get('/api/get-books-data', async (req, res) => {
     res.status(500).json({ error: '책 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
-
 // /books 페이지를 렌더링하는 라우트
 app.get('/books', authenticateUser, (req, res) => {
   console.log('User session:', req.session);  // 세션 정보 로깅
@@ -394,12 +393,23 @@ app.get('/books', authenticateUser, (req, res) => {
 app.get('/reader', authenticateUser, (req, res) => {
   const pdfUrl = req.query.pdfUrl;  // 쿼리 파라미터에서 PDF URL을 받아옴
   if (pdfUrl) {
-      res.render('reader', { pdfUrl: pdfUrl });
+    res.render('reader', { pdfUrl: pdfUrl });
   } else {
-      res.status(400).send('PDF URL이 제공되지 않았습니다.');
+    res.status(400).send('PDF URL이 제공되지 않았습니다.');
   }
 });
 
+// reader.js 파일을 제공하는 라우트
+app.get('/reader.js', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'reader.js');
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Error sending reader.js:', err);
+      res.status(err.status || 500).end();
+    }
+  });
+});
 
 // Scratch 프로젝트 목록 페이지
 app.get('/scratch_project', authenticateUser, (req, res) => {
