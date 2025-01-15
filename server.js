@@ -64,12 +64,24 @@ redisClient.connect().catch(console.error);
 
 const store = new RedisStore({ client: redisClient });
 
+const cors = require('cors');
+
+const allowedOrigins = ['https://codingnplay.site', 'https://app.codingnplay.co.kr'];
+
 app.use(cors({
-  origin: 'https://codingnplay.site',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 

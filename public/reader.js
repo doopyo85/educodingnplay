@@ -1,3 +1,28 @@
+function checkLibraries() {
+    if (typeof $ === 'undefined') {
+        console.error('jQuery가 로드되지 않았습니다.');
+        return false;
+    }
+    if (typeof $.fn.turn === 'undefined') {
+        console.error('Turn.js가 로드되지 않았습니다.');
+        return false;
+    }
+    if (typeof pdfjsLib === 'undefined') {
+        console.error('PDF.js가 로드되지 않았습니다.');
+        return false;
+    }
+    console.log('모든 라이브러리가 성공적으로 로드되었습니다.');
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!checkLibraries()) {
+        console.error('필요한 라이브러리가 로드되지 않았습니다.');
+        return;
+    }
+    initializeReader();
+});
+
 function initializeReader() {
     console.log('Initializing reader');
     const urlParams = new URLSearchParams(window.location.search);

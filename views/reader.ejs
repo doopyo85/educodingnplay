@@ -10,18 +10,6 @@
             width: 1000px;
             height: 600px;
             margin: 0 auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            background-image: url('/public/images/ebook-background.jpg');
-            background-size: cover;
-        }
-        .page {
-            background-color: white;
-        }
-        .loader {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
         }
         #pdf-name {
             position: absolute;
@@ -42,10 +30,10 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
     </script>
+    <script src="/js/turn.min.js"></script>
     <script src="/public/reader.js"></script>
 </body>
 </html>
