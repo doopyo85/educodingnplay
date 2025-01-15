@@ -64,13 +64,10 @@ redisClient.connect().catch(console.error);
 
 const store = new RedisStore({ client: redisClient });
 
-const cors = require('cors');
-
 const allowedOrigins = ['https://codingnplay.site', 'https://app.codingnplay.co.kr'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -81,7 +78,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
 
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
@@ -121,11 +117,11 @@ app.use(session({
   saveUninitialized: false,
   proxy: true,
   cookie: {
-    secure: true, // HTTPS 환경에서 필수
+    secure: true,
     httpOnly: true,
-    sameSite: 'none', // 크로스 사이트 요청을 허용
-    domain: '.codingnplay.site', // 서브도메인 포함 전체 도메인에 쿠키 적용
-    maxAge: 60 * 60 * 1000 // 1시간
+    sameSite: 'none',
+    domain: req.hostname.includes('codingnplay.co.kr') ? '.codingnplay.co.kr' : '.codingnplay.site',
+    maxAge: 60 * 60 * 1000
   }
 }));
 
@@ -282,13 +278,17 @@ app.get('/get-user-session', (req, res) => {
   }
 });
 
-// 로그아웃 처리
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
       return res.status(500).send('로그아웃 실패');
     }
-    res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
+    // 도메인에 따라 다른 쿠키 삭제
+    if (req.hostname.includes('codingnplay.co.kr')) {
+      res.clearCookie('token', { domain: '.codingnplay.co.kr', path: '/' });
+    } else {
+      res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
+    }
     res.redirect('/auth/login');
   });
 });
