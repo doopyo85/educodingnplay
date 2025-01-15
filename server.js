@@ -110,20 +110,24 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(session({
-  store: store,
-  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: 'none',
-    domain: req.hostname.includes('codingnplay.co.kr') ? '.codingnplay.co.kr' : '.codingnplay.site',
-    maxAge: 60 * 60 * 1000
-  }
-}));
+app.use((req, res, next) => {
+  const sessionConfig = {
+    store: store,
+    secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      domain: req.hostname.includes('codingnplay.co.kr') ? '.codingnplay.co.kr' : '.codingnplay.site',
+      maxAge: 60 * 60 * 1000
+    }
+  };
+  
+  session(sessionConfig)(req, res, next);
+});
 
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
