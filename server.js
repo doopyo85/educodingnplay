@@ -87,7 +87,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://code.org https://blockly.games; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://codingnplay.site:8080; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://codingnplay.site:8080; https://app.codingnplay.co.kr:8080; " +
     "worker-src 'self' blob:; " +
     "object-src 'none';"
   );
@@ -487,7 +487,10 @@ app.get('/entry_project', authenticateUser, (req, res) => {
 
 // entry 렌더링 (수정된 버전)
 app.get('/entry', (req, res) => {
-  res.redirect('https://codingnplay.site:8080');  // HTTPS로 변경하고 도메인 사용
+  const host = req.hostname.includes('codingnplay.co.kr') ? 
+    'https://app.codingnplay.co.kr:8080' : 
+    'https://codingnplay.site:8080';
+  res.redirect(host);
 });
 
 // test 렌더링
