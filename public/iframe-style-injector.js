@@ -55,8 +55,8 @@ function injectStyleAndFixImagesToIframe(iframe) {
         var images = iframeDoc.getElementsByTagName('img');
         for (var i = 0; i < images.length; i++) {
             var src = images[i].src;
-            if (src.startsWith('https://codingnplay.site/')) {
-                var newSrc = src.replace('https://codingnplay.site/', 'https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com/');
+            if (src.startsWith('https://app.codingnplay.co.kr/')) {
+                var newSrc = src.replace('https://app.codingnplay.co.kr/', 'https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com/');
                 images[i].src = newSrc;
             }
         }
