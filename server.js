@@ -64,7 +64,7 @@ redisClient.connect().catch(console.error);
 
 const store = new RedisStore({ client: redisClient });
 
-const allowedOrigins = ['https://codingnplay.site', 'https://app.codingnplay.co.kr'];
+const allowedOrigins = ['https://app.codingnplay.co.kr'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -77,9 +77,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+ }));
 
-app.use((req, res, next) => {
+ app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
@@ -87,13 +87,13 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
     "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://code.org https://blockly.games; " +
     "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://codingnplay.site:8080; https://app.codingnplay.co.kr:8080; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://app.codingnplay.co.kr:8080; " +
     "worker-src 'self' blob:; " +
     "object-src 'none';"
   );
   next();
-});
-
+ }); 
+ 
 app.set('trust proxy', 1);
 
 app.use(express.json());
@@ -113,7 +113,7 @@ app.use((req, res, next) => {
       secure: true,
       httpOnly: true,
       sameSite: 'none',
-      domain: req.hostname.includes('codingnplay.co.kr') ? '.codingnplay.co.kr' : '.codingnplay.site',
+      domain: '.codingnplay.co.kr',
       maxAge: 60 * 60 * 1000
     }
   };
@@ -279,15 +279,11 @@ app.get('/logout', (req, res) => {
     if (err) {
       return res.status(500).send('로그아웃 실패');
     }
-    // 도메인에 따라 다른 쿠키 삭제
-    if (req.hostname.includes('codingnplay.co.kr')) {
-      res.clearCookie('token', { domain: '.codingnplay.co.kr', path: '/' });
-    } else {
-      res.clearCookie('token', { domain: '.codingnplay.site', path: '/' });
-    }
+    res.clearCookie('token', { domain: '.codingnplay.co.kr', path: '/' });
     res.redirect('/auth/login');
   });
-});
+ });
+ 
 
 app.get('/public', (req, res) => {
   if (req.session.is_logined) {
@@ -479,11 +475,9 @@ app.get('/entry_project', authenticateUser, (req, res) => {
 
 // entry 렌더링 (수정된 버전)
 app.get('/entry', (req, res) => {
-  const host = req.hostname.includes('codingnplay.co.kr') ? 
-    'https://app.codingnplay.co.kr:8080' : 
-    'https://codingnplay.site:8080';
-  res.redirect(host);
-});
+  res.redirect('https://app.codingnplay.co.kr:8080');
+ });
+ 
 
 // test 렌더링
 app.get('/test', authenticateUser, (req, res) => {
