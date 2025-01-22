@@ -93,7 +93,7 @@ app.use(cors({
   );
   next();
  }); 
- 
+
 app.set('trust proxy', 1);
 
 app.use(express.json());
@@ -461,7 +461,7 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
 
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
-  res.redirect('http://localhost:8601');
+  res.redirect('https://app.codingnplay.co.kr:8601');
 });
 
 // entry 프로젝트 목록페이지

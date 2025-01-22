@@ -113,13 +113,8 @@ function displayProjects(projects) {
 
 // Scratch-GUI에서 sb3 파일 로드하는 함수
 function loadsb3InScratchGUI(sb3Url) {
-    // URL을 인코딩하여 Scratch-GUI로 전달
-    const scratchEditorUrl = `https://app.codingnplay.co.kr/scratch/?project_file=${encodeURIComponent(sb3Url)}`;
-    console.log(`Opening Scratch GUI with sb3 URL: ${scratchEditorUrl}`);
-    
-    // 새로운 창으로 Scratch-GUI 열기
-    window.open(scratchEditorUrl, '_blank');
-}
+    window.open(`/scratch/?project_file=${encodeURIComponent(sb3Url)}`, '_blank');
+ }
 
 // 오류 메시지를 화면에 출력하는 함수
 function displayErrorMessage(message) {
