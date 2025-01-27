@@ -28,6 +28,11 @@
             <form class="d-flex mx-auto" style="max-width: 400px;">
                 <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search" style="font-size: 16px; padding: 8px;">
             </form>
+            <% if (typeof role !== 'undefined' && role === 'manager') { %>
+                <a href="/admin" class="btn btn-primary ms-2 me-2" style="font-size: 16px; padding: 8px 12px;">
+                    <i class="bi bi-gear"></i> 관리자
+                </a>
+            <% } %>
             <div class="d-flex align-items-center">
                 <!-- 다크 모드 토글 버튼 -->
                 <i id="toggle-dark-mode" class="bi bi-brightness-high me-3"></i>

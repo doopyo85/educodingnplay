@@ -107,8 +107,8 @@ app.use(cors({
 
 app.set('trust proxy', 1);
 
-// server.js에 추가
-const { logUserActivity, logMenuAccess, logLearningActivity } = require('./lib_login/logging');
+// logging
+const { logUserActivity } = require('./lib_login/logging');
 
 // 미들웨어 등록 (cors 설정 아래, 라우터 설정 위에 추가)
 app.use(logUserActivity);
@@ -257,6 +257,38 @@ app.post('/login', async (req, res) => {
     console.error('Login error:', error);
     res.status(500).send('Internal Server Error');
   }
+});
+
+
+// 세션 미들웨어 다음에 추가
+app.use(async (req, res, next) => {
+  if (req.session?.is_logined) {
+      try {
+          const [user] = await queryDatabase(
+              'SELECT id, centerID FROM Users WHERE userID = ?',
+              [req.session.userID]
+          );
+          
+          if (user) {
+              await queryDatabase(
+                  `INSERT INTO UserActivityLogs 
+                  (user_id, center_id, action_type, url, ip_address, user_agent) 
+                  VALUES (?, ?, ?, ?, ?, ?)`,
+                  [
+                      user.id,
+                      user.centerID,
+                      req.method,
+                      req.originalUrl,
+                      req.ip,
+                      req.headers['user-agent']
+                  ]
+              );
+          }
+      } catch (error) {
+          console.error('Logging error:', error);
+      }
+  }
+  next();
 });
 
 
