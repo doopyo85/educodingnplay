@@ -36,80 +36,60 @@ router.get('/', checkAdminRole, (req, res) => {
 });
 
 // 통계 데이터 API
-// routes/admin.js
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
         console.log('Fetching admin stats...');
         
-        // 전체 통계 쿼리
-        const totalStatsQuery = `
+        // Users 테이블에서 통계 추출
+        const statsQuery = `
             SELECT 
-                COUNT(DISTINCT user_id) as total_users,
-                COUNT(*) as total_activities,
-                COUNT(DISTINCT DATE(created_at)) as active_days
-            FROM UserActivityLogs
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                COUNT(*) as total_users,
+                COUNT(CASE WHEN role = 'student' THEN 1 END) as student_count,
+                COUNT(CASE WHEN role = 'manager' THEN 1 END) as manager_count,
+                COUNT(CASE WHEN role = 'teacher' THEN 1 END) as teacher_count,
+                COUNT(DISTINCT centerID) as active_centers
+            FROM Users
+            WHERE centerID IS NOT NULL
         `;
-        console.log('Total stats query:', totalStatsQuery);
         
-        const [totalStats] = await queryDatabase(totalStatsQuery);
-        console.log('Total stats result:', totalStats);
-
-        // Users 테이블에서 직접 사용자 수 가져오기
-        const userCountQuery = 'SELECT COUNT(*) as user_count FROM Users';
-        const [userCount] = await queryDatabase(userCountQuery);
-        console.log('User count:', userCount);
+        const [stats] = await queryDatabase(statsQuery);
+        console.log('Basic stats:', stats);
 
         // 센터별 통계
-        const centerStatsQuery = `
+        const centerQuery = `
             SELECT 
                 centerID,
-                COUNT(*) as user_count,
-                SUM(CASE WHEN role = 'student' THEN 1 ELSE 0 END) as student_count,
-                SUM(CASE WHEN role = 'manager' THEN 1 ELSE 0 END) as manager_count,
-                SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END) as teacher_count
+                COUNT(*) as total_users,
+                COUNT(CASE WHEN role = 'student' THEN 1 END) as student_count,
+                COUNT(CASE WHEN role = 'manager' THEN 1 END) as manager_count,
+                COUNT(CASE WHEN role = 'teacher' THEN 1 END) as teacher_count
             FROM Users
             WHERE centerID IS NOT NULL
             GROUP BY centerID
         `;
-        console.log('Center stats query:', centerStatsQuery);
         
-        const centerStats = await queryDatabase(centerStatsQuery);
-        console.log('Center stats result:', centerStats);
-
-        // 최근 활동 통계
-        const recentActivityQuery = `
-            SELECT 
-                DATE(created_at) as date,
-                COUNT(*) as count
-            FROM UserActivityLogs
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY DATE(created_at)
-            ORDER BY date DESC
-        `;
-        console.log('Recent activity query:', recentActivityQuery);
-        
-        const recentActivity = await queryDatabase(recentActivityQuery);
-        console.log('Recent activity result:', recentActivity);
+        const centerStats = await queryDatabase(centerQuery);
+        console.log('Center stats:', centerStats);
 
         res.json({
             success: true,
             data: {
                 totalStats: {
-                    total_users: userCount.user_count,
-                    total_activities: totalStats?.total_activities || 0,
-                    active_days: totalStats?.active_days || 0
+                    total_users: stats.total_users || 0,
+                    student_count: stats.student_count || 0,
+                    manager_count: stats.manager_count || 0,
+                    teacher_count: stats.teacher_count || 0,
+                    active_centers: stats.active_centers || 0
                 },
-                centerStats,
-                recentActivity
+                centerStats: centerStats || []
             }
         });
+
     } catch (error) {
-        console.error('Admin stats error:', error);
+        console.error('Stats API error:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message,
-            stack: error.stack
+            error: error.message
         });
     }
 });
@@ -125,7 +105,6 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
             FROM Users
             ORDER BY created_at DESC
         `;
-        console.log('Users query:', usersQuery);
         
         const users = await queryDatabase(usersQuery);
         console.log(`Found ${users.length} users`);
