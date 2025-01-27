@@ -29,6 +29,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- 사이드바 -->
+            <!-- Sidebar 부분만 업데이트 -->
             <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="position-sticky pt-3">
                     <div class="mb-4 px-3">
@@ -37,25 +38,25 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#overview">
+                            <a class="nav-link" href="#" data-section="overview" onclick="showSection('overview')">
                                 <i class="bi bi-house-door"></i>
                                 대시보드 개요
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#users">
+                            <a class="nav-link" href="#" data-section="users" onclick="showSection('users')">
                                 <i class="bi bi-people"></i>
-                                사용자 활동
+                                사용자 관리
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#learning">
+                            <a class="nav-link" href="#" data-section="learning" onclick="showSection('learning')">
                                 <i class="bi bi-book"></i>
                                 학습 현황
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#centers">
+                            <a class="nav-link" href="#" data-section="centers" onclick="showSection('centers')">
                                 <i class="bi bi-building"></i>
                                 센터별 통계
                             </a>
@@ -63,6 +64,341 @@
                     </ul>
                 </div>
             </nav>
+
+            <!-- 메인 콘텐츠 영역에 섹션들 추가 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- 개요 섹션 -->
+                <div id="overview-section" class="section">
+                    <!-- 기존 대시보드 내용 -->
+                </div>
+
+                <!-- 사용자 관리 섹션 -->
+                <div id="users-section" class="section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">사용자 관리</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <div class="btn-group me-2">
+                                <select id="centerFilter" class="form-select" onchange="filterUsersByCenter()">
+                                    <option value="">전체 센터</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>이메일</th>
+                                    <th>역할</th>
+                                    <th>센터ID</th>
+                                    <th>가입일</th>
+                                    <th>최근활동</th>
+                                    <th>활동수</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 학습 현황 섹션 -->
+                <div id="learning-section" class="section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">학습 현황</h1>
+                    </div>
+                    <div id="learningContent">
+                        <!-- 학습 현황 내용 -->
+                    </div>
+                </div>
+
+                <!-- 센터별 통계 섹션 -->
+                <div id="centers-section" class="section" style="display: none;">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">센터별 통계</h1>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>센터ID</th>
+                                    <th>전체 사용자</th>
+                                    <th>학생 수</th>
+                                    <th>매니저 수</th>
+                                    <th>강사 수</th>
+                                    <th>상세보기</th>
+                                </tr>
+                            </thead>
+                            <tbody id="centersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 활동 상세 모달 -->
+            <div class="modal fade" id="activityModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">사용자 활동 상세</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>시간</th>
+                                            <th>활동</th>
+                                            <th>URL</th>
+                                            <th>IP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="activityModalBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스크립트 추가 -->
+            <script>
+            let activityModal;
+
+            document.addEventListener('DOMContentLoaded', function() {
+                activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
+                loadCenters();
+                showSection('overview');
+            });
+
+            function showSection(sectionName) {
+                // 모든 섹션 숨기기
+                document.querySelectorAll('.section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // 선택된 섹션 보이기
+                document.getElementById(`${sectionName}-section`).style.display = 'block';
+                
+                // 메뉴 활성화 상태 변경
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+                
+                // 섹션별 데이터 로드
+                switch(sectionName) {
+                    case 'overview':
+                        loadStats();
+                        break;
+                    case 'users':
+                        loadUsers();
+                        break;
+                    case 'centers':
+                        loadCenterStats();
+                        break;
+                    case 'learning':
+                        loadLearningStats();
+                        break;
+                }
+            }
+
+            async function loadUsers(centerId = '') {
+                try {
+                    const response = await fetch(`/admin/api/users${centerId ? `?centerId=${centerId}` : ''}`);
+                    const users = await response.json();
+                    
+                    const tbody = document.getElementById('usersTableBody');
+                    tbody.innerHTML = users.map(user => `
+                        <tr>
+                            <td>${user.userID}</td>
+                            <td>${user.name || '-'}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role}</td>
+                            <td>${user.centerID || '-'}</td>
+                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                            <td>${user.last_activity ? new Date(user.last_activity).toLocaleString() : '-'}</td>
+                            <td>${user.activity_count}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="showUserActivities(${user.id})">
+                                    활동보기
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (error) {
+                    console.error('사용자 데이터 로드 중 오류:', error);
+                }
+            }
+
+            async function loadCenters() {
+                try {
+                    const response = await fetch('/admin/api/centers');
+                    const centers = await response.json();
+                    
+                    const select = document.getElementById('centerFilter');
+                    select.innerHTML = '<option value="">전체 센터</option>' + 
+                        centers.map(center => `
+                            <option value="${center.centerID}">센터 ${center.centerID}</option>
+                        `).join('');
+                } catch (error) {
+                    console.error('센터 데이터 로드 중 오류:', error);
+                }
+            }
+
+            async function showUserActivities(userId) {
+                try {
+                    const response = await fetch(`/admin/api/user-activities/${userId}`);
+                    const activities = await response.json();
+                    
+                    const tbody = document.getElementById('activityModalBody');
+                    tbody.innerHTML = activities.map(activity => `
+                        <tr>
+                            <td>${new Date(activity.created_at).toLocaleString()}</td>
+                            <td>${activity.action_type}</td>
+                            <td>${activity.url}</td>
+                            <td>${activity.ip_address}</td>
+                        </tr>
+                    `).join('');
+                    
+                    activityModal.show();
+                } catch (error) {
+                    console.error('사용자 활동 데이터 로드 중 오류:', error);
+                }
+            }
+
+            function filterUsersByCenter() {
+                const centerId = document.getElementById('centerFilter').value;
+                loadUsers(centerId);
+            }
+
+            async function loadCenterStats() {
+                try {
+                    const response = await fetch('/admin/api/centers');
+                    const centers = await response.json();
+                    
+                    const tbody = document.getElementById('centersTableBody');
+                    tbody.innerHTML = centers.map(center => `
+                        <tr>
+                            <td>${center.centerID}</td>
+                            <td>${center.user_count}</td>
+                            <td>${center.student_count}</td>
+                            <td>${center.manager_count}</td>
+                            <td>${center.teacher_count}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="showSection('users'); document.getElementById('centerFilter').value=${center.centerID}; filterUsersByCenter();">
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (error) {
+                    console.error('센터 통계 데이터 로드 중 오류:', error);
+                }
+            }
+
+            async function loadLearningStats() {
+                try {
+                    const content = document.getElementById('learningContent');
+                    content.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">콘텐츠별 학습 현황</h5>
+                                        <canvas id="learningContentChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">시간대별 학습 분포</h5>
+                                        <canvas id="learningTimeChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // 학습 데이터 로드 및 차트 생성 로직
+                    const learningData = await fetch('/admin/api/learning-stats').then(res => res.json());
+                    
+                    // 콘텐츠별 학습 현황 차트
+                    new Chart(document.getElementById('learningContentChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: ['Scratch', 'Entry', 'Python', '기타'],
+                            datasets: [{
+                                data: [
+                                    learningData.scratch || 0,
+                                    learningData.entry || 0,
+                                    learningData.python || 0,
+                                    learningData.others || 0
+                                ],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.8)',
+                                    'rgba(54, 162, 235, 0.8)',
+                                    'rgba(255, 206, 86, 0.8)',
+                                    'rgba(75, 192, 192, 0.8)'
+                                ]
+                            }]
+                        }
+                    });
+
+                    // 시간대별 학습 분포 차트
+                    new Chart(document.getElementById('learningTimeChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: Array.from({length: 24}, (_, i) => `${i}시`),
+                            datasets: [{
+                                label: '학습 횟수',
+                                data: learningData.hourlyDistribution || Array(24).fill(0),
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('학습 통계 데이터 로드 중 오류:', error);
+                }
+            }
+
+            // 검색 기능 추가
+            function searchUsers(searchTerm) {
+                const rows = document.querySelectorAll('#usersTableBody tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm.toLowerCase()) ? '' : 'none';
+                });
+            }
+
+            // 날짜 필터 함수
+            function filterByDate(startDate, endDate) {
+                loadUsers(document.getElementById('centerFilter').value, startDate, endDate);
+            }
+
+            // 엑셀 다운로드 기능
+            function downloadExcel() {
+                const table = document.querySelector('.table');
+                const wb = XLSX.utils.table_to_book(table);
+                XLSX.writeFile(wb, '사용자_목록.xlsx');
+            }
+            </script>
+
+
 
             <!-- 메인 콘텐츠 -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
