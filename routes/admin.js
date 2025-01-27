@@ -6,6 +6,7 @@ const { queryDatabase } = require('../lib_login/db');
 // 관리자 권한 체크 미들웨어
 const checkAdminRole = async (req, res, next) => {
     if (!req.session?.is_logined) {
+        console.log('Not logged in');
         return res.redirect('/auth/login');
     }
 
@@ -16,12 +17,13 @@ const checkAdminRole = async (req, res, next) => {
         );
 
         if (user?.role !== 'manager') {
-            return res.status(403).send('관리자 권한이 필요합니다.');
+            return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
         }
+
         next();
     } catch (error) {
         console.error('Admin check error:', error);
-        res.status(500).send('서버 오류가 발생했습니다.');
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 };
 

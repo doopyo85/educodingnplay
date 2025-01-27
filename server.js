@@ -59,10 +59,18 @@ app.get('/config', (req, res) => {
   });
 });
 
+// server.js 수정
 const redisClient = redis.createClient({ url: 'redis://localhost:6379' });
 redisClient.connect().catch(console.error);
 
-const store = new RedisStore({ client: redisClient });
+// Redis 이벤트 리스너 제한 증가
+redisClient.setMaxListeners(20);  // 또는 더 높은 값으로 설정
+
+const store = new RedisStore({ 
+    client: redisClient,
+    prefix: 'educodingnplay:sess:'  // 세션 키 접두사 추가
+});
+store.setMaxListeners(20);  // store에도 리스너 제한 증가
 
 const allowedOrigins = [
   'https://app.codingnplay.co.kr',
@@ -113,24 +121,22 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  const sessionConfig = {
-    store: store,
-    secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
+// server.js의 세션 설정 수정
+app.use(session({
+  store: store,
+  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  name: 'educodingnplay.sid',  // 세션 쿠키 이름 설정
+  cookie: {
       secure: true,
       httpOnly: true,
       sameSite: 'none',
       domain: '.codingnplay.co.kr',
       maxAge: 60 * 60 * 1000
-    }
-  };
-  
-  session(sessionConfig)(req, res, next);
-});
+  }
+}));
 
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -224,29 +230,26 @@ app.use((req, res, next) => {
 // queryDatabase 함수 불러오기 (lib_login 폴더에서 가져옴)
 const { queryDatabase } = require('./lib_login/db');
 
-// 로그인 라우트 수정
-// 로그인 라우트 수정
+// 로그인 라우트
 app.post('/login', async (req, res) => {
-  const { userID, password } = req.body; // 기존 username을 userID로 변경
+  const { userID, password } = req.body;
   try {
-    // queryDatabase를 사용하여 데이터베이스 조회
     const query = 'SELECT * FROM Users WHERE userID = ?';
     const results = await queryDatabase(query, [userID]);
 
-    // 사용자 정보가 있고, 비밀번호가 일치하는지 확인
     if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
       // 세션에 로그인 정보 저장
       req.session.is_logined = true;
       req.session.userID = results[0].userID;
-      req.session.userType = results[0].userType;  // 계정 유형 저장
+      req.session.userType = results[0].userType;
+      req.session.role = results[0].role;     // role 정보 추가
+      req.session.centerID = results[0].centerID;  // centerID 정보 추가
 
-      // 세션 저장 후 리다이렉트
       req.session.save((err) => {
         if (err) {
           console.error('Session save error:', err);
           return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
         }
-        // 세션 저장이 성공하면 메인 페이지로 리다이렉트
         res.json({ success: true, redirect: '/' });
       });
     } else {
@@ -521,27 +524,6 @@ app.post('/run-python', (req, res) => {
 
     res.json({ output: stdout }); // 결과 전송
   });
-});
-
-// 누적 회원 수 및 현재 접속자 수를 반환하는 API
-app.get('/api/stats', async (req, res) => {
-  try {
-    // queryDatabase를 사용하여 전체 사용자 수 조회
-    const totalUsersQuery = 'SELECT COUNT(*) as count FROM Users';
-    const totalUsers = await queryDatabase(totalUsersQuery);
-
-    // Redis를 사용하여 현재 접속자 수 조회
-    const activeUsers = await redisClient.sCard('active_users');
-
-    // 결과를 JSON으로 반환
-    res.json({
-      totalUsers: totalUsers[0].count,  // 회원 수
-      activeUsers: activeUsers  // 현재 접속자 수
-    });
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    res.status(500).json({ error: '통계를 불러오는 중 오류가 발생했습니다.' });
-  }
 });
 
 const boardRouter = require('./routes/board');
