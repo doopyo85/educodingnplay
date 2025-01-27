@@ -96,6 +96,14 @@ app.use(cors({
 
 app.set('trust proxy', 1);
 
+// server.js에 추가
+const { logUserActivity, logMenuAccess, logLearningActivity } = require('./lib_login/logging');
+
+// 미들웨어 등록 (cors 설정 아래, 라우터 설정 위에 추가)
+app.use(logUserActivity);
+app.use(logMenuAccess);
+app.use(logLearningActivity);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -141,6 +149,10 @@ const authenticateUser = (req, res, next) => {
 
 // **인증 라우트 처리**
 app.use('/auth', authRouter);
+
+// server.js에 추가
+const adminRouter = require('./routes/admin');
+app.use('/admin', adminRouter);
 
 // **센터 관련 라우트 처리**
 app.use('/center', centerRouter);
