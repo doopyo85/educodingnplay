@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { queryDatabase } = require('../lib_login/db');
+const axios = require('axios');
 
 // 관리자 권한 체크 미들웨어
 const checkAdminRole = async (req, res, next) => {
@@ -39,12 +40,13 @@ router.get('/', checkAdminRole, (req, res) => {
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
-        if (!req.session?.is_logined) {
-            return res.status(401).json({ 
-                success: false, 
-                error: 'Authentication required' 
-            });
-        }
+        // 센터 정보 가져오기
+        const centerResponse = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+            headers: {
+                'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
+            }
+        });
+        const centerMap = new Map(centerResponse.data.centers.map(center => [center.id.toString(), center.name]));
 
         // Users 테이블에서 통계 추출
         const statsQuery = `
@@ -75,23 +77,14 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         `;
         
         const centerStats = await queryDatabase(centerQuery);
+        // 센터 통계에 센터명 추가
+        const centerStatsWithNames = centerStats.map(stat => ({
+            ...stat,
+            centerName: centerMap.get(stat.centerID.toString()) || '미지정'
+        }));        
+        
         console.log('Center stats:', centerStats);
         
-        // routes/admin.js의 센터 통계 쿼리 수정
-        const centerStatsQuery = `
-            SELECT 
-                u1.centerID,
-                MAX(CASE WHEN u2.role = 'manager' THEN u2.name END) as centerName,
-                COUNT(DISTINCT u1.id) as total_users,
-                SUM(CASE WHEN u1.role = 'student' THEN 1 ELSE 0 END) as student_count,
-                SUM(CASE WHEN u1.role = 'manager' THEN 1 ELSE 0 END) as manager_count,
-                SUM(CASE WHEN u1.role = 'teacher' THEN 1 ELSE 0 END) as teacher_count
-            FROM Users u1
-            LEFT JOIN Users u2 ON u1.centerID = u2.centerID
-            WHERE u1.centerID IS NOT NULL
-            GROUP BY u1.centerID
-        `;
-
         res.json({
             success: true,
             data: {
@@ -102,7 +95,7 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
                     teacher_count: stats.teacher_count || 0,
                     active_centers: stats.active_centers || 0
                 },
-                centerStats: centerStats || []
+                centerStats: centerStatsWithNames || [] // centerStats 대신 centerStatsWithNames 사용
             }
         });
 
@@ -119,22 +112,37 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
 router.get('/api/users', checkAdminRole, async (req, res) => {
     try {
         console.log('Fetching users list...');
+        
+        // 센터 정보 가져오기
+        const centerResponse = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+            headers: {
+                'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
+            }
+        });
+        const centerMap = new Map(centerResponse.data.centers.map(center => [center.id.toString(), center.name]));
+
+        // 사용자 정보 조회
         const usersQuery = `
             SELECT 
-                u1.id, u1.userID, u1.email, u1.name, u1.phone, 
-                u1.birthdate, u1.role, u1.created_at, u1.centerID,
-                u2.name as centerName
-            FROM Users u1
-            LEFT JOIN Users u2 ON u1.centerID = u2.centerID AND u2.role = 'manager'
-            ORDER BY u1.created_at DESC
+                id, userID, email, name, phone, 
+                birthdate, role, created_at, centerID
+            FROM Users
+            ORDER BY created_at DESC
         `;
         
         const users = await queryDatabase(usersQuery);
+        
+        // 사용자 정보에 센터명 추가
+        const usersWithCenterNames = users.map(user => ({
+            ...user,
+            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-'
+        }));
+
         console.log(`Found ${users.length} users`);
         
         res.json({
             success: true,
-            data: users
+            data: usersWithCenterNames
         });
     } catch (error) {
         console.error('Users API error:', error);
