@@ -36,6 +36,8 @@ router.get('/', checkAdminRole, (req, res) => {
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
+        console.log('Fetching stats...'); // 디버깅용 로그
+
         // 전체 통계
         const [totalStats] = await queryDatabase(`
             SELECT 
@@ -83,15 +85,29 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
             ORDER BY activity_count DESC
         `);
 
+        // 하나의 응답으로 모든 데이터 전송
+        console.log('Sending stats response...'); // 디버깅용 로그
         res.json({
-            totalStats,
-            dailyStats,
-            menuStats,
-            centerStats
+            success: true,
+            data: {
+                totalStats: {
+                    total_users: totalStats?.total_users || 0,
+                    total_activities: totalStats?.total_activities || 0,
+                    active_days: totalStats?.active_days || 0
+                },
+                dailyStats: dailyStats || [],
+                menuStats: menuStats || [],
+                centerStats: centerStats || []
+            }
         });
+
     } catch (error) {
         console.error('Stats API error:', error);
-        res.status(500).json({ error: '통계 데이터 조회 중 오류가 발생했습니다.' });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            stack: error.stack
+        });
     }
 });
 

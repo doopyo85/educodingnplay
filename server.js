@@ -64,7 +64,10 @@ redisClient.connect().catch(console.error);
 
 const store = new RedisStore({ client: redisClient });
 
-const allowedOrigins = ['https://app.codingnplay.co.kr'];
+const allowedOrigins = [
+  'https://app.codingnplay.co.kr',
+  'https://codingnplay.co.kr'
+];
 
 app.use(cors({
   origin: (origin, callback) => {

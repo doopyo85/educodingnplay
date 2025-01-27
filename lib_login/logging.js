@@ -2,36 +2,46 @@
 const { queryDatabase } = require('./db');
 
 // 사용자 활동 로깅
-async function logUserActivity(req, res, next) {
+// lib_login/logging.js 수정
+const logUserActivity = async (req, res, next) => {
     if (!req.session?.is_logined) {
         return next();
     }
 
     try {
+        console.log('Logging user activity...'); // 디버깅용 로그
+        console.log('Session:', req.session); // 세션 정보 확인
+
         const sql = `SELECT id, centerID FROM Users WHERE userID = ?`;
         const [user] = await queryDatabase(sql, [req.session.userID]);
         
+        console.log('User found:', user); // 사용자 정보 확인
+
         if (user) {
-            await queryDatabase(
-                `INSERT INTO UserActivityLogs 
+            const logQuery = `
+                INSERT INTO UserActivityLogs 
                 (user_id, center_id, action_type, url, ip_address, user_agent, action_detail) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    user.id,
-                    user.centerID,
-                    req.method,
-                    req.originalUrl,
-                    req.ip,
-                    req.headers['user-agent'],
-                    `${req.method} ${req.originalUrl}`
-                ]
-            );
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+            const logParams = [
+                user.id,
+                user.centerID,
+                req.method,
+                req.originalUrl,
+                req.ip,
+                req.headers['user-agent'],
+                `${req.method} ${req.originalUrl}`
+            ];
+
+            console.log('Inserting log with params:', logParams); // 쿼리 파라미터 확인
+            await queryDatabase(logQuery, logParams);
+            console.log('Log inserted successfully'); // 성공 확인
         }
     } catch (error) {
-        console.error('Activity logging error:', error);
+        console.error('Activity logging error:', error); // 에러 상세 정보
     }
     next();
-}
+};
 
 // 메뉴 접근 로깅
 let menuAccessStartTimes = new Map();
