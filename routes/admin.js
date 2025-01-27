@@ -31,7 +31,8 @@ const checkAdminRole = async (req, res, next) => {
 router.get('/', checkAdminRole, (req, res) => {
     res.render('admin/dashboard', {
         userID: req.session.userID,
-        is_logined: req.session.is_logined
+        is_logined: req.session.is_logined,
+        role: req.session.role  // role 정보 추가
     });
 });
 
@@ -44,7 +45,7 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
                 error: 'Authentication required' 
             });
         }
-        
+
         // Users 테이블에서 통계 추출
         const statsQuery = `
             SELECT 
@@ -75,6 +76,21 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         
         const centerStats = await queryDatabase(centerQuery);
         console.log('Center stats:', centerStats);
+        
+        // routes/admin.js의 센터 통계 쿼리 수정
+        const centerStatsQuery = `
+            SELECT 
+                u1.centerID,
+                u2.name as centerName,  -- 센터 매니저의 이름을 센터명으로 사용
+                COUNT(*) as total_users,
+                SUM(CASE WHEN u1.role = 'student' THEN 1 ELSE 0 END) as student_count,
+                SUM(CASE WHEN u1.role = 'manager' THEN 1 ELSE 0 END) as manager_count,
+                SUM(CASE WHEN u1.role = 'teacher' THEN 1 ELSE 0 END) as teacher_count
+            FROM Users u1
+            LEFT JOIN Users u2 ON u1.centerID = u2.centerID AND u2.role = 'manager'
+            WHERE u1.centerID IS NOT NULL
+            GROUP BY u1.centerID
+        `;
 
         res.json({
             success: true,

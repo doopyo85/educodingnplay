@@ -168,15 +168,15 @@ app.use('/admin', adminRouter);
 // **센터 관련 라우트 처리**
 app.use('/center', centerRouter);
 
-// session 정보를 모든 EJS 템플릿에 전달하는 미들웨어
+// server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {
-  console.log('세션 정보:', req.session);  // 세션 정보를 출력
-  console.log('쿠키 정보:', req.headers.cookie);  // 쿠키 정보를 출력
+  console.log('세션 정보:', req.session);  
+  console.log('쿠키 정보:', req.headers.cookie);
   res.locals.userID = req.session.userID || null;
   res.locals.is_logined = req.session.is_logined || false;
+  res.locals.role = req.session.role || null;  // role 정보 추가
   next();
 });
-
 
 // static 파일 제공 및 기타 라우트 설정
 // 정적 파일 제공 설정
