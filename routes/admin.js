@@ -38,7 +38,12 @@ router.get('/', checkAdminRole, (req, res) => {
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
-        console.log('Fetching admin stats...');
+        if (!req.session?.is_logined) {
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Authentication required' 
+            });
+        }
         
         // Users 테이블에서 통계 추출
         const statsQuery = `
@@ -89,7 +94,7 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         console.error('Stats API error:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message
+            error: error.message 
         });
     }
 });

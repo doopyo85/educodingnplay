@@ -1,35 +1,51 @@
-async function updateDashboardStats(data) {
-    if (!data || !data.totalStats) return;
-    
-    // 통계 카드 업데이트
-    document.getElementById('totalUsers').textContent = data.totalStats.total_users;
-    document.getElementById('studentCount').textContent = data.totalStats.student_count;
-    document.getElementById('activeCenters').textContent = data.totalStats.active_centers;
-    document.getElementById('managerCount').textContent = data.totalStats.manager_count;
+// public/admin/dashboard.js
+async function fetchWithAuth(url) {
+    const response = await fetch(url, {
+        credentials: 'include',  // 세션 쿠키 포함
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
+
+async function loadStats() {
+    try {
+        const result = await fetchWithAuth('/admin/api/stats');
+        if (result.success && result.data) {
+            updateDashboardStats(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        if (error.message.includes('401')) {
+            window.location.href = '/auth/login';  // 인증 실패시 로그인 페이지로 이동
+        }
+    }
 }
 
 async function loadUsers() {
     try {
-        const response = await fetch('/admin/api/users');
-        const result = await response.json();
+        const result = await fetchWithAuth('/admin/api/users');
+        const users = result.success && Array.isArray(result.data) ? result.data : [];
         
-        if (!result.success || !result.data) return;
-
         const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = result.data.map(user => `
+        if (!tbody) return;
+
+        tbody.innerHTML = users.map(user => `
             <tr>
-                <td>${user.userID}</td>
+                <td>${user.userID || '-'}</td>
                 <td>${user.name || '-'}</td>
-                <td>${user.email}</td>
-                <td>${user.role}</td>
+                <td>${user.email || '-'}</td>
+                <td>${user.role || '-'}</td>
                 <td>${user.centerID || '-'}</td>
-                <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                <td>-</td>  <!-- 아직 활동 로그가 없으므로 '-' 표시 -->
-                <td>0</td>  <!-- 아직 활동 로그가 없으므로 0 표시 -->
+                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
+                <td>-</td>
+                <td>0</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" disabled>
-                        활동보기
-                    </button>
+                    <button class="btn btn-sm btn-primary" disabled>활동보기</button>
                 </td>
             </tr>
         `).join('');
@@ -40,23 +56,21 @@ async function loadUsers() {
 
 async function loadCenterStats() {
     try {
-        const response = await fetch('/admin/api/stats');
-        const result = await response.json();
-        
-        if (!result.success || !result.data) return;
+        const result = await fetchWithAuth('/admin/api/stats');
+        if (!result.success || !result.data?.centerStats) return;
 
         const tbody = document.getElementById('centersTableBody');
+        if (!tbody) return;
+
         tbody.innerHTML = result.data.centerStats.map(center => `
             <tr>
-                <td>${center.centerID}</td>
-                <td>${center.total_users}</td>
-                <td>${center.student_count}</td>
-                <td>${center.manager_count}</td>
-                <td>${center.teacher_count}</td>
+                <td>${center.centerID || '-'}</td>
+                <td>${center.total_users || 0}</td>
+                <td>${center.student_count || 0}</td>
+                <td>${center.manager_count || 0}</td>
+                <td>${center.teacher_count || 0}</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" onclick="showSection('users')">
-                        상세보기
-                    </button>
+                    <button class="btn btn-sm btn-primary">상세보기</button>
                 </td>
             </tr>
         `).join('');

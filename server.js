@@ -121,14 +121,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// server.js의 세션 설정 수정
+// server.js
 app.use(session({
   store: store,
   secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
   resave: false,
   saveUninitialized: false,
-  proxy: true,
-  name: 'educodingnplay.sid',  // 세션 쿠키 이름 설정
   cookie: {
       secure: true,
       httpOnly: true,
