@@ -81,13 +81,13 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         const centerStatsQuery = `
             SELECT 
                 u1.centerID,
-                u2.name as centerName,  -- 센터 매니저의 이름을 센터명으로 사용
-                COUNT(*) as total_users,
+                MAX(CASE WHEN u2.role = 'manager' THEN u2.name END) as centerName,
+                COUNT(DISTINCT u1.id) as total_users,
                 SUM(CASE WHEN u1.role = 'student' THEN 1 ELSE 0 END) as student_count,
                 SUM(CASE WHEN u1.role = 'manager' THEN 1 ELSE 0 END) as manager_count,
                 SUM(CASE WHEN u1.role = 'teacher' THEN 1 ELSE 0 END) as teacher_count
             FROM Users u1
-            LEFT JOIN Users u2 ON u1.centerID = u2.centerID AND u2.role = 'manager'
+            LEFT JOIN Users u2 ON u1.centerID = u2.centerID
             WHERE u1.centerID IS NOT NULL
             GROUP BY u1.centerID
         `;
@@ -121,10 +121,12 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         console.log('Fetching users list...');
         const usersQuery = `
             SELECT 
-                id, userID, email, name, phone, 
-                birthdate, role, created_at, centerID
-            FROM Users
-            ORDER BY created_at DESC
+                u1.id, u1.userID, u1.email, u1.name, u1.phone, 
+                u1.birthdate, u1.role, u1.created_at, u1.centerID,
+                u2.name as centerName
+            FROM Users u1
+            LEFT JOIN Users u2 ON u1.centerID = u2.centerID AND u2.role = 'manager'
+            ORDER BY u1.created_at DESC
         `;
         
         const users = await queryDatabase(usersQuery);

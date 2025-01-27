@@ -29,19 +29,17 @@ async function loadStats() {
 async function loadUsers() {
     try {
         const result = await fetchWithAuth('/admin/api/users');
-        const users = result.success && Array.isArray(result.data) ? result.data : [];
-        
-        const tbody = document.getElementById('usersTableBody');
-        if (!tbody) return;
+        if (!result.success || !result.data) return;
 
-        tbody.innerHTML = users.map(user => `
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = result.data.map(user => `
             <tr>
-                <td>${user.userID || '-'}</td>
+                <td>${user.userID}</td>
                 <td>${user.name || '-'}</td>
-                <td>${user.email || '-'}</td>
-                <td>${user.role || '-'}</td>
-                <td>${user.centerID || '-'}</td>
-                <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
+                <td>${user.email}</td>
+                <td>${user.role}</td>
+                <td>${user.centerID ? `${user.centerID} (${user.centerName || '미지정'})` : '-'}</td>
+                <td>${new Date(user.created_at).toLocaleDateString()}</td>
                 <td>-</td>
                 <td>0</td>
                 <td>
@@ -60,11 +58,9 @@ async function loadCenterStats() {
         if (!result.success || !result.data?.centerStats) return;
 
         const tbody = document.getElementById('centersTableBody');
-        if (!tbody) return;
-
         tbody.innerHTML = result.data.centerStats.map(center => `
             <tr>
-                <td>${center.centerID || '-'}</td>
+                <td>${center.centerID} (${center.centerName || '미지정'})</td>
                 <td>${center.total_users || 0}</td>
                 <td>${center.student_count || 0}</td>
                 <td>${center.manager_count || 0}</td>
