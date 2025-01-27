@@ -108,7 +108,11 @@ app.use(cors({
 app.set('trust proxy', 1);
 
 // logging
-const { logUserActivity } = require('./lib_login/logging');
+const { 
+  logUserActivity, 
+  logMenuAccess, 
+  logLearningActivity 
+} = require('./lib_login/logging');
 
 // 미들웨어 등록 (cors 설정 아래, 라우터 설정 위에 추가)
 app.use(logUserActivity);
