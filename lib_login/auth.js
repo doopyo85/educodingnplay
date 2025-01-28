@@ -44,15 +44,25 @@ router.post('/login_process', async (req, res) => {
         const [user] = await queryDatabase(query, [userID]);
 
         if (user && await bcrypt.compare(password, user.password)) {
+            // 세션 설정
             req.session.is_logined = true;
             req.session.userID = userID;
             req.session.role = user.role;
+
             req.session.save(err => {
                 if (err) {
                     console.error('Session save error:', err);
                     return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
                 }
-                res.json({ success: true, redirect: '/' });
+
+                // 역할에 따라 리다이렉트
+                if (user.role === 'kinder') {
+                    return res.json({ success: true, redirect: '/kinder' });
+                } else if (user.role === 'admin') {
+                    return res.json({ success: true, redirect: '/admin' });
+                } else {
+                    return res.json({ success: true, redirect: '/' });
+                }
             });
         } else {
             res.status(401).json({ error: '로그인 정보가 올바르지 않습니다.' });
@@ -62,6 +72,7 @@ router.post('/login_process', async (req, res) => {
         res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
     }
 });
+
 
 // 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
