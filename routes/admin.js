@@ -22,7 +22,7 @@ const checkAdminRole = async (req, res, next) => {
         
         console.log('User role check:', user);
 
-        if (user?.role !== 'manager') {
+        if (user?.role !== 'admin') {
             return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
         }
 
