@@ -11,7 +11,7 @@ async function fetchCentersFromSheet() {
     const sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: process.env.SPREADSHEET_ID,
-        range: '센터정보!A2:B' // A: ID, B: Name
+        range: '센터목록!A2:B' // A: ID, B: Name
     });
     return response.data.values; // [[id1, name1], [id2, name2], ...]
 }
