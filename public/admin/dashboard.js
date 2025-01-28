@@ -63,9 +63,15 @@ async function loadUsers(sortField = 'no', sortOrder = 'asc', filter = {}) {
         // 필터 적용
         Object.entries(filter).forEach(([field, value]) => {
             if (value) {
-                filteredData = filteredData.filter(user => 
-                    String(user[field]).toLowerCase().includes(String(value).toLowerCase())
-                );
+                filteredData = filteredData.filter(user => {
+                    // centerID 필드는 센터명까지 포함하여 검색
+                    if (field === 'centerID') {
+                        const centerInfo = `${user.centerID} ${user.centerName || ''}`.toLowerCase();
+                        return centerInfo.includes(value.toLowerCase());
+                    }
+                    // 다른 필드들은 기존처럼 포함 여부로 검색
+                    return String(user[field]).toLowerCase().includes(value.toLowerCase());
+                });
             }
         });
 
