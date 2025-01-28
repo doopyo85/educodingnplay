@@ -125,20 +125,15 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
     }
 });
 
-// 사용자 목록 API
+// 사용자 목록 API 수정
 router.get('/api/users', checkAdminRole, async (req, res) => {
     try {
         console.log('Fetching users list...');
         
-        // 센터 정보 가져오기 - 백틱으로 수정
-        const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
-            headers: {
-                'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
-            }
-        });
-
-        const centerMap = new Map(centerResponse.data.centers.map(center => [center.id.toString(), center.name]));
-
+        // 구글 시트에서 센터 정보 가져오기
+        const centerData = await getSheetData('menulist!A2:C');
+        const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
+        
         // 사용자 정보 조회
         const usersQuery = `
             SELECT id, userID, email, name, phone, 
@@ -147,36 +142,27 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
             ORDER BY created_at DESC
         `;
 
-        console.log('Executing query:', usersQuery);
         const users = await queryDatabase(usersQuery);
-        console.log(`Found ${users.length} users`);
         
-        if (!Array.isArray(users)) {
-            throw new Error('Expected array of users but got: ' + typeof users);
-        }
-   
         // 사용자 정보에 센터명 추가
         const usersWithCenterNames = users.map(user => ({
             ...user,
-            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-'
+            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-',
+            birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
         }));
 
         console.log(`Found ${users.length} users`);
         
         res.json({
             success: true,
-            data: users.map(user => ({
-                ...user,
-                birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
-            }))
+            data: usersWithCenterNames
         });
-
+        
     } catch (error) {
-        console.error('Users API detailed error:', error);
+        console.error('Users API error:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message,
-            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            error: error.message 
         });
     }
 });
