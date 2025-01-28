@@ -138,7 +138,60 @@ async function loadCenterStats() {
     }
 }
 
+function showSection(sectionName) {
+    // 모든 섹션 숨기기
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // 선택된 섹션 보이기
+    const selectedSection = document.getElementById(`${sectionName}-section`);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
+    }
+    
+    // 메뉴 활성화 상태 변경
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
 
+    // 섹션별 데이터 로드
+    switch(sectionName) {
+        case 'overview':
+            loadStats();
+            break;
+        case 'users':
+            loadUsers();
+            break;
+        case 'centers':
+            loadCenterStats();
+            break;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 메뉴 클릭 이벤트 리스너 추가
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = e.currentTarget.dataset.section;
+            showSection(section);
+        });
+    });
+
+    // 테이블 정렬과 필터 초기화
+    initTableSorting();
+    initFilters();
+
+    // 초기 섹션 로드 (대시보드 개요)
+    showSection('overview');
+    loadStats();
+});
 
 // 테이블 헤더 클릭 이벤트 처리
 function initTableSorting() {
@@ -181,45 +234,3 @@ function initFilters() {
         });
     });
 }
-
-function showSection(sectionName) {
-    // 모든 섹션 숨기기
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.display = 'none';
-    });
-    
-    // 선택된 섹션 보이기
-    const selectedSection = document.getElementById(`${sectionName}-section`);
-    if (selectedSection) {
-        selectedSection.style.display = 'block';
-    }
-    
-    // 메뉴 활성화 상태 변경
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
-    const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-
-    // 섹션별 데이터 로드
-    switch(sectionName) {
-        case 'overview':
-            loadStats();
-            break;
-        case 'users':
-            loadUsers();
-            break;
-        case 'centers':
-            loadCenterStats();
-            break;
-    }
-}
-
-// 초기화
-document.addEventListener('DOMContentLoaded', () => {
-    initTableSorting();
-    initFilters();
-    loadUsers();
-});
