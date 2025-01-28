@@ -17,7 +17,7 @@ const fs = require('fs');
 const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
-const { BASE_URL, API_ENDPOINTS, Roles } = require('../config');
+const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 
 
 // AWS SDK v3 사용
