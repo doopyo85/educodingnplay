@@ -139,6 +139,8 @@ async function loadCenterStats() {
 }
 
 function showSection(sectionName) {
+    console.log('Showing section:', sectionName);
+    
     // 모든 섹션 숨기기
     document.querySelectorAll('.section').forEach(section => {
         section.style.display = 'none';
@@ -146,6 +148,7 @@ function showSection(sectionName) {
     
     // 선택된 섹션 보이기
     const selectedSection = document.getElementById(`${sectionName}-section`);
+    console.log('Selected section element:', selectedSection);
     if (selectedSection) {
         selectedSection.style.display = 'block';
     }
@@ -155,6 +158,7 @@ function showSection(sectionName) {
         link.classList.remove('active');
     });
     const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+    console.log('Active link element:', activeLink);
     if (activeLink) {
         activeLink.classList.add('active');
     }
@@ -172,26 +176,6 @@ function showSection(sectionName) {
             break;
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 메뉴 클릭 이벤트 리스너 추가
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const section = e.currentTarget.dataset.section;
-            showSection(section);
-        });
-    });
-
-    // 테이블 정렬과 필터 초기화
-    initTableSorting();
-    initFilters();
-
-    // 초기 섹션 로드 (대시보드 개요)
-    showSection('overview');
-    loadStats();
-});
 
 // 테이블 헤더 클릭 이벤트 처리
 function initTableSorting() {
@@ -234,3 +218,31 @@ function initFilters() {
         });
     });
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded');
+
+    // 메뉴 클릭 이벤트 리스너 추가
+    const navLinks = document.querySelectorAll('.nav-link');
+    console.log('Found nav links:', navLinks.length);  // 찾은 링크 수 확인
+    
+    navLinks.forEach(link => {
+        console.log('Adding click listener to:', link.dataset.section);  // 각 링크의 섹션 확인
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Nav link clicked:', e.currentTarget.dataset.section);  // 클릭 이벤트 확인
+            const section = e.currentTarget.dataset.section;
+            showSection(section);
+        });
+    });
+
+    // 테이블 정렬과 필터 초기화
+    initTableSorting();
+    initFilters();
+
+    // 초기 섹션 로드 (대시보드 개요)
+    showSection('overview');
+    loadStats();
+    console.log('Loading initial section');
+});
