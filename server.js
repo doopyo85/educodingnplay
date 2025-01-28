@@ -19,7 +19,6 @@ const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 const cron = require('node-cron'); // 결제정보 자정마다 업데이트
-const { queryDatabase } = require('./lib_login/db');
 
 // server.js - 서버 시작 시 권한 캐시 초기화
 const { updatePermissionCache } = require('./lib_login/permissions');
@@ -243,15 +242,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// queryDatabase 함수 불러오기 (lib_login 폴더에서 가져옴)
-const { queryDatabase } = require('./lib_login/db');
-
 // 로그인 라우트
 app.post('/login', async (req, res) => {
   const { userID, password } = req.body;
   try {
     const query = 'SELECT * FROM Users WHERE userID = ?';
-    const results = await queryDatabase(query, [userID]);
+    const results = await db.queryDatabase(query, [userID]);
 
     if (results.length > 0 && bcrypt.compareSync(password, results[0].password)) {
       // 세션에 로그인 정보 저장
@@ -282,13 +278,13 @@ app.post('/login', async (req, res) => {
 app.use(async (req, res, next) => {
   if (req.session?.is_logined) {
       try {
-          const [user] = await queryDatabase(
+          const [user] = await db.queryDatabase(
               'SELECT id, centerID FROM Users WHERE userID = ?',
               [req.session.userID]
           );
           
           if (user) {
-              await queryDatabase(
+              await db.queryDatabase(
                   `INSERT INTO UserActivityLogs 
                   (user_id, center_id, action_type, url, ip_address, user_agent) 
                   VALUES (?, ?, ?, ?, ?, ?)`,
@@ -439,7 +435,7 @@ cron.schedule('0 0 * * *', async () => {
           SET subscription_status = 'expired'
           WHERE subscription_expiry < CURDATE() AND subscription_status = 'active'
       `;
-      await queryDatabase(query);
+      await db.queryDatabase(query);
       console.log('구독 만료 상태 업데이트 완료');
   } catch (error) {
       console.error('구독 만료 상태 업데이트 중 오류:', error);
