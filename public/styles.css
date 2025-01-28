@@ -247,9 +247,12 @@ th[data-sort].sorted-desc i {
 }
 
 /* 사용자 관리 테이블 열 너비 조정 */
+/* 사용자 관리 테이블 열 너비 조정 */
 #usersTable th,
 #usersTable td {
     white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
+    padding: 6px;         /* 셀 내부 여백 최소화 */
+    vertical-align: middle; /* 텍스트 수직 중앙 정렬 */
 }
 
 #usersTable th[data-sort="no"],
@@ -279,6 +282,14 @@ th[data-sort].sorted-desc i {
 #usersTable td:last-child {
     width: 100px;  /* 작업 컬럼 */
     text-align: center;
+}
+
+/* [활동 보기] 버튼 크기 조정 */
+#usersTable .btn-view {
+    font-size: 12px;       /* 글자 크기 */
+    padding: 2px 6px;      /* 내부 여백 최소화 */
+    height: auto;          /* 고정 높이 제거 */
+    line-height: 1.2;      /* 줄 간격 최소화 */
 }
 
 /* 테이블 전체 레이아웃 조정 */
