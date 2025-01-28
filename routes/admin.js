@@ -50,12 +50,13 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         console.log('User:', req.session?.userID);
         console.log('Role:', req.session?.role);
 
-        // 센터 정보 가져오기 - response를 centerResponse로 수정
+        // 센터 정보 가져오기
         const centerData = await getSheetData('menulist!A2:C');
         const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
         
-        console.log('Center response:', centerResponse.data);  // 디버깅용 로그 추가
-     // Users 테이블에서 통계 추출
+        console.log('Center data:', centerData);  // centerResponse.data 대신 centerData로 변경
+
+        // Users 테이블에서 통계 추출
         const statsQuery = `
             SELECT 
                 COUNT(*) as total_users,
@@ -86,36 +87,29 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         const centerStats = await queryDatabase(centerQuery);
         console.log('Center stats query result:', centerStats);
 
-        // 센터 통계에 센터명 추가
-        const centerStatsWithNames = centerStats.map(stat => ({
-            ...stat,
-            centerName: centerMap.get(stat.centerID.toString()) || '미지정'
-        }));        
-        
-        console.log('Center stats:', centerStats);
-        
-        res.json({
-            success: true,
-            data: {
-                totalStats: {
-                    total_users: stats.total_users || 0,
-                    student_count: stats.student_count || 0,
-                    manager_count: stats.manager_count || 0,
-                    teacher_count: stats.teacher_count || 0,
-                    active_centers: stats.active_centers || 0
-                },
-                centerStats: centerStatsWithNames || [] // centerStats 대신 centerStatsWithNames 사용
-            }
-        });
+       // 센터 통계에 센터명 추가
+       const centerStatsWithNames = centerStats.map(stat => ({
+        ...stat,
+        centerName: centerMap.get(stat.centerID.toString()) || '미지정'
+    }));
 
-    } catch (error) {
-        console.error('Stats API detailed error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message,
-            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-    }
+    res.json({
+        success: true,
+        data: {
+            totalStats: {
+                total_users: stats.total_users || 0,
+                student_count: stats.student_count || 0,
+                manager_count: stats.manager_count || 0,
+                teacher_count: stats.teacher_count || 0,
+                active_centers: stats.active_centers || 0
+            },
+            centerStats: centerStatsWithNames || []
+        }
+    });
+} catch (error) {
+    console.error('Stats API error:', error);
+    res.status(500).json({ success: false, error: error.message });
+}
 });
 
 // 사용자 목록 API
@@ -153,19 +147,12 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         
         res.json({
             success: true,
-            data: users.map(user => ({
-                ...user,
-                birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
-            }))
+            data: usersWithCenterNames  // usersWithCenterNames 사용
         });
 
     } catch (error) {
-        console.error('Users API detailed error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message,
-            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
+        console.error('Users API error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
