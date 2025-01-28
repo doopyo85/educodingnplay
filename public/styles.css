@@ -240,3 +240,50 @@ th[data-sort].sorted-desc i {
     margin: auto;
     height: 300px;
 }
+
+/* 사용자 관리 테이블 열 너비 조정 */
+#usersTable th,
+#usersTable td {
+    white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
+}
+
+#usersTable th[data-sort="no"],
+#usersTable td:first-child {
+    width: 50px;  /* NO 컬럼 */
+}
+
+#usersTable th[data-sort="userID"],
+#usersTable th[data-sort="name"],
+#usersTable th[data-sort="role"] {
+    width: 120px;  /* ID, 이름, 역할 컬럼 */
+}
+
+#usersTable th[data-sort="centerID"] {
+    width: 150px;  /* 센터ID 컬럼 */
+}
+
+#usersTable th[data-sort="email"] {
+    width: 200px;  /* 이메일 컬럼 */
+}
+
+#usersTable th[data-sort="created_at"] {
+    width: 180px;  /* 가입일 컬럼 */
+}
+
+#usersTable th:last-child,
+#usersTable td:last-child {
+    width: 100px;  /* 작업 컬럼 */
+    text-align: center;
+}
+
+/* 테이블 전체 레이아웃 조정 */
+.table-responsive {
+    margin-top: 1rem;
+    overflow-x: auto;  /* 필요시 가로 스크롤 */
+}
+
+/* 필터 입력창 너비 조정 */
+.column-filter {
+    width: 100%;
+    min-width: 50px;  /* 최소 너비 설정 */
+}
