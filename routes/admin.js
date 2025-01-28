@@ -3,10 +3,13 @@ const express = require('express');
 const router = express.Router();
 const { queryDatabase } = require('../lib_login/db');
 const axios = require('axios');
-const { config } = require('../server');
+const config = require('../config');
 
 // 관리자 권한 체크 미들웨어
 const checkAdminRole = async (req, res, next) => {
+    console.log('Checking admin role...');
+    console.log('Session:', req.session);
+
     if (!req.session?.is_logined) {
         console.log('Not logged in');
         return res.redirect('/auth/login');
@@ -17,6 +20,8 @@ const checkAdminRole = async (req, res, next) => {
             'SELECT role FROM Users WHERE userID = ?',
             [req.session.userID]
         );
+        
+        console.log('User role check:', user);
 
         if (user?.role !== 'manager') {
             return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
@@ -41,6 +46,12 @@ router.get('/', checkAdminRole, (req, res) => {
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
+
+        // 디버깅용 로그 추가
+        console.log('Session:', req.session);
+        console.log('User:', req.session?.userID);
+        console.log('Role:', req.session?.role);
+
         // 센터 정보 가져오기
         const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
             headers: {
@@ -78,6 +89,8 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         `;
         
         const centerStats = await queryDatabase(centerQuery);
+        console.log('Center stats query result:', centerStats);
+
         // 센터 통계에 센터명 추가
         const centerStatsWithNames = centerStats.map(stat => ({
             ...stat,
@@ -132,7 +145,8 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         `;
         
         const users = await queryDatabase(usersQuery);
-        
+        console.log(`Found ${users.length} users`);
+
         // 사용자 정보에 센터명 추가
         const usersWithCenterNames = users.map(user => ({
             ...user,
