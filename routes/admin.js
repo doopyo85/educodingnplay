@@ -51,7 +51,7 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         console.log('Role:', req.session?.role);
 
         // 센터 정보 가져오기
-        const centerData = await getSheetData('menulist!A2:C');
+        const centerData = await getSheetData('센터목록!A2:B');
         const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
         
         console.log('Center data:', centerData);  // centerResponse.data 대신 centerData로 변경
@@ -118,7 +118,7 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         console.log('Fetching users list...');
         
         // 센터 정보 가져오기 - 백틱으로 수정
-        const centerData = await getSheetData('menulist!A2:C');
+        const centerData = await getSheetData('센터목록!A2:B');
         const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
      
         // 사용자 정보 조회
