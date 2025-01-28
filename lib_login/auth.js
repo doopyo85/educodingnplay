@@ -69,41 +69,48 @@ router.get('/login', (req, res) => {
 // 로그인 처리
 router.post('/login_process', async (req, res) => {
     const { userID, password } = req.body;
+
     try {
+        // 사용자 조회
         const query = 'SELECT * FROM Users WHERE userID = ?';
         const [user] = await queryDatabase(query, [userID]);
 
-        if (user && await bcrypt.compare(password, user.password)) {
-            // 세션 설정
-            req.session.is_logined = true;
-            req.session.userID = userID;
-            req.session.role = user.role;
-
-            req.session.save(err => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
-                }
-
-                // 역할별 리다이렉트 URL 결정
-                let redirectUrl = '/';
-                if (user.role === 'kinder') {
-                    redirectUrl = '/kinder';
-                } else if (user.role === 'admin') {
-                    redirectUrl = '/admin';
-                }
-
-                // 클라이언트에 리다이렉트 URL 전달
-                res.json({ success: true, redirect: redirectUrl });
-            });
-        } else {
-            res.status(401).json({ error: '로그인 정보가 올바르지 않습니다.' });
+        if (!user) {
+            return res.status(401).json({ success: false, error: '아이디가 존재하지 않습니다.' });
         }
+
+        // 비밀번호 검증
+        if (!password || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ success: false, error: '비밀번호가 올바르지 않습니다.' });
+        }
+
+        // 세션 설정
+        req.session.is_logined = true;
+        req.session.userID = userID;
+        req.session.role = user.role;
+
+        req.session.save(err => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ success: false, error: '세션 저장 중 오류가 발생했습니다.' });
+            }
+
+            // 역할별 리다이렉트
+            let redirectUrl = '/';
+            if (user.role === 'kinder') {
+                redirectUrl = '/kinder';
+            } else if (user.role === 'admin') {
+                redirectUrl = '/admin';
+            }
+
+            res.json({ success: true, redirect: redirectUrl });
+        });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, error: '로그인 처리 중 오류가 발생했습니다.' });
     }
 });
+
 
 
 

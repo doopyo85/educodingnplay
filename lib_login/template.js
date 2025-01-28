@@ -96,8 +96,8 @@ module.exports = {
             $('#loginForm').on('submit', function(e) {
                 e.preventDefault();
                 const userID = $('input[name="userID"]').val();
-                const password = $('input[name="pwd"]').val();
-                
+                const password = $('input[name="password"]').val(); // 'pwd' -> 'password'로 수정
+
                 if (!userID || !password) {
                     $('#error-message').text('아이디와 비밀번호를 입력해주세요.');
                     return;
@@ -108,17 +108,15 @@ module.exports = {
                     method: 'POST',
                     data: JSON.stringify({ userID, password }),
                     contentType: 'application/json',
-                    xhrFields: {
-                        withCredentials: true
-                    },
                     success: function(response) {
                         if (response.success) {
                             window.location.href = response.redirect;
+                        } else {
+                            $('#error-message').text(response.error || '로그인 중 오류가 발생했습니다.');
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Login error:', xhr.responseJSON);
-                        $('#error-message').text(xhr.responseJSON?.error || "로그인 중 오류가 발생했습니다.");
+                    error: function(xhr) {
+                        $('#error-message').text(xhr.responseJSON?.error || '로그인 중 오류가 발생했습니다.');
                     }
                 });
             });
