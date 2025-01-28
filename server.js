@@ -8,7 +8,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./lib_login/auth'); // 인증 관련 라우터
-const centerRouter = require('./lib_login/center'); // 센터 관련 라우터
 const { exec } = require('child_process');
 require('dotenv').config();
 const path = require('path');
@@ -174,9 +173,6 @@ app.use('/auth', authRouter);
 // server.js에 추가
 const adminRouter = require('./routes/admin');
 app.use('/admin', adminRouter);
-
-// **센터 관련 라우트 처리**
-app.use('/center', centerRouter);
 
 const kinderRouter = require('./routes/kinder');
 app.use('/kinder', kinderRouter);
