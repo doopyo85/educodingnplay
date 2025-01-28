@@ -20,9 +20,22 @@ function hasPageAccess(userRole, page) {
 function hasFeatureAccess(userRole, feature) {
     return ACCESS_POLICIES.FEATURES[feature]?.includes(userRole) || false;
 }
+// lib_login/permissions.js
+const permissionCache = new Map();
+
+function updatePermissionCache(newPermissions) {
+    permissionCache.clear();
+    Object.entries(newPermissions.pages).forEach(([page, config]) => {
+        permissionCache.set(page, config.roles);
+    });
+}
+
+function hasAccess(userRole, page) {
+    const roles = permissionCache.get(page);
+    return roles?.includes(userRole) || false;
+}
 
 module.exports = {
-    ACCESS_POLICIES,
-    hasPageAccess,
-    hasFeatureAccess
+    updatePermissionCache,
+    hasAccess
 };

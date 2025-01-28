@@ -19,6 +19,11 @@ const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 
+// server.js - 서버 시작 시 권한 캐시 초기화
+const { updatePermissionCache } = require('./lib_login/permissions');
+const permissionsPath = path.join(__dirname, './lib_login/permissions.json');
+const permissions = JSON.parse(fs.readFileSync(permissionsPath, 'utf8'));
+updatePermissionCache(permissions);
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -174,7 +179,6 @@ app.use('/center', centerRouter);
 
 const kinderRouter = require('./routes/kinder');
 app.use('/kinder', kinderRouter);
-
 
 // server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {

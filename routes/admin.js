@@ -47,17 +47,22 @@ router.get('/', checkAdminRole, (req, res) => {
 
 
 // 권한 설정 가져오기
-router.get('/api/permissions', checkAdminRole, async (req, res) => {
+router.post('/api/permissions', checkAdminRole, async (req, res) => {
     try {
+        const { permissions } = req.body;
         const permissionsPath = path.join(__dirname, '../lib_login/permissions.json');
-        const permissions = JSON.parse(await fs.readFile(permissionsPath, 'utf8'));
+        
+        await fs.writeFile(permissionsPath, JSON.stringify(permissions, null, 2));
+        
+        // 캐시 업데이트
+        require('../lib_login/permissions').updatePermissionCache(permissions);
         
         res.json({
             success: true,
-            data: permissions
+            message: '권한 설정이 저장되었습니다.'
         });
     } catch (error) {
-        console.error('Error loading permissions:', error);
+        console.error('Error saving permissions:', error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -197,6 +202,45 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
             success: false, 
             error: error.message 
         });
+    }
+});
+
+// routes/admin.js
+router.get('/api/pages', checkAdminRole, async (req, res) => {
+    try {
+        // 현재 시스템의 모든 페이지 목록
+        const pages = {
+            "/": { name: "메인 페이지" },
+            "/admin": { name: "관리자 대시보드" },
+            "/kinder": { name: "유치원" },
+            "/school": { name: "학교" },
+            "/computer": { name: "컴퓨터 학습" },
+            "/books": { name: "교재 학습" },
+            "/scratch_project": { name: "스크래치" },
+            "/entry_project": { name: "엔트리" },
+            "/test": { name: "테스트" }
+        };
+
+        // 현재 권한 설정 가져오기
+        const permissionsPath = path.join(__dirname, '../lib_login/permissions.json');
+        const permissions = JSON.parse(await fs.readFile(permissionsPath, 'utf8'));
+
+        // 페이지별 권한 정보 합치기
+        const pagesWithPermissions = Object.entries(pages).reduce((acc, [path, info]) => {
+            acc[path] = {
+                ...info,
+                roles: permissions.pages[path]?.roles || []
+            };
+            return acc;
+        }, {});
+
+        res.json({
+            success: true,
+            data: pagesWithPermissions
+        });
+    } catch (error) {
+        console.error('Error loading pages:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
