@@ -18,6 +18,8 @@ const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
+const cron = require('node-cron'); // 결제정보 자정마다 업데이트
+const { queryDatabase } = require('./lib_login/db');
 
 // server.js - 서버 시작 시 권한 캐시 초기화
 const { updatePermissionCache } = require('./lib_login/permissions');
@@ -426,6 +428,21 @@ app.get('/api/get-problem-data', async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '문제 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// 매일 자정 구독 상태 업데이트
+cron.schedule('0 0 * * *', async () => {
+  try {
+      const query = `
+          UPDATE Users
+          SET subscription_status = 'expired'
+          WHERE subscription_expiry < CURDATE() AND subscription_status = 'active'
+      `;
+      await queryDatabase(query);
+      console.log('구독 만료 상태 업데이트 완료');
+  } catch (error) {
+      console.error('구독 만료 상태 업데이트 중 오류:', error);
   }
 });
 

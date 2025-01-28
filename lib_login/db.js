@@ -35,7 +35,7 @@ async function queryDatabase(query, params = []) {
     const [results] = await pool.query(query, params);
     return results;
   } catch (error) {
-    console.error('Database query error:', error);
+    console.error('Database query error:', { query, params, error });
     throw error;
   }
 }
@@ -60,4 +60,21 @@ async function testDatabaseConnection() {
   }
 })();
 
-module.exports = { queryDatabase };
+async function updateSubscriptionStatus(userID, status, expiryDate) {
+  const query = `
+      UPDATE Users
+      SET subscription_status = ?, subscription_expiry = ?
+      WHERE id = ?
+  `;
+  await queryDatabase(query, [status, expiryDate, userID]);
+}
+
+async function addPaymentRecord(userID, centerID, productName, amount, expiryDate) {
+  const query = `
+      INSERT INTO Payments (userID, centerID, product_name, payment_date, expiry_date, amount, status)
+      VALUES (?, ?, ?, CURDATE(), ?, ?, 'active')
+  `;
+  await queryDatabase(query, [userID, centerID, productName, expiryDate, amount]);
+}
+
+module.exports = { updateSubscriptionStatus, addPaymentRecord, queryDatabase };
