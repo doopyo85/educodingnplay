@@ -171,6 +171,10 @@ app.use('/admin', adminRouter);
 // **센터 관련 라우트 처리**
 app.use('/center', centerRouter);
 
+const kinderRouter = require('./routes/kinder');
+app.use('/kinder', kinderRouter);
+
+
 // server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);  

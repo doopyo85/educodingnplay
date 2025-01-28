@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교사게시판 - 프리스쿨</title>
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+    <h1>교사게시판</h1>
+    <p>원에서 교사들이 필요한 자료를 모아놓았습니다.</p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <% headers.forEach(header => { %>
+                    <th><%= header %></th>
+                <% }); %>
+            </tr>
+        </thead>
+        <tbody>
+            <% data.forEach(item => { %>
+                <tr>
+                    <td><%= item.type %></td>
+                    <td><%= item.content %></td>
+                    <td>
+                        <% item.links.forEach(linkText => { %>
+                            <a href="<%= item.url %>" target="_blank"><%= linkText %></a><br>
+                        <% }); %>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <p>담당자 연락처: 070-4348-0990</p>
+</body>
+</html>
