@@ -78,10 +78,7 @@ const allowedOrigins = [
   'https://codingnplay.co.kr'
 ];
 
-module.exports = {
-  getSheetData,
-  config
-};
+module.exports = { getSheetData };
 
 app.use(cors({
   origin: (origin, callback) => {

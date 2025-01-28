@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
-const config = require('./config'); 
+const config = require('../config'); 
 
 // 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
