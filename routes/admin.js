@@ -6,6 +6,46 @@ const { getSheetData } = require('../server');
 const fs = require('fs').promises;
 const path = require('path');
 
+
+// 관리자 권한 체크 미들웨어
+const checkAdminRole = async (req, res, next) => {
+    console.log('Checking admin role...');
+    console.log('Session:', req.session);
+
+    if (!req.session?.is_logined) {
+        console.log('Not logged in');
+        return res.redirect('/auth/login');
+    }
+
+    try {
+        const [user] = await queryDatabase(
+            'SELECT role FROM Users WHERE userID = ?',
+            [req.session.userID]
+        );
+        
+        console.log('User role check:', user);
+
+        if (user?.role !== 'admin') {
+            return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
+        }
+
+        next();
+    } catch (error) {
+        console.error('Admin check error:', error);
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+};
+
+// 대시보드 페이지 렌더링
+router.get('/', checkAdminRole, (req, res) => {
+    res.render('admin/dashboard', {
+        userID: req.session.userID,
+        is_logined: req.session.is_logined,
+        role: req.session.role  // role 정보 추가
+    });
+});
+
+
 // 권한 설정 가져오기
 router.get('/api/permissions', checkAdminRole, async (req, res) => {
     try {
@@ -46,43 +86,6 @@ router.post('/api/permissions', checkAdminRole, async (req, res) => {
     }
 });
 
-// 관리자 권한 체크 미들웨어
-const checkAdminRole = async (req, res, next) => {
-    console.log('Checking admin role...');
-    console.log('Session:', req.session);
-
-    if (!req.session?.is_logined) {
-        console.log('Not logged in');
-        return res.redirect('/auth/login');
-    }
-
-    try {
-        const [user] = await queryDatabase(
-            'SELECT role FROM Users WHERE userID = ?',
-            [req.session.userID]
-        );
-        
-        console.log('User role check:', user);
-
-        if (user?.role !== 'admin') {
-            return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
-        }
-
-        next();
-    } catch (error) {
-        console.error('Admin check error:', error);
-        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
-    }
-};
-
-// 대시보드 페이지 렌더링
-router.get('/', checkAdminRole, (req, res) => {
-    res.render('admin/dashboard', {
-        userID: req.session.userID,
-        is_logined: req.session.is_logined,
-        role: req.session.role  // role 정보 추가
-    });
-});
 
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
