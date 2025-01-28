@@ -198,3 +198,45 @@ p {
 .btn-primary:hover, .btn-secondary:hover {
     background-color: #563d7c;
 }
+
+
+/* 여기서부터 대시보드 관련 스타일 */
+
+/* 대시보드 테이블 정렬 아이콘 */
+th[data-sort] {
+    cursor: pointer;
+    position: relative;
+}
+
+th[data-sort] i {
+    opacity: 0.3;
+    margin-left: 5px;
+}
+
+th[data-sort].sorted-asc i,
+th[data-sort].sorted-desc i {
+    opacity: 1;
+}
+
+/* 테이블 필터 입력창 */
+.column-filter {
+    width: 100%;
+    margin-top: 5px;
+    font-size: 0.875rem;
+}
+
+/* 통계 카드 애니메이션 */
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* 차트 컨테이너 */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 300px;
+}

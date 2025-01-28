@@ -156,6 +156,11 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
     }
 });
 
-
+const usersWithCenterNames = users.map((user, index) => ({
+    no: index + 1,  // 일련번호 추가
+    ...user,
+    centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-',
+    birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
+}));
 
 module.exports = router;

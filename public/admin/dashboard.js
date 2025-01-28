@@ -53,26 +53,49 @@ async function loadStats() {
     }
 }
 
-async function loadUsers() {
+async function loadUsers(sortField = 'no', sortOrder = 'asc', filter = {}) {
     try {
         const result = await fetchWithAuth('/admin/api/users');
         if (!result.success || !result.data) return;
 
+        let filteredData = result.data;
+
+        // 필터 적용
+        Object.entries(filter).forEach(([field, value]) => {
+            if (value) {
+                filteredData = filteredData.filter(user => 
+                    String(user[field]).toLowerCase().includes(String(value).toLowerCase())
+                );
+            }
+        });
+
+        // 정렬 적용
+        filteredData.sort((a, b) => {
+            let comparison = 0;
+            if (a[sortField] < b[sortField]) comparison = -1;
+            if (a[sortField] > b[sortField]) comparison = 1;
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+
         const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = result.data.map(user => `
+        tbody.innerHTML = filteredData.map(user => `
             <tr>
+                <td>${user.no}</td>
                 <td>${user.userID}</td>
                 <td>${user.name || '-'}</td>
-                <td>${user.email}</td>
                 <td>${user.role}</td>
-                <td>${user.centerID ? `${user.centerID} (${user.centerName || '미지정'})` : '-'}</td>
+                <td>${user.centerID ? `${user.centerID} (${user.centerName})` : '-'}</td>
+                <td>${user.last_activity ? new Date(user.last_activity).toLocaleString() : '-'}</td>
+                <td>${user.activity_count || 0}</td>
+                <td>${user.email}</td>
                 <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                <td>-</td>
-                <td>0</td>
                 <td>
-                    <button class="btn btn-sm btn-primary" disabled>활동보기</button>
+                    <button class="btn btn-sm btn-primary" onclick="showUserActivities(${user.id})">
+                        활동보기
+                    </button>
                 </td>
             </tr>
+
         `).join('');
     } catch (error) {
         console.error('Error loading users:', error);
@@ -115,11 +138,49 @@ async function loadCenterStats() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 초기 로드
-    loadStats();
-    showSection('overview');
-});
+
+
+// 테이블 헤더 클릭 이벤트 처리
+function initTableSorting() {
+    const headers = document.querySelectorAll('#usersTable th[data-sort]');
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const field = header.dataset.sort;
+            const currentOrder = header.dataset.order || 'asc';
+            const newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+            
+            // 모든 헤더의 정렬 표시 초기화
+            headers.forEach(h => {
+                h.dataset.order = '';
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+
+            // 클릭된 헤더의 정렬 표시 업데이트
+            header.dataset.order = newOrder;
+            header.classList.add(`sorted-${newOrder}`);
+
+            loadUsers(field, newOrder, getCurrentFilters());
+        });
+    });
+}
+
+// 필터 적용
+function getCurrentFilters() {
+    const filters = {};
+    document.querySelectorAll('.column-filter').forEach(filter => {
+        filters[filter.dataset.field] = filter.value;
+    });
+    return filters;
+}
+
+// 필터 초기화
+function initFilters() {
+    document.querySelectorAll('.column-filter').forEach(filter => {
+        filter.addEventListener('input', () => {
+            loadUsers('no', 'asc', getCurrentFilters());
+        });
+    });
+}
 
 function showSection(sectionName) {
     // 모든 섹션 숨기기
@@ -155,3 +216,10 @@ function showSection(sectionName) {
             break;
     }
 }
+
+// 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    initTableSorting();
+    initFilters();
+    loadUsers();
+});
