@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { queryDatabase } = require('../lib_login/db');
 const axios = require('axios');
+const { config } = require('../server');
 
 // 관리자 권한 체크 미들웨어
 const checkAdminRole = async (req, res, next) => {
