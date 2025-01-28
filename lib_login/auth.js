@@ -25,16 +25,46 @@ router.get('/login', (req, res) => {
       </div>
       <form id="loginForm">
         <input class="login" type="text" name="userID" placeholder="아이디" required>
-        <input class="login" type="password" name="pwd" placeholder="비밀번호" required>
+        <input class="login" type="password" name="password" placeholder="비밀번호" required>
         <input class="btn" type="submit" value="로그인">
       </form>
       <p class="register-link">
         계정이 없으신가요? <a href="/auth/register">회원가입</a>
       </p>
+
+      <script>
+          // 로그인 폼 제출 처리
+          document.getElementById('loginForm').addEventListener('submit', function(event) {
+              event.preventDefault();
+
+              const formData = new FormData(this);
+              const data = Object.fromEntries(formData.entries());
+
+              fetch('/auth/login_process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.error) {
+                      alert(data.error);
+                  } else {
+                      // 역할별 리다이렉트
+                      window.location.href = data.redirect;
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('로그인 중 오류가 발생했습니다.');
+              });
+          });
+      </script>
     `;
     const html = template.HTML(title, body);
     res.send(html);
 });
+
 
 // 로그인 처리
 router.post('/login_process', async (req, res) => {
@@ -55,14 +85,16 @@ router.post('/login_process', async (req, res) => {
                     return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
                 }
 
-                // 역할에 따라 리다이렉트
+                // 역할별 리다이렉트 URL 결정
+                let redirectUrl = '/';
                 if (user.role === 'kinder') {
-                    return res.json({ success: true, redirect: '/kinder' });
+                    redirectUrl = '/kinder';
                 } else if (user.role === 'admin') {
-                    return res.json({ success: true, redirect: '/admin' });
-                } else {
-                    return res.json({ success: true, redirect: '/' });
+                    redirectUrl = '/admin';
                 }
+
+                // 클라이언트에 리다이렉트 URL 전달
+                res.json({ success: true, redirect: redirectUrl });
             });
         } else {
             res.status(401).json({ error: '로그인 정보가 올바르지 않습니다.' });
@@ -72,6 +104,8 @@ router.post('/login_process', async (req, res) => {
         res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
     }
 });
+
+
 
 
 // 회원가입 페이지 렌더링
