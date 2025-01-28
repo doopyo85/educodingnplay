@@ -199,6 +199,11 @@ p {
     background-color: #563d7c;
 }
 
+.nav-tabs {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
 
 /* 여기서부터 대시보드 관련 스타일 */
 

@@ -15,16 +15,30 @@ async function getSheetData(range) {
 
 router.get('/', async (req, res) => {
     try {
-        const sheetData = await getSheetData('A1:D14');  // 구글 시트 범위
-        const headers = sheetData[0];  // 컬럼명
-        const data = sheetData.slice(1).map(row => ({
+        const preschoolData = await getSheetData('A1:D14');  // 프리스쿨
+        const preschoolAIData = await getSheetData('E1:H14'); // 프리스쿨 AI
+
+        const preschoolTitle = preschoolData[0][0];  // A1 셀 (프리스쿨 탭 이름)
+        const preschoolAITitle = preschoolAIData[0][0]; // E1 셀 (프리스쿨 AI 탭 이름)
+
+        const preschoolItems = preschoolData.slice(2).map(row => ({
             type: row[0] || '',
             content: row[1] || '',
-            links: row[2] ? row[2].split('\n') : [],  // 여러 개의 링크 분할
+            links: row[2] ? row[2].split('\n') : [],
             url: row[3] || ''
         }));
 
-        res.render('kinder', { headers, data });
+        const preschoolAIItems = preschoolAIData.slice(2).map(row => ({
+            type: row[0] || '',
+            content: row[1] || '',
+            links: row[2] ? row[2].split('\n') : [],
+            url: row[3] || ''
+        }));
+
+        res.render('kinder', { 
+            preschoolTitle, preschoolAITitle, 
+            preschoolItems, preschoolAIItems 
+        });
     } catch (error) {
         console.error('Error fetching sheet data:', error);
         res.status(500).send('데이터를 불러오는 중 오류 발생');
