@@ -292,3 +292,27 @@ th[data-sort].sorted-desc i {
     width: 100%;
     min-width: 50px;  /* 최소 너비 설정 */
 }
+
+/* 권한 설정 테이블 스타일 */
+#permissions-section .table {
+    font-size: 0.9rem;
+}
+
+#permissions-section .table th {
+    text-align: center;
+    vertical-align: middle;
+    background-color: #f8f9fa;
+}
+
+#permissions-section .form-check-input {
+    cursor: pointer;
+}
+
+#permissions-section .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+#permissions-section small.text-muted {
+    font-size: 0.8rem;
+}

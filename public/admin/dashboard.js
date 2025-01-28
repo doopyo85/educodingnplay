@@ -151,26 +151,56 @@ async function loadPermissionsMatrix() {
         if (!result.success) return;
 
         const tbody = document.getElementById('permissionsTableBody');
-        const pages = result.data.pages;
+        const permissions = result.data.pages;
         const roles = ['admin', 'kinder', 'school', 'manager', 'teacher', 'student'];
 
-        tbody.innerHTML = Object.entries(pages).map(([page, permissions]) => `
+        tbody.innerHTML = Object.entries(permissions).map(([page, config]) => `
             <tr>
-                <td>${page}</td>
+                <td class="align-middle">
+                    <div class="fw-bold">${config.name}</div>
+                    <small class="text-muted">${page}</small>
+                </td>
                 ${roles.map(role => `
-                    <td>
-                        <div class="form-check">
+                    <td class="text-center">
+                        <div class="form-check d-flex justify-content-center">
                             <input class="form-check-input permission-checkbox" 
                                    type="checkbox" 
-                                   ${permissions.includes(role) ? 'checked' : ''}
+                                   ${config.roles.includes(role) ? 'checked' : ''}
                                    data-page="${page}"
                                    data-role="${role}"
-                                   id="perm_${page}_${role}">
+                                   id="perm_${page.replace('/', '_')}_${role}">
                         </div>
                     </td>
                 `).join('')}
             </tr>
         `).join('');
+
+        // "전체 선택" 행 추가
+        const allSelectRow = `
+            <tr class="table-light">
+                <td class="align-middle fw-bold">전체 선택</td>
+                ${roles.map(role => `
+                    <td class="text-center">
+                        <div class="form-check d-flex justify-content-center">
+                            <input class="form-check-input select-all-role" 
+                                   type="checkbox" 
+                                   data-role="${role}"
+                                   id="select_all_${role}">
+                        </div>
+                    </td>
+                `).join('')}
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('afterbegin', allSelectRow);
+
+        // 전체 선택 이벤트 리스너
+        document.querySelectorAll('.select-all-role').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const role = e.target.dataset.role;
+                const checkboxes = document.querySelectorAll(`.permission-checkbox[data-role="${role}"]`);
+                checkboxes.forEach(box => box.checked = e.target.checked);
+            });
+        });
 
         // 저장 버튼 이벤트 리스너
         document.getElementById('savePermissions').addEventListener('click', savePermissionChanges);
@@ -183,38 +213,43 @@ async function loadPermissionsMatrix() {
 async function savePermissionChanges() {
     try {
         const permissions = {};
-        document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+        const checkboxes = document.querySelectorAll('.permission-checkbox');
+        
+        // 페이지별로 권한 수집
+        checkboxes.forEach(checkbox => {
             const page = checkbox.dataset.page;
             const role = checkbox.dataset.role;
             
             if (!permissions[page]) {
-                permissions[page] = [];
+                permissions[page] = {
+                    name: checkbox.closest('tr').querySelector('div.fw-bold').textContent,
+                    roles: []
+                };
             }
             
             if (checkbox.checked) {
-                permissions[page].push(role);
+                permissions[page].roles.push(role);
             }
         });
 
         const response = await fetch('/admin/api/permissions', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({ permissions })
+            body: JSON.stringify({ pages: permissions })
         });
 
         const result = await response.json();
         if (result.success) {
-            alert('권한 설정이 성공적으로 저장되었습니다.');
+            showToast('성공', '권한 설정이 저장되었습니다.', 'success');
         } else {
             throw new Error(result.error);
         }
     } catch (error) {
         console.error('Error saving permissions:', error);
-        alert('권한 설정 저장 중 오류가 발생했습니다.');
+        showToast('오류', '권한 설정 저장 중 오류가 발생했습니다.', 'error');
     }
 }
 

@@ -1,10 +1,39 @@
 {
     "pages": {
-        "/admin": ["admin"],
-        "/kinder": ["admin", "kinder"],
-        "/school": ["admin", "school"],
-        "/teacher": ["admin", "manager", "teacher"]
-    },
+            "/admin": {
+                "name": "관리자 대시보드",
+                "roles": ["admin"]
+            },
+            "/kinder": {
+                "name": "유치원",
+                "roles": ["admin", "kinder"]
+            },
+            "/school": {
+                "name": "학교",
+                "roles": ["admin", "school"]
+            },
+            "/computer": {
+                "name": "컴퓨터 학습",
+                "roles": ["admin", "manager", "teacher", "student"]
+            },
+            "/books": {
+                "name": "교재 학습",
+                "roles": ["admin", "manager", "teacher", "student"]
+            },
+            "/scratch_project": {
+                "name": "스크래치",
+                "roles": ["admin", "manager", "teacher", "student"]
+            },
+            "/entry_project": {
+                "name": "엔트리",
+                "roles": ["admin", "manager", "teacher", "student"]
+            },
+            "/test": {
+                "name": "테스트",
+                "roles": ["admin", "manager", "teacher"]
+            }
+    },           
+        
     "features": {
         "PPT_BUTTON": ["admin", "teacher", "manager", "school"],
         "USER_MANAGE": ["admin"],
