@@ -117,50 +117,42 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
     try {
         console.log('Fetching users list...');
         
-        // 센터 정보 가져오기 - 백틱으로 수정
-        const centerData = await getSheetData('센터목록!A2:B');
+        // 구글 시트에서 센터 정보 가져오기
+        const centerData = await getSheetData('센터목록!A2:C');
         const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
-     
+
         // 사용자 정보 조회
         const usersQuery = `
-            SELECT id, userID, email, name, phone, 
-                   birthdate, role, created_at, centerID
+            SELECT 
+                id, userID, email, name, phone, 
+                birthdate, role, created_at, centerID
             FROM Users
             ORDER BY created_at DESC
         `;
 
-        console.log('Executing query:', usersQuery);
-        const users = await queryDatabase(usersQuery);
+        const users = await queryDatabase(usersQuery);  // 여기서 users 변수 정의
         console.log(`Found ${users.length} users`);
-        
-        if (!Array.isArray(users)) {
-            throw new Error('Expected array of users but got: ' + typeof users);
-        }
-   
-        // 사용자 정보에 센터명 추가
-        const usersWithCenterNames = users.map(user => ({
+
+        // 사용자 정보에 센터명과 일련번호 추가
+        const usersWithDetails = users.map((user, index) => ({
+            no: index + 1,
             ...user,
-            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-'
+            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-',
+            birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
         }));
 
-        console.log(`Found ${users.length} users`);
-        
         res.json({
             success: true,
-            data: usersWithCenterNames  // usersWithCenterNames 사용
+            data: usersWithDetails
         });
 
     } catch (error) {
         console.error('Users API error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
     }
 });
-
-const usersWithCenterNames = users.map((user, index) => ({
-    no: index + 1,  // 일련번호 추가
-    ...user,
-    centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-',
-    birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
-}));
 
 module.exports = router;
