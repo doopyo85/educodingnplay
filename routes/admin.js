@@ -46,17 +46,20 @@ router.get('/', checkAdminRole, (req, res) => {
 // 통계 데이터 API
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
-
         // 디버깅용 로그 추가
         console.log('Session:', req.session);
         console.log('User:', req.session?.userID);
         console.log('Role:', req.session?.role);
 
-        // 센터 정보 가져오기
-        const response = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {            headers: {
+        // 센터 정보 가져오기 - response를 centerResponse로 수정
+        const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
+            headers: {
                 'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
             }
         });
+        
+        console.log('Center response:', centerResponse.data);  // 디버깅용 로그 추가
+
         const centerMap = new Map(centerResponse.data.centers.map(center => [center.id.toString(), center.name]));
 
         // Users 테이블에서 통계 추출
@@ -113,10 +116,11 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Stats API error:', error);
+        console.error('Stats API detailed error:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message 
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
@@ -126,12 +130,13 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
     try {
         console.log('Fetching users list...');
         
-        // 센터 정보 가져오기
-        const centerResponse = await axios.get('${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}', {
+        // 센터 정보 가져오기 - 백틱으로 수정
+        const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
             }
         });
+
         const centerMap = new Map(centerResponse.data.centers.map(center => [center.id.toString(), center.name]));
 
         // 사용자 정보 조회
@@ -165,12 +170,13 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
                 birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
             }))
         });
-        
+
     } catch (error) {
-        console.error('Users API error:', error);
+        console.error('Users API detailed error:', error);
         res.status(500).json({ 
             success: false, 
-            error: error.message 
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
