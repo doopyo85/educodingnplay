@@ -147,65 +147,58 @@ async function loadCenterStats() {
 // 권한 매트릭스 로드
 async function loadPermissionsMatrix() {
     try {
-        const result = await fetchWithAuth('/admin/api/permissions');
-        if (!result.success) return;
+        console.log('Loading permissions matrix');
+        const result = await fetchWithAuth('/admin/api/pages');
+        console.log('Received permissions data:', result);
+
+        if (!result.success) {
+            throw new Error(result.error || 'Failed to load permissions');
+        }
 
         const tbody = document.getElementById('permissionsTableBody');
-        const permissions = result.data.pages;
         const roles = ['admin', 'kinder', 'school', 'manager', 'teacher', 'student'];
+        const pages = result.data;
 
-        tbody.innerHTML = Object.entries(permissions).map(([page, config]) => `
+        tbody.innerHTML = Object.entries(pages).map(([page, config]) => {
+            console.log(`Rendering row for page: ${page}`, config);
+            return `
+                <tr>
+                    <td class="align-middle">
+                        <div class="fw-bold">${config.name}</div>
+                        <small class="text-muted">${page}</small>
+                    </td>
+                    ${roles.map(role => `
+                        <td class="text-center">
+                            <div class="form-check d-flex justify-content-center">
+                                <input class="form-check-input permission-checkbox" 
+                                       type="checkbox" 
+                                       ${config.roles.includes(role) ? 'checked' : ''}
+                                       data-page="${page}"
+                                       data-role="${role}"
+                                       id="perm_${page.replace(/\//g, '_')}_${role}">
+                            </div>
+                        </td>
+                    `).join('')}
+                </tr>
+            `;
+        }).join('');
+
+        // 전체 선택 행 추가
+        addSelectAllRow(roles);
+        
+        // 이벤트 리스너 추가
+        initializeEventListeners();
+
+    } catch (error) {
+        console.error('Error loading permissions matrix:', error);
+        // 사용자에게 에러 표시
+        tbody.innerHTML = `
             <tr>
-                <td class="align-middle">
-                    <div class="fw-bold">${config.name}</div>
-                    <small class="text-muted">${page}</small>
+                <td colspan="${roles.length + 1}" class="text-center text-danger">
+                    권한 설정을 불러오는 중 오류가 발생했습니다.
                 </td>
-                ${roles.map(role => `
-                    <td class="text-center">
-                        <div class="form-check d-flex justify-content-center">
-                            <input class="form-check-input permission-checkbox" 
-                                   type="checkbox" 
-                                   ${config.roles.includes(role) ? 'checked' : ''}
-                                   data-page="${page}"
-                                   data-role="${role}"
-                                   id="perm_${page.replace('/', '_')}_${role}">
-                        </div>
-                    </td>
-                `).join('')}
-            </tr>
-        `).join('');
-
-        // "전체 선택" 행 추가
-        const allSelectRow = `
-            <tr class="table-light">
-                <td class="align-middle fw-bold">전체 선택</td>
-                ${roles.map(role => `
-                    <td class="text-center">
-                        <div class="form-check d-flex justify-content-center">
-                            <input class="form-check-input select-all-role" 
-                                   type="checkbox" 
-                                   data-role="${role}"
-                                   id="select_all_${role}">
-                        </div>
-                    </td>
-                `).join('')}
             </tr>
         `;
-        tbody.insertAdjacentHTML('afterbegin', allSelectRow);
-
-        // 전체 선택 이벤트 리스너
-        document.querySelectorAll('.select-all-role').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const role = e.target.dataset.role;
-                const checkboxes = document.querySelectorAll(`.permission-checkbox[data-role="${role}"]`);
-                checkboxes.forEach(box => box.checked = e.target.checked);
-            });
-        });
-
-        // 저장 버튼 이벤트 리스너
-        document.getElementById('savePermissions').addEventListener('click', savePermissionChanges);
-    } catch (error) {
-        console.error('Error loading permissions:', error);
     }
 }
 

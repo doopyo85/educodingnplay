@@ -1,5 +1,42 @@
-// authMiddleware.js
+// lib_login/authMiddleware.js
 const { hasPageAccess } = require('./permissions');
+
+const checkAdminRole = async (req, res, next) => {
+    console.log('Checking admin role', {
+        session: req.session,
+        isLoggedIn: req.session?.is_logined,
+        userRole: req.session?.role
+    });
+
+    if (!req.session?.is_logined) {
+        return res.status(401).json({
+            success: false,
+            error: 'Authentication required'
+        });
+    }
+
+    try {
+        const [user] = await queryDatabase(
+            'SELECT role FROM Users WHERE userID = ?',
+            [req.session.userID]
+        );
+
+        if (user?.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                error: 'Admin privileges required'
+            });
+        }
+
+        next();
+    } catch (error) {
+        console.error('Admin check error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error during authentication'
+        });
+    }
+};
 
 function checkPageAccess(requiredPage) {
     return async (req, res, next) => {

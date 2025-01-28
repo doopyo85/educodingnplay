@@ -208,8 +208,9 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
 // routes/admin.js
 router.get('/api/pages', checkAdminRole, async (req, res) => {
     try {
+        console.log('Fetching pages for permission matrix');
         // 현재 시스템의 모든 페이지 목록
-        const pages = {
+        const systemPages = {
             "/": { name: "메인 페이지" },
             "/admin": { name: "관리자 대시보드" },
             "/kinder": { name: "유치원" },
@@ -221,26 +222,39 @@ router.get('/api/pages', checkAdminRole, async (req, res) => {
             "/test": { name: "테스트" }
         };
 
-        // 현재 권한 설정 가져오기
-        const permissionsPath = path.join(__dirname, '../lib_login/permissions.json');
-        const permissions = JSON.parse(await fs.readFile(permissionsPath, 'utf8'));
+        console.log('System pages:', systemPages);
 
-        // 페이지별 권한 정보 합치기
-        const pagesWithPermissions = Object.entries(pages).reduce((acc, [path, info]) => {
+        // 현재 권한 설정 가져오기
+        const currentPermissions = await queryDatabase(
+            'SELECT page_path, role FROM page_permissions'
+        );
+        
+        console.log('Current permissions:', currentPermissions);
+
+        // 페이지별 권한 정보 구성
+        const pagesWithPermissions = Object.entries(systemPages).reduce((acc, [path, info]) => {
             acc[path] = {
-                ...info,
-                roles: permissions.pages[path]?.roles || []
+                name: info.name,
+                roles: currentPermissions
+                    .filter(p => p.page_path === path)
+                    .map(p => p.role)
             };
             return acc;
         }, {});
+
+        console.log('Response data:', pagesWithPermissions);
 
         res.json({
             success: true,
             data: pagesWithPermissions
         });
     } catch (error) {
-        console.error('Error loading pages:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error in /api/pages:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
