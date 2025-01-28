@@ -53,8 +53,7 @@ router.get('/api/stats', checkAdminRole, async (req, res) => {
         console.log('Role:', req.session?.role);
 
         // 센터 정보 가져오기
-        const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
-            headers: {
+        const response = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {            headers: {
                 'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
             }
         });
@@ -137,16 +136,20 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
 
         // 사용자 정보 조회
         const usersQuery = `
-            SELECT 
-                id, userID, email, name, phone, 
-                birthdate, role, created_at, centerID
+            SELECT id, userID, email, name, phone, 
+                   birthdate, role, created_at, centerID
             FROM Users
             ORDER BY created_at DESC
         `;
-        
+
+        console.log('Executing query:', usersQuery);
         const users = await queryDatabase(usersQuery);
         console.log(`Found ${users.length} users`);
-
+        
+        if (!Array.isArray(users)) {
+            throw new Error('Expected array of users but got: ' + typeof users);
+        }
+   
         // 사용자 정보에 센터명 추가
         const usersWithCenterNames = users.map(user => ({
             ...user,
@@ -157,8 +160,12 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         
         res.json({
             success: true,
-            data: usersWithCenterNames
+            data: users.map(user => ({
+                ...user,
+                birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
+            }))
         });
+        
     } catch (error) {
         console.error('Users API error:', error);
         res.status(500).json({ 
