@@ -69,6 +69,50 @@ router.post('/api/permissions', checkAdminRole, async (req, res) => {
     }
 });
 
+// 사용자 목록 API 복원
+router.get('/api/users', checkAdminRole, async (req, res) => {
+    try {
+        console.log('Fetching users list...');
+        
+        // 구글 시트에서 센터 정보 가져오기
+        const centerData = await getSheetData('센터목록!A2:C');
+        const centerMap = new Map(centerData.map(row => [row[0].toString(), row[1]]));
+
+        // 사용자 정보 조회
+        const usersQuery = `
+            SELECT 
+                id, userID, email, name, phone, 
+                birthdate, role, created_at, centerID
+            FROM Users
+            ORDER BY created_at DESC
+        `;
+
+        const users = await queryDatabase(usersQuery);
+        console.log(`Found ${users.length} users`);
+
+        // 사용자 정보에 센터명과 일련번호 추가
+        const usersWithDetails = users.map((user, index) => ({
+            no: index + 1,
+            ...user,
+            centerName: user.centerID ? centerMap.get(user.centerID.toString()) || '미지정' : '-',
+            birthdate: user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : null
+        }));
+
+        res.json({
+            success: true,
+            data: usersWithDetails
+        });
+
+    } catch (error) {
+        console.error('Users API error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
+
+
 // 페이지별 권한 확인 API (permissions.js 사용)
 router.get('/api/pages', checkAdminRole, async (req, res) => {
     try {
