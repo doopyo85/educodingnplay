@@ -17,7 +17,8 @@ const fs = require('fs');
 const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
-const config = require('./config');
+const { BASE_URL, API_ENDPOINTS, Roles } = require('../config');
+
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -181,7 +182,7 @@ app.use((req, res, next) => {
   console.log('쿠키 정보:', req.headers.cookie);
   res.locals.userID = req.session.userID || null;
   res.locals.is_logined = req.session.is_logined || false;
-  res.locals.role = req.session.role || null;  // role 정보 추가
+  res.locals.role = req.session.role || Roles.GUEST;  // role 정보 추가
   next();
 });
 

@@ -3,5 +3,14 @@ module.exports = {
     S3_URL: 'https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com',
     API_ENDPOINTS: {
         CENTER_LIST: '/center/api/get-center-list'
+    },
+    Roles: {
+        ADMIN: 'admin',
+        KINDER: 'kinder',
+        SCHOOL: 'school',
+        MANAGER: 'manager',
+        TEACHER: 'teacher',
+        STUDENT: 'student',
+        GUEST: 'guest'
     }
 };

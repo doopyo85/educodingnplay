@@ -1,5 +1,6 @@
 // lib_login/logging.js
 const { queryDatabase } = require('./db');
+const { Roles } = require('../config');
 
 // 사용자 활동 로깅
 // lib_login/logging.js 수정
@@ -25,6 +26,7 @@ const logUserActivity = async (req, res, next) => {
             `;
             const logParams = [
                 user.id,
+                user.role,  // 역할 추가
                 user.centerID,
                 req.method,
                 req.originalUrl,

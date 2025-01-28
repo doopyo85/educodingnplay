@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
-const config = require('../config'); 
+const { BASE_URL, API_ENDPOINTS, Roles } = require('../config');
 
 // 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
@@ -27,24 +27,30 @@ router.get('/login', (req, res) => {
     res.send(html);
 });
 
-// 로그인 프로세스
+// 로그인 처리
 router.post('/login_process', async (req, res) => {
     const { userID, password } = req.body;
     try {
-      // 데이터베이스에서 사용자 확인 및 비밀번호 검증
-      // 성공 시 세션 생성
-      req.session.is_logined = true;
-      req.session.userID = userID;
-      req.session.save(err => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+        const query = 'SELECT * FROM Users WHERE userID = ?';
+        const [user] = await queryDatabase(query, [userID]);
+
+        if (user && await bcrypt.compare(password, user.password)) {
+            req.session.is_logined = true;
+            req.session.userID = userID;
+            req.session.role = user.role;  // 역할 저장
+            req.session.save(err => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: '세션 저장 중 오류가 발생했습니다.' });
+                }
+                res.json({ success: true, redirect: '/' });
+            });
+        } else {
+            res.status(401).json({ error: '로그인 정보가 올바르지 않습니다.' });
         }
-        res.json({ success: true, redirect: '/' });
-      });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(401).json({ error: '로그인에 실패했습니다.' });
+        console.error('Login error:', error);
+        res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
     }
 });
 
@@ -165,21 +171,11 @@ router.post('/register', async (req, res) => {
         
         console.log('Received registration data:', req.body); // 로깅 추가
 
-        // 역할 매핑
-        let mappedRole;
-        switch(role) {
-            case 'student':
-                mappedRole = 'student';
-                break;
-            case 'teacher':
-                mappedRole = 'teacher';
-                break;
-            case 'center':
-                mappedRole = 'center';
-                break;
-            default:
-                throw new Error('Invalid role');
-        }
+       // 역할 매핑
+       const allowedRoles = Object.values(Roles);
+       if (!allowedRoles.includes(role)) {
+           return res.status(400).json({ error: '유효하지 않은 역할입니다.' });
+       }
 
         // 비밀번호 해싱
         const hashedPassword = await bcrypt.hash(password, 10);
