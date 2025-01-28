@@ -41,7 +41,7 @@ router.get('/', checkAdminRole, (req, res) => {
 router.get('/api/stats', checkAdminRole, async (req, res) => {
     try {
         // 센터 정보 가져오기
-        const centerResponse = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+        const centerResponse = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
             headers: {
                 'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
             }
@@ -114,7 +114,7 @@ router.get('/api/users', checkAdminRole, async (req, res) => {
         console.log('Fetching users list...');
         
         // 센터 정보 가져오기
-        const centerResponse = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+        const centerResponse = await axios.get('${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}', {
             headers: {
                 'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
             }

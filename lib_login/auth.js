@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const db = require('./db');
 const axios = require('axios');
 const { queryDatabase } = require('./db');
+const { config } = require('./server');
 
 // 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
@@ -55,7 +56,7 @@ router.get('/register', async (req, res) => {
         let centerOptions = '<option value="">센터를 선택하세요</option>';
         
         try {
-            const response = await axios.get('https://codingnplay.site/center/api/get-center-list', {
+            const response = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
                 headers: {
                     'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
                 }

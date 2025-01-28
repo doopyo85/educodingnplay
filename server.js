@@ -72,6 +72,29 @@ const store = new RedisStore({
 });
 store.setMaxListeners(20);  // store에도 리스너 제한 증가
 
+// server.js exports 부분을 다음과 같이 구조화
+module.exports = {
+  // Google Sheets 관련
+  getSheetData,
+
+  // 시스템 설정
+  config: {
+      BASE_URL: 'https://app.codingnplay.co.kr',
+      API_ENDPOINTS: {
+          CENTER_LIST: '/center/api/get-center-list'
+      }
+  },
+
+  // 필요한 경우 다른 카테고리도 추가 가능
+  utils: {
+      // 유틸리티 함수들
+  },
+  
+  constants: {
+      // 상수값들
+  }
+};
+
 const allowedOrigins = [
   'https://app.codingnplay.co.kr',
   'https://codingnplay.co.kr'
@@ -370,9 +393,6 @@ async function getSheetData(range) {
 
 // 서버 시작 시 Google Sheets API 초기화
 initGoogleSheets().catch(console.error);
-
-// getSheetData 함수를 다른 모듈에서 사용할 수 있도록 export
-module.exports = { getSheetData };
 
 app.get('/api/get-computer-data', async (req, res) => {
   try {
