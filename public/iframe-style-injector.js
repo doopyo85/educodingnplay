@@ -1,3 +1,5 @@
+const config = require('./config');
+
 // iframe-style-injector.js
 function injectStyleAndFixImagesToIframe(iframe) {
     iframe.addEventListener('load', function() {
@@ -55,8 +57,8 @@ function injectStyleAndFixImagesToIframe(iframe) {
         var images = iframeDoc.getElementsByTagName('img');
         for (var i = 0; i < images.length; i++) {
             var src = images[i].src;
-            if (src.startsWith('https://app.codingnplay.co.kr/')) {
-                var newSrc = src.replace('https://app.codingnplay.co.kr/', 'https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com/');
+            if (src.startsWith(`${config.BASE_URL}/`)) {
+                var newSrc = src.replace(`${config.BASE_URL}/`, `${config.S3_URL}/`);
                 images[i].src = newSrc;
             }
         }

@@ -17,6 +17,7 @@ const fs = require('fs');
 const app = express();
 const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
+const config = require('./config');
 
 // AWS SDK v3 사용
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -72,33 +73,15 @@ const store = new RedisStore({
 });
 store.setMaxListeners(20);  // store에도 리스너 제한 증가
 
-// server.js exports 부분을 다음과 같이 구조화
-module.exports = {
-  // Google Sheets 관련
-  getSheetData,
-
-  // 시스템 설정
-  config: {
-      BASE_URL: 'https://app.codingnplay.co.kr',
-      API_ENDPOINTS: {
-          CENTER_LIST: '/center/api/get-center-list'
-      }
-  },
-
-  // 필요한 경우 다른 카테고리도 추가 가능
-  utils: {
-      // 유틸리티 함수들
-  },
-  
-  constants: {
-      // 상수값들
-  }
-};
-
 const allowedOrigins = [
   'https://app.codingnplay.co.kr',
   'https://codingnplay.co.kr'
 ];
+
+module.exports = {
+  getSheetData,
+  config
+};
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -533,7 +516,7 @@ app.get('/scratch_project', authenticateUser, (req, res) => {
 
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
-  res.redirect('https://app.codingnplay.co.kr:8601');
+  res.redirect(`${config.BASE_URL}:8601`);
 });
 
 // entry 프로젝트 목록페이지
@@ -545,10 +528,10 @@ app.get('/entry_project', authenticateUser, (req, res) => {
   });
 });
 
-// entry 렌더링 (수정된 버전)
+// Entry 리다이렉트
 app.get('/entry', (req, res) => {
-  res.redirect('https://app.codingnplay.co.kr:8080');
- });
+  res.redirect(`${config.BASE_URL}:8080`);
+});
  
 
 // test 렌더링
