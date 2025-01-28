@@ -2,10 +2,19 @@ const express = require('express');
 const router = express.Router();
 const template = require('./template.js');
 const bcrypt = require('bcrypt');
-const db = require('./db');
-const axios = require('axios');
+const { google } = require('googleapis');
 const { queryDatabase } = require('./db');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('../config');
+
+// 구글 시트 데이터 가져오기
+async function fetchCentersFromSheet() {
+    const sheets = google.sheets({ version: 'v4', auth: process.env.GOOGLE_API_KEY });
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.SPREADSHEET_ID,
+        range: '센터정보!A2:B' // A: ID, B: Name
+    });
+    return response.data.values; // [[id1, name1], [id2, name2], ...]
+}
 
 // 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
@@ -37,7 +46,7 @@ router.post('/login_process', async (req, res) => {
         if (user && await bcrypt.compare(password, user.password)) {
             req.session.is_logined = true;
             req.session.userID = userID;
-            req.session.role = user.role;  // 역할 저장
+            req.session.role = user.role;
             req.session.save(err => {
                 if (err) {
                     console.error('Session save error:', err);
@@ -59,19 +68,10 @@ router.get('/register', async (req, res) => {
     const title = '회원가입';
     
     try {
-        let centerOptions = '<option value="">센터를 선택하세요</option>';
-        
-        try {
-            const response = await axios.get(`${config.BASE_URL}${config.API_ENDPOINTS.CENTER_LIST}`, {
-                headers: {
-                    'Authorization': `Bearer ${process.env.API_ACCESS_TOKEN}`
-                }
-            });
-            const centers = response.data.centers;
-            centerOptions += centers.map(center => `<option value="${center.id}">${center.name}</option>`).join('');
-        } catch (apiError) {
-            console.error('API call error:', apiError);
-        }
+        const centers = await fetchCentersFromSheet();
+        const centerOptions = centers
+            .map(([id, name]) => `<option value="${id}">${name}</option>`)
+            .join('');
 
         const html = template.HTML(title, `
             <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">회원정보를 입력하세요</h2>
@@ -82,12 +82,17 @@ router.get('/register', async (req, res) => {
                 <input class="login" type="text" name="name" placeholder="이름" required>
                 <input class="login" type="tel" name="phone" placeholder="전화번호">
                 <input class="login" type="date" name="birthdate" placeholder="생년월일">
-                <select class="login" name="role">
+
+                <select class="login" name="role" required>
                     <option value="student">학생</option>
-                    <option value="teacher">선생님</option>
-                    <option value="manager">원장님</option>
+                    <option value="teacher">강사</option>
+                    <option value="manager">센터장</option>
+                    <option value="kinder">유치원</option>
+                    <option value="school">학교(기관)</option>
                 </select>
+
                 <select class="login" name="centerID" required>
+                    <option value="">센터를 선택하세요</option>
                     ${centerOptions}
                 </select>
                 
@@ -100,18 +105,6 @@ router.get('/register', async (req, res) => {
 
                 <input class="btn" type="submit" value="가입하기" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
             </form>
-
-            <div id="privacyPolicyModal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span id="closeModal" style="cursor:pointer;">&times;</span>
-                    <h3>개인정보 처리방침</h3>
-                    <p>여기에 개인정보 처리방침의 내용을 작성하세요...</p>
-                </div>
-            </div>
-
-            <p class="login-link" style="text-align: center; margin-top: 20px; font-size: 14px;">
-                이미 계정이 있으신가요? <a href="/auth/login" style="color: #333; text-decoration: none; font-weight: bold;">로그인</a>
-            </p>
 
             <script>
                 document.getElementById('registerForm').addEventListener('submit', function(event) {
@@ -127,9 +120,7 @@ router.get('/register', async (req, res) => {
 
                     fetch('/auth/register', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data),
                     })
                     .then(response => response.json())
@@ -146,15 +137,6 @@ router.get('/register', async (req, res) => {
                         alert('회원가입 중 오류가 발생했습니다.');
                     });
                 });
-
-                document.getElementById('privacyPolicyLink').addEventListener('click', function(event) {
-                    event.preventDefault();
-                    document.getElementById('privacyPolicyModal').style.display = 'block';
-                });
-
-                document.getElementById('closeModal').addEventListener('click', function() {
-                    document.getElementById('privacyPolicyModal').style.display = 'none';
-                });
             </script>
         `);
         res.send(html);
@@ -168,23 +150,14 @@ router.get('/register', async (req, res) => {
 router.post('/register', async (req, res) => {
     try {
         const { userID, password, email, name, phone, birthdate, role, centerID } = req.body;
-        
-        console.log('Received registration data:', req.body); // 로깅 추가
 
-       // 역할 매핑
-       const allowedRoles = Object.values(Roles);
-       if (!allowedRoles.includes(role)) {
-           return res.status(400).json({ error: '유효하지 않은 역할입니다.' });
-       }
+        const allowedRoles = Object.values(Roles);
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ error: '유효하지 않은 역할입니다.' });
+        }
 
-        // 비밀번호 해싱
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 데이터베이스에 사용자 정보 저장
-        const query = `
-            INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+        const query = `INSERT INTO Users (userID, password, email, name, phone, birthdate, role, centerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
         const values = [userID, hashedPassword, email, name, phone, birthdate, role, centerID];
 
         await queryDatabase(query, values);
