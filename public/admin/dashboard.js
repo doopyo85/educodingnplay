@@ -144,6 +144,81 @@ async function loadCenterStats() {
     }
 }
 
+// 권한 매트릭스 로드
+async function loadPermissionsMatrix() {
+    try {
+        const result = await fetchWithAuth('/admin/api/permissions');
+        if (!result.success) return;
+
+        const tbody = document.getElementById('permissionsTableBody');
+        const pages = result.data.pages;
+        const roles = ['admin', 'kinder', 'school', 'manager', 'teacher', 'student'];
+
+        tbody.innerHTML = Object.entries(pages).map(([page, permissions]) => `
+            <tr>
+                <td>${page}</td>
+                ${roles.map(role => `
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input permission-checkbox" 
+                                   type="checkbox" 
+                                   ${permissions.includes(role) ? 'checked' : ''}
+                                   data-page="${page}"
+                                   data-role="${role}"
+                                   id="perm_${page}_${role}">
+                        </div>
+                    </td>
+                `).join('')}
+            </tr>
+        `).join('');
+
+        // 저장 버튼 이벤트 리스너
+        document.getElementById('savePermissions').addEventListener('click', savePermissionChanges);
+    } catch (error) {
+        console.error('Error loading permissions:', error);
+    }
+}
+
+// 권한 변경사항 저장
+async function savePermissionChanges() {
+    try {
+        const permissions = {};
+        document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+            const page = checkbox.dataset.page;
+            const role = checkbox.dataset.role;
+            
+            if (!permissions[page]) {
+                permissions[page] = [];
+            }
+            
+            if (checkbox.checked) {
+                permissions[page].push(role);
+            }
+        });
+
+        const response = await fetch('/admin/api/permissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ permissions })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('권한 설정이 성공적으로 저장되었습니다.');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Error saving permissions:', error);
+        alert('권한 설정 저장 중 오류가 발생했습니다.');
+    }
+}
+
+
 function showSection(sectionName) {
     console.log('Showing section:', sectionName);
     
@@ -179,6 +254,9 @@ function showSection(sectionName) {
             break;
         case 'centers':
             loadCenterStats();
+            break;
+        case 'permissions':
+            loadPermissionsMatrix();
             break;
     }
 }

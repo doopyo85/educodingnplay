@@ -27,13 +27,21 @@
         <div class="collapse navbar-collapse" id="navbarContent">
             <form class="d-flex mx-auto" style="max-width: 400px;">
                 <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search" style="font-size: 16px; padding: 8px;">
-            </form>
-            <% if (role === 'admin') { %>
-                <a href="/admin" class="text-decoration-none me-3">
-                    <span class="text-primary">admin</span>
-                </a>
-            <% } %>
+            </form>          
             <div class="d-flex align-items-center">
+                <!-- 역할 권한 헬퍼 함수 -->
+                <%
+                function canAccess(feature) {
+                    const permissions = require('../../lib_login/permissions');
+                    return permissions.hasFeatureAccess(locals.role, feature);
+                }
+                %>
+                <% if (typeof role !== 'undefined' && role === 'admin') { %>
+                    <a href="/admin" class="text-decoration-none me-3">
+                        <span class="text-primary">admin</span>
+                    </a>
+                <% } %> 
+
                 <!-- 다크 모드 토글 버튼 -->
                 <i id="toggle-dark-mode" class="bi bi-brightness-high me-3"></i>
 
@@ -107,4 +115,7 @@
         }
     }
     setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
+
+
+
 </script>

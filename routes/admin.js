@@ -3,6 +3,48 @@ const express = require('express');
 const router = express.Router();
 const { queryDatabase } = require('../lib_login/db');
 const { getSheetData } = require('../server');
+const fs = require('fs').promises;
+const path = require('path');
+
+// 권한 설정 가져오기
+router.get('/api/permissions', checkAdminRole, async (req, res) => {
+    try {
+        const permissionsPath = path.join(__dirname, '../lib_login/permissions.json');
+        const permissions = JSON.parse(await fs.readFile(permissionsPath, 'utf8'));
+        
+        res.json({
+            success: true,
+            data: permissions
+        });
+    } catch (error) {
+        console.error('Error loading permissions:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// 권한 설정 저장
+router.post('/api/permissions', checkAdminRole, async (req, res) => {
+    try {
+        const { permissions } = req.body;
+        const permissionsPath = path.join(__dirname, '../lib_login/permissions.json');
+        
+        await fs.writeFile(permissionsPath, JSON.stringify(permissions, null, 2));
+        
+        res.json({
+            success: true,
+            message: '권한 설정이 저장되었습니다.'
+        });
+    } catch (error) {
+        console.error('Error saving permissions:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
 
 // 관리자 권한 체크 미들웨어
 const checkAdminRole = async (req, res, next) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const { google } = require('googleapis');
 require('dotenv').config();
+const { checkPageAccess } = require('../lib_login/authMiddleware');
 
 const router = express.Router();
 

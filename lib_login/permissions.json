@@ -1,0 +1,13 @@
+{
+    "pages": {
+        "/admin": ["admin"],
+        "/kinder": ["admin", "kinder"],
+        "/school": ["admin", "school"],
+        "/teacher": ["admin", "manager", "teacher"]
+    },
+    "features": {
+        "PPT_BUTTON": ["admin", "teacher", "manager", "school"],
+        "USER_MANAGE": ["admin"],
+        "CONTENT_EDIT": ["admin", "manager", "teacher"]
+    }
+}

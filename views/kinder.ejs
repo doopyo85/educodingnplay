@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/public/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
+    <% if (typeof role !== 'undefined' && role === 'admin') { %>
+        <h1>관리자 페이지</h1>
+    <% } else { %>
+        <h1>권한이 없습니다.</h1>
+    <% } %>
+    
 </head>
 <body>
     <%- include('partials/header') %>

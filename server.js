@@ -180,9 +180,9 @@ app.use('/kinder', kinderRouter);
 app.use((req, res, next) => {
   console.log('세션 정보:', req.session);  
   console.log('쿠키 정보:', req.headers.cookie);
-  res.locals.userID = req.session.userID || null;
-  res.locals.is_logined = req.session.is_logined || false;
-  res.locals.role = req.session.role || Roles.GUEST;  // role 정보 추가
+  res.locals.userID = req.session?.userID || null;
+  res.locals.is_logined = req.session?.is_logined || false;
+  res.locals.role = req.session?.role || 'guest';  // 기본값 'guest' 설정
   next();
 });
 
