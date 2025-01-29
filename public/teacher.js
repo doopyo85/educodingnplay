@@ -41,40 +41,25 @@ function waitForDataLoading() {
         checkData();
     });
 }
+document.addEventListener("DOMContentLoaded", function() {
+    loadMenuData(); // 서버에서 메뉴 데이터 로드
+    setupEventListeners(); // 이벤트 리스너 설정
+});
 
-// initClient 함수 수정
-function initClient() {
-    const apiKey = document.getElementById('googleApiKey').value;
-    const spreadsheetId = document.getElementById('spreadsheetId').value;
-    
-    if (!apiKey || !spreadsheetId) {
-        console.error('API Key or Spreadsheet ID is missing');
-        return;
-    }
-
-    gapi.client.init({
-        apiKey: apiKey,
-        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-    }).then(() => {
-        console.log('Google API client initialized');
-        return loadMenuData(spreadsheetId);
-    }).then((menuData) => {
+// 서버에서 메뉴 데이터 가져오기
+async function loadMenuData() {
+    try {
+        const response = await fetch('/api/get-teachermenu-data'); // 서버의 API 호출
+        const menuData = await response.json();
         if (menuData && menuData.length > 0) {
-            renderMenu(menuData);
-            return loadProblemData(spreadsheetId);
+            renderMenu(menuData); // 메뉴 렌더링
+            loadProblemData();    // 문제 데이터 로드
         } else {
             throw new Error('No menu data loaded');
         }
-    }).then((loadedProblemData) => {
-        if (loadedProblemData && loadedProblemData.length > 0) {
-            console.log('Problem data loaded successfully');
-            problemData = loadedProblemData; // 전역 변수에 할당
-        } else {
-            throw new Error('No problem data loaded');
-        }
-    }).catch(error => {
-        console.error('Error in initialization process:', error);
-    });
+    } catch (error) {
+        console.error('Error loading menu data:', error);
+    }
 }
 
 
@@ -138,38 +123,6 @@ function fetchUserData() {
     }
 }
   
-// 서버에서 메뉴 데이터 가져오기
-async function loadMenuData() {
-    try {
-        const response = await fetch('/api/get-teachermenu-data'); // 서버의 API 호출
-        const menuData = await response.json();
-        if (menuData && menuData.length > 0) {
-            renderMenu(menuData); // 메뉴 렌더링
-            loadProblemData();    // 문제 데이터 로드
-        } else {
-            throw new Error('No menu data loaded');
-        }
-    } catch (error) {
-        console.error('Error loading menu data:', error);
-    }
-}
-
-// 서버에서 문제 데이터 가져오기
-async function loadProblemData() {
-    try {
-        const response = await fetch('/api/get-problem-data'); // 서버의 API 호출
-        const problemData = await response.json();
-        if (problemData && problemData.length > 0) {
-            // 문제 데이터를 전역 변수에 저장
-            window.problemData = problemData;
-        } else {
-            throw new Error('No problem data loaded');
-        }
-    } catch (error) {
-        console.error('Error loading problem data:', error);
-    }
-}
-
 function renderMenu(data) {
     const navList = document.getElementById('navList');
     if (!navList) {
@@ -358,87 +311,6 @@ function applySubMenuHighlight(selectedItem) {
     }
 }
 
-function onMenuSelect(examName) {
-    currentExamName = examName;
-    currentProblemNumber = 1;
-    console.log('Selected exam:', currentExamName);
-    
-    if (problemData && problemData.length > 0) {
-        // 선택된 시험의 문제 개수 계산
-        totalProblems = problemData.filter(problem => 
-            problem[1].toLowerCase() === currentExamName.toLowerCase()
-        ).length;
-
-        loadProblem(currentProblemNumber);
-        renderProblemNavigation();
-
-        // Problem Navigation 컨테이너 표시
-        const navContainer = document.getElementById('problem-navigation-container');
-        if (navContainer) {
-            navContainer.style.display = 'flex';
-        }
-
-        // 선택된 메뉴 아이템 찾기 및 하이라이트 적용
-        const selectedMenuItem = Array.from(document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item'))
-            .find(item => item.textContent.trim() === examName);
-        if (selectedMenuItem) {
-            applySubMenuHighlight(selectedMenuItem);
-        }
-    } else {
-        console.error('Problem data not loaded yet. Cannot load problem.');
-    }
-}
-
-function renderProblemNavigation() {
-    const navContainer = document.getElementById('problem-navigation');
-    if (!navContainer) return;
-
-    navContainer.innerHTML = '';
-
-    for (let i = 1; i <= totalProblems; i++) {
-        const problemBtn = document.createElement('i');
-        problemBtn.classList.add('bi', 'problem-icon');
-        
-        if (i === currentProblemNumber) {
-            problemBtn.classList.add(i === 10 ? 'bi-0-circle-fill' : `bi-${i}-circle-fill`);
-        } else {
-            problemBtn.classList.add(i === 10 ? 'bi-0-circle' : `bi-${i}-circle`);
-        }
-        
-        problemBtn.addEventListener('click', function() {
-            navigateToProblem(i);
-        });
-
-        navContainer.appendChild(problemBtn);
-    }
-
-    updateNavigationButtons();
-}
-
-function navigateToProblem(problemNumber) {
-    currentProblemNumber = problemNumber;
-    updateProblemNavigation();
-    loadProblem(currentProblemNumber);
-}
-
-function updateProblemNavigation() {
-    const icons = document.querySelectorAll('#problem-navigation .problem-icon');
-    
-    icons.forEach((icon, index) => {
-        const problemNumber = index + 1;
-        icon.className = `bi problem-icon ${problemNumber === currentProblemNumber ? `bi-${problemNumber === 10 ? 0 : problemNumber}-circle-fill` : `bi-${problemNumber === 10 ? 0 : problemNumber}-circle`}`;
-    });
-    
-    updateNavigationButtons();
-}
-
-function updateNavigationButtons() {
-    const prevButton = document.getElementById('prev-problem');
-    const nextButton = document.getElementById('next-problem');
-
-    if (prevButton) prevButton.disabled = currentProblemNumber <= 1;
-    if (nextButton) nextButton.disabled = currentProblemNumber >= totalProblems;
-}
 
 function resizeIframe(iframe) {
     if (!iframe) return;
@@ -453,82 +325,6 @@ function resizeIframe(iframe) {
     iframe.onload = function() {
         iframe.style.height = containerHeight + 'px';
     };
-}
-
-
-function loadProblem(problemNumber) {
-    console.log('Loading problem:', currentExamName, problemNumber);
-    console.log('Problem data:', problemData);
-    
-    if (!problemData || problemData.length === 0) {
-        console.error('Problem data is not loaded yet');
-        return;
-    }
-
-    const problemInfo = problemData.find(problem => 
-        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
-        problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
-    );
-
-    if (problemInfo) {
-        const [problemFileName, , ] = problemInfo;
-        const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
-        console.log('Problem URL:', problemUrl);
-
-        const iframe = document.getElementById('iframeContent');
-        if (iframe) {
-            fetch(problemUrl)
-                .then(response => response.text())
-                .then(html => {
-                    const modifiedHtml = `
-                        <html>
-                            <head>
-                                <base target="_parent">
-                                <link rel="stylesheet" href="/resource/contents.css">
-                                <style>
-                                    body { font-family: Arial, sans-serif; }
-                                </style>
-                            </head>
-                            <body>
-                                ${html}
-                            </body>
-                        </html>
-                    `;
-                    iframe.srcdoc = modifiedHtml;
-                })
-                .catch(error => {
-                    console.error('Error loading problem:', error);
-                    iframe.srcdoc = '<p>Error loading problem content.</p>';
-                });
-
-            iframe.onload = function() {
-                resizeIframe(iframe);
-            };
-        } else {
-            console.error('iframe element not found');
-        }
-        // 앞의 세 글자만 대문자로 변환
-        const examNameModified = currentExamName.substring(0, 3).toUpperCase() + currentExamName.substring(3);
-        const problemTitle = `${examNameModified} - 문제 ${problemNumber}`;
-        const problemTitleElement = document.getElementById('problem-title');
-        if (problemTitleElement) {
-            problemTitleElement.textContent = problemTitle;
-        } else {
-            console.error('problem-title element not found');
-        }
-
-        // Update the Vue component with the new problem
-        if (typeof window.updateEditorProblem === 'function') {
-            window.updateEditorProblem({
-                title: problemTitle,
-                url: problemUrl,
-                // Add any other relevant problem data here
-            });
-        }
-    } else {
-        console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
-        console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
-    }
 }
 
 // 창 크기가 변경될 때마다 iframe 크기를 조정합니다
