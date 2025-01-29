@@ -58,18 +58,6 @@ footer {
 }
 
 /* /styles.css */
-.sidebar {
-    position: fixed;
-    top: 60px; /* 헤더 높이만큼 내려서 헤더 아래로 배치 */
-    left: 0;
-    width: 200px;
-    height: calc(100% - 60px); /* 헤더 높이 제외한 전체 화면 */
-    background-color: #f8f9fa;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    z-index: 1000; /* 헤더보다 낮게 설정 */
-}
-
 nav {
     position: fixed;
     top: 50px; /* 헤더 높이만큼 내려서 헤더 아래 배치 */
