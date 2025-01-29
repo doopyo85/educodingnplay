@@ -58,7 +58,6 @@ footer {
 /* /styles.css */
 nav {
     position: fixed;
-    top: 50px;
     left: 0;
     width: 200px; /* 기존 너비 유지 */
     height: calc(100% - 50px); /* 헤더를 제외한 높이 */
