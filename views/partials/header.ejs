@@ -46,6 +46,11 @@
                         <span class="text-primary">teacher</span>
                     </a>
                 <% } %> 
+                <% if (typeof role !== 'undefined' && role === 'student') { %>
+                    <a href="/" class="text-decoration-none me-3">
+                        <span class="text-primary">student</span>
+                    </a>
+                <% } %> 
 
                 <!-- 다크 모드 토글 버튼 -->
                 <i id="toggle-dark-mode" class="bi bi-brightness-high me-3"></i>
