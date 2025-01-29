@@ -15,8 +15,6 @@ html, body {
 
 main {
     flex-grow: 1;  /* 콘텐츠가 부족해도 footer를 하단으로 밀기 위한 설정 */
-    padding-top: 50px; /* 헤더 높이만큼 아래로 이동 */
-    margin-left: 220px; /* nav 너비만큼 오른쪽으로 이동 */
 }
 
 footer {
@@ -60,6 +58,7 @@ footer {
 /* /styles.css */
 nav {
     position: fixed;
+    top: 50px;
     left: 0;
     width: 200px; /* 기존 너비 유지 */
     height: calc(100% - 50px); /* 헤더를 제외한 높이 */
