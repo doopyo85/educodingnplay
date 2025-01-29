@@ -90,6 +90,8 @@ async function logLearningActivity(req, res, next) {
         return next();
     }
 
+    console.log('Logging learning activity: ', req.originalUrl); // 디버깅용 로그
+
     try {
         const sql = `SELECT id, centerID FROM Users WHERE userID = ?`;
         const [user] = await queryDatabase(sql, [req.session.userID]);
@@ -105,8 +107,11 @@ async function logLearningActivity(req, res, next) {
                 VALUES (?, ?, ?, NOW(), ?)`,
                 [user.id, contentType, req.originalUrl, user.centerID]
             );
+            console.log('✅ Learning log inserted successfully!');
+        } else {
+            console.log('❌ No matching path for learning log.');
         }
-    } catch (error) {
+} catch (error) {
         console.error('Learning activity logging error:', error);
     }
     next();

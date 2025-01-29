@@ -127,12 +127,17 @@ const {
 app.use(logUserActivity);
 app.use(logMenuAccess);
 app.use(logLearningActivity);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use((req, res, next) => {
+  console.log('Middleware hit: logLearningActivity -', req.originalUrl);
+  next();
+});
+
 
 // server.js
 app.use(session({
