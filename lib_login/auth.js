@@ -1,7 +1,7 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 const template = require('./template.js');
-const bcrypt = require('bcrypt');
 const { google } = require('googleapis');
 const { queryDatabase } = require('./db');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('../config');
@@ -73,11 +73,13 @@ router.post('/login_process', async (req, res) => {
     try {
         // 사용자 조회
         const query = 'SELECT * FROM Users WHERE userID = ?';
-        const [user] = await queryDatabase(query, [userID]);
+        const users = await queryDatabase(query, [userID]);
 
-        if (!user) {
+        if (!users || users.length === 0) {
             return res.status(401).json({ success: false, error: '아이디가 존재하지 않습니다.' });
         }
+
+        const user = users[0]; // 첫 번째 결과를 user 객체로 사용
 
         // 비밀번호 검증
         if (!password || !(await bcrypt.compare(password, user.password))) {
@@ -86,7 +88,7 @@ router.post('/login_process', async (req, res) => {
 
         // 세션 설정
         req.session.is_logined = true;
-        req.session.userID = userID;
+        req.session.userID = user.userID;
         req.session.role = user.role;
 
         req.session.save(err => {
@@ -95,7 +97,7 @@ router.post('/login_process', async (req, res) => {
                 return res.status(500).json({ success: false, error: '세션 저장 중 오류가 발생했습니다.' });
             }
 
-            // 역할별 리다이렉트
+            // 역할별 리다이렉트 URL 설정
             let redirectUrl = '/';
             if (user.role === 'kinder') {
                 redirectUrl = '/kinder';
@@ -216,32 +218,5 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ error: '회원가입 중 오류가 발생했습니다.' });
     }
 });
-
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries()); // 🔹 data를 정의함
-
-    fetch('/auth/login_process', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',  // 쿠키 포함
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
-        } else {
-            window.location.href = data.redirect;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('로그인 중 오류가 발생했습니다.');
-    });
-});
-
 
 module.exports = router;
