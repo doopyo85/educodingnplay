@@ -111,10 +111,6 @@ router.post('/login_process', async (req, res) => {
     }
 });
 
-
-
-
-
 // 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
     const title = '회원가입';
@@ -220,5 +216,12 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ error: '회원가입 중 오류가 발생했습니다.' });
     }
 });
+
+fetch('/auth/login_process', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',  //쿠키 포함
+    body: JSON.stringify(data)
+})
 
 module.exports = router;

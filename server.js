@@ -143,18 +143,19 @@ app.use((req, res, next) => {
 app.set('trust proxy', 1); // 로드밸런서(프록시) 뒤에서 클라이언트의 실제 IP와 프로토콜을 감지
 
 app.use(session({
-    store: store,
-    secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: true,        // 로드밸런서가 HTTPS를 관리하므로 true 유지
-        httpOnly: true,      // XSS 공격 방지를 위해 HTTP 전용 쿠키 사용
-        sameSite: 'none',    // 크로스 사이트 쿠키 전송 허용
-        domain: '.codingnplay.co.kr',
-        maxAge: 60 * 60 * 1000 // 1시간 (밀리초 단위)
-    }
+  store: store,
+  secret: process.env.EXPRESS_SESSION_SECRET || 'your_fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      secure: process.env.NODE_ENV === 'production', // production 환경에서만 secure 적용
+      httpOnly: true,
+      sameSite: 'none',
+      domain: '.codingnplay.co.kr',
+      maxAge: 60 * 60 * 1000 // 1시간
+  }
 }));
+
 
 // 요청 프로토콜 확인을 위한 미들웨어 추가
 app.use((req, res, next) => {
