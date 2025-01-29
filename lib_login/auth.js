@@ -217,11 +217,31 @@ router.post('/register', async (req, res) => {
     }
 });
 
-fetch('/auth/login_process', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',  //쿠키 포함
-    body: JSON.stringify(data)
-})
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries()); // 🔹 data를 정의함
+
+    fetch('/auth/login_process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',  // 쿠키 포함
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('로그인 중 오류가 발생했습니다.');
+    });
+});
+
 
 module.exports = router;
