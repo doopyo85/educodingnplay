@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/styles.css">
     <script src="https://apis.google.com/js/api.js"></script> <!-- Google API 추가 -->
-    <script src="/js/learning-tracker.js"></script>
+    <script src="/learning-tracker.js"></script>
     <style>
         .card {
             height: 280px;
@@ -86,20 +86,42 @@
         </div>
     </div>
     <!-- 페이지 하단에 트래킹 초기화 코드 추가 -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 학습 트래커 초기화
-        const pageTitle = document.title;
-        const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
-        
-        window.learningTracker = new LearningTracker(contentType, pageTitle);
-        window.learningTracker.startTracking();
-        
-        // 프로그레스 업데이트 예시 (실제 구현에 맞게 수정 필요)
-        function updateProgress(progress) {
-            if (window.learningTracker) {
-                window.learningTracker.endTracking(progress);
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            // 학습 트래커 초기화
+            const pageTitle = document.title;
+            const contentType = 'scratch';
+            
+            console.log('학습 트래커 초기화 시작', { contentType, pageTitle });
+            
+            window.learningTracker = new LearningTracker(contentType, pageTitle);
+            await window.learningTracker.startTracking();
+            
+            // 실제 학습 진행도를 계산하는 함수
+            function calculateProgress() {
+                // 여기에 실제 진행도 계산 로직 구현
+                // 예: 완료된 단계 수, 수행된 작업 등을 기반으로 계산
+                return 0;  // 임시 반환값
             }
+    
+            // 주기적으로 진행도 업데이트 (선택적)
+            setInterval(() => {
+                if (window.learningTracker && window.learningTracker.isTracking) {
+                    const currentProgress = calculateProgress();
+                    window.learningTracker.endTracking(currentProgress);
+                }
+            }, 300000);  // 5분마다 업데이트
+    
+            // 새 프로젝트 시작 버튼 클릭 시 진행도 업데이트
+            document.querySelector('.btn-success').addEventListener('click', function() {
+                if (window.learningTracker) {
+                    window.learningTracker.endTracking(100);  // 새 프로젝트 시작은 현재 세션 완료로 간주
+                }
+            });
+    
+        } catch (error) {
+            console.error('학습 트래커 초기화 오류:', error);
         }
     });
     </script>
@@ -107,7 +129,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/header.js"></script>
-    <script src="/public/scratch_project.js"></script>
+    <script src="/header.js"></script>
+    <script src="/scratch_project.js"></script>
 </body>
 </html>

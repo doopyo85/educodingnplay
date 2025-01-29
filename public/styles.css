@@ -55,7 +55,7 @@ footer {
     color: #495057;
 }
 
-/* public/styles.css */
+/* /styles.css */
 .sidebar {
     z-index: 1020; /* header보다 낮은 z-index 값 */
 }
