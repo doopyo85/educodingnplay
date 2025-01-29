@@ -183,15 +183,18 @@ const authenticateUser = (req, res, next) => {
   }
 };
 
-// **인증 라우트 처리**
+// 라우터
 app.use('/auth', authRouter);
 
-// server.js에 추가
 const adminRouter = require('./routes/admin');
 app.use('/admin', adminRouter);
 
 const kinderRouter = require('./routes/kinder');
 app.use('/kinder', kinderRouter);
+
+const learningRoutes = require('./routes/learning');
+app.use(learningRoutes);
+
 
 // server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {

@@ -20,7 +20,7 @@ async function initializePool() {
       connectionLimit: 10,
       connectTimeout: 20000 // 20초
     });
-    console.log('✅ Database pool created successfully');
+    console.log('Database pool created successfully');
   } catch (error) {
     console.error(' Failed to create database pool:', error);
     throw error;
@@ -33,10 +33,10 @@ async function queryDatabase(query, params = []) {
     await initializePool();
   }
   try {
-    console.log('🛠 Executing SQL:', query);
+    console.log('Executing SQL:', query);
     console.log(' Params:', params);
     const [results] = await pool.query(query, params);
-    console.log('✅ SQL execution successful:', results);
+    console.log('SQL execution successful:', results);
     return results;
   } catch (error) {
     console.error(' Database query error:', { query, params, error });
@@ -47,9 +47,9 @@ async function queryDatabase(query, params = []) {
 //  데이터베이스 연결 테스트
 async function testDatabaseConnection() {
   try {
-    console.log('🔄 Testing database connection...');
+    console.log('Testing database connection...');
     const result = await queryDatabase('SELECT 1 as test');
-    console.log('✅ Database connection successful:', result);
+    console.log('Database connection successful:', result);
   } catch (error) {
     console.error(' Database connection failed:', error);
   }

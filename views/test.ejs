@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>코딩앤아카데미 - 쉽게 배우는 프로그래밍</title>
 
+    <script src="/js/learning-tracker.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
 
     <!-- Bootstrap CSS -->
@@ -125,6 +126,23 @@
 
         document.getElementById("saveCodeBtn").addEventListener("click", function() {
             alert("코드가 저장되었습니다.");
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 학습 트래커 초기화
+            const pageTitle = document.title;
+            const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
+            
+            window.learningTracker = new LearningTracker(contentType, pageTitle);
+            window.learningTracker.startTracking();
+            
+            // 프로그레스 업데이트 예시 (실제 구현에 맞게 수정 필요)
+            function updateProgress(progress) {
+                if (window.learningTracker) {
+                    window.learningTracker.endTracking(progress);
+                }
+            }
         });
     </script>
 </body>

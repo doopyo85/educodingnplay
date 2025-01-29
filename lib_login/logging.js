@@ -89,15 +89,15 @@ async function logLearningActivity(req, res, next) {
         return next();
     }
 
-    console.log('📌 Logging learning activity:', req.originalUrl); // 요청 URL 확인
-    console.log('📌 세션 정보:', req.session); // 세션 값 확인
+    console.log(' Logging learning activity:', req.originalUrl); // 요청 URL 확인
+    console.log(' 세션 정보:', req.session); // 세션 값 확인
 
     try {
         const sql = `SELECT id, centerID FROM Users WHERE userID = ?`;
         const [user] = await queryDatabase(sql, [req.session.userID]);
 
         if (user) {
-            console.log('✅ User found:', user);
+            console.log(' User found:', user);
 
             const validPaths = ['/scratch', '/entry', '/python'];
             const matchedPath = validPaths.find(path => req.originalUrl.startsWith(path));
@@ -105,7 +105,7 @@ async function logLearningActivity(req, res, next) {
             if (matchedPath) {
                 const contentType = matchedPath.substring(1); // '/' 제거
 
-                console.log('✅ Inserting learning log:', {
+                console.log(' Inserting learning log:', {
                     user_id: user.id,
                     contentType: contentType,
                     contentName: req.originalUrl,
@@ -119,13 +119,13 @@ async function logLearningActivity(req, res, next) {
                     [user.id, contentType, req.originalUrl, user.centerID]
                 );
 
-                console.log('✅ Learning log inserted successfully!');
+                console.log(' Learning log inserted successfully!');
             } else {
-                console.log('❌ No matching path for learning log:', req.originalUrl);
+                console.log(' No matching path for learning log:', req.originalUrl);
             }
         }
     } catch (error) {
-        console.error('❌ Learning activity logging error:', error);
+        console.error(' Learning activity logging error:', error);
     }
     next();
 }
