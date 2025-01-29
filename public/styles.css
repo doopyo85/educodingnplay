@@ -1,337 +1,117 @@
-body {
-    font-family: 'Noto Sans KR', sans-serif;
+/* ============================================= */
+/* ✅ 공통 스타일 */
+/* ============================================= */
+body, html {
     margin: 0;
     padding: 0;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-}
-
-html, body {
-    height: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-main {
-    flex-grow: 1;  /* 콘텐츠가 부족해도 footer를 하단으로 밀기 위한 설정 */
-}
-
-footer {
-    background-color: #f8f9fa;
-    padding: 10px 20px;
-    text-align: center;
-    position: fixed; /* 화면 하단에 고정 */
-    bottom: 0;
-    left: 0;
-    right: 0;
     width: 100%;
-    z-index: 1000; /* 다른 요소들 위에 오도록 */
+    height: 100%;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
-.multicolor-text {
-    font-size: 2.5rem; /* 적절한 폰트 크기 */
-    font-weight: bold; /* 굵은 폰트 */
-    background: linear-gradient(to right, #4a90e2, #e94e77); /* 파란색에서 분홍색으로 그라디언트 */
-    -webkit-background-clip: text;
-    color: transparent;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1140px;
-    margin: 0 auto;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-}
-
-.user-info span {
-    margin-right: 15px;
-    color: #495057;
-}
-
-/* /styles.css */
-.sidebar {
-    position: fixed;
-    top: 60px; /* 헤더 높이만큼 내려서 헤더 아래로 배치 */
-    left: 0;
-    width: 200px;
-    height: calc(100% - 60px); /* 헤더 높이 제외한 전체 화면 */
-    background-color: #f8f9fa;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    z-index: 1000; /* 헤더보다 낮게 설정 */
-}
-
-nav {
+/* ============================================= */
+/* ✅ 헤더 (상단 네비게이션 바) */
+/* ============================================= */
+.header {
     position: fixed;
     top: 0;
     left: 0;
-    width: 200px;
-    height: 100%;
-    background-color: #f8f9fa;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    z-index: 500; /* 네비게이션 바의 z-index를 낮게 설정 */
+    width: 100%;
+    height: 50px; /* 헤더 높이 */
+    background-color: #ffffff;
+    z-index: 1050; /* 사이드바보다 위로 배치 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-#navList {
+.header .brand-logo {
+    display: flex;
+    align-items: center;
+}
+
+.header .brand-logo img {
+    width: 40px;
+    height: 40px;
+}
+
+.header .nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.header .nav-links a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ============================================= */
+/* ✅ 사이드바 (왼쪽 내비게이션) */
+/* ============================================= */
+.sidebar {
+    position: fixed;
+    top: 50px; /* 헤더 높이만큼 내려서 헤더 아래 배치 */
+    left: 0;
+    width: 200px;
+    height: calc(100% - 50px); /* 헤더 제외한 높이 */
+    background-color: #f8f9fa;
+    z-index: 1000; /* 헤더보다 낮게 설정 */
+    padding-top: 10px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.menu-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    color: #495057;
-    border-radius: 8px;
-}
-
-.sub-menu {
-    display: none;
-    margin-left: 0px;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-.sub-menu .menu-item {
-    padding: 8px 10px;
-    margin-left: 0px;
-}
-
-.sub-menu .menu-item:hover {
-    background-color: #dcdcdc; /* 원하는 롤오버 색상으로 변경 */
-    color: #000;
-}
-
-.sub-menu .menu-item.active {
-    background-color: #e9ecef;
-    color: #000;
-}
-
-.menu-item.active .sub-menu {
-    display: block;
-}
-
-.selected-item {
-    color: #4169e1;
-}
-
-#content {
-    margin-left: 220px; /* 네비게이션 바 너비만큼 마진 추가 */
-    padding: 20px;
-}
-
-.arrow {
-    margin-left: 10px;
-}
-
-.arrow-down::after {
-    content: '▼';
-}
-
-.arrow-up::after {
-    content: '▲';
-}
-
-.container {
-    margin-top: 50px;
-}
-
-h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-}
-
-p {
-    font-size: 1.1rem;
-    color: #6c757d;
-}
-
-.card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* 카드 내부의 콘텐츠를 위아래로 나누어 배치 */
-}
-
-.card:hover {
-    transform: scale(1.05);
-    cursor: pointer; /* 포인터 커서 추가 */
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
-.card-text {
-    font-size: 1rem;
-    color: #6c757d;
-}
-
-.card-img-top, .card-img-entry {
-    object-fit: contain;
+.sidebar .nav-item {
     padding: 10px;
 }
 
-.card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* 텍스트와 버튼을 아래쪽에 정렬 */
-    align-items: center;
-    text-align: center;
-    flex-grow: 1;
+.sidebar .nav-item a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 10px;
 }
 
-.btn-primary, .btn-secondary {
-    margin: 5px;
+.sidebar .nav-item a:hover {
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+/* ============================================= */
+/* ✅ 메인 콘텐츠 영역 */
+/* ============================================= */
+.main-content {
+    padding-top: 50px; /* 헤더 높이만큼 아래로 이동 */
+    margin-left: 220px; /* 사이드바 너비만큼 오른쪽으로 이동 */
+    padding: 20px;
+}
+
+/* ============================================= */
+/* ✅ 버튼 및 UI 요소 */
+/* ============================================= */
+.btn-primary {
+    background-color: #007bff;
     border: none;
-    border-radius: 30px;
-    padding: 10px 20px;
-    transition: background-color 0.3s;
-    align-self: stretch;
-}
-.btn-primary:hover, .btn-secondary:hover {
-    background-color: #563d7c;
 }
 
-.nav-tabs {
-    justify-content: center;
-    margin-bottom: 20px;
+.btn-primary:hover {
+    background-color: #0056b3;
 }
 
-
-/* 여기서부터 대시보드 관련 스타일 */
-
-/* 대시보드 테이블 정렬 아이콘 */
-th[data-sort] {
-    cursor: pointer;
-    position: relative;
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
 }
 
-th[data-sort] i {
-    opacity: 0.3;
-    margin-left: 5px;
-}
-
-th[data-sort].sorted-asc i,
-th[data-sort].sorted-desc i {
-    opacity: 1;
-}
-
-/* 테이블 필터 입력창 */
-.column-filter {
-    width: 100%;
-    margin-top: 5px;
-    font-size: 0.875rem;
-}
-
-/* 통계 카드 애니메이션 */
-.stat-card {
-    transition: transform 0.2s;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-}
-
-/* 차트 컨테이너 */
-.chart-container {
-    position: relative;
-    margin: auto;
-    height: 300px;
-}
-
-/* 사용자 관리 테이블 열 너비 조정 */
-/* 사용자 관리 테이블 열 너비 조정 */
-#usersTable th,
-#usersTable td {
-    white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
-    padding: 6px;         /* 셀 내부 여백 최소화 */
-    vertical-align: middle; /* 텍스트 수직 중앙 정렬 */
-}
-
-#usersTable th[data-sort="no"],
-#usersTable td:first-child {
-    width: 50px;  /* NO 컬럼 */
-}
-
-#usersTable th[data-sort="userID"],
-#usersTable th[data-sort="name"],
-#usersTable th[data-sort="role"] {
-    width: 120px;  /* ID, 이름, 역할 컬럼 */
-}
-
-#usersTable th[data-sort="centerID"] {
-    width: 150px;  /* 센터ID 컬럼 */
-}
-
-#usersTable th[data-sort="email"] {
-    width: 200px;  /* 이메일 컬럼 */
-}
-
-#usersTable th[data-sort="created_at"] {
-    width: 180px;  /* 가입일 컬럼 */
-}
-
-#usersTable th:last-child,
-#usersTable td:last-child {
-    width: 100px;  /* 작업 컬럼 */
-    text-align: center;
-}
-
-/* [활동 보기] 버튼 크기 조정 */
-#usersTable .btn-view {
-    font-size: 12px;       /* 글자 크기 */
-    padding: 2px 6px;      /* 내부 여백 최소화 */
-    height: auto;          /* 고정 높이 제거 */
-    line-height: 1.2;      /* 줄 간격 최소화 */
-}
-
-/* 테이블 전체 레이아웃 조정 */
-.table-responsive {
-    margin-top: 1rem;
-    overflow-x: auto;  /* 필요시 가로 스크롤 */
-}
-
-/* 필터 입력창 너비 조정 */
-.column-filter {
-    width: 100%;
-    min-width: 50px;  /* 최소 너비 설정 */
-}
-
-/* 권한 설정 테이블 스타일 */
-#permissions-section .table {
-    font-size: 0.9rem;
-}
-
-#permissions-section .table th {
-    text-align: center;
-    vertical-align: middle;
-    background-color: #f8f9fa;
-}
-
-#permissions-section .form-check-input {
-    cursor: pointer;
-}
-
-#permissions-section .form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-#permissions-section small.text-muted {
-    font-size: 0.8rem;
+.btn-danger:hover {
+    background-color: #b52b3b;
 }
