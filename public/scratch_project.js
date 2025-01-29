@@ -1,79 +1,63 @@
-let RANGE;  // 계정 유형에 따라 동적으로 변경될 변수
-
-document.addEventListener("DOMContentLoaded", async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     try {
-        const userType = await getUserType();  // 사용자 계정 유형을 가져옴
-        RANGE = (userType === 'student' || userType === 'guest') ? 'sb3!A2:C' : 'sb2!A2:C';  // 계정 유형에 따라 RANGE 설정
-        console.log('RANGE set to:', RANGE);
-        loadScratchData(userType);  // sb2 또는 sb3 데이터를 로드
+        const userType = await getUserType();
+        console.log("📌 유저 타입:", userType);
+
+        await loadScratchData(userType);
     } catch (error) {
-        console.error('Error loading user type:', error);
-        displayErrorMessage("설정을 불러오는 중 오류가 발생했습니다.");
+        console.error('❌ 사용자 유형을 가져오는 중 오류 발생:', error);
     }
 });
 
 // 사용자 계정 유형을 가져오는 함수
 async function getUserType() {
-    const response = await fetch('/api/get-user-type');
-    if (!response.ok) {
-        throw new Error('HTTP error! status: ' + response.status);
+    try {
+        const response = await fetch('/api/get-user-type');
+        if (!response.ok) {
+            throw new Error('HTTP 오류 발생: ' + response.status);
+        }
+        const { userType } = await response.json();
+        
+        console.log("✔ 유저 타입 확인:", userType); // ← 유저 타입을 콘솔에 출력하여 확인
+        return userType;
+    } catch (error) {
+        console.error('❌ 유저 타입 로드 실패:', error);
+        return 'guest';  // 오류 발생 시 기본값으로 guest 할당
     }
-    const { userType } = await response.json();
-    return userType;
 }
 
-// 서버의 API에서 Scratch 데이터를 가져오는 함수
+// Scratch 데이터 로드 함수
 async function loadScratchData(userType) {
     try {
-        const data = await fetch(`/api/get-${userType === 'student' || userType === 'guest' ? 'sb3' : 'sb2'}-data`)
-            .then(res => res.json());
+        const scratchUrl = `/api/get-${['student', 'guest'].includes(userType) ? 'sb3' : 'sb2'}-data`;
+        console.log("✔ Scratch 데이터 요청 URL:", scratchUrl);
 
-        console.log('Scratch data loaded:', data);  // 데이터가 제대로 로드되었는지 확인
+        const data = await fetch(scratchUrl).then(res => res.json());
+
         if (data && data.length > 0) {
             const projects = groupByProject(data, userType);
-            displayProjects(projects, userType);  // 프로젝트를 화면에 출력
+            displayProjects(projects, userType);
         } else {
             displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading Scratch data', error);
+        console.error('❌ Scratch 데이터 로드 오류', error);
         displayErrorMessage("Scratch 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
 
-// 프로젝트 데이터를 그룹화하는 함수 (ppt URL 포함)
-function groupByProject(data, userType) {
-    const projects = {};
-    data.forEach(row => {
-        const [name, url, ctElement] = row;
-        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\)|\(ppt\))/, '').trim();
-        if (!projects[baseName]) {
-            projects[baseName] = { ctElement: ctElement, basic: '', ext1: '', ext2: '', ppt: '' };
-        }
-        if (name.includes('(기본)')) {
-            projects[baseName].basic = url;
-        } else if (name.includes('(확장1)')) {
-            projects[baseName].ext1 = url;
-        } else if (name.includes('(확장2)')) {
-            projects[baseName].ext2 = url;
-        } else if (name.includes('(ppt)')) {
-            projects[baseName].ppt = url;  // ppt URL 추가
-        }
-    });
-    return projects;
-}
-
-// 프로젝트 목록을 화면에 출력
+// 프로젝트 목록을 화면에 출력하는 함수
 function displayProjects(projects, userType) {
     const container = document.getElementById('content-container');
-    container.innerHTML = ''; 
+    container.innerHTML = '';
 
     Object.keys(projects).forEach(projectName => {
         const project = projects[projectName];
         const card = document.createElement('div');
         card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
-        const isRestricted = (userType === 'student' || userType === 'guest');  // 학생과 게스트는 제한
+        // 역할별 제한: 관리자/강사만 PPT 허용
+        const isRestricted = !['manager', 'teacher', 'admin'].includes(userType);
 
         const cardContent = `
             <div class="card">
@@ -99,19 +83,11 @@ function displayProjects(projects, userType) {
         container.appendChild(card);
     });
 
-    // Scratch 파일 로드 이벤트 리스너 추가
-    document.querySelectorAll('.load-scratch').forEach(button => {
-        button.addEventListener('click', function() {
-            const scratchUrl = this.getAttribute('data-url');
-            loadScratchInScratchGUI(scratchUrl);
-        });
-    });
-
     // PPT 버튼 클릭 이벤트 리스너 추가
     document.querySelectorAll('.open-ppt').forEach(button => {
         button.addEventListener('click', function() {
             if (this.hasAttribute('disabled')) {
-                alert("PPT 자료는 강사 및 관리자만 접근할 수 있습니다.");
+                alert("❌ PPT 자료는 강사 및 관리자만 접근할 수 있습니다.");
                 return;
             }
             const pptUrl = this.getAttribute('data-url');
@@ -120,13 +96,37 @@ function displayProjects(projects, userType) {
     });
 }
 
-// Scratch-GUI에서 Scratch 파일 로드하는 함수
-function loadScratchInScratchGUI(scratchUrl) {
-    window.open(`/scratch/?project_file=${encodeURIComponent(scratchUrl)}`, '_blank');
+// 프로젝트 데이터를 그룹화하는 함수
+function groupByProject(data, userType) {
+    const projects = {};
+    
+    data.forEach(item => {
+        const projectName = item['프로젝트명'];
+        if (!projects[projectName]) {
+            projects[projectName] = { basic: null, ext1: null, ext2: null, ppt: null, ctElement: item['CT 요소'] };
+        }
+
+        switch (item['버전']) {
+            case '기본':
+                projects[projectName].basic = item['URL'];
+                break;
+            case '확장1':
+                projects[projectName].ext1 = item['URL'];
+                break;
+            case '확장2':
+                projects[projectName].ext2 = item['URL'];
+                break;
+            case 'PPT':
+                projects[projectName].ppt = item['URL'];
+                break;
+        }
+    });
+
+    return projects;
 }
 
-// 오류 메시지를 화면에 출력하는 함수
+// 오류 메시지 표시 함수
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
-    container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+    container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
 }
