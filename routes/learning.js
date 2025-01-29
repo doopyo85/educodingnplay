@@ -5,7 +5,7 @@ const { checkRole } = require('../lib_login/authMiddleware');
 const { getSheetData } = require('../server'); // 구글시트 데이터 가져오는 함수
 
 //  학습 로드맵 API (센터장 및 관리자만 접근 가능)
-router.get('/roadmap', checkRole(['manager', 'admin']), async (req, res) => {
+router.get('/roadmap', authMiddleware.roleCheck(['manager', 'admin']), async (req, res) => {
     try {
         // 🔹 Step 1: 구글시트에서 센터 데이터 가져오기
         const centerData = await getSheetData('센터목록!A2:B'); // 예: A열 = centerID, B열 = center_name

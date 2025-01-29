@@ -38,6 +38,27 @@ const checkAdminRole = async (req, res, next) => {
     }
 };
 
+function checkRole(allowedRoles) {
+    return (req, res, next) => {
+        if (!req.session.is_logined) {
+            return res.status(401).json({ 
+                success: false, 
+                error: '로그인이 필요합니다.'
+            });
+        }
+
+        const userRole = req.session.role;
+        if (!allowedRoles.includes(userRole)) {
+            return res.status(403).json({ 
+                success: false, 
+                error: '접근 권한이 없습니다.'
+            });
+        }
+
+        next();
+    };
+}
+
 function checkPageAccess(requiredPage) {
     return async (req, res, next) => {
         if (!req.session?.is_logined) {
@@ -55,4 +76,8 @@ function checkPageAccess(requiredPage) {
     };
 }
 
-module.exports = { checkPageAccess };
+module.exports = { 
+    checkPageAccess,
+    checkRole,
+    checkAdminRole
+};
