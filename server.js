@@ -454,6 +454,15 @@ app.get('/api/get-sb3-data', async (req, res) => {
   }
 });
 
+app.get('/api/get-sb2-data', async (req, res) => {
+  try {
+    const data = await getSheetData('sb2!A2:C');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'sb2 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 app.get('/api/get-ent-data', async (req, res) => {
   try {
     const data = await getSheetData('ent!A2:E');

@@ -34,18 +34,6 @@
         <!-- Content Area -->
         <div class="contents">
             <!-- Problem Area -->
-            <div class="content-container">
-                <div id="problem-navigation-container"> 
-                    <i class="bi bi-chevron-left" id="prev-problem"></i>
-                    <div id="problem-navigation"></div>
-                    <i class="bi bi-chevron-right" id="next-problem"></i>
-                </div>
-                <div id="problem-title"></div>
-                <div id="problem-container">
-                    <iframe id="iframeContent" src="about:blank"></iframe>
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -62,22 +50,5 @@
     <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
     <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 학습 트래커 초기화
-            const pageTitle = document.title;
-            const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
-            
-            window.learningTracker = new LearningTracker(contentType, pageTitle);
-            window.learningTracker.startTracking();
-            
-            // 프로그레스 업데이트 예시 (실제 구현에 맞게 수정 필요)
-            function updateProgress(progress) {
-                if (window.learningTracker) {
-                    window.learningTracker.endTracking(progress);
-                }
-            }
-        });
-    </script>
 </body>
 </html>
