@@ -82,21 +82,34 @@ store.setMaxListeners(20);  // store에도 리스너 제한 증가
 const allowedOrigins = [
   'https://codingnplay.co.kr',
   'https://www.codingnplay.co.kr',
-  'http://localhost:3000',
-  undefined  // 같은 origin에서의 요청을 위해 필요
+  'http://codingnplay.co.kr',
+  'http://www.codingnplay.co.kr',
+  undefined  // 같은 origin 요청 허용
 ];
+
+// CORS 설정 전에 모든 요청에 대한 로깅 미들웨어
+app.use((req, res, next) => {
+  console.log('Incoming request:');
+  console.log('Origin:', req.headers.origin);
+  console.log('Referer:', req.headers.referer);
+  console.log('Host:', req.headers.host);
+  console.log('Method:', req.method);
+  console.log('Path:', req.path);
+  next();
+});
 
 app.use(cors({
   origin: (origin, callback) => {
-    console.log('Request Origin:', origin); // 요청의 origin 로깅
-    console.log('Allowed Origins:', allowedOrigins); // 허용된 origin 목록 로깅
+    console.log('\nCORS Check:');
+    console.log('Request Origin:', origin);
+    console.log('Allowed Origins:', allowedOrigins);
     
     if (!origin || allowedOrigins.includes(origin)) {
-      console.log('CORS: Origin allowed'); // 허용된 경우 로깅
+      console.log('CORS: Origin allowed');
       callback(null, true);
     } else {
-      console.log('CORS: Origin rejected'); // 거부된 경우 로깅
-      callback(new Error('Not allowed by CORS'));
+      console.log('CORS: Origin rejected -', origin);
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
