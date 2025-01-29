@@ -473,6 +473,15 @@ app.get('/api/get-menu-data', async (req, res) => {
   }
 });
 
+app.get('/api/get-teachermenu-data', async (req, res) => {
+  try {
+    const data = await getSheetData('teacher!A2:h');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '메뉴 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 app.get('/api/get-problem-data', async (req, res) => {
   try {
     const data = await getSheetData('문항정보!A:C');
