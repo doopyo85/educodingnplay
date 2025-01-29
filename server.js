@@ -80,9 +80,34 @@ const store = new RedisStore({
 store.setMaxListeners(20);  // store에도 리스너 제한 증가
 
 const allowedOrigins = [
-  'https://app.codingnplay.co.kr',
-  'https://codingnplay.co.kr'
+  'https://codingnplay.co.kr',
+  'https://www.codingnplay.co.kr',
+  // 개발 환경을 위한 origin
+  'http://localhost:3000'
 ];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
+}));
 
 module.exports = { getSheetData };
 
