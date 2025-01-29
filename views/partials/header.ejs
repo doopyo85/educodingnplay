@@ -13,83 +13,118 @@
     <input type="hidden" id="discoveryDocs" value="<%= process.env.DISCOVERY_DOCS %>">
 </head>
 
-<!-- ✅ 헤더 (네비게이션 역할) -->
-<header class="header">
-    <div class="header-container">
-        <!-- 로고 -->
-        <a class="brand-logo" href="/">
-            <img src="/resource/logo.png" alt="Logo">
-            <span>코딩앤아카데미</span>
+<header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/resource/logo.png" alt="Logo" style="width: 40px; height: 40px;">
+            <!-- "코딩앤아카데미" 문구를 Noto Sans KR로 설정 -->
+            <span class="ms-2" style="font-family: 'Noto Sans KR', sans-serif;">코딩앤아카데미</span>
         </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <form class="d-flex mx-auto" style="max-width: 400px;">
+                <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search" style="font-size: 16px; padding: 8px;">
+            </form>          
+            <div class="d-flex align-items-center">
+                <!-- 역할 권한 헬퍼 함수 -->
+                <%
+                function canAccess(feature) {
+                    const permissions = require('../../lib_login/permissions');
+                    return permissions.hasFeatureAccess(locals.role, feature);
+                }
+                %>
+                <% if (typeof role !== 'undefined' && role === 'admin') { %>
+                    <a href="/admin" class="text-decoration-none me-3">
+                        <span class="text-primary">admin</span>
+                    </a>
+                <% } %> 
+                <% if (typeof role !== 'undefined' && role === 'manager') { %>
+                    <a href="/teacher" class="text-decoration-none me-3">
+                        <span class="text-primary">teacher</span>
+                    </a>
+                <% } %> 
+                <% if (typeof role !== 'undefined' && role === 'student') { %>
+                    <a href="/" class="text-decoration-none me-3">
+                        <span class="text-primary">student</span>
+                    </a>
+                <% } %> 
 
-        <!-- 검색창 -->
-        <form class="search-form">
-            <input class="search-input" type="search" placeholder="검색..." aria-label="검색">
-        </form>  
+                <!-- 다크 모드 토글 버튼 -->
+                <i id="toggle-dark-mode" class="bi bi-brightness-high me-3"></i>
 
-        <!-- 우측 메뉴 -->
-        <div class="header-links">
-            <% if (typeof role !== 'undefined' && role === 'admin') { %>
-                <a href="/admin" class="role-link">Admin</a>
-            <% } %> 
-            <% if (typeof role !== 'undefined' && role === 'manager') { %>
-                <a href="/teacher" class="role-link">Teacher</a>
-            <% } %> 
+                <!-- 알림 아이콘 (새 글이 있으면 New 배지 표시) -->
+                <div class="position-relative me-3">
+                    <i id="notification-icon" class="bi bi-bell" style="font-size: 2rem; cursor: pointer;"></i>
+                    <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                        New
+                    </span>
+                </div>
 
-            <!-- 다크 모드 토글 -->
-            <i id="toggle-dark-mode" class="bi bi-brightness-high"></i>
+                <!-- 메시지 아이콘 (메시지 화면으로 이동) -->
+                <i id="app-drawer-button" class="bi bi-chat me-3" style="font-size: 2rem; cursor: pointer;"></i>
 
-            <!-- 알림 아이콘 -->
-            <div class="notification-wrapper">
-                <i id="notification-icon" class="bi bi-bell"></i>
-                <span id="notification-badge" class="badge">New</span>
+                <!-- 프로필 아이콘 -->
+                <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
+                <span id="userName" class="ms-2"></span>
+
+                <!-- 로그아웃 버튼 -->
+                <button id="logoutButton" class="btn btn-outline-secondary ms-2" style="font-size: 16px; padding: 8px 12px;">로그아웃</button>
             </div>
-
-            <!-- 메시지 아이콘 -->
-            <i id="app-drawer-button" class="bi bi-chat"></i>
-
-            <!-- 프로필 아이콘 -->
-            <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="profile-icon">
-            <span id="userName"></span>
-
-            <!-- 로그아웃 버튼 -->
-            <button id="logoutButton" class="logout-btn">로그아웃</button>
         </div>
     </div>
 </header>
 
-<!-- ✅ 스크립트 -->
+<!-- 스크립트 부분 -->
 <script defer src="/header.js"></script>
 <script>
     // 메시지 화면으로 이동
     document.getElementById('app-drawer-button').addEventListener('click', function() {
-        window.location.href = '/messages';
+        window.location.href = '/messages';  // 메시지 화면으로 이동
     });
 
-    // 알림 배지 표시 처리
+    // 알림 배지 표시 처리 (새 글이 있으면 표시)
     function checkForNewPosts() {
-        fetch('/board/check-new-posts')
+        fetch('/board/check-new-posts')  // 서버에서 새 글 여부 확인 API 호출
             .then(response => response.json())
             .then(data => {
-                document.getElementById('notification-badge').style.display = data.newPosts ? 'block' : 'none';
+                if (data.newPosts) {
+                    document.getElementById('notification-badge').style.display = 'block';
+                } else {
+                    document.getElementById('notification-badge').style.display = 'none';
+                }
             });
     }
+
+    // 페이지 로드 시 새 글 여부 확인
     checkForNewPosts();
+    document.addEventListener('mousemove', resetIdleTimer);
+    document.addEventListener('keypress', resetIdleTimer);
 
-    // 다크 모드 토글
-    document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+    // 다크 모드/라이트 모드 전환
+    const darkModeToggle = document.getElementById('toggle-dark-mode');
+    darkModeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
+        darkModeToggle.classList.toggle('bi-brightness-high');
+        darkModeToggle.classList.toggle('bi-moon');
     });
+    
 
-    // 비활동 시간 확인 및 자동 로그아웃
+    // 비활동 시간 확인 및 로그아웃 처리
     let idleTime = 0;
-    function resetIdleTimer() { idleTime = 0; }
+    function resetIdleTimer() {
+        idleTime = 0;
+    }
     function checkIdleTime() {
         idleTime += 1;
-        if (idleTime >= 30) {
+        if (idleTime >= 30) { // 30분 동안 활동이 없으면 로그아웃
             alert("일정시간동안 활동이 없어, 로그아웃되었습니다.");
             window.location.href = '/logout';
         }
     }
-    setInterval(checkIdleTime, 60 * 1000);
+    setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
+
+
+
 </script>
