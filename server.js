@@ -7,14 +7,11 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRouter = require('./lib_login/auth'); // 인증 관련 라우터
 const { exec } = require('child_process');
 require('dotenv').config();
 const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
-const app = express();
-const router = express.Router(); // 라우터 정의
 const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 const cron = require('node-cron'); // 결제정보 자정마다 업데이트
@@ -213,6 +210,10 @@ const authenticateUser = (req, res, next) => {
 };
 
 // 라우터
+const app = express();
+const router = express.Router(); // 라우터 정의
+
+const authRouter = require('./lib_login/auth'); 
 app.use('/auth', authRouter);
 
 const adminRouter = require('./routes/admin');
@@ -224,6 +225,11 @@ app.use('/kinder', kinderRouter);
 const learningRoutes = require('./routes/learning');
 app.use(learningRoutes);
 
+const videoRouter = require('./routes/videos');
+app.use('/api', videoRouter);
+
+const boardRouter = require('./routes/board');
+app.use('/board', boardRouter);
 
 // server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {
@@ -630,8 +636,10 @@ app.post('/run-python', (req, res) => {
   });
 });
 
-const boardRouter = require('./routes/board');
-app.use('/board', boardRouter);
+// 교사교육 사이트
+app.get('/center', (req, res) => {
+  res.render('center'); // views/center.ejs 렌더링
+});
 
 // 루트 경로 라우트
 app.get('/', (req, res) => {
