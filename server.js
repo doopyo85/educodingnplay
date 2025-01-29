@@ -610,7 +610,7 @@ app.get('/entry', (req, res) => {
 
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {
-  res.render('python');  // 'python.ejs' 템플릿을 렌더링
+  res.render('python_projent');  // 'python_project.ejs' 템플릿을 렌더링
 });
 
 // 파이썬 코드를 실행하는 라우트
