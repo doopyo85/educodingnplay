@@ -3,7 +3,6 @@ const { queryDatabase } = require('./db');
 const { Roles } = require('../config');
 
 // 사용자 활동 로깅
-// lib_login/logging.js 수정
 const logUserActivity = async (req, res, next) => {
     if (!req.session?.is_logined) {
         return next();
@@ -26,7 +25,6 @@ const logUserActivity = async (req, res, next) => {
             `;
             const logParams = [
                 user.id,
-                user.role,  // 역할 추가
                 user.centerID,
                 req.method,
                 req.originalUrl,
@@ -71,9 +69,10 @@ function logMenuAccess(req, res, next) {
                     `INSERT INTO MenuAccessLogs 
                     (user_id, menu_name, duration, center_id) 
                     VALUES (?, ?, ?, ?)`,
+
                     [user.id, url.split('/')[1] || 'home', duration, user.centerID]
                 );
-                
+
                 menuAccessStartTimes.delete(`${req.session.userID}-${url}`);
             }
         } catch (error) {
@@ -90,29 +89,43 @@ async function logLearningActivity(req, res, next) {
         return next();
     }
 
-    console.log('Logging learning activity: ', req.originalUrl); // 디버깅용 로그
+    console.log('📌 Logging learning activity:', req.originalUrl); // 요청 URL 확인
+    console.log('📌 세션 정보:', req.session); // 세션 값 확인
 
     try {
         const sql = `SELECT id, centerID FROM Users WHERE userID = ?`;
         const [user] = await queryDatabase(sql, [req.session.userID]);
-        
-        if (user && (req.originalUrl.includes('/scratch') || 
-                    req.originalUrl.includes('/entry') || 
-                    req.originalUrl.includes('/python'))) {
-            
-            const contentType = req.originalUrl.split('/')[1];
-            await queryDatabase(
-                `INSERT INTO LearningLogs 
-                (user_id, content_type, content_name, start_time, center_id) 
-                VALUES (?, ?, ?, NOW(), ?)`,
-                [user.id, contentType, req.originalUrl, user.centerID]
-            );
-            console.log('✅ Learning log inserted successfully!');
-        } else {
-            console.log('❌ No matching path for learning log.');
+
+        if (user) {
+            console.log('✅ User found:', user);
+
+            const validPaths = ['/scratch', '/entry', '/python'];
+            const matchedPath = validPaths.find(path => req.originalUrl.startsWith(path));
+
+            if (matchedPath) {
+                const contentType = matchedPath.substring(1); // '/' 제거
+
+                console.log('✅ Inserting learning log:', {
+                    user_id: user.id,
+                    contentType: contentType,
+                    contentName: req.originalUrl,
+                    centerID: user.centerID
+                });
+
+                await queryDatabase(
+                    `INSERT INTO LearningLogs 
+                    (user_id, content_type, content_name, start_time, center_id) 
+                    VALUES (?, ?, ?, NOW(), ?)`,
+                    [user.id, contentType, req.originalUrl, user.centerID]
+                );
+
+                console.log('✅ Learning log inserted successfully!');
+            } else {
+                console.log('❌ No matching path for learning log:', req.originalUrl);
+            }
         }
-} catch (error) {
-        console.error('Learning activity logging error:', error);
+    } catch (error) {
+        console.error('❌ Learning activity logging error:', error);
     }
     next();
 }
