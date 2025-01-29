@@ -609,8 +609,8 @@ app.get('/entry', (req, res) => {
  
 
 // test 렌더링
-app.get('/test', authenticateUser, (req, res) => {
-  res.render('test');  // 'test.ejs' 템플릿을 렌더링
+app.get('/python', authenticateUser, (req, res) => {
+  res.render('python');  // 'python.ejs' 템플릿을 렌더링
 });
 
 // 파이썬 코드를 실행하는 라우트
@@ -638,8 +638,8 @@ app.post('/run-python', (req, res) => {
 });
 
 // 교사교육 사이트
-app.get('/center', (req, res) => {
-  res.render('center'); // views/center.ejs 렌더링
+app.get('/teacher', (req, res) => {
+  res.render('teacher'); // views/teacher.ejs 렌더링
 });
 
 // 루트 경로 라우트

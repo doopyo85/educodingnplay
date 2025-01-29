@@ -28,7 +28,7 @@
                 "name": "엔트리",
                 "roles": ["admin", "manager", "teacher", "student"]
             },
-            "/test": {
+            "/python": {
                 "name": "테스트",
                 "roles": ["admin", "manager", "teacher"]
             }
