@@ -16,6 +16,8 @@ const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 const cron = require('node-cron'); // 결제정보 자정마다 업데이트
 
+const app = express();
+
 // server.js - 서버 시작 시 권한 캐시 초기화
 const { updatePermissionCache } = require('./lib_login/permissions');
 const permissionsPath = path.join(__dirname, './lib_login/permissions.json');
@@ -210,7 +212,6 @@ const authenticateUser = (req, res, next) => {
 };
 
 // 라우터
-const app = express();
 const router = express.Router(); // 라우터 정의
 
 const authRouter = require('./lib_login/auth'); 
