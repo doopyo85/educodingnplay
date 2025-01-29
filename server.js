@@ -608,7 +608,7 @@ app.get('/entry', (req, res) => {
 });
  
 
-// test 렌더링
+// python 렌더링
 app.get('/python', authenticateUser, (req, res) => {
   res.render('python');  // 'python.ejs' 템플릿을 렌더링
 });
