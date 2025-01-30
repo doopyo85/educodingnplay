@@ -13,17 +13,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 async function getUserRole() {
     try {
-        // 세션에서 사용자 정보 가져오기
         const response = await fetch('/get-user-session');
         if (!response.ok) {
             throw new Error('HTTP error! status: ' + response.status);
         }
         const data = await response.json();
         console.log('Session data received:', data);
-        return data.role; // 세션의 role 값 사용
+        if (data && data.is_logined && data.role) {
+            return data.role;
+        }
+        return 'guest';
     } catch (error) {
-        console.error('Error:', error);
-        return 'guest'; // 기본값으로 guest 설정
+        console.error('Error getting user role:', error);
+        return 'guest';
     }
 }
 
@@ -31,8 +33,6 @@ async function loadProjectData() {
     try {
         // 역할에 따라 다른 API 엔드포인트 호출
         const endpoint = ['student', 'guest'].includes(userRole) ? '/api/get-sb3-data' : '/api/get-sb2-data';
-        console.log('Current user role:', userRole);
-        console.log('Using endpoint:', endpoint);
         const response = await fetch(endpoint);
         
         if (!response.ok) {
@@ -40,11 +40,10 @@ async function loadProjectData() {
         }
         
         const data = await response.json();
-        console.log('Raw API response:', data);
+        console.log('Project data loaded:', data);
         
         if (data && data.length > 0) {
             const projects = groupByProject(data);
-            console.log('Grouped projects:', projects);
             displayProjects(projects);
         } else {
             displayErrorMessage("프로젝트 데이터를 찾을 수 없습니다.");
@@ -56,26 +55,15 @@ async function loadProjectData() {
 }
 
 function groupByProject(data) {
-    console.log('Group by project - Raw data:', JSON.stringify(data, null, 2));
     const projects = {};
     data.forEach(row => {
-        console.log('Processing row:', row);
-        
-        if (!Array.isArray(row) || row.length < 3) {
+        if (!Array.isArray(row) || row.length < 2) {
             console.warn('Invalid row data:', row);
             return;
         }
 
-        const [name, url, ctElement] = row;
-        if (!name || !url) {
-            console.warn('Missing required data in row:', row);
-            return;
-        }
-
-        // 더 엄격한 이름 처리
-        // 파일명에서 프로젝트 기본 이름 추출
-const baseName = name.split(/[\s\.]+\(?(?:기본|확장1|확장2|ppt)\)?/)[0].trim();
-console.log('Processing file:', name, 'Base name:', baseName);
+        const [name, url, ctElement = ''] = row;
+        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\)|\(ppt\))/, '').trim();
         
         if (!projects[baseName]) {
             projects[baseName] = { 
@@ -89,6 +77,7 @@ console.log('Processing file:', name, 'Base name:', baseName);
 
         if (name.includes('(기본)')) {
             projects[baseName].basic = url;
+            if (ctElement) projects[baseName].ctElement = ctElement;
         } else if (name.includes('(확장1)')) {
             projects[baseName].ext1 = url;
         } else if (name.includes('(확장2)')) {
@@ -104,20 +93,7 @@ function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = '';
     
-    console.log('Displaying projects. Current user role:', userRole);
-    // manager, teacher, admin 역할에 대해 PPT 버튼 표시
     const showPPT = ['manager', 'teacher', 'admin'].includes(userRole);
-    console.log('Should show PPT buttons:', showPPT, 'Current role:', userRole);
-    
-    // 프로젝트 데이터 디버깅
-    Object.entries(projects).forEach(([name, project]) => {
-        console.log(`Project ${name}:`, {
-            hasPPT: !!project.ppt,
-            hasBasic: !!project.basic,
-            hasExt1: !!project.ext1,
-            hasExt2: !!project.ext2
-        });
-    });
 
     Object.keys(projects).forEach(projectName => {
         const project = projects[projectName];
@@ -131,26 +107,24 @@ function displayProjects(projects) {
                     <p class="card-text">
                         <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                     </p>
-                    <div class="btn-group d-flex flex-wrap gap-2 mb-2">
+                    <div class="btn-group w-100 mb-2">
                         ${project.basic ? `
-                            <button class="btn btn-primary btn-sm load-project" data-url="${project.basic}">
+                            <button class="btn btn-primary load-project" data-url="${project.basic}">
                                 기본
                             </button>` : ''}
                         ${project.ext1 ? `
-                            <button class="btn btn-primary btn-sm load-project" data-url="${project.ext1}">
+                            <button class="btn btn-primary load-project" data-url="${project.ext1}">
                                 확장1
                             </button>` : ''}
                         ${project.ext2 ? `
-                            <button class="btn btn-primary btn-sm load-project" data-url="${project.ext2}">
+                            <button class="btn btn-primary load-project" data-url="${project.ext2}">
                                 확장2
                             </button>` : ''}
                     </div>
                     ${showPPT && project.ppt ? `
-                        <div class="mt-auto">
-                            <button class="btn btn-outline-secondary btn-sm w-100 open-ppt" data-url="${project.ppt}">
-                                <i class="bi bi-file-earmark-slides"></i> PPT 보기
-                            </button>
-                        </div>` : ''}
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="window.open('${project.ppt}', '_blank')">
+                            <i class="bi bi-file-earmark-slides"></i> PPT 보기
+                        </button>` : ''}
                 </div>
             </div>
         `;
@@ -159,7 +133,7 @@ function displayProjects(projects) {
         container.appendChild(card);
     });
 
-    // 이벤트 리스너 추가
+    // 프로젝트 로드 버튼 이벤트 리스너
     document.querySelectorAll('.load-project').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -169,18 +143,6 @@ function displayProjects(projects) {
             }
         });
     });
-
-    if (showPPT) {
-        document.querySelectorAll('.open-ppt').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const pptUrl = this.getAttribute('data-url');
-                if (pptUrl) {
-                    window.open(pptUrl, '_blank');
-                }
-            });
-        });
-    }
 }
 
 function loadProjectInScratchGUI(projectUrl) {
