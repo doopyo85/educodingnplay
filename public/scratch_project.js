@@ -1,3 +1,17 @@
+// 권한 정책 정의
+const ACCESS_POLICIES = {
+    FEATURES: {
+        'PPT_BUTTON': ['admin', 'teacher', 'manager', 'school'],
+        'USER_MANAGE': ['admin'],
+        'CONTENT_EDIT': ['admin', 'manager', 'teacher']
+    }
+};
+
+// 권한 확인 함수
+function hasFeatureAccess(userRole, feature) {
+    return ACCESS_POLICIES.FEATURES[feature]?.includes(userRole) || false;
+}
+
 let userRole;
 
 document.addEventListener("DOMContentLoaded", async function() {
@@ -19,7 +33,8 @@ async function getUserRole() {
         }
         const data = await response.json();
         console.log('Session data received:', data);
-        if (data && data.is_logined && data.role) {
+        // role 속성이 존재하고 유효한 값인지 확인
+        if (data && data.role && typeof data.role === 'string') {
             return data.role;
         }
         return 'guest';
@@ -33,8 +48,9 @@ async function loadProjectData() {
     try {
         // 역할에 따라 다른 API 엔드포인트 호출
         const endpoint = ['student', 'guest'].includes(userRole) ? '/api/get-sb3-data' : '/api/get-sb2-data';
-        const response = await fetch(endpoint);
+        console.log('Using endpoint for role:', userRole, endpoint);
         
+        const response = await fetch(endpoint);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -93,7 +109,9 @@ function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = '';
     
-    const showPPT = ['manager', 'teacher', 'admin'].includes(userRole);
+    // PPT 버튼 표시 권한 확인
+    const showPPT = hasFeatureAccess(userRole, 'PPT_BUTTON');
+    console.log('Current role:', userRole, 'Can show PPT:', showPPT);
 
     Object.keys(projects).forEach(projectName => {
         const project = projects[projectName];
@@ -133,7 +151,7 @@ function displayProjects(projects) {
         container.appendChild(card);
     });
 
-    // 프로젝트 로드 버튼 이벤트 리스너
+    // 이벤트 리스너 추가
     document.querySelectorAll('.load-project').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
