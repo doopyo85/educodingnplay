@@ -54,6 +54,22 @@ const getObjectFromS3 = async (fileName) => {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// 정적 파일 제공 설정
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath, stat) => {
+    // JavaScript 파일에 대한 특별한 처리
+    if (path.extname(filePath) === '.js') {
+      res.set('Content-Type', 'application/javascript');
+    } else {
+      // 다른 파일들에 대한 처리
+      res.set('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
+    }
+    
+    // 캐싱 정책 설정
+    res.set('Cache-Control', 'public, max-age=3600');
+  }
+}));
+
 // JWT 사용 설정
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
@@ -220,17 +236,24 @@ app.use('/auth', authRouter);
 const adminRouter = require('./routes/admin');
 app.use('/admin', adminRouter);
 
-const kinderRouter = require('./routes/kinder');
-app.use('/kinder', kinderRouter);
 
-const learningRoutes = require('./routes/learning');
-app.use(learningRoutes);
+// 라우터 목록
+const routes = {
+  admin: require('./routes/admin'),
+  board: require('./routes/board'),
+  kinder: require('./routes/kinder'),
+  learning: require('./routes/learning'),
+  machinelearning: require('./routes/machinelearningRouter'),
+  metaverse: require('./routes/metaverseRouter'),
+  onlineclass: require('./routes/onlineclassRouter'),
+  preschool: require('./routes/preschoolRouter'),
+  videos: require('./routes/videos')
+};
 
-const videoRouter = require('./routes/videos');
-app.use('/api', videoRouter);
-
-const boardRouter = require('./routes/board');
-app.use('/board', boardRouter);
+// 라우터 등록
+Object.entries(routes).forEach(([path, router]) => {
+  app.use(`/${path}`, router);
+});
 
 // server.js의 템플릿 변수 설정 미들웨어
 app.use((req, res, next) => {
@@ -241,22 +264,6 @@ app.use((req, res, next) => {
   res.locals.role = req.session?.role || 'guest';  // 기본값 'guest' 설정
   next();
 });
-
-// 정적 파일 제공 설정
-app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, filePath, stat) => {
-    // JavaScript 파일에 대한 특별한 처리
-    if (path.extname(filePath) === '.js') {
-      res.set('Content-Type', 'application/javascript');
-    } else {
-      // 다른 파일들에 대한 처리
-      res.set('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
-    }
-    
-    // 캐싱 정책 설정
-    res.set('Cache-Control', 'public, max-age=3600');
-  }
-}));
 
 app.use('/js/turn.js', express.static(path.join(__dirname, 'node_modules/turn.js/turn.min.js')));
 
