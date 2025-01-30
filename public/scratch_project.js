@@ -13,12 +13,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 async function getUserRole() {
     try {
-        const response = await fetch('/api/get-user-type');
+        // 세션에서 사용자 정보 가져오기
+        const response = await fetch('/get-user-session');
         if (!response.ok) {
             throw new Error('HTTP error! status: ' + response.status);
         }
         const data = await response.json();
-        return data.userType;
+        console.log('Session data received:', data);
+        return data.role; // 세션의 role 값 사용
     } catch (error) {
         console.error('Error:', error);
         return 'guest'; // 기본값으로 guest 설정
@@ -54,6 +56,7 @@ async function loadProjectData() {
 }
 
 function groupByProject(data) {
+    console.log('Group by project - Raw data:', JSON.stringify(data, null, 2));
     const projects = {};
     data.forEach(row => {
         console.log('Processing row:', row);
@@ -70,7 +73,9 @@ function groupByProject(data) {
         }
 
         // 더 엄격한 이름 처리
-        const baseName = name.replace(/\s*\((기본|확장1|확장2|ppt)\)\s*$/, '').trim();
+        // 파일명에서 프로젝트 기본 이름 추출
+const baseName = name.split(/[\s\.]+\(?(?:기본|확장1|확장2|ppt)\)?/)[0].trim();
+console.log('Processing file:', name, 'Base name:', baseName);
         
         if (!projects[baseName]) {
             projects[baseName] = { 
@@ -100,8 +105,19 @@ function displayProjects(projects) {
     container.innerHTML = '';
     
     console.log('Displaying projects. Current user role:', userRole);
+    // manager, teacher, admin 역할에 대해 PPT 버튼 표시
     const showPPT = ['manager', 'teacher', 'admin'].includes(userRole);
-    console.log('Should show PPT buttons:', showPPT);
+    console.log('Should show PPT buttons:', showPPT, 'Current role:', userRole);
+    
+    // 프로젝트 데이터 디버깅
+    Object.entries(projects).forEach(([name, project]) => {
+        console.log(`Project ${name}:`, {
+            hasPPT: !!project.ppt,
+            hasBasic: !!project.basic,
+            hasExt1: !!project.ext1,
+            hasExt2: !!project.ext2
+        });
+    });
 
     Object.keys(projects).forEach(projectName => {
         const project = projects[projectName];
