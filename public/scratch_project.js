@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         const userType = await getUserType();
-        console.log("📌 유저 타입:", userType);
+        console.log("🟢 유저 역할 확인:", userType);
 
         await loadScratchData(userType);
     } catch (error) {
@@ -18,10 +18,10 @@ async function getUserType() {
         }
         const { userType } = await response.json();
         
-        console.log("✔ 유저 타입 확인:", userType); // ← 유저 타입을 콘솔에 출력하여 확인
+        console.log("🟢 유저 역할 확인:", userType); // 디버깅 로그 추가
         return userType;
     } catch (error) {
-        console.error('❌ 유저 타입 로드 실패:', error);
+        console.error('🔴 유저 타입 로드 실패:', error);
         return 'guest';  // 오류 발생 시 기본값으로 guest 할당
     }
 }
@@ -29,8 +29,11 @@ async function getUserType() {
 // Scratch 데이터 로드 함수
 async function loadScratchData(userType) {
     try {
-        const scratchUrl = `/api/get-${['student', 'guest'].includes(userType) ? 'sb3' : 'sb2'}-data`;
-        console.log("✔ Scratch 데이터 요청 URL:", scratchUrl);
+        const scratchUrl = userType === 'student' || userType === 'guest' 
+            ? '/api/get-sb3-data' 
+            : '/api/get-sb2-data';
+
+        console.log("🟢 최종 Scratch 데이터 요청:", scratchUrl);
 
         const data = await fetch(scratchUrl).then(res => res.json());
 
@@ -56,8 +59,8 @@ function displayProjects(projects, userType) {
         const card = document.createElement('div');
         card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
-        // 역할별 제한: 관리자/강사만 PPT 허용
-        const isRestricted = !['manager', 'teacher', 'admin'].includes(userType);
+        // 학생 및 게스트는 PPT 버튼 비활성화
+        const isRestricted = userType === 'student' || userType === 'guest';
 
         const cardContent = `
             <div class="card">
