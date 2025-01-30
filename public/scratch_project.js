@@ -29,6 +29,8 @@ async function loadProjectData() {
     try {
         // 역할에 따라 다른 API 엔드포인트 호출
         const endpoint = ['student', 'guest'].includes(userRole) ? '/api/get-sb3-data' : '/api/get-sb2-data';
+        console.log('Current user role:', userRole);
+        console.log('Using endpoint:', endpoint);
         const response = await fetch(endpoint);
         
         if (!response.ok) {
@@ -36,9 +38,11 @@ async function loadProjectData() {
         }
         
         const data = await response.json();
+        console.log('Raw API response:', data);
         
         if (data && data.length > 0) {
             const projects = groupByProject(data);
+            console.log('Grouped projects:', projects);
             displayProjects(projects);
         } else {
             displayErrorMessage("프로젝트 데이터를 찾을 수 없습니다.");
@@ -52,6 +56,8 @@ async function loadProjectData() {
 function groupByProject(data) {
     const projects = {};
     data.forEach(row => {
+        console.log('Processing row:', row);
+        
         if (!Array.isArray(row) || row.length < 3) {
             console.warn('Invalid row data:', row);
             return;
@@ -63,7 +69,8 @@ function groupByProject(data) {
             return;
         }
 
-        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\)|\(ppt\))/, '').trim();
+        // 더 엄격한 이름 처리
+        const baseName = name.replace(/\s*\((기본|확장1|확장2|ppt)\)\s*$/, '').trim();
         
         if (!projects[baseName]) {
             projects[baseName] = { 
@@ -92,7 +99,9 @@ function displayProjects(projects) {
     const container = document.getElementById('content-container');
     container.innerHTML = '';
     
+    console.log('Displaying projects. Current user role:', userRole);
     const showPPT = ['manager', 'teacher', 'admin'].includes(userRole);
+    console.log('Should show PPT buttons:', showPPT);
 
     Object.keys(projects).forEach(projectName => {
         const project = projects[projectName];
