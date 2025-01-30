@@ -247,7 +247,6 @@ const routes = {
   metaverse: require('./routes/metaverseRouter'),
   onlineclass: require('./routes/onlineclassRouter'),
   preschool: require('./routes/preschoolRouter'),
-  videos: require('./routes/videos')
 };
 
 // 라우터 등록
