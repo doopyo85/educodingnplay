@@ -150,8 +150,8 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 12px; /* 내부 여백 축소 */
-    min-height: 150px;
+    padding: 15px;
+    min-height: 180px; /* 카드 높이 안정적 유지 */
     position: relative;
 }
 
@@ -163,26 +163,25 @@ p {
 .card-title {
     font-size: 1.1rem;
     font-weight: bold;
+    text-align: left;
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    max-width: 75%;
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     word-break: break-word;
-    margin-bottom: 5px; /* 제목과 학습 요소 사이 여백 줄이기 */
-    text-align: left;
-    position: absolute;
-    top: 8px;
-    left: 12px;
-    max-width: 70%;
 }
 
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
-    margin-top: 30px; /* 제목과 겹치지 않도록 조정 */
-    margin-bottom: 8px; /* 버튼과 여백 최소화 */
     text-align: center;
+    margin-top: 50px; /* 제목과의 간격을 일정하게 유지 */
+    margin-bottom: 10px; /* 버튼 그룹과 여백 최소화 */
 }
 
 .card-img-top, .card-img-entry {
@@ -204,22 +203,22 @@ p {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    gap: 3px; /* 버튼 간격 줄이기 */
+    gap: 5px; /* 버튼 간격 */
 }
 
 .btn-primary, .btn-secondary {
     flex-grow: 1;
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 0.85rem;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.9rem;
+    text-align: center;
 }
-
 .ppt-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 12px;
+    right: 15px;
     font-size: 11px;
-    padding: 4px 7px;
+    padding: 4px 8px;
 }
 
 .nav-tabs {
@@ -228,14 +227,14 @@ p {
 }
 
 .row {
-    margin-left: -6px;
-    margin-right: -6px;
+    margin-left: -8px;
+    margin-right: -8px;
 }
 
 .col-lg-3, .col-md-4, .col-sm-6 {
-    padding-left: 6px;
-    padding-right: 6px;
-    margin-bottom: 10px; /* 카드 간 여백 축소 */
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 15px; /* 카드 간 여백 균형 조정 */
 }
 
 /* 여기서부터 대시보드 관련 스타일 */
