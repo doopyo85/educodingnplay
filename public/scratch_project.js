@@ -122,7 +122,15 @@ function createProjectCard(projectName, project, viewConfig) {
     const cardContent = `
         <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">${projectName}</h5>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">${projectName}</h5>
+                    ${viewConfig.showPPTButton && project.ppt ? `
+                        <button class="btn btn-sm" onclick="window.open('${project.ppt}', '_blank')" 
+                            style="padding: 2px 8px;">
+                            <i class="bi bi-file-earmark-slides-fill"></i> PPT
+                        </button>
+                    ` : ''}
+                </div>
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
@@ -131,7 +139,6 @@ function createProjectCard(projectName, project, viewConfig) {
                     ${viewConfig.showExtensions && project.ext1 ? createProjectButton('확장1', project.ext1) : ''}
                     ${viewConfig.showExtensions && project.ext2 ? createProjectButton('확장2', project.ext2) : ''}
                 </div>
-                ${viewConfig.showPPTButton && project.ppt ? createPPTButton(project.ppt) : ''}
             </div>
         </div>
     `;
