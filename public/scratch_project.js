@@ -1,52 +1,40 @@
-// scratch_project.js
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const userRole = await getUserRole();
-        console.log('User role:', userRole);
-        initializeProjectView(userRole);
+        // hidden 필드에서 사용자 정보 가져오기
+        const userRole = document.getElementById('user-role').value;
+        const userID = document.getElementById('user-id').value;
+        const centerID = document.getElementById('center-id').value;
+
+        if (!userRole) {
+            throw new Error('사용자 권한 정보를 찾을 수 없습니다.');
+        }
+
+        console.log('User Info:', { userRole, userID, centerID });
+        await initializeProjectView(userRole);
     } catch (error) {
-        console.error('Error initializing view:', error);
+        console.error('Error:', error);
         displayErrorMessage("초기화 중 오류가 발생했습니다.");
     }
 });
 
-// 사용자 역할 가져오기
-async function getUserRole() {
-    try {
-        const response = await fetch('/get-user-session');
-        if (!response.ok) {
-            throw new Error('HTTP error! status: ' + response.status);
-        }
-        const data = await response.json();
-        console.log('Session data received:', data);
-        return data.role || 'guest';
-    } catch (error) {
-        console.error('Error getting user role:', error);
-        return 'guest';
-    }
-}
-
 // 프로젝트 뷰 초기화
 async function initializeProjectView(userRole) {
     try {
-        // 1. 권한에 따른 뷰 설정
         const viewConfig = getViewConfigForRole(userRole);
-        
-        // 2. 프로젝트 데이터 로드
         const projectData = await loadProjectData(userRole);
         
-        // 3. 프로젝트 표시
         if (projectData && projectData.length > 0) {
             const projects = groupByProject(projectData);
             displayProjects(projects, viewConfig);
         } else {
-            displayErrorMessage("프로젝트 데이터를 찾을 수 없습니다.");
+            displayErrorMessage("프로젝트 데이터가 없습니다.");
         }
     } catch (error) {
-        console.error('Error initializing project view:', error);
-        displayErrorMessage("프로젝트 로딩 중 오류가 발생했습니다.");
+        console.error('Error:', error);
+        displayErrorMessage("프로젝트 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
+
 
 // 역할별 뷰 설정
 function getViewConfigForRole(userRole) {
@@ -59,13 +47,16 @@ function getViewConfigForRole(userRole) {
 }
 
 // 프로젝트 데이터 로드
+
+// API 호출 수정
 async function loadProjectData(userRole) {
     try {
-        const endpoint = ['teacher', 'admin', 'manager'].includes(userRole) 
-            ? '/api/get-sb2-data' 
+        // 역할에 따라 적절한 엔드포인트 선택
+        const endpoint = ['admin', 'teacher', 'manager'].includes(userRole)
+            ? '/api/get-sb2-data'
             : '/api/get-sb3-data';
-        
-        console.log('Loading projects from endpoint:', endpoint);
+            
+        console.log('Loading projects from:', endpoint);
         const response = await fetch(endpoint);
         
         if (!response.ok) {

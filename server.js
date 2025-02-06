@@ -384,16 +384,20 @@ app.get('/api/get-user-type', (req, res) => {
 });
 
 
-// 세션에서 사용자 정보를 가져오는 라우트
+// 1. 권한 관련 라우트 수정
 app.get('/get-user-session', (req, res) => {
-  console.log('Session data:', req.session);
-  console.log('Is logged in:', req.session.is_logined);
-  console.log('UserID:', req.session.userID);
-
   if (req.session && req.session.is_logined) {
-    res.json({ userID: req.session.userID });
+      res.json({
+          userID: req.session.userID,
+          role: req.session.role, 
+          is_logined: true,
+          centerID: req.session.centerID
+      });
   } else {
-    res.status(401).json({ error: '로그인되지 않은 세션입니다.' });
+      res.status(401).json({ 
+          is_logined: false,
+          role: 'guest'
+      });
   }
 });
 
@@ -451,23 +455,29 @@ app.get('/api/get-computer-data', async (req, res) => {
   }
 });
 
-app.get('/api/get-sb3-data', async (req, res) => {
-  try {
-    const data = await getSheetData('sb3!A2:C');
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'sb3 데이터를 불러오는 중 오류가 발생했습니다.' });
+app.get('/api/get-sb2-data', 
+  checkRole(['admin', 'teacher', 'manager']),
+  async (req, res) => {
+      try {
+          const data = await getSheetData('sb2!A2:C');
+          res.json(data);
+      } catch (error) {
+          res.status(500).json({ error: 'sb2 데이터를 불러오는 중 오류가 발생했습니다.' });
+      }
   }
-});
+);
 
-app.get('/api/get-sb2-data', async (req, res) => {
-  try {
-    const data = await getSheetData('sb2!A2:C');
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'sb2 데이터를 불러오는 중 오류가 발생했습니다.' });
+app.get('/api/get-sb3-data', 
+  checkRole(['admin', 'teacher', 'manager', 'student']),
+  async (req, res) => {
+      try {
+          const data = await getSheetData('sb3!A2:C');
+          res.json(data);
+      } catch (error) {
+          res.status(500).json({ error: 'sb3 데이터를 불러오는 중 오류가 발생했습니다.' });
+      }
   }
-});
+);
 
 app.get('/api/get-ent-data', async (req, res) => {
   try {
@@ -602,16 +612,18 @@ app.get('/css/turn.css', (req, res) => {
 });
 
 
-
 // Scratch 프로젝트 목록 페이지
-app.get('/scratch_project', authenticateUser, (req, res) => {
-  console.log('User session:', req.session); // 세션 정보 로깅
-  res.render('scratch_project', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
-  });
-});
-
+app.get('/scratch_project', 
+  checkPageAccess('/scratch_project'),
+  (req, res) => {
+      res.render('scratch_project', {
+          userID: req.session.userID,
+          userRole: req.session.role,
+          is_logined: req.session.is_logined,
+          centerID: req.session.centerID
+      });
+  }
+);
 // Scratch GUI로 리다이렉트
 app.get('/scratch', (req, res) => {
   res.redirect(`${config.BASE_URL}:8601`);
