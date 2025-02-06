@@ -118,19 +118,11 @@ function displayProjects(projects, viewConfig) {
 function createProjectCard(projectName, project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
- 
+
     const cardContent = `
-        <div class="card h-100">
+        <div class="card h-100 position-relative">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="card-title mb-0">${projectName}</h5>
-                    ${viewConfig.showPPTButton && project.ppt ? `
-                        <button class="btn btn-sm btn-outline-primary" 
-                            onclick="window.open('${project.ppt}', '_blank')" 
-                            style="padding: 2px 2px; font-size: 12px;">PPT
-                        </button>
-                    ` : ''}
-                </div>
+                <h5 class="card-title mb-2">${projectName}</h5>
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
@@ -140,12 +132,18 @@ function createProjectCard(projectName, project, viewConfig) {
                     ${viewConfig.showExtensions && project.ext2 ? createProjectButton('확장2', project.ext2) : ''}
                 </div>
             </div>
+            ${viewConfig.showPPTButton && project.ppt ? `
+                <button class="btn btn-outline-primary ppt-btn" 
+                    onclick="window.open('${project.ppt}', '_blank')">PPT
+                </button>
+            ` : ''}
         </div>
     `;
- 
+
     card.innerHTML = cardContent;
     return card;
- }
+}
+
 
 // 프로젝트 버튼 생성
 function createProjectButton(label, url) {

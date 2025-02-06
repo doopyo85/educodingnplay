@@ -146,10 +146,11 @@ p {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s;
-    height: 100%;
+    height: 100%; /* 카드 높이 통일 */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 카드 내부의 콘텐츠를 위아래로 나누어 배치 */
+    justify-content: space-between;
+    padding: 15px; /* 내부 여백 일정하게 */
 }
 
 .card:hover {
@@ -158,8 +159,12 @@ p {
 }
 
 .card-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 긴 제목 생략 처리 */
+    margin-bottom: 10px; /* 제목과 버튼 사이 간격 일정하게 */
 }
 
 .card-text {
@@ -175,22 +180,32 @@ p {
 .card-body {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* 텍스트와 버튼을 아래쪽에 정렬 */
+    justify-content: space-between; /* 위아래 여백 균일하게 */
     align-items: center;
     text-align: center;
     flex-grow: 1;
+    padding: 15px;
+}
+
+.card .btn-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 5px; /* 버튼 사이 일정한 간격 */
 }
 
 .btn-primary, .btn-secondary {
-    margin: 5px;
-    border: none;
-    border-radius: 30px;
-    padding: 10px 20px;
-    transition: background-color 0.3s;
-    align-self: stretch;
+    flex-grow: 1; /* 버튼이 동일한 크기로 확장 */
+    border-radius: 8px;
+    padding: 8px 12px;
 }
-.btn-primary:hover, .btn-secondary:hover {
-    background-color: #563d7c;
+
+.ppt-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    padding: 5px 8px;
 }
 
 .nav-tabs {
