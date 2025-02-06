@@ -125,10 +125,10 @@ function createProjectCard(projectName, project, viewConfig) {
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="card-title mb-0">${projectName}</h5>
                     ${viewConfig.showPPTButton && project.ppt ? `
-                        <button class="btn btn-sm text-primary" 
+                        <button class="btn btn-sm btn-outline-primary" 
                             onclick="window.open('${project.ppt}', '_blank')" 
-                            style="padding: 2px 4px;">
-                            <i class="bi bi-filetype-ppt"></i>
+                            style="padding: 2px 8px; font-size: 12px;">
+                            <i class="bi bi-file-earmark-ppt"></i> PPT
                         </button>
                     ` : ''}
                 </div>
@@ -147,7 +147,7 @@ function createProjectCard(projectName, project, viewConfig) {
     card.innerHTML = cardContent;
     return card;
  }
- 
+
 // 프로젝트 버튼 생성
 function createProjectButton(label, url) {
     return `
