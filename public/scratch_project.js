@@ -118,16 +118,17 @@ function displayProjects(projects, viewConfig) {
 function createProjectCard(projectName, project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
-
+ 
     const cardContent = `
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="card-title mb-0">${projectName}</h5>
                     ${viewConfig.showPPTButton && project.ppt ? `
-                        <button class="btn btn-sm" onclick="window.open('${project.ppt}', '_blank')" 
-                            style="padding: 2px 8px;">
-                            <i class="bi bi-file-earmark-slides-fill"></i> PPT
+                        <button class="btn btn-sm text-primary" 
+                            onclick="window.open('${project.ppt}', '_blank')" 
+                            style="padding: 2px 4px;">
+                            <i class="bi bi-filetype-ppt"></i>
                         </button>
                     ` : ''}
                 </div>
@@ -142,11 +143,11 @@ function createProjectCard(projectName, project, viewConfig) {
             </div>
         </div>
     `;
-
+ 
     card.innerHTML = cardContent;
     return card;
-}
-
+ }
+ 
 // 프로젝트 버튼 생성
 function createProjectButton(label, url) {
     return `
