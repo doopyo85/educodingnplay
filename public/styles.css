@@ -167,7 +167,7 @@ p {
     position: absolute;
     top: 12px;
     left: 15px;
-    max-width: 75%;
+    max-width: 80%;
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
@@ -226,15 +226,10 @@ p {
     margin-bottom: 20px;
 }
 
-.row {
-    margin-left: -8px;
-    margin-right: -8px;
-}
-
 .col-lg-3, .col-md-4, .col-sm-6 {
     padding-left: 8px;
     padding-right: 8px;
-    margin-bottom: 15px; /* 카드 간 여백 균형 조정 */
+    margin-bottom: 15px; 
 }
 
 /* 여기서부터 대시보드 관련 스타일 */
