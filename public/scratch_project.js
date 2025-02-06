@@ -127,8 +127,7 @@ function createProjectCard(projectName, project, viewConfig) {
                     ${viewConfig.showPPTButton && project.ppt ? `
                         <button class="btn btn-sm btn-outline-primary" 
                             onclick="window.open('${project.ppt}', '_blank')" 
-                            style="padding: 2px 8px; font-size: 12px;">
-                            <i class="bi bi-file-earmark-ppt"></i> PPT
+                            style="padding: 2px 8px; font-size: 12px;">PPT
                         </button>
                     ` : ''}
                 </div>
