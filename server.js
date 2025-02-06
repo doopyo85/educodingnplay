@@ -160,6 +160,13 @@ app.use(cors({
 
 app.set('trust proxy', 1);
 
+// 상단에 authMiddleware 추가
+const { 
+  checkPageAccess, 
+  checkRole,           // 이 부분이 누락됨
+  checkAdminRole 
+} = require('./lib_login/authMiddleware');
+
 // logging
 const { 
   logUserActivity, 
@@ -456,7 +463,7 @@ app.get('/api/get-computer-data', async (req, res) => {
 });
 
 app.get('/api/get-sb2-data', 
-  checkRole(['admin', 'teacher', 'manager']),
+  checkRole(['admin', 'teacher', 'manager']),  // 이제 정의됨
   async (req, res) => {
       try {
           const data = await getSheetData('sb2!A2:C');
@@ -468,7 +475,7 @@ app.get('/api/get-sb2-data',
 );
 
 app.get('/api/get-sb3-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']),
+  checkRole(['admin', 'teacher', 'manager', 'student']),  // 이제 정의됨
   async (req, res) => {
       try {
           const data = await getSheetData('sb3!A2:C');
