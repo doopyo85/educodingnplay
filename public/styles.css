@@ -146,11 +146,12 @@ p {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s;
-    height: 100%; /* 카드 높이 통일 */
+    height: 100%; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 15px; /* 내부 여백 일정하게 */
+    padding: 15px;
+    min-height: 160px; /* 카드 높이 고정 */
 }
 
 .card:hover {
@@ -161,10 +162,14 @@ p {
 .card-title {
     font-size: 1.2rem;
     font-weight: bold;
-    white-space: nowrap;
+    white-space: normal; /* 자동 줄바꿈 허용 */
     overflow: hidden;
-    text-overflow: ellipsis; /* 긴 제목 생략 처리 */
-    margin-bottom: 10px; /* 제목과 버튼 사이 간격 일정하게 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 최대 2줄까지만 표시 */
+    -webkit-box-orient: vertical;
+    word-break: break-word; /* 긴 단어가 있으면 줄바꿈 */
+    margin-bottom: 10px;
+    text-align: center; /* 제목 중앙 정렬 */
 }
 
 .card-text {
@@ -180,7 +185,7 @@ p {
 .card-body {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 위아래 여백 균일하게 */
+    justify-content: space-between;
     align-items: center;
     text-align: center;
     flex-grow: 1;
