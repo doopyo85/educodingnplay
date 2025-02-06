@@ -165,8 +165,8 @@ p {
     font-weight: bold;
     text-align: left;
     position: absolute;
-    top: 12px;
-    left: 15px;
+    top: 17px;
+    left: 20px;
     max-width: 80%;
     white-space: normal;
     overflow: hidden;
@@ -176,12 +176,20 @@ p {
     word-break: break-word;
 }
 
+.ppt-btn {
+    position: absolute;
+    top: 17px;
+    right: 20px;
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
     text-align: center;
-    margin-top: 50px; /* 제목과의 간격을 일정하게 유지 */
-    margin-bottom: 10px; /* 버튼 그룹과 여백 최소화 */
+    margin-top: 10px; /* 제목과의 간격을 일정하게 유지 */
+    margin-bottom: 5px; /* 버튼 그룹과 여백 최소화 */
 }
 
 .card-img-top, .card-img-entry {
@@ -213,13 +221,7 @@ p {
     font-size: 0.9rem;
     text-align: center;
 }
-.ppt-btn {
-    position: absolute;
-    top: 12px;
-    right: 15px;
-    font-size: 11px;
-    padding: 4px 8px;
-}
+
 
 .nav-tabs {
     justify-content: center;
