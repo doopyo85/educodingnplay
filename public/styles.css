@@ -170,6 +170,7 @@ p {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: left;
+    margin-bottom: 12px; /* 제목과 이미지 사이 여백 추가 */
     position: absolute;
     top: 17px;
     left: 22px;
@@ -198,9 +199,14 @@ p {
     margin-bottom: 5px; /* 버튼 그룹과 여백 최소화 */
 }
 
+/* 카드 이미지 */
 .card-img-top, .card-img-entry {
-    object-fit: contain;
-    padding: 10px;
+    object-fit: contain; /* 이미지가 비율을 유지하며 카드에 맞게 조정됨 */
+    padding: 10px; /* 모든 방향에 동일한 여백 적용 */
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 12px; /* 제목과의 여백 확보 */
 }
 
 .card-body {
