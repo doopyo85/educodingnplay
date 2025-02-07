@@ -166,13 +166,14 @@ p {
     cursor: pointer; /* 포인터 커서 추가 */
 }
 
+/* 카드 제목 */
 .card-title {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: left;
-    margin-bottom: 12px; /* 제목과 이미지 사이 여백 추가 */
+    margin-bottom: 20px; /* 제목과 이미지 사이 여백 증가 */
     position: absolute;
-    top: 17px;
+    top: 15px;
     left: 22px;
     max-width: 95%;
     white-space: normal;
@@ -183,6 +184,7 @@ p {
     word-break: break-word;
 }
 
+
 .ppt-btn {
     position: absolute;
     top: 17px;
@@ -191,24 +193,26 @@ p {
     padding: 4px 8px;
 }
 
+/* 카드 텍스트 */
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
     text-align: center;
-    margin-top: 10px; /* 제목과의 간격을 일정하게 유지 */
-    margin-bottom: 5px; /* 버튼 그룹과 여백 최소화 */
+    margin-top: 5px; /* 이미지와의 간격 줄이기 */
+    margin-bottom: 5px; /* 버튼과의 간격 최소화 */
 }
 
 /* 카드 이미지 */
 .card-img-top, .card-img-entry {
-    object-fit: contain; /* 이미지가 비율을 유지하며 카드에 맞게 조정됨 */
-    padding: 10px; /* 모든 방향에 동일한 여백 적용 */
+    object-fit: contain;
+    padding: 10px; /* 모든 방향 동일 여백 */
     display: block;
     max-width: 100%;
-    max-height: 200px;
-    margin-bottom: 12px; /* 제목과의 여백 확보 */
+    max-height: 180px; /* 높이 조정 */
+    margin-bottom: 5px; /* 이미지와 아래 텍스트 사이 간격 줄이기 */
 }
 
+/* 카드 본문 */
 .card-body {
     display: flex;
     flex-direction: column;
@@ -216,7 +220,7 @@ p {
     align-items: center;
     text-align: center;
     flex-grow: 1;
-    padding: 30px 5px 10px 5px; /* 제목과 버튼 공간 확보 */
+    padding: 40px 10px 15px 10px; /* 제목과 버튼 간격 조정 */
 }
 
 /* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
