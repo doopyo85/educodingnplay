@@ -229,19 +229,20 @@ p {
     font-weight: bold;
     margin: 0 auto; /* 가운데 정렬 */
 }
-/* 회색 버튼 그룹 - 한 줄 정렬 */
+
+/* 버튼 그룹 - 한 줄 정렬 */
 .btn-group {
     display: flex;
     justify-content: center;
     flex-wrap: nowrap; /* 줄바꿈 방지 */
-    gap: 4px; /* 버튼 사이 간격 최소화 */
-    width: 100%; /* 카드 내부에서 벗어나지 않도록 설정 */
+    gap: 4px; /* 버튼 간 간격 최소화 */
+    width: auto; /* 카드 너비 내에서 자동 조정 */
 }
 
 /* 회색 버튼 (기본/확장1/확장2) */
 .btn-secondary {
-    border-radius: 50px; /* 캡슐형 */
-    padding: 5px 8px; /* 내부 여백 축소 */
+    border-radius: 50px;
+    padding: 5px 8px;
     font-size: 0.85rem;
     text-align: center;
     width: auto; /* 내용 크기에 맞게 조정 */
@@ -252,7 +253,7 @@ p {
     justify-content: center;
     align-items: center;
     font-weight: normal;
-    white-space: nowrap; /* 버튼 내부 줄바꿈 방지 */
+    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 

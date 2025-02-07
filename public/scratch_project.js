@@ -126,10 +126,10 @@ function createProjectCard(projectName, project, viewConfig) {
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
-                <div class="btn-group w-100 mb-2">
-                    ${project.basic ? createProjectButton('기본', project.basic) : ''}
-                    ${viewConfig.showExtensions && project.ext1 ? createProjectButton('확장1', project.ext1) : ''}
-                    ${viewConfig.showExtensions && project.ext2 ? createProjectButton('확장2', project.ext2) : ''}
+                <div class="btn-group mb-2">
+                    ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
+                    ${viewConfig.showExtensions && project.ext1 ? createProjectButton('확장1', project.ext1, 'btn-secondary') : ''}
+                    ${viewConfig.showExtensions && project.ext2 ? createProjectButton('확장2', project.ext2, 'btn-secondary') : ''}
                 </div>
             </div>
             ${viewConfig.showPPTButton && project.ppt ? `
@@ -144,15 +144,15 @@ function createProjectCard(projectName, project, viewConfig) {
     return card;
 }
 
-
-// 프로젝트 버튼 생성
-function createProjectButton(label, url) {
+// 프로젝트 버튼 생성 (버튼 타입 추가)
+function createProjectButton(label, url, type) {
     return `
-        <button class="btn btn-primary load-project" data-url="${url}">
+        <button class="btn ${type} load-project" data-url="${url}">
             ${label}
         </button>
     `;
 }
+
 
 // PPT 버튼 생성
 function createPPTButton(url) {
