@@ -221,7 +221,7 @@ p {
     align-items: center;
     text-align: center;
     flex-grow: 1;
-    padding: 40px 10px 15px 10px; /* 제목과 버튼 간격 조정 */
+    padding: 20px 5px 10px 5px; /* 제목과 버튼 간격 조정 */
 }
 
 /* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
