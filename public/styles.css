@@ -213,7 +213,6 @@ p {
     padding: 30px 5px 10px 5px; /* 제목과 버튼 공간 확보 */
 }
 
-/* 버튼 그룹 간격 조정 */
 .btn-group {
     width: 100%;
     display: flex;
@@ -222,18 +221,19 @@ p {
 }
 
 .btn-primary, .btn-secondary {
-    border-radius: 50px; /* 캡슐 형태 */
-    padding: 8px 20px; /* 내부 여백 줄여 크기 조정 */
-    font-size: 1rem; /* 글자 크기 조정 */
+    border-radius: 50px; /* 캡슐 형태 유지 */
+    padding: 8px 16px; /* 좌우 여백 줄이기 */
+    font-size: 1rem;
     text-align: center;
-    width: auto; /* 내용에 맞게 버튼 크기 조정 */
-    min-width: 160px; /* 최소 너비 지정 */
-    height: 40px; /* 버튼 높이 균일화 */
+    width: auto; /* 내용에 맞게 자동 크기 조정 */
+    min-width: 140px; /* 최소 너비 조정 */
+    height: 38px; /* 버튼 높이 균일하게 */
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold; /* 글자 강조 */
+    font-weight: bold;
 }
+
 
 .nav-tabs {
     justify-content: center;
