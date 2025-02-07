@@ -212,47 +212,49 @@ p {
     flex-grow: 1;
     padding: 30px 5px 10px 5px; /* 제목과 버튼 공간 확보 */
 }
-/* 파란 버튼 (주 버튼) */
+
+/* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
 .btn-primary {
     border-radius: 50px; /* 캡슐형 */
-    padding: 10px 24px; /* 크기를 더 키움 */
+    padding: 10px 24px;
     font-size: 1rem;
     text-align: center;
     width: auto; /* 내용에 맞게 크기 조정 */
-    min-width: 160px; /* 최소 너비 증가 */
-    max-width: 200px; /* 최대 너비 지정 */
-    height: 42px; /* 버튼 높이 일정하게 */
+    min-width: 160px;
+    max-width: 200px;
+    height: 42px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
+    margin: 0 auto; /* 가운데 정렬 */
 }
 
-/* 회색 버튼 (서브 버튼) */
+/* 회색 버튼 (서브 버튼) - 한 줄 정렬 */
+.btn-group {
+    display: flex;
+    justify-content: center; /* 가로 정렬 */
+    flex-wrap: nowrap; /* 줄바꿈 방지 */
+    width: 100%;
+    gap: 6px;
+}
+
+/* 회색 버튼 (기본/확장1/확장2) - 크기 축소 */
 .btn-secondary {
     border-radius: 50px; /* 캡슐형 */
-    padding: 6px 14px; /* 내부 여백 줄이기 */
+    padding: 6px 10px;
     font-size: 0.85rem;
     text-align: center;
-    width: auto; /* 내용에 맞게 크기 조정 */
-    min-width: 90px; /* 최소 너비 줄이기 */
-    max-width: 110px; /* 최대 너비 제한 */
-    height: 34px; /* 버튼 높이 일정하게 */
+    width: auto;
+    min-width: 60px; /* 버튼 크기 축소 */
+    max-width: 70px;
+    height: 34px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: normal;
 }
 
-/* 버튼 그룹 */
-.btn-group {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: auto;
-    max-width: 100%;
-    gap: 6px; /* 버튼 사이 간격 */
-}
 
 .nav-tabs {
     justify-content: center;
