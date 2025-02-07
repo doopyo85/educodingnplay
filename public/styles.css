@@ -206,6 +206,7 @@ p {
 .card-img-top, .card-img-entry {
     object-fit: contain;
     padding: 10px; /* 모든 방향 동일 여백 */
+    margin-top: 20px;
     display: block;
     max-width: 100%;
     max-height: 180px; /* 높이 조정 */
