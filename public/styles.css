@@ -172,7 +172,7 @@ p {
     text-align: left;
     position: absolute;
     top: 17px;
-    left: 20px;
+    left: 22px;
     max-width: 90%;
     white-space: normal;
     overflow: hidden;
@@ -185,7 +185,7 @@ p {
 .ppt-btn {
     position: absolute;
     top: 17px;
-    right: 20px;
+    right: 22px;
     font-size: 11px;
     padding: 4px 8px;
 }
