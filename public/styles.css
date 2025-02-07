@@ -212,34 +212,47 @@ p {
     flex-grow: 1;
     padding: 30px 5px 10px 5px; /* 제목과 버튼 공간 확보 */
 }
-
-/* 버튼 그룹 크기 조정 */
-.btn-group {
-    display: flex;
-    justify-content: center; /* 버튼을 가운데 정렬 */
-    flex-wrap: wrap; /* 버튼이 너무 길면 줄바꿈 허용 */
-    width: auto; /* 부모 크기를 초과하지 않도록 자동 조정 */
-    max-width: 100%; /* 카드 크기 이상으로 확장되지 않도록 설정 */
-    gap: 6px; /* 버튼 사이 간격 */
-}
-
-/* 버튼 크기 조정 */
-.btn-primary, .btn-secondary {
-    border-radius: 50px; /* 캡슐형 버튼 */
-    padding: 8px 14px; /* 좌우 여백 줄이기 */
-    font-size: 0.9rem; /* 글자 크기 조정 */
+/* 파란 버튼 (주 버튼) */
+.btn-primary {
+    border-radius: 50px; /* 캡슐형 */
+    padding: 10px 24px; /* 크기를 더 키움 */
+    font-size: 1rem;
     text-align: center;
-    width: auto; /* 내용에 맞게 자동 크기 */
-    min-width: 100px; /* 최소 너비 설정 */
-    max-width: 120px; /* 최대 너비 제한 */
-    height: 36px; /* 버튼 높이 균일 */
+    width: auto; /* 내용에 맞게 크기 조정 */
+    min-width: 160px; /* 최소 너비 증가 */
+    max-width: 200px; /* 최대 너비 지정 */
+    height: 42px; /* 버튼 높이 일정하게 */
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
 }
 
+/* 회색 버튼 (서브 버튼) */
+.btn-secondary {
+    border-radius: 50px; /* 캡슐형 */
+    padding: 6px 14px; /* 내부 여백 줄이기 */
+    font-size: 0.85rem;
+    text-align: center;
+    width: auto; /* 내용에 맞게 크기 조정 */
+    min-width: 90px; /* 최소 너비 줄이기 */
+    max-width: 110px; /* 최대 너비 제한 */
+    height: 34px; /* 버튼 높이 일정하게 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: normal;
+}
 
+/* 버튼 그룹 */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: auto;
+    max-width: 100%;
+    gap: 6px; /* 버튼 사이 간격 */
+}
 
 .nav-tabs {
     justify-content: center;
