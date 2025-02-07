@@ -235,7 +235,7 @@ p {
     display: flex;
     justify-content: center; /* 가로 정렬 */
     flex-wrap: nowrap; /* 줄바꿈 방지 */
-    width: 100%;
+    width: auto;
     gap: 6px;
 }
 
