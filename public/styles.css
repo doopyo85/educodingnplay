@@ -205,7 +205,7 @@ p {
     padding: 10px; /* 모든 방향에 동일한 여백 적용 */
     display: block;
     max-width: 100%;
-    height: auto;
+    height: 150px;
     margin-bottom: 12px; /* 제목과의 여백 확보 */
 }
 
