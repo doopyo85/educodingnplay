@@ -213,19 +213,26 @@ p {
     padding: 30px 5px 10px 5px; /* 제목과 버튼 공간 확보 */
 }
 
+/* 버튼 그룹 간격 조정 */
 .btn-group {
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    gap: 1px; /* 버튼 간격 */
+    justify-content: center; /* 버튼을 가운데 정렬 */
+    gap: 8px; /* 버튼 간 간격 줄이기 */
 }
 
 .btn-primary, .btn-secondary {
-    flex-grow: 1;
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-size: 0.9rem;
+    border-radius: 50px; /* 캡슐 형태 */
+    padding: 8px 20px; /* 내부 여백 줄여 크기 조정 */
+    font-size: 1rem; /* 글자 크기 조정 */
     text-align: center;
+    width: auto; /* 내용에 맞게 버튼 크기 조정 */
+    min-width: 160px; /* 최소 너비 지정 */
+    height: 40px; /* 버튼 높이 균일화 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold; /* 글자 강조 */
 }
 
 .nav-tabs {
