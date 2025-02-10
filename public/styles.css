@@ -156,7 +156,9 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 15px;
+    width: 220px;
+    padding: 10px;
+    margin: 8px;
     min-height: 150px; /* 카드 높이 안정적 유지 */
     position: relative;
 }
@@ -172,9 +174,10 @@ p {
     font-weight: bold;
     text-align: left;
     margin-bottom: 20px;
-    position: relative; /* absolute 제거 */
+    position: relative; 
     top: auto; /* 기존 top 제거 */
     left: 0;
+    min-heigth: 48px;
     max-width: 95%;
     white-space: normal;
     overflow: hidden;
@@ -182,10 +185,8 @@ p {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     word-break: break-word;
-    padding: 10px; /* 제목에 패딩 추가 */
+    padding: 5px 10px; /* 제목에 패딩 추가 */
 }
-
-
 
 .ppt-btn {
     position: absolute;
@@ -218,7 +219,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: 40px; /* 제목과 본문 간격 확보 */
+    padding-top: 10px; /* 제목과 본문 간격 확보 */
     align-items: center;
     text-align: center;
     flex-grow: 1;
