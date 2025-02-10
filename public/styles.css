@@ -171,7 +171,7 @@ p {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: left;
-    margin-bottom: 20px; /* 제목과 이미지 사이 여백 증가 */
+    margin-bottom: 20px;
     position: absolute;
     top: 15px;
     left: 22px;
@@ -219,7 +219,6 @@ p {
     align-items: center;
     text-align: center;
     flex-grow: 1;
-    padding: 20px 5px 10px 5px; /* 제목과 버튼 간격 조정 */
 }
 
 /* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
