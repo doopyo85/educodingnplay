@@ -209,7 +209,7 @@ p {
     margin-top: 20px;
     display: block;
     max-width: 100%;
-    max-height: 180px; /* 높이 조정 */
+    max-height: 140px; /* 높이 조정 */
 }
 
 /* 카드 본문 */
@@ -256,8 +256,8 @@ p {
     font-size: 0.85rem;
     text-align: center;
     width: auto; /* 내용 크기에 맞게 조정 */
-    min-width: 50px; /* 최소 너비 제한 */
-    max-width: 60px; /* 최대 너비 제한 */
+    min-width: 30px; /* 최소 너비 제한 */
+    max-width: 50px; /* 최대 너비 제한 */
     height: 28px; /* 버튼 높이 균일 */
     display: flex;
     justify-content: center;
