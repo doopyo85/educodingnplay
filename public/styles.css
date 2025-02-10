@@ -156,7 +156,6 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 220px;
     padding: 10px;
     margin: 8px;
     min-height: 150px; /* 카드 높이 안정적 유지 */
@@ -177,7 +176,7 @@ p {
     position: relative; 
     top: auto; /* 기존 top 제거 */
     left: 0;
-    min-heigth: 48px;
+    min-height: 48px;
     max-width: 95%;
     white-space: normal;
     overflow: hidden;
