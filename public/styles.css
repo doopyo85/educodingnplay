@@ -157,7 +157,7 @@ p {
     flex-direction: column;
     justify-content: space-between;
     padding: 10px;
-    min-height: 150px; /* 카드 높이 안정적 유지 */
+    min-height: 120px; /* 카드 높이 안정적 유지 */
     position: relative;
 }
 
