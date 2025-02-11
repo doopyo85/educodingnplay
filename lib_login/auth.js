@@ -156,6 +156,47 @@ router.get('/register', async (req, res) => {
                 <input class="btn" type="submit" value="가입하기" style="width: 100%; padding: 10px; background-color: black; color: white; border: none; border-radius: 4px; cursor: pointer;">
             </form>
 
+            <!-- 개인정보 처리방침 모달 추가 -->
+            <div id="privacyModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); z-index: 1000;">
+                <div class="modal-content" style="background-color: white; margin: 15% auto; padding: 20px; width: 70%; max-width: 600px; border-radius: 5px; position: relative;">
+                    <span class="close" style="position: absolute; right: 10px; top: 5px; font-size: 24px; cursor: pointer;">&times;</span>
+                    <h2>개인정보 처리방침</h2>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <h3>1. 개인정보 수집 항목 및 목적</h3>
+                        <p>필수항목: 이름, 아이디, 비밀번호, 이메일, 생년월일, 연락처<br>
+                        선택항목: 소속 교육기관<br>
+                        수집목적: 회원가입, 서비스 제공, 교육 진도 관리, 학습 분석</p>
+
+                        <h3>2. 개인정보 보유 기간</h3>
+                        <p>- 회원 탈퇴 시까지 보관<br>
+                        - 법령에 따른 보관의무가 있는 경우 해당 기간 동안 보관</p>
+
+                        <h3>3. 개인정보의 제3자 제공</h3>
+                        <p>- 원칙적으로 이용자의 개인정보를 외부에 제공하지 않습니다.<br>
+                        - 법령의 규정에 의거하거나 수사 목적으로 법령에 정해진 절차를 따르는 경우 예외</p>
+
+                        <h3>4. 이용자의 권리</h3>
+                        <p>- 개인정보 열람 요구<br>
+                        - 오류 정정 요구<br>
+                        - 삭제 요구<br>
+                        - 처리정지 요구</p>
+
+                        <h3>5. 개인정보 안전성 확보 조치</h3>
+                        <p>- 개인정보 암호화<br>
+                        - 해킹 등에 대비한 보안시스템 구축<br>
+                        - 개인정보 취급자 최소화</p>
+
+                        <h3>6. 개인정보 담당자</h3>
+                        <p>- 담당부서: 교육사업부
+                        - 담당자명: 전두표
+                        - 연락처: 070-4337-4337
+                        - 이메일: codmoedu@cosmoedu.co.kr
+                        
+                        <h3>7. 시행일자</h3>
+                        <p>2024년 9월 1일</p>
+                    </div>
+                </div>
+            </div>
             <script>
                 document.getElementById('registerForm').addEventListener('submit', function(event) {
                     event.preventDefault();
@@ -187,6 +228,26 @@ router.get('/register', async (req, res) => {
                         alert('회원가입 중 오류가 발생했습니다.');
                     });
                 });
+            
+                // 개인정보 처리방침 모달 관련 스크립트 추가
+                const modal = document.getElementById('privacyModal');
+                const privacyLink = document.getElementById('privacyPolicyLink');
+                const closeBtn = document.getElementsByClassName('close')[0];
+
+                privacyLink.onclick = function(e) {
+                    e.preventDefault();
+                    modal.style.display = 'block';
+                }
+
+                closeBtn.onclick = function() {
+                    modal.style.display = 'none';
+                }
+
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        modal.style.display = 'none';
+                    }
+                }
             </script>
         `);
         res.send(html);
