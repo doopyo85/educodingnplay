@@ -147,6 +147,8 @@ p {
     margin-bottom: 15px; 
 }
 
+
+/* 메인 화면 카드 */
 .card {
     border: none;
     border-radius: 15px;
@@ -166,6 +168,23 @@ p {
     cursor: pointer; /* 포인터 커서 추가 */
 }
 
+/* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
+.btn-primary {
+    border-radius: 50px; /* 캡슐형 */
+    padding: 10px 24px;
+    font-size: 1rem;
+    text-align: center;
+    width: auto; /* 내용에 맞게 크기 조정 */
+    min-width: 160px;
+    max-width: 200px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin: 0 auto; /* 가운데 정렬 */
+}
+
 /* 카드 제목 */
 .card-title {
     position: absolute;
@@ -176,7 +195,7 @@ p {
     text-align: left;
     margin-bottom: 20px;
     min-height: 48px;
-    max-width: 95%;
+    max-width: 80%;
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
@@ -198,7 +217,7 @@ p {
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
-    text-align: center;
+    text-align: left;
     margin-bottom: 10px; /* 버튼과의 간격 최소화 */
 }
 
@@ -223,29 +242,12 @@ p {
     flex-grow: 1;
 }
 
-/* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
-.btn-primary {
-    border-radius: 50px; /* 캡슐형 */
-    padding: 10px 24px;
-    font-size: 1rem;
-    text-align: center;
-    width: auto; /* 내용에 맞게 크기 조정 */
-    min-width: 160px;
-    max-width: 200px;
-    height: 42px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    margin: 0 auto; /* 가운데 정렬 */
-}
-
 /* 버튼 그룹 - 한 줄 정렬 */
 .btn-group {
     display: flex;
     justify-content: center;
     flex-wrap: nowrap; /* 줄바꿈 방지 */
-    gap: 4px; /* 버튼 간 간격 최소화 */
+    gap: 1px; /* 버튼 간 간격 최소화 */
     width: auto; /* 카드 너비 내에서 자동 조정 */
 }
 
@@ -256,8 +258,8 @@ p {
     font-size: 0.85rem;
     text-align: center;
     width: auto; /* 내용 크기에 맞게 조정 */
-    min-width: 50px; /* 최소 너비 제한 */
-    max-width: 60px; /* 최대 너비 제한 */
+    min-width: 60px; /* 최소 너비 제한 */
+    max-width: 90px; /* 최대 너비 제한 */
     height: 28px; /* 버튼 높이 균일 */
     display: flex;
     justify-content: center;
