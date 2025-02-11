@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        // hidden 필드에서 사용자 정보 가져오기
         const userRole = document.getElementById('user-role').value;
         const userID = document.getElementById('user-id').value;
         const centerID = document.getElementById('center-id').value;
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 });
 
-// 프로젝트 뷰 초기화
 async function initializeProjectView(userRole) {
     try {
         const viewConfig = getViewConfigForRole(userRole);
@@ -35,8 +33,6 @@ async function initializeProjectView(userRole) {
     }
 }
 
-
-// 역할별 뷰 설정
 function getViewConfigForRole(userRole) {
     return {
         showPPTButton: ['admin', 'teacher', 'manager'].includes(userRole),
@@ -46,12 +42,8 @@ function getViewConfigForRole(userRole) {
     };
 }
 
-// 프로젝트 데이터 로드
-
-// API 호출 수정
 async function loadProjectData(userRole) {
     try {
-        // 역할에 따라 적절한 엔드포인트 선택
         const endpoint = ['admin', 'teacher', 'manager'].includes(userRole)
             ? '/api/get-sb2-data'
             : '/api/get-sb3-data';
@@ -70,25 +62,20 @@ async function loadProjectData(userRole) {
     }
 }
 
-// 프로젝트 그룹화
-// 프로젝트 그룹화 (기능 컬럼을 기반으로 URL을 분류)
 function groupByProject(data) {
     const projects = {};
-
     data.forEach(row => {
-        if (!Array.isArray(row) || row.length < 6) return;  // 데이터 길이 확인
+        if (!Array.isArray(row) || row.length < 4) return;
 
-        // 컬럼 매핑
-        const [category, name, feature, url, ctElement, tool] = row;  
-
-        // 프로젝트 기본 이름 추출
-        const baseName = name.trim();
-
+        // 새로운 데이터 구조에 맞춰 인덱스 조정
+        const [category, name, type, url, ctElement = '', imgUrl = ''] = row;
+        const baseName = name.replace(/\([^)]*\)/g, '').trim();
+        
         if (!projects[baseName]) {
             projects[baseName] = {
-                category: category || '',
-                ctElement: ctElement || '',
-                tool: tool || '',
+                category: category,
+                ctElement: ctElement,
+                img: imgUrl,
                 basic: '',
                 ext1: '',
                 ext2: '',
@@ -96,8 +83,8 @@ function groupByProject(data) {
             };
         }
 
-        // "기능" 컬럼 값을 기반으로 URL 저장
-        switch (feature) {
+        // 기능 컬럼의 값에 따라 URL 할당
+        switch(type.toLowerCase()) {
             case '기본':
                 projects[baseName].basic = url;
                 break;
@@ -110,16 +97,11 @@ function groupByProject(data) {
             case 'ppt':
                 projects[baseName].ppt = url;
                 break;
-            default:
-                console.warn(`알 수 없는 기능 값: ${feature}`);
         }
     });
-
     return projects;
 }
 
-
-// 프로젝트 표시
 function displayProjects(projects, viewConfig) {
     const container = document.getElementById('content-container');
     container.innerHTML = '';
@@ -130,17 +112,20 @@ function displayProjects(projects, viewConfig) {
     });
 }
 
-// 프로젝트 카드 생성
 function createProjectCard(projectName, project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
     const cardContent = `
         <div class="card h-100 position-relative">
+            ${project.img ? `
+                <img src="${project.img}" class="card-img-top" alt="${projectName}">
+            ` : ''}
             <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">${project.category || ''}</h6>
                 <h5 class="card-title mb-2">${projectName}</h5>
                 <p class="card-text">
-                    <i class="bi bi-cpu"></i> C.T 요소: ${project.ctElement || '정보 없음'}<br>
+                    <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
                 <div class="btn-group mb-2">
                     ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
@@ -160,8 +145,6 @@ function createProjectCard(projectName, project, viewConfig) {
     return card;
 }
 
-
-// 프로젝트 버튼 생성 (버튼 타입 추가)
 function createProjectButton(label, url, type) {
     return `
         <button class="btn ${type} load-project" data-url="${url}">
@@ -170,17 +153,6 @@ function createProjectButton(label, url, type) {
     `;
 }
 
-
-// PPT 버튼 생성
-function createPPTButton(url) {
-    return `
-        <button class="btn btn-outline-secondary btn-sm w-100" onclick="window.open('${url}', '_blank')">
-            <i class="bi bi-file-earmark-slides"></i> PPT 보기
-        </button>
-    `;
-}
-
-// 스크래치 GUI에서 프로젝트 로드
 function loadProjectInScratchGUI(projectUrl) {
     if (!projectUrl) {
         console.error('Project URL is missing');
@@ -189,7 +161,6 @@ function loadProjectInScratchGUI(projectUrl) {
     window.open(`/scratch/?project_file=${encodeURIComponent(projectUrl)}`, '_blank');
 }
 
-// 에러 메시지 표시
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
     container.innerHTML = `
@@ -200,7 +171,6 @@ function displayErrorMessage(message) {
     `;
 }
 
-// 이벤트 리스너 등록
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('load-project')) {
         e.preventDefault();
