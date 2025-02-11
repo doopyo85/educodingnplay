@@ -17,7 +17,7 @@ async function getUserType() {
         return userType;
     } catch (error) {
         console.error('Error getting user type:', error);
-        throw error;
+        return 'student';  // 기본값은 학생
     }
 }
 
@@ -54,10 +54,13 @@ function groupByCategory(data) {
     return projects;
 }
 
-function displayTabsAndProjects(projects) {
+async function displayTabsAndProjects(projects) {
+    const userType = await getUserType();
+    const isTeacher = userType === 'teacher';
+
     const tabsContainer = document.getElementById('categoryTabs');
     const contentContainer = document.getElementById('content-container');
-    
+
     if (!tabsContainer || !contentContainer) {
         console.error('Required DOM elements not found');
         displayErrorMessage("페이지 로딩 중 오류가 발생했습니다.");
@@ -65,7 +68,6 @@ function displayTabsAndProjects(projects) {
     }
 
     let firstTab = true;
-
     tabsContainer.innerHTML = '';
     contentContainer.innerHTML = '';
 
@@ -90,23 +92,36 @@ function displayTabsAndProjects(projects) {
 
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row';
+
         projects[category].forEach(project => {
             const card = document.createElement('div');
             card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+            const buttons = `
+                <a href="${sanitizeURL(project.entURL)}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">기본</a>
+                ${isTeacher ? `<a href="${sanitizeURL(project.entURL.replace('a.ent', 'c.ent'))}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">완성</a>` : ''}
+                <a href="${sanitizeURL(project.entURL.replace('a.ent', 'e.ent'))}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">확장</a>
+            `;
+
+            const pptButton = isTeacher
+                ? `<a href="${sanitizeURL(project.entURL.replace('.ent', '.ppt'))}" class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer">PPT</a>`
+                : '';
 
             const cardContent = `
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">${escapeHTML(project.name)}</h5>
                         <p class="card-text"><i class="bi bi-cpu"></i> C.T 학습 요소: ${escapeHTML(project.ctElement || '정보 없음')}</p>
-                        <a href="${sanitizeURL(project.entURL)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">프로젝트 시작</a>
+                        <div class="btn-group mb-2">${buttons}</div>
+                        ${pptButton}
                     </div>
                 </div>
             `;
+
             card.innerHTML = cardContent;
             rowDiv.appendChild(card);
         });
-        
+
         tabContent.appendChild(rowDiv);
         contentContainer.appendChild(tabContent);
 
