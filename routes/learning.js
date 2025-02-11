@@ -47,7 +47,7 @@ router.get('/roadmap', checkRole(['manager', 'admin']), async (req, res) => {
 });
 
 // 새로운 학습 시작 API
-router.post('/api/learning/start', async (req, res) => {
+router.post('/start', async (req, res) => {
     try {
         const { content_type, content_name } = req.body;
         
@@ -98,7 +98,7 @@ router.post('/api/learning/start', async (req, res) => {
 });
 
 // 학습 종료 API
-router.post('/api/learning/end', async (req, res) => {
+router.post('/end', async (req, res) => {
     try {
         const { content_type, content_name, progress } = req.body;
         

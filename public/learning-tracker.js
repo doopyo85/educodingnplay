@@ -14,7 +14,7 @@ class LearningTracker {
             if (this.isTracking) {
                 // 동기식 XMLHttpRequest 사용
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/api/learning/end', false);  // 동기식 요청
+                xhr.open('POST', '/learning/end', false);  // 동기식 요청
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify({
                     content_type: this.contentType,
@@ -39,7 +39,7 @@ class LearningTracker {
                 contentName: this.contentName
             });
     
-            const response = await fetch('/api/learning/start', {
+            const response = await fetch('/learning/start', { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ class LearningTracker {
                 progress: progress
             });
 
-            const response = await fetch('/api/learning/end', {
+            const response = await fetch('/learning/end', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

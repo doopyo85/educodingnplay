@@ -31,11 +31,10 @@ async function getUserType() {
     }
 }
 
-// 초기화 함수 수정
 async function initializeProjectView(userRole) {
     try {
-        const userType = await getUserType();  // 사용자 타입 가져오기
-        const viewConfig = getViewConfigForRole(userType);  // userRole 대신 userType 사용
+        // userType을 가져오는 대신 전달받은 userRole을 직접 사용
+        const viewConfig = getViewConfigForRole(userRole);  // userRole 직접 사용
         const projectData = await loadProjectData();
         
         if (projectData && projectData.length > 0) {
@@ -49,7 +48,6 @@ async function initializeProjectView(userRole) {
         displayErrorMessage("프로젝트 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
-
 // 역할에 따른 뷰 설정 함수 수정
 function getViewConfigForRole(userType) {
     return {
