@@ -71,17 +71,24 @@ async function loadProjectData(userRole) {
 }
 
 // 프로젝트 그룹화
+// 프로젝트 그룹화 (기능 컬럼을 기반으로 URL을 분류)
 function groupByProject(data) {
     const projects = {};
-    data.forEach(row => {
-        if (!Array.isArray(row) || row.length < 2) return;
 
-        const [name, url, ctElement = ''] = row;
-        const baseName = name.replace(/(\(기본\)|\(확장1\)|\(확장2\)|\(ppt\))/, '').trim();
-        
+    data.forEach(row => {
+        if (!Array.isArray(row) || row.length < 6) return;  // 데이터 길이 확인
+
+        // 컬럼 매핑
+        const [category, name, feature, url, ctElement, tool] = row;  
+
+        // 프로젝트 기본 이름 추출
+        const baseName = name.trim();
+
         if (!projects[baseName]) {
             projects[baseName] = {
+                category: category || '',
                 ctElement: ctElement || '',
+                tool: tool || '',
                 basic: '',
                 ext1: '',
                 ext2: '',
@@ -89,19 +96,28 @@ function groupByProject(data) {
             };
         }
 
-        if (name.includes('(기본)')) {
-            projects[baseName].basic = url;
-            if (ctElement) projects[baseName].ctElement = ctElement;
-        } else if (name.includes('(확장1)')) {
-            projects[baseName].ext1 = url;
-        } else if (name.includes('(확장2)')) {
-            projects[baseName].ext2 = url;
-        } else if (name.includes('(ppt)')) {
-            projects[baseName].ppt = url;
+        // "기능" 컬럼 값을 기반으로 URL 저장
+        switch (feature) {
+            case '기본':
+                projects[baseName].basic = url;
+                break;
+            case '확장1':
+                projects[baseName].ext1 = url;
+                break;
+            case '확장2':
+                projects[baseName].ext2 = url;
+                break;
+            case 'ppt':
+                projects[baseName].ppt = url;
+                break;
+            default:
+                console.warn(`알 수 없는 기능 값: ${feature}`);
         }
     });
+
     return projects;
 }
+
 
 // 프로젝트 표시
 function displayProjects(projects, viewConfig) {
@@ -124,7 +140,7 @@ function createProjectCard(projectName, project, viewConfig) {
             <div class="card-body">
                 <h5 class="card-title mb-2">${projectName}</h5>
                 <p class="card-text">
-                    <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
+                    <i class="bi bi-cpu"></i> C.T 요소: ${project.ctElement || '정보 없음'}<br>
                 </p>
                 <div class="btn-group mb-2">
                     ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
@@ -143,6 +159,7 @@ function createProjectCard(projectName, project, viewConfig) {
     card.innerHTML = cardContent;
     return card;
 }
+
 
 // 프로젝트 버튼 생성 (버튼 타입 추가)
 function createProjectButton(label, url, type) {
