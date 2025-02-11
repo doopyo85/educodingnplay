@@ -1,8 +1,15 @@
+// entry_project.js에 추가
 document.addEventListener("DOMContentLoaded", async function() {
     try {
         const userRole = document.getElementById('user-role').value;
         const userID = document.getElementById('user-id').value;
         const centerID = document.getElementById('center-id').value;
+
+        // 학습 추적 초기화 - contentType을 'entry'로 설정
+        const learningTracker = new LearningTracker({
+            contentType: 'entry',  // 'scratch'에서 'entry'로 수정
+            contentName: '엔트리 프로젝트 선택'
+        });
 
         if (!userRole) {
             throw new Error('사용자 권한 정보를 찾을 수 없습니다.');
