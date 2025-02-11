@@ -122,7 +122,6 @@ function createProjectCard(projectName, project, viewConfig) {
                 <img src="${project.img}" class="card-img-top" alt="${projectName}">
             ` : ''}
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">${project.category || ''}</h6>
                 <h5 class="card-title mb-2">${projectName}</h5>
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
