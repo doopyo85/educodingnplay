@@ -16,9 +16,26 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 });
 
+// 사용자 타입 가져오는 함수 추가
+async function getUserType() {
+    try {
+        const response = await fetch('/api/get-user-type');
+        if (!response.ok) {
+            throw new Error('사용자 유형을 가져오는 데 실패했습니다.');
+        }
+        const { userType } = await response.json();
+        return userType;
+    } catch (error) {
+        console.error('Error getting user type:', error);
+        return 'student';  // 기본값은 학생
+    }
+}
+
+// 초기화 함수 수정
 async function initializeProjectView(userRole) {
     try {
-        const viewConfig = getViewConfigForRole(userRole);
+        const userType = await getUserType();  // 사용자 타입 가져오기
+        const viewConfig = getViewConfigForRole(userType);  // userRole 대신 userType 사용
         const projectData = await loadProjectData();
         
         if (projectData && projectData.length > 0) {
@@ -33,13 +50,15 @@ async function initializeProjectView(userRole) {
     }
 }
 
-function getViewConfigForRole(userRole) {
+// 역할에 따른 뷰 설정 함수 수정
+function getViewConfigForRole(userType) {
     return {
-        showPPTButton: ['admin', 'teacher', 'manager'].includes(userRole),
-        showComplete: ['admin', 'teacher', 'manager'].includes(userRole),
-        canEdit: ['admin', 'teacher', 'manager'].includes(userRole)
+        showPPTButton: ['admin', 'teacher', 'manager'].includes(userType),
+        showComplete: ['admin', 'teacher', 'manager'].includes(userType),
+        canEdit: ['admin', 'teacher', 'manager'].includes(userType)
     };
 }
+
 
 async function loadProjectData() {
     try {
