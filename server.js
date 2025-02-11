@@ -637,11 +637,14 @@ app.get('/scratch', (req, res) => {
 });
 
 // entry 프로젝트 목록페이지
+// server.js - entry_project 라우트 수정
 app.get('/entry_project', authenticateUser, (req, res) => {
   console.log('User session:', req.session);
   res.render('entry_project', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
+      userID: req.session.userID || null,
+      is_logined: req.session.is_logined || false,
+      role: req.session.role || 'student',    // role 추가
+      centerID: req.session.centerID || null  // centerID 추가
   });
 });
 
