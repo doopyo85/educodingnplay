@@ -650,7 +650,7 @@ app.get('/scratch', (req, res) => {
 });
 
 // 엔트리 관련 라우터 적용
-const entryRouter = require('./routes/entryRouter');
+const entryRouter = require('./routes/entryRouter.js');
 app.use('/entry', entryRouter);
 
 // python 렌더링
