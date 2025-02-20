@@ -486,13 +486,26 @@ app.get('/api/get-sb3-data',
   }
 );
 
-app.get('/api/get-ent-data', async (req, res) => {
+
+router.get('/api/get-ent-data', async (req, res) => {
   try {
-    const data = await getSheetData('ent!A2:G');
-    res.json(data);
+      const params = { Bucket: BUCKET_NAME, Prefix: 'ent/' };
+      const command = new ListObjectsV2Command(params);
+      const data = await s3Client.send(command);
+
+      if (!data.Contents || data.Contents.length === 0) {
+          return res.json([]);
+      }
+
+      const files = data.Contents.map(file => ({
+          name: file.Key.split('/').pop(),
+          url: `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}`
+      }));
+
+      res.json(files);
   } catch (error) {
-    console.error('Error fetching ENT data:', error);
-    res.status(500).json({ error: 'ENT 데이터를 불러오는 중 오류가 발생했습니다.' });
+      console.error('S3 데이터 불러오기 오류:', error);
+      res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
   }
 });
 
@@ -636,23 +649,9 @@ app.get('/scratch', (req, res) => {
   res.redirect(`${config.BASE_URL}:8601`);
 });
 
-// entry 프로젝트 목록페이지
-// server.js - entry_project 라우트 수정
-app.get('/entry_project', authenticateUser, (req, res) => {
-  console.log('User session:', req.session);
-  res.render('entry_project', {
-      userID: req.session.userID || null,
-      is_logined: req.session.is_logined || false,
-      role: req.session.role || 'student',    // role 추가
-      centerID: req.session.centerID || null  // centerID 추가
-  });
-});
-
-// Entry 리다이렉트
-app.get('/entry', (req, res) => {
-  res.redirect(`${config.BASE_URL}:8080`);
-});
- 
+// 엔트리 관련 라우터 적용
+const entryRouter = require('./routes/entryRouter');
+app.use('/entry', entryRouter);
 
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {

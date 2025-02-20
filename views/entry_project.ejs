@@ -28,6 +28,8 @@
     <input type="hidden" id="user-id" value="<%= userID %>">
     <input type="hidden" id="center-id" value="<%= centerID %>">
     
+    <script src="/public/js/entry/entry.min.js"></script>
+
     <div class="container mt-5">
         <h1 class="text-center">Entry 프로젝트</h1>
         <p class="text-center">다양한 Entry 프로젝트를 통해 프로그래밍 기술을 향상시켜보세요!</p>
@@ -42,7 +44,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 학습 트래커 초기화
             const pageTitle = document.title;
-            const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
+            const contentType = 'entry'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
             
             window.learningTracker = new LearningTracker(contentType, pageTitle);
             window.learningTracker.startTracking();
@@ -60,6 +62,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/header.js"></script>
-    <script src="/entry_project.js"></script>
+    <script src="/js/entry_project.js"></script>
 </body>
 </html>
