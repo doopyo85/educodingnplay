@@ -493,7 +493,7 @@ app.get('/api/get-ent-data', async (req, res) => {
         const response = await sheets.spreadsheets.values.get({
             auth: googleAuth,
             spreadsheetId: process.env.SPREADSHEET_ID,
-            range: 'Entry!A2:F'  // Entry 시트의 데이터 범위
+            range: 'ent!A2:F'  // Entry 시트의 데이터 범위
         });
 
         const rows = response.data.values || [];
