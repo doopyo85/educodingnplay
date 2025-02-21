@@ -56,11 +56,12 @@ async function initializeProjectView(userRole) {
     }
 }
 // 역할에 따른 뷰 설정 함수 수정
-function getViewConfigForRole(userType) {
+function getViewConfigForRole(userRole) {
     return {
-        showPPTButton: ['admin', 'teacher', 'manager'].includes(userType),
-        showComplete: ['admin', 'teacher', 'manager'].includes(userType),
-        canEdit: ['admin', 'teacher', 'manager'].includes(userType)
+        showPPTButton: ['admin', 'teacher', 'manager'].includes(userRole),
+        showComplete: ['admin', 'teacher', 'manager'].includes(userRole),
+        showExtension: ['admin', 'teacher', 'manager'].includes(userRole),
+        canEdit: ['admin', 'teacher', 'manager'].includes(userRole)
     };
 }
 
@@ -167,24 +168,24 @@ function displayTabsAndProjects(projects, viewConfig) {
     });
 }
 
-function createProjectCard(project, viewConfig) {
+function createProjectCard(projectName, project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
 
     const cardContent = `
         <div class="card h-100 position-relative">
             ${project.img ? `
-                <img src="${project.img}" class="card-img-top" alt="${project.name}">
+                <img src="${project.img}" class="card-img-top" alt="${projectName}">
             ` : ''}
             <div class="card-body">
-                <h5 class="card-title mb-2">${project.name}</h5>
+                <h5 class="card-title mb-2">${projectName}</h5>
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
                 <div class="btn-group mb-2">
                     ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
                     ${viewConfig.showComplete && project.complete ? createProjectButton('완성', project.complete, 'btn-secondary') : ''}
-                    ${project.extension ? createProjectButton('확장', project.extension, 'btn-secondary') : ''}
+                    ${viewConfig.showExtension && project.extension ? createProjectButton('확장', project.extension, 'btn-secondary') : ''}
                 </div>
             </div>
             ${viewConfig.showPPTButton && project.ppt ? `

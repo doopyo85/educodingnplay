@@ -488,22 +488,18 @@ app.get('/api/get-sb3-data',
 );
 
 
-app.get('/api/get-ent-data', async (req, res) => {
-    try {
-        const response = await sheets.spreadsheets.values.get({
-            auth: googleAuth,
-            spreadsheetId: process.env.SPREADSHEET_ID,
-            range: 'ent!A2:F'  // Entry 시트의 데이터 범위
-        });
-
-        const rows = response.data.values || [];
-        res.json(rows);
-    } catch (error) {
-        console.error('구글 시트 데이터 불러오기 오류:', error);
-        res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
-    }
-});
-
+app.get('/api/get-ent-data', 
+  checkRole(['admin', 'teacher', 'manager', 'student']), // 모든 사용자 접근 가능
+  async (req, res) => {
+      try {
+          const data = await getSheetData('ent!A2:F');  // 기존 getSheetData 함수 활용
+          res.json(data);
+      } catch (error) {
+          console.error('구글 시트 데이터 불러오기 오류:', error);
+          res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
+      }
+  }
+);
 
 app.get('/api/get-menu-data', async (req, res) => {
   try {
