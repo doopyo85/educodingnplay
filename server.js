@@ -487,20 +487,23 @@ app.get('/api/get-sb3-data',
 );
 
 
-router.get('/api/get-ent-data', async (req, res) => {
+// server.js에 추가
+app.get('/api/get-ent-data', async (req, res) => {
   try {
-      const params = { Bucket: BUCKET_NAME, Prefix: 'ent/' };
+      const params = { Bucket: process.env.BUCKET_NAME, Prefix: 'ent/' };
       const command = new ListObjectsV2Command(params);
       const data = await s3Client.send(command);
 
-      if (!data.Contents || data.Contents.length === 0) {
-          return res.json([]);
-      }
-
-      const files = data.Contents.map(file => ({
-          name: file.Key.split('/').pop(),
-          url: `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}`
-      }));
+      // 스크래치와 같은 형식으로 데이터 변환
+      const files = data.Contents?.map(file => {
+          const key = file.Key.split('/').pop();
+          return [
+              key.split('_')[0] || 'Default', // category
+              key.split('_')[1] || key,       // name
+              key.includes('완성') ? '완성' : '기본', // type
+              `https://${process.env.BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}` // url
+          ];
+      }) || [];
 
       res.json(files);
   } catch (error) {
@@ -649,9 +652,23 @@ app.get('/scratch', (req, res) => {
   res.redirect(`${config.BASE_URL}:8601`);
 });
 
-// 엔트리 관련 라우터 적용
-const entryRouter = require('./routes/entryRouter.js');
-app.use('/entry', entryRouter);
+// Entry 프로젝트 목록 페이지
+app.get('/entry_project', 
+  checkPageAccess('/entry_project'),
+  (req, res) => {
+      res.render('entry_project', {
+          userID: req.session.userID,
+          userRole: req.session.role,
+          is_logined: req.session.is_logined,
+          centerID: req.session.centerID
+      });
+  }
+);
+
+// Entry GUI로 리다이렉트
+app.get('/entry', (req, res) => {
+  res.redirect(`${config.BASE_URL}:8080`);
+});
 
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {
