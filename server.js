@@ -15,6 +15,7 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const { BASE_URL, API_ENDPOINTS, Roles } = require('./config');
 const cron = require('node-cron'); // 결제정보 자정마다 업데이트
+const { ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 const app = express();
 
@@ -487,30 +488,22 @@ app.get('/api/get-sb3-data',
 );
 
 
-// server.js에 추가
 app.get('/api/get-ent-data', async (req, res) => {
-  try {
-      const params = { Bucket: process.env.BUCKET_NAME, Prefix: 'ent/' };
-      const command = new ListObjectsV2Command(params);
-      const data = await s3Client.send(command);
+    try {
+        const response = await sheets.spreadsheets.values.get({
+            auth: googleAuth,
+            spreadsheetId: process.env.SPREADSHEET_ID,
+            range: 'Entry!A2:F'  // Entry 시트의 데이터 범위
+        });
 
-      // 스크래치와 같은 형식으로 데이터 변환
-      const files = data.Contents?.map(file => {
-          const key = file.Key.split('/').pop();
-          return [
-              key.split('_')[0] || 'Default', // category
-              key.split('_')[1] || key,       // name
-              key.includes('완성') ? '완성' : '기본', // type
-              `https://${process.env.BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}` // url
-          ];
-      }) || [];
-
-      res.json(files);
-  } catch (error) {
-      console.error('S3 데이터 불러오기 오류:', error);
-      res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
-  }
+        const rows = response.data.values || [];
+        res.json(rows);
+    } catch (error) {
+        console.error('구글 시트 데이터 불러오기 오류:', error);
+        res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
+    }
 });
+
 
 app.get('/api/get-menu-data', async (req, res) => {
   try {
