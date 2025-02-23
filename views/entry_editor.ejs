@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Editor</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/entry/entry.min.js"></script>
+</head>
+<body>
+    <div id="entry"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Entry 초기화
+            const initEntry = async () => {
+                const projectFile = '<%= projectFile %>';
+                
+                try {
+                    // Entry 워크스페이스 생성
+                    const workspace = new Entry.Workspace({
+                        container: 'entry',
+                        type: 'workspace'
+                    });
+
+                    // Entry 초기화
+                    Entry.init({
+                        type: 'workspace',
+                        containerPath: 'entry'
+                    });
+
+                    // 프로젝트 파일이 있는 경우 로드
+                    if (projectFile) {
+                        try {
+                            const response = await fetch(projectFile);
+                            const projectData = await response.json();
+                            Entry.loadProject(projectData);
+                        } catch (error) {
+                            console.error('프로젝트 로드 실패:', error);
+                        }
+                    }
+
+                    // Entry 시작
+                    Entry.start();
+                } catch (error) {
+                    console.error('Entry 초기화 실패:', error);
+                }
+            };
+
+            initEntry();
+        });
+    </script>
+</body>
+</html>
