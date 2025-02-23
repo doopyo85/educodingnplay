@@ -1,15 +1,8 @@
-// entry_project.js에 추가
 document.addEventListener("DOMContentLoaded", async function() {
     try {
         const userRole = document.getElementById('user-role').value;
         const userID = document.getElementById('user-id').value;
         const centerID = document.getElementById('center-id').value;
-
-        // 학습 추적 초기화 - contentType을 'entry'로 설정
-        const learningTracker = new LearningTracker({
-            contentType: 'entry',  // 'scratch'에서 'entry'로 수정
-            contentName: '엔트리 프로젝트 선택'
-        });
 
         if (!userRole) {
             throw new Error('사용자 권한 정보를 찾을 수 없습니다.');
@@ -23,39 +16,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 });
 
-// 사용자 타입 가져오는 함수 추가
-async function getUserType() {
-    try {
-        const response = await fetch('/api/get-user-type');
-        if (!response.ok) {
-            throw new Error('사용자 유형을 가져오는 데 실패했습니다.');
-        }
-        const { userType } = await response.json();
-        return userType;
-    } catch (error) {
-        console.error('Error getting user type:', error);
-        return 'student';  // 기본값은 학생
-    }
-}
-
-async function initializeProjectView(userRole) {
-    try {
-        // userType을 가져오는 대신 전달받은 userRole을 직접 사용
-        const viewConfig = getViewConfigForRole(userRole);  // userRole 직접 사용
-        const projectData = await loadProjectData();
-        
-        if (projectData && projectData.length > 0) {
-            const projects = groupByProject(projectData);
-            displayTabsAndProjects(projects, viewConfig);
-        } else {
-            displayErrorMessage("프로젝트 데이터가 없습니다.");
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        displayErrorMessage("프로젝트 데이터를 불러오는 중 오류가 발생했습니다.");
-    }
-}
-// 역할에 따른 뷰 설정 함수 수정
 function getViewConfigForRole(userRole) {
     return {
         showPPTButton: ['admin', 'teacher', 'manager'].includes(userRole),
@@ -64,7 +24,6 @@ function getViewConfigForRole(userRole) {
         canEdit: ['admin', 'teacher', 'manager'].includes(userRole)
     };
 }
-
 
 async function loadProjectData() {
     try {
@@ -81,58 +40,76 @@ async function loadProjectData() {
 
 function groupByProject(data) {
     const projects = {};
+    
     data.forEach(row => {
-        if (!Array.isArray(row) || row.length < 5) return;
-
-        const [category, name, type, url, ctElement = '', imgUrl = ''] = row;
-        const baseName = name.replace(/\([^)]*\)/g, '').trim();
+        // 구글 시트 데이터 구조에 맞게 인덱스 조정
+        const [category, name, type, url, ctElement = ''] = row;
         
         if (!projects[category]) {
             projects[category] = {};
         }
-
-        if (!projects[category][baseName]) {
-            projects[category][baseName] = {
-                name: baseName,
+        
+        const projectKey = name.trim();
+        
+        if (!projects[category][projectKey]) {
+            projects[category][projectKey] = {
+                name: projectKey,
                 ctElement: ctElement,
-                img: imgUrl,
                 basic: '',
                 complete: '',
                 extension: '',
                 ppt: ''
             };
         }
-
-        // 기능 컬럼의 값에 따라 URL 할당
+        
+        // 타입에 따라 URL 할당
         switch(type.toLowerCase()) {
             case '기본':
-                projects[category][baseName].basic = url;
+                projects[category][projectKey].basic = url;
                 break;
             case '완성':
-                projects[category][baseName].complete = url;
+                projects[category][projectKey].complete = url;
                 break;
             case '확장':
-                projects[category][baseName].extension = url;
+                projects[category][projectKey].extension = url;
                 break;
             case 'ppt':
-                projects[category][baseName].ppt = url;
+                projects[category][projectKey].ppt = url;
                 break;
         }
     });
+    
     return projects;
+}
+
+async function initializeProjectView(userRole) {
+    try {
+        const viewConfig = getViewConfigForRole(userRole);
+        const projectData = await loadProjectData();
+        
+        if (projectData && projectData.length > 0) {
+            const projects = groupByProject(projectData);
+            displayTabsAndProjects(projects, viewConfig);
+        } else {
+            displayErrorMessage("프로젝트 데이터가 없습니다.");
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        displayErrorMessage("프로젝트 데이터를 불러오는 중 오류가 발생했습니다.");
+    }
 }
 
 function displayTabsAndProjects(projects, viewConfig) {
     const tabsContainer = document.getElementById('categoryTabs');
     const contentContainer = document.getElementById('content-container');
-
+    
+    // 초기화
     tabsContainer.innerHTML = '';
     contentContainer.innerHTML = '';
-
-    // 탭 생성
-    const categories = Object.keys(projects);
-    categories.forEach((category, index) => {
-        // 탭 버튼 생성
+    
+    // 탭과 콘텐츠 생성
+    Object.keys(projects).forEach((category, index) => {
+        // 탭 생성
         const tabButton = document.createElement('li');
         tabButton.className = 'nav-item';
         tabButton.innerHTML = `
@@ -146,66 +123,64 @@ function displayTabsAndProjects(projects, viewConfig) {
             </button>
         `;
         tabsContainer.appendChild(tabButton);
-
-        // 탭 콘텐츠 생성
-        const tabContent = document.createElement('div');
-        tabContent.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
-        tabContent.id = `content-${index}`;
-        tabContent.role = 'tabpanel';
-
+        
+        // 콘텐츠 패널 생성
+        const contentPanel = document.createElement('div');
+        contentPanel.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
+        contentPanel.id = `content-${index}`;
+        
         // 프로젝트 카드 컨테이너
         const cardContainer = document.createElement('div');
         cardContainer.className = 'row';
-
-        // 해당 카테고리의 프로젝트들을 카드로 표시
+        
+        // 카테고리 내 프로젝트들에 대한 카드 생성
         Object.values(projects[category]).forEach(project => {
-            const card = createProjectCard(project, viewConfig);
-            cardContainer.appendChild(card);
+            cardContainer.appendChild(createProjectCard(project, viewConfig));
         });
-
-        tabContent.appendChild(cardContainer);
-        contentContainer.appendChild(tabContent);
+        
+        contentPanel.appendChild(cardContainer);
+        contentContainer.appendChild(contentPanel);
     });
 }
 
-function createProjectCard(projectName, project, viewConfig) {
+function createProjectCard(project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
-
-    const cardContent = `
-        <div class="card h-100 position-relative">
-            ${project.img ? `
-                <img src="${project.img}" class="card-img-top" alt="${projectName}">
-            ` : ''}
+    
+    card.innerHTML = `
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title mb-2">${projectName}</h5>
+                <h5 class="card-title">${project.name}</h5>
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
-                <div class="btn-group mb-2">
-                    ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
-                    ${viewConfig.showComplete && project.complete ? createProjectButton('완성', project.complete, 'btn-secondary') : ''}
-                    ${viewConfig.showExtension && project.extension ? createProjectButton('확장', project.extension, 'btn-secondary') : ''}
+                <div class="d-flex flex-column gap-2">
+                    ${project.basic ? `
+                        <button class="btn btn-primary load-project" data-url="${project.basic}">
+                            기본
+                        </button>
+                    ` : ''}
+                    ${viewConfig.showComplete && project.complete ? `
+                        <button class="btn btn-success load-project" data-url="${project.complete}">
+                            완성
+                        </button>
+                    ` : ''}
+                    ${viewConfig.showExtension && project.extension ? `
+                        <button class="btn btn-info load-project" data-url="${project.extension}">
+                            확장
+                        </button>
+                    ` : ''}
+                    ${viewConfig.showPPTButton && project.ppt ? `
+                        <button class="btn btn-outline-secondary" onclick="window.open('${project.ppt}', '_blank')">
+                            PPT
+                        </button>
+                    ` : ''}
                 </div>
             </div>
-            ${viewConfig.showPPTButton && project.ppt ? `
-                <button class="btn btn-outline-primary ppt-btn" 
-                    onclick="window.open('${project.ppt}', '_blank')">PPT
-                </button>
-            ` : ''}
         </div>
     `;
-
-    card.innerHTML = cardContent;
+    
     return card;
-}
-
-function createProjectButton(label, url, type) {
-    return `
-        <button class="btn ${type} load-project" data-url="${url}">
-            ${label}
-        </button>
-    `;
 }
 
 function loadProjectInEntryGUI(projectUrl) {
@@ -226,6 +201,7 @@ function displayErrorMessage(message) {
     `;
 }
 
+// 이벤트 리스너
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('load-project')) {
         e.preventDefault();
