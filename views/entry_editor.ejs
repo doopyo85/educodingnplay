@@ -10,8 +10,24 @@
     <link href="/js/entry/entry-tool.css" rel="stylesheet" />
 
     <!-- Base dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script>
+        // Entry 관련 전역 객체 초기화
+        window.EntryStatic = {
+            fontFamily: "NanumGothic",
+            base: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
+            initOptions: {
+                type: 'workspace',
+                textCodingEnable: true,
+                defaultProject: true
+            }
+        };
+        window.EntryTool = {};
+        window.EntryPaint = {};
+        window.EntrySoundEditor = {};
+        window.EntryVideoLegacy = {};
+    </script>
+
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
@@ -21,6 +37,7 @@
 
     <!-- Entry components -->
     <script src="/js/entry/entry-tool.js"></script>
+    <script src="/js/entry/entry.js"></script>
 
     <style>
         html, body {
@@ -42,96 +59,62 @@
 </head>
 <body>
     <div id="workspace">
-        <!-- 기본 엔트리 구조 -->
-        <div class="containerWrapper">
-            <div class="container">
-                <!-- 왼쪽 패널 -->
-                <div class="leftArea">
-                    <div id="selectedObjectType"></div>
-                    <div id="objectList"></div>
-                    <div id="propertyPanel"></div>
+        <div id="header"></div>
+        <div id="container" class="container">
+            <div id="board">
+                <div class="boardEditor">
+                    <div id="canvas"></div>
+                    <div id="stage"></div>
+                    <div id="engineContainer"></div>
                 </div>
-                
-                <!-- 중앙 영역 -->
-                <div class="centerArea">
-                    <div id="board">
-                        <div id="stage"></div>
-                        <div id="engineContainer"></div>
-                        <div id="canvasWrapper"></div>
-                    </div>
-                    <div id="buttonWrapper">
-                        <div id="defaultButtons"></div>
-                        <div id="customButtons"></div>
-                    </div>
+                <div id="propertyPanel">
+                    <div id="propertyHeader"></div>
+                    <div id="propertyContent"></div>
                 </div>
-                
-                <!-- 오른쪽 패널 -->
-                <div class="rightArea">
-                    <div id="blocks"></div>
-                    <div id="variables"></div>
-                </div>
+                <div id="buttonWrapper"></div>
             </div>
+            <div id="dataTable"></div>
+            <div id="pictureView"></div>
+            <div id="soundEditor"></div>
+            <div id="hardwareWindow"></div>
+            <div id="expansion"></div>
         </div>
-
-        <!-- 팝업 및 특수 컨테이너 -->
-        <div id="modalWindow"></div>
-        <div id="expertWindow"></div>
-        <div id="dataTable"></div>
-        <div id="pictureView"></div>
-        <div id="soundEditor"></div>
-        <div id="hardwareWindow"></div>
     </div>
-
-    <!-- Entry.js는 body 끝에서 로드 -->
-    <script src="/js/entry/entry.js"></script>
 
     <script>
         $(document).ready(function() {
-            // DOMContentLoaded 이후에 Entry가 로드될 때까지 대기
-            const checkEntry = setInterval(() => {
-                if (typeof Entry !== 'undefined') {
-                    clearInterval(checkEntry);
-                    initializeEntry();
+            try {
+                // Entry 인스턴스 생성
+                window.entry = new Entry();
+                
+                // Entry 초기화
+                window.entry.init({
+                    type: 'workspace',
+                    container: 'workspace',
+                    textCodingEnable: true,
+                    baseUrl: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>'
+                });
+
+                // 프로젝트 파일이 있는 경우 로드
+                const projectFile = '<%= locals.projectFile || "" %>';
+                if (projectFile) {
+                    fetch(projectFile)
+                        .then(response => response.json())
+                        .then(project => {
+                            window.entry.loadProject(project);
+                        })
+                        .catch(error => {
+                            console.error('프로젝트 로드 실패:', error);
+                        });
+                } else {
+                    window.entry.loadProject();
                 }
-            }, 100);
 
-            function initializeEntry() {
-                try {
-                    console.log('Entry 초기화 시작');
-                    
-                    // 기본 옵션
-                    const initOption = {
-                        type: 'workspace',
-                        container: 'workspace',
-                        textCodingEnable: true,
-                        baseUrl: '<%= baseUrl %>'
-                    };
-                    
-                    // Entry 초기화
-                    Entry.init(initOption);
-
-                    // 프로젝트 파일이 있는 경우 로드
-                    const projectFile = '<%= projectFile %>';
-                    if (projectFile) {
-                        fetch(projectFile)
-                            .then(response => response.json())
-                            .then(project => {
-                                Entry.loadProject(project);
-                            })
-                            .catch(error => {
-                                console.error('프로젝트 로드 실패:', error);
-                            });
-                    } else {
-                        Entry.loadProject();
-                    }
-
-                    // Entry 시작
-                    Entry.start();
-                    console.log('Entry 초기화 완료');
-                } catch (error) {
-                    console.error('Entry 초기화 오류:', error);
-                    console.error('Error stack:', error.stack);
-                }
+                // Entry 시작
+                window.entry.start();
+            } catch (error) {
+                console.error('Entry 초기화 오류:', error);
+                console.error('Error stack:', error.stack);
             }
         });
     </script>
