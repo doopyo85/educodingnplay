@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const db = require('../lib_login/db'); // MySQL 연결 가져오기
 
+// 날짜 변환 함수 추가
+function formatDate(date) {
+    const d = new Date(date);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+}
+
+
 // 게시글 목록 가져오기 라우트
 router.get('/', async (req, res) => {
     console.log('1. 게시글 목록 요청 시작');
