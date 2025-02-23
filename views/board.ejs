@@ -1,76 +1,62 @@
-<main class="container">
+<main class="container chat-container">
     <!-- 검색 폼 -->
-    <div class="row">
-        <div class="card card-margin search-form">
-            <div class="card-body p-0">
-                <form id="search-form" method="GET" action="/board/search">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="row no-gutters">
-                                <div class="col-lg-3 col-md-3 col-sm-12 p-0">
-                                    <select class="form-control" id="search-type" name="searchType">
-                                        <option>글 한 마디</option>
-                                        <option>닉네임</option>
-                                        <option>해시태그</option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-8 col-md-6 col-sm-12 p-0">
-                                    <input type="text" placeholder="검색어..." class="form-control" id="search-value" name="searchValue">
-                                </div>
-                                <div class="col-lg-1 col-md-3 col-sm-12 p-0">
-                                    <button type="submit" class="btn btn-base">검색</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="search-box">
+        <form id="search-form" method="GET" action="/board/search">
+            <select class="search-type" id="search-type" name="searchType">
+                <option>글 한 마디</option>
+                <option>닉네임</option>
+                <option>해시태그</option>
+            </select>
+            <input type="text" placeholder="검색어..." id="search-value" name="searchValue">
+            <button type="submit">검색</button>
+        </form>
     </div>
 
-    <!-- 게시글 리스트 (말풍선 형태) -->
-    <div class="mentions-container">
+    <!-- 채팅 스타일 게시글 목록 -->
+    <div class="chat-box" id="chat-box">
         <% posts.forEach(post => { %>
-            <div class="mention <% if (user && user.username === post.author) { %> right <% } else { %> left <% } %>">
-                <div class="mention-author"><%= post.author %></div>
-                <div class="mention-content"><%= post.title %></div>
-                <div class="mention-date"><%= post.created_at %></div>
-                <% if (user && user.username === post.author) { %>
-                    <div class="mention-actions">
-                        <a href="/board/edit/<%= post.id %>" class="btn btn-sm btn-warning">수정</a>
-                        <a href="/board/delete/<%= post.id %>" class="btn btn-sm btn-danger" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
-                    </div>
-                <% } %>
-            </div>
-
-            <!-- 관리자 댓글 입력 -->
-            <% if (user && user.isAdmin) { %>
-                <div class="mention left admin-reply">
-                    <form action="/board/comment" method="POST">
-                        <input type="hidden" name="postId" value="<%= post.id %>">
-                        <input type="text" name="comment" class="form-control" placeholder="관리자 댓글 입력...">
-                        <button type="submit" class="btn btn-sm btn-primary mt-2">댓글 작성</button>
-                    </form>
+            <div class="chat-message <% if (user && user.username === post.author) { %> right <% } else { %> left <% } %>">
+                <img src="/default-profile.png" class="chat-profile">
+                <div class="chat-content">
+                    <div class="chat-author"><%= post.author %></div>
+                    <div class="chat-text"><%= post.title %></div>
+                    <div class="chat-time"><%= post.created_at %></div>
                 </div>
-            <% } %>
+            </div>
         <% }); %>
     </div>
 
-    <!-- 글쓰기 버튼 -->
-    <div class="row">
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a href="/board/write" class="btn btn-primary">글쓰기</a>
-        </div>
-    </div>
-
-    <!-- 페이지네이션 -->
-    <div class="row">
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul>
-        </nav>
+    <!-- 입력창 (게시판 하단 고정) -->
+    <div class="chat-input-box">
+        <input type="text" id="chat-input" placeholder="한마디를 입력하세요 (최대 50자)" maxlength="50">
+        <button id="send-btn">⬆</button>
     </div>
 </main>
+
+<script>
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    function sendMessage() {
+        const inputField = document.getElementById('chat-input');
+        const message = inputField.value.trim();
+        if (!message) return;
+
+        fetch('/board/write', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: message })
+        })
+        .then(response => {
+            if (response.ok) {
+                inputField.value = ''; // 입력창 초기화
+                location.reload(); // 새 글 반영
+            }
+        })
+        .catch(error => console.error('에러 발생:', error));
+    }
+</script>

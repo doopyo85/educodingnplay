@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../lib_login/db'); // MySQL 연결 가져오기
 
-// 날짜 변환 함수 추가
+// 날짜 변환 함수
 function formatDate(date) {
     const d = new Date(date);
     const yyyy = d.getFullYear();
@@ -15,75 +15,42 @@ function formatDate(date) {
 
 // 게시글 목록 가져오기
 router.get('/', async (req, res) => {
-    console.log('1. 게시글 목록 요청 시작');
+    console.log('📢 게시글 목록 요청 시작');
     const query = 'SELECT * FROM posts ORDER BY created_at DESC';
 
     try {
-        console.log('2. DB 쿼리 실행 중');
         const results = await db.queryDatabase(query);
-        
+
         // 날짜 변환 적용
         const formattedResults = results.map(post => ({
             ...post,
             created_at: formatDate(post.created_at)
         }));
 
-        console.log('3. DB 쿼리 성공:', formattedResults);
-        res.render('board', { posts: formattedResults, user: req.user }); // 현재 로그인한 사용자 정보 추가
-        console.log('4. 페이지 렌더링 성공');
+        console.log('✅ 게시글 불러오기 성공');
+        res.render('board', { posts: formattedResults, user: req.user });
     } catch (err) {
-        console.error('DB 에러 발생:', err);
+        console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
 
-// 글쓰기 페이지 렌더링 (HTML 직접 제공)
-router.get('/write', (req, res) => {
-    res.send(`
-        <html lang="ko">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>한마디 남기기</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                form { max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 10px; }
-                input, button { padding: 10px; font-size: 16px; }
-                button { background-color: blue; color: white; border: none; cursor: pointer; }
-                button:hover { background-color: darkblue; }
-            </style>
-        </head>
-        <body>
-            <h2>한마디 남기기</h2>
-            <form action="/board/write" method="POST">
-                <label for="title">한마디 (최대 50자)</label>
-                <input type="text" name="title" id="title" maxlength="50" placeholder="50자 이내로 입력하세요..." required>
-                <input type="hidden" name="author" value="${req.user ? req.user.username : '익명'}"> <!-- 로그인 사용자 자동 입력 -->
-                <button type="submit">등록</button>
-            </form>
-        </body>
-        </html>
-    `);
-});
-
-
-// 글 작성 처리
+// 새 글 등록 (하단 입력창에서 전송)
 router.post('/write', async (req, res) => {
     const { title } = req.body;
-    const author = req.user ? req.user.username : '익명'; // 로그인 사용자가 없으면 '익명' 처리
+    const author = req.user ? req.user.username : '익명'; 
 
-    // 제목 길이 제한 확인
-    if (title.length > 50) {
-        return res.status(400).send('<script>alert("트윗은 50자 이내로 작성해야 합니다."); history.back();</script>');
+    if (!title || title.length > 50) {
+        return res.status(400).json({ error: '한마디는 50자 이내로 입력해야 합니다.' });
     }
 
     const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
         await db.queryDatabase(query, [title, author]);
-        res.redirect('/board');
+        res.status(200).json({ message: '등록 완료' });
     } catch (err) {
-        console.error('DB 에러:', err);
-        res.status(500).send('DB 에러 발생');
+        console.error('❌ DB 에러:', err);
+        res.status(500).json({ error: 'DB 에러 발생' });
     }
 });
 
@@ -98,7 +65,7 @@ router.get('/edit/:id', async (req, res) => {
 
         res.render('board_edit', { post: results[0] });
     } catch (err) {
-        console.error('DB 에러:', err);
+        console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
@@ -113,7 +80,7 @@ router.post('/edit/:id', async (req, res) => {
         await db.queryDatabase(query, [title, postId]);
         res.redirect('/board');
     } catch (err) {
-        console.error('DB 에러:', err);
+        console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
@@ -127,7 +94,7 @@ router.get('/delete/:id', async (req, res) => {
         await db.queryDatabase(query, [postId]);
         res.redirect('/board');
     } catch (err) {
-        console.error('DB 에러:', err);
+        console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
@@ -142,7 +109,7 @@ router.post('/comment', async (req, res) => {
         await db.queryDatabase(query, [postId, adminName, comment]);
         res.redirect('/board');
     } catch (err) {
-        console.error('DB 에러:', err);
+        console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
