@@ -21,7 +21,18 @@
 
     <!-- Entry namespace initialization -->
     <script>
-        window.Entry = {};
+        // Entry와 EntryStatic을 전역으로 정의
+        window.Entry = {
+            initialize: function() {
+                return new Promise((resolve) => {
+                    // Entry 초기화 완료 후 호출
+                    window.entryscript_loaded = function() {
+                        resolve();
+                    };
+                });
+            }
+        };
+
         window.EntryStatic = {
             fontFamily: "NanumGothic",
             objectTypes: {},
@@ -33,11 +44,13 @@
                 defaultProject: true
             }
         };
+
         window.Lang = {
             Blocks: {},
             Workspace: {},
             Menus: {}
         };
+
         window.EntryTool = {};
         window.EntryPaint = {};
         window.EntrySoundEditor = {};
@@ -46,7 +59,7 @@
 
     <!-- Entry components -->
     <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
+    <script src="/js/entry/entry.js" onload="window.entryscript_loaded()"></script>
 
     <style>
         html, body {
@@ -56,15 +69,18 @@
             height: 100%;
             overflow: hidden;
         }
-        #workspace {
-            width: 100%;
-            height: 100%;
-            position: relative;
+        #playground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
     </style>
 </head>
 <body>
-    <div id="workspace">
+    <div id="playground">
+        <div id="workspace"></div>
         <div id="board"></div>
         <div id="updateHelper"></div>
         <div id="engineContainer"></div>
@@ -74,28 +90,39 @@
     </div>
 
     <script>
-        $(document).ready(function() {
+        window.Entry.initialize().then(() => {
             try {
-                console.log('Entry object:', window.Entry);
+                console.log('Entry initialization starting...');
+                
+                // playground 모드로 초기화
+                const initOption = {
+                    type: 'playground',
+                    containerId: 'playground',
+                    textCodingEnable: true,
+                    defaultProject: true
+                };
 
-                const workspace = new window.Entry.Workspace({
-                    type: 'workspace',
-                    container: 'workspace'
-                });
+                // Entry 초기화
+                Entry.init(initOption);
 
+                // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= projectFile %>';
                 if (projectFile) {
                     fetch(projectFile)
                         .then(response => response.json())
                         .then(project => {
-                            workspace.loadProject(project);
+                            Entry.loadProject(project);
                         })
                         .catch(error => {
                             console.error('프로젝트 로드 실패:', error);
                         });
+                } else {
+                    Entry.loadProject();
                 }
 
-                workspace.start();
+                // Entry 시작
+                Entry.start();
+                console.log('Entry initialization completed');
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
                 console.error('Error stack:', error.stack);
