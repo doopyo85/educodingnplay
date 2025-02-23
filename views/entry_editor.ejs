@@ -182,36 +182,40 @@
             function initializeEntry() {
                 try {
                     console.log('Entry found, initializing...');
-                    console.log('Entry:', Entry);
                     
-                    // BlockMenu 초기화
-                    Entry.Blocks = {};
-                    Entry.Blocks.START_BASIC_PREF = '';
-
-                    // Workspace 초기화
-                    Entry.createDom();
-                    Entry.initEvent();
-                    Entry.init({
-                        container: 'workspace',
+                    // 옵션 설정
+                    const initOption = {
                         type: 'workspace',
+                        container: 'workspace',
                         textCodingEnable: true,
-                        loadProject: false
-                    });
+                        blockInjectOption: {
+                            importHardware: false
+                        },
+                        loadProject: false,
+                        hardwareEnable: false
+                    };
 
+                    // 초기화
+                    if (Entry.getMainWS) {
+                        Entry.init(initOption);
+                    } else {
+                        const workspace = new Entry.Workspace(initOption);
+                        Entry.start();
+                    }
+
+                    // 프로젝트 로드
                     const projectFile = '<%= locals.projectFile || "" %>';
                     if (projectFile) {
                         fetch(projectFile)
                             .then(response => response.json())
                             .then(project => {
                                 Entry.loadProject(project);
-                                Entry.start();
                             })
                             .catch(error => {
                                 console.error('프로젝트 로드 실패:', error);
                             });
                     } else {
                         Entry.loadProject();
-                        Entry.start();
                     }
 
                     console.log('Entry initialization completed');
