@@ -43,29 +43,47 @@
         </div>
 
         <!-- 게시글 테이블 -->
-        <div class="row">
-            <table class="table" id="article-table">
-                <thead>
+        <table class="table" id="article-table">
+            <thead>
                 <tr>
                     <th>제목</th>
                     <th>해시태그</th>
                     <th>작성자</th>
                     <th>작성일</th>
+                    <th>관리</th> <!-- 수정/삭제 버튼 추가 -->
                 </tr>
-                </thead>
-                <tbody>
-                <!-- DB에서 가져온 게시글을 동적으로 렌더링 -->
+            </thead>
+            <tbody>
                 <% posts.forEach(post => { %>
-                <tr>
-                    <td><a href="/board/<%= post.id %>"><%= post.title %></a></td>
-                    <td><%= post.hashtag %></td>
-                    <td><%= post.author %></td>
-                    <td><%= post.created_at %></td>
-                </tr>
+                    <tr>
+                        <td><span><%= post.title %></span></td> <!-- 제목 클릭 불가능 -->
+                        <td><%= post.hashtag %></td>
+                        <td><%= post.author %></td>
+                        <td><%= post.created_at %></td>
+                        <td>
+                            <% if (user && user.username === post.author) { %>
+                                <a href="/board/edit/<%= post.id %>" class="btn btn-sm btn-warning">수정</a>
+                                <a href="/board/delete/<%= post.id %>" class="btn btn-sm btn-danger" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                            <% } %>
+                        </td>
+                    </tr>
+                    
+                    <!-- 관리자 댓글 입력 -->
+                    <% if (user && user.isAdmin) { %>
+                        <tr>
+                            <td colspan="5">
+                                <form action="/board/comment" method="POST">
+                                    <input type="hidden" name="postId" value="<%= post.id %>">
+                                    <input type="text" name="comment" class="form-control" placeholder="관리자 댓글 입력...">
+                                    <button type="submit" class="btn btn-sm btn-primary mt-2">댓글 작성</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% } %>
                 <% }); %>
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
+        
 
         <!-- 글쓰기 버튼 -->
         <div class="row">

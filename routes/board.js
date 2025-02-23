@@ -13,8 +13,7 @@ function formatDate(date) {
     return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
 }
 
-
-// 게시글 목록 가져오기 라우트
+// 게시글 목록 가져오기
 router.get('/', async (req, res) => {
     console.log('1. 게시글 목록 요청 시작');
     const query = 'SELECT * FROM posts ORDER BY created_at DESC';
@@ -30,7 +29,7 @@ router.get('/', async (req, res) => {
         }));
 
         console.log('3. DB 쿼리 성공:', formattedResults);
-        res.render('board', { posts: formattedResults });
+        res.render('board', { posts: formattedResults, user: req.user }); // 현재 로그인한 사용자 정보 추가
         console.log('4. 페이지 렌더링 성공');
     } catch (err) {
         console.error('DB 에러 발생:', err);
@@ -38,21 +37,16 @@ router.get('/', async (req, res) => {
     }
 });
 
-// 검색 처리
-router.get('/search', (req, res) => {
-    const { searchType, searchValue } = req.query;
-    // 검색 처리 로직
-    res.render('board', { title: '검색 결과' });
-});
-
 // 글쓰기 페이지 렌더링
 router.get('/write', (req, res) => {
     res.render('write');
 });
-  
+
+// 글 작성 처리
 router.post('/write', async (req, res) => {
     const { title, content, author } = req.body;
     const query = 'INSERT INTO posts (title, content, author) VALUES (?, ?, ?)';
+
     try {
         await db.queryDatabase(query, [title, content, author]);
         res.redirect('/board');
@@ -62,10 +56,65 @@ router.post('/write', async (req, res) => {
     }
 });
 
-router.get('/check-new-posts', (req, res) => {
-    // 데이터베이스에서 새 글 확인 로직 구현 (여기서는 예시로 처리)
-    const hasNewPosts = true; // 실제 데이터베이스에서 새 글 여부를 확인하는 로직 필요
-    res.json({ newPosts: hasNewPosts });
+// 글 수정 페이지 렌더링
+router.get('/edit/:id', async (req, res) => {
+    const postId = req.params.id;
+    const query = 'SELECT * FROM posts WHERE id = ?';
+
+    try {
+        const results = await db.queryDatabase(query, [postId]);
+        if (results.length === 0) return res.status(404).send('글을 찾을 수 없습니다.');
+
+        res.render('board_edit', { post: results[0] }); // ✅ 파일명 변경
+    } catch (err) {
+        console.error('DB 에러:', err);
+        res.status(500).send('DB 에러 발생');
+    }
+});
+
+
+// 글 수정 처리
+router.post('/edit/:id', async (req, res) => {
+    const postId = req.params.id;
+    const { title, content } = req.body;
+    const query = 'UPDATE posts SET title = ?, content = ? WHERE id = ?';
+
+    try {
+        await db.queryDatabase(query, [title, content, postId]);
+        res.redirect('/board');
+    } catch (err) {
+        console.error('DB 에러:', err);
+        res.status(500).send('DB 에러 발생');
+    }
+});
+
+// 글 삭제 처리
+router.get('/delete/:id', async (req, res) => {
+    const postId = req.params.id;
+    const query = 'DELETE FROM posts WHERE id = ?';
+
+    try {
+        await db.queryDatabase(query, [postId]);
+        res.redirect('/board');
+    } catch (err) {
+        console.error('DB 에러:', err);
+        res.status(500).send('DB 에러 발생');
+    }
+});
+
+// 관리자 댓글 추가
+router.post('/comment', async (req, res) => {
+    const { postId, comment } = req.body;
+    const adminName = req.user.username; // 현재 로그인한 관리자 이름
+    const query = 'INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)';
+
+    try {
+        await db.queryDatabase(query, [postId, adminName, comment]);
+        res.redirect('/board');
+    } catch (err) {
+        console.error('DB 에러:', err);
+        res.status(500).send('DB 에러 발생');
+    }
 });
 
 module.exports = router;
