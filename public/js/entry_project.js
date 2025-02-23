@@ -143,36 +143,43 @@ function displayTabsAndProjects(projects, viewConfig) {
     });
 }
 
-
-function createProjectCard(projectName, project, viewConfig) {
+function createProjectCard(project, viewConfig) {
     const card = document.createElement('div');
     card.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
-
-    const cardContent = `
+    
+    card.innerHTML = `
         <div class="card h-100 position-relative">
-            ${project.img ? `
-                <img src="${project.img}" class="card-img-top" alt="${projectName}">
-            ` : ''}
             <div class="card-body">
-                <h5 class="card-title mb-2">${projectName}</h5>
+                <h5 class="card-title">${project.name}</h5>
+                ${viewConfig.showPPTButton && project.ppt ? `
+                    <button class="btn btn-outline-primary ppt-btn" 
+                        onclick="window.open('${project.ppt}', '_blank')">PPT
+                    </button>
+                ` : ''}
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
                 <div class="btn-group mb-2">
-                    ${project.basic ? createProjectButton('기본', project.basic, 'btn-secondary') : ''}
-                    ${viewConfig.showExtensions && project.ext1 ? createProjectButton('확장1', project.ext1, 'btn-secondary') : ''}
-                    ${viewConfig.showExtensions && project.ext2 ? createProjectButton('확장2', project.ext2, 'btn-secondary') : ''}
+                    ${project.basic ? `
+                        <button class="btn btn-secondary load-project" data-url="${project.basic}">
+                            기본
+                        </button>
+                    ` : ''}
+                    ${viewConfig.showComplete && project.complete ? `
+                        <button class="btn btn-secondary load-project" data-url="${project.complete}">
+                            완성
+                        </button>
+                    ` : ''}
+                    ${viewConfig.showExtension && project.extension ? `
+                        <button class="btn btn-secondary load-project" data-url="${project.extension}">
+                            확장
+                        </button>
+                    ` : ''}
                 </div>
             </div>
-            ${viewConfig.showPPTButton && project.ppt ? `
-                <button class="btn btn-outline-primary ppt-btn" 
-                    onclick="window.open('${project.ppt}', '_blank')">PPT
-                </button>
-            ` : ''}
         </div>
     `;
-
-    card.innerHTML = cardContent;
+    
     return card;
 }
 
