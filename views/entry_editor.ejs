@@ -7,6 +7,7 @@
 
     <!-- Entry CSS -->
     <link href="/js/entry/entry.css" rel="stylesheet" />
+    <link href="/js/entry/entry-tool.css" rel="stylesheet" />
 
     <!-- 기본 의존성 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
@@ -15,10 +16,14 @@
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
-    <!-- Entry -->
+    <!-- Entry Tool 전역 설정 -->
+    <script>
+        window.EntryTool = {};
+    </script>
+
+    <!-- Entry Tool과 Entry -->
+    <script src="/js/entry/entry-tool.js"></script>
     <script src="/js/entry/entry.min.js"></script>
 
     <style>
@@ -29,54 +34,51 @@
             height: 100%;
             overflow: hidden;
         }
-        #entryContainer {
+        #workspace {
             width: 100%;
             height: 100%;
+            position: relative;
         }
     </style>
 </head>
 <body>
-    <div id="entryContainer"></div>
+    <div id="workspace">
+        <div id="canvas"></div>
+        <div id="engineContainer"></div>
+        <div id="dataTable"></div>
+        <div id="pictureView"></div>
+        <div id="soundEditor"></div>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             try {
-                // 프로젝트 파일 경로
-                const projectFile = '<%= projectFile %>';
-                
                 // Entry 객체가 로드되었는지 확인
                 if (typeof Entry === 'undefined') {
                     throw new Error('Entry is not loaded');
                 }
 
-                // Entry 이벤트 초기화
-                Entry.creationChangedEvent = new Entry.Event(window);
-
-                // Entry 초기화 옵션
-                const initOption = {
-                    type: 'workspace',
-                    textCodingEnable: true,
-                    container: document.getElementById('entryContainer')
-                };
-
-                // Entry 초기화
-                Entry.init(initOption);
+                // Entry.Workspace 생성
+                var workspace = new Entry.Workspace({
+                    container: 'workspace',
+                    type: 'workspace'
+                });
 
                 // 프로젝트 파일이 있는 경우 로드
+                const projectFile = '<%= projectFile %>';
                 if (projectFile) {
-                    console.log('Loading project:', projectFile);
                     fetch(projectFile)
                         .then(response => response.json())
-                        .then(projectData => {
-                            Entry.loadProject(projectData);
+                        .then(project => {
+                            workspace.loadProject(project);
                         })
                         .catch(error => {
                             console.error('프로젝트 로드 실패:', error);
                         });
-                } else {
-                    // 빈 프로젝트로 시작
-                    Entry.loadProject();
                 }
+
+                // Entry 시작
+                workspace.start();
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
             }
