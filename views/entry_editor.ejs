@@ -69,18 +69,13 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             try {
-                // 기본 옵션 설정
-                var initOption = {
+                // 기본 Entry 객체 생성
+                var workspace = new Entry.Workspace({
+                    container: 'entryContainer',
                     type: 'workspace',
                     textCodingEnable: true,
                     defaultProject: true
-                };
-
-                // Entry 이벤트 초기화
-                Entry.creationChangedEvent = new Entry.Event(window);
-
-                // Entry 초기화
-                Entry.init(document.getElementById('entryContainer'), initOption);
+                });
 
                 // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= projectFile %>';
@@ -88,17 +83,17 @@
                     fetch(projectFile)
                         .then(response => response.json())
                         .then(projectData => {
-                            Entry.loadProject(projectData);
+                            workspace.loadProject(projectData);
                         })
                         .catch(error => {
                             console.error('프로젝트 로드 실패:', error);
                         });
                 } else {
-                    Entry.loadProject();
+                    workspace.loadProject();
                 }
 
                 // Entry 시작
-                Entry.start();
+                workspace.start();
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
             }
