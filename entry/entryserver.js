@@ -5,19 +5,35 @@ const app = express();
 const PORT = 8080;
 
 // CSP 설정
+// CSP 설정
 app.use((req, res, next) => {
     res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self' https: blob: data:; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https: unpkg.com playentry.org entry-cdn.pstatic.net; " +
-        "style-src 'self' 'unsafe-inline' https: playentry.org; " +
-        "img-src 'self' blob: data: https: *; " +
-        "media-src 'self' blob: data: https: *; " +
-        "worker-src 'self' blob: https: entry-cdn.pstatic.net; " +
-        "child-src 'self' blob: https: entry-cdn.pstatic.net; " +
-        "frame-src 'self' blob: https: entry-cdn.pstatic.net; " +
-        "connect-src 'self' blob: https: wss: ws:; " +
-        "font-src 'self' data: https: *;"
+        [
+            // 기본 제한
+            "default-src 'self' https: blob: data: entry-cdn.pstatic.net *.playentry.org",
+            
+            // 스크립트 허용
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https: unpkg.com playentry.org entry-cdn.pstatic.net",
+            
+            // 스타일 허용
+            "style-src 'self' 'unsafe-inline' https: playentry.org *.playentry.org",
+            
+            // 리소스 허용
+            "img-src 'self' blob: data: https: *",
+            "media-src 'self' blob: data: https: *",
+            
+            // 웹 워커 및 프레임 허용
+            "worker-src 'self' 'unsafe-inline' blob: data: https: *",
+            "child-src 'self' blob: data: https: *",
+            "frame-src 'self' blob: data: https: *",
+            
+            // 폰트 허용
+            "font-src 'self' blob: data: https: *",
+            
+            // 웹소켓 및 XHR 허용
+            "connect-src 'self' https: wss: ws: *"
+        ].join('; ')
     );
     next();
 });
