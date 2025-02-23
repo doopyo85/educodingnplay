@@ -14,8 +14,8 @@
         // Entry 관련 전역 객체 초기화
         window.EntryStatic = {
             fontFamily: "NanumGothic",
-            base: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
-            initOptions: {
+            baseUrl: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
+            defaultInitOption: {
                 type: 'workspace',
                 textCodingEnable: true,
                 defaultProject: true
@@ -34,10 +34,7 @@
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-
-    <!-- Entry components -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
+    <script src="https://playentry.org/lib/entry-tool/dist/entry-tool.js"></script>
 
     <style>
         html, body {
@@ -55,63 +52,120 @@
             bottom: 0;
             background: #fff;
         }
+        #header {
+            height: 45px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+        #container {
+            position: absolute;
+            top: 45px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+        }
+        #board {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .boardEditor {
+            flex: 1;
+            position: relative;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <div id="workspace">
         <div id="header"></div>
-        <div id="container" class="container">
+        <div id="container">
+            <!-- 왼쪽 패널 -->
+            <div id="navigationBox" class="navigationBox">
+                <div id="selectedObjectType"></div>
+                <div id="objectList"></div>
+                <div id="propertyPanel" style="display: none">
+                    <div id="propertyHeader"></div>
+                    <div id="propertyContent"></div>
+                </div>
+            </div>
+
+            <!-- 중앙 영역 -->
             <div id="board">
                 <div class="boardEditor">
                     <div id="canvas"></div>
                     <div id="stage"></div>
                     <div id="engineContainer"></div>
                 </div>
-                <div id="propertyPanel">
-                    <div id="propertyHeader"></div>
-                    <div id="propertyContent"></div>
+                <div id="buttonWrapper">
+                    <div id="defaultButtons"></div>
+                    <div id="customButtons"></div>
                 </div>
-                <div id="buttonWrapper"></div>
             </div>
-            <div id="dataTable"></div>
-            <div id="pictureView"></div>
-            <div id="soundEditor"></div>
-            <div id="hardwareWindow"></div>
-            <div id="expansion"></div>
+
+            <!-- 오른쪽 패널 -->
+            <div id="codeWrapper">
+                <div id="blockMenu"></div>
+                <div id="workspaceBoard"></div>
+                <div id="variables" style="display: none"></div>
+            </div>
         </div>
+
+        <!-- 모달 및 팝업 -->
+        <div id="fieldInfo"></div>
+        <div id="engineContainer"></div>
+        <div id="dataTable"></div>
+        <div id="pictureView"></div>
+        <div id="soundEditor"></div>
+        <div id="hardwareList" style="display: none"></div>
     </div>
+
+    <!-- Entry.js -->
+    <script src="/js/entry/entry.js"></script>
 
     <script>
         $(document).ready(function() {
             try {
-                // Entry 인스턴스 생성
-                window.entry = new Entry();
+                console.log('Entry 초기화 시작');
                 
-                // Entry 초기화
-                window.entry.init({
+                Entry.init({
                     type: 'workspace',
                     container: 'workspace',
-                    textCodingEnable: true,
-                    baseUrl: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>'
+                    textCodingEnable: true
                 });
 
-                // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= locals.projectFile || "" %>';
                 if (projectFile) {
                     fetch(projectFile)
                         .then(response => response.json())
                         .then(project => {
-                            window.entry.loadProject(project);
+                            Entry.loadProject(project);
+                            Entry.start();
                         })
                         .catch(error => {
                             console.error('프로젝트 로드 실패:', error);
                         });
                 } else {
-                    window.entry.loadProject();
+                    Entry.loadProject();
+                    Entry.start();
                 }
 
-                // Entry 시작
-                window.entry.start();
+                console.log('Entry 초기화 완료');
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
                 console.error('Error stack:', error.stack);
