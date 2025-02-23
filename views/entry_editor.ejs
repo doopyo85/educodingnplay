@@ -5,37 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Editor</title>
 
-    <!-- Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/@entrylabs/tool@latest/dist/entry-tool.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/@entrylabs/entry-paint@latest/dist/entry-paint.css" rel="stylesheet" />
+    <!-- Entry CSS -->
+    <link rel="stylesheet" href="/js/entry/entry.css">
 
     <!-- Core Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.6/velocity.min.js"></script>
 
-    <!-- Code Editor Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
-
-    <!-- Additional Utilities -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
-
-    <!-- Entry Specific -->
-    <script src="https://cdn.jsdelivr.net/npm/@entrylabs/tool@latest/dist/entry-tool.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@entrylabs/entry-paint@latest/dist/entry-paint.js"></script>
-    
     <!-- Local Entry.js -->
     <script src="/js/entry/entry.min.js"></script>
 
@@ -63,15 +43,9 @@
                 
                 try {
                     // Entry 초기화
-                    Entry.init({
-                        type: 'workspace',
+                    const workspace = new Entry.Workspace({
                         container: 'entryContainer',
-                        width: '100%',
-                        height: '100%',
-                        blockInjectDir: '/js/entry',  // 블록 정의 파일 위치
-                        objects: [],  // 초기 오브젝트
-                        loadProject: false,  // 프로젝트 자동 로드 비활성화
-                        hardwareEnable: false,  // 하드웨어 기능 비활성화
+                        type: 'workspace'
                     });
 
                     // 프로젝트 파일이 있는 경우 로드
