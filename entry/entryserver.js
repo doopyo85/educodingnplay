@@ -17,7 +17,12 @@ app.use(session({
 app.use((req, res, next) => {
     res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self'; font-src 'self' data: https: *; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
+        "default-src 'self' https: cdn.jsdelivr.net code.createjs.com cdnjs.cloudflare.com; " +
+        "font-src 'self' data: https: *; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: cdn.jsdelivr.net code.createjs.com cdnjs.cloudflare.com; " +
+        "style-src 'self' 'unsafe-inline' https: cdn.jsdelivr.net cdnjs.cloudflare.com; " +
+        "img-src 'self' data: https: *; " +
+        "connect-src 'self' https: wss: ws:;"
     );
     next();
 });
