@@ -16,15 +16,8 @@
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-
-    <!-- Entry Tool 전역 설정 -->
-    <script>
-        window.EntryTool = {};
-    </script>
-
-    <!-- Entry Tool과 Entry -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
     <style>
         html, body {
@@ -34,7 +27,7 @@
             height: 100%;
             overflow: hidden;
         }
-        #workspace {
+        #entryContainer {
             width: 100%;
             height: 100%;
             position: relative;
@@ -42,7 +35,8 @@
     </style>
 </head>
 <body>
-    <div id="workspace">
+    <div id="entryContainer">
+        <div id="workspace"></div>
         <div id="canvas"></div>
         <div id="engineContainer"></div>
         <div id="dataTable"></div>
@@ -50,35 +44,48 @@
         <div id="soundEditor"></div>
     </div>
 
+    <!-- Entry 네임스페이스 및 의존성 -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        // EntryTool 네임스페이스 초기화
+        window.EntryTool = window.EntryTool || {};
+    </script>
+
+    <!-- Entry 스크립트 -->
+    <script src="/js/entry/entry-tool.js"></script>
+    <script src="/js/entry/entry.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
             try {
-                // Entry 객체가 로드되었는지 확인
+                // Entry 객체 로드 대기
                 if (typeof Entry === 'undefined') {
                     throw new Error('Entry is not loaded');
                 }
 
-                // Entry.Workspace 생성
-                var workspace = new Entry.Workspace({
-                    container: 'workspace',
-                    type: 'workspace'
-                });
+                // Entry 초기화 옵션
+                const initOption = {
+                    type: 'workspace',
+                    textCodingEnable: true,
+                    defaultProject: true
+                };
+
+                // 컨테이너 설정
+                Entry.init(document.getElementById('entryContainer'), initOption);
 
                 // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= projectFile %>';
                 if (projectFile) {
-                    fetch(projectFile)
-                        .then(response => response.json())
-                        .then(project => {
-                            workspace.loadProject(project);
-                        })
-                        .catch(error => {
-                            console.error('프로젝트 로드 실패:', error);
-                        });
+                    try {
+                        const response = await fetch(projectFile);
+                        const projectData = await response.json();
+                        Entry.loadProject(projectData);
+                    } catch (error) {
+                        console.error('프로젝트 로드 실패:', error);
+                    }
                 }
 
                 // Entry 시작
-                workspace.start();
+                Entry.start();
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
             }
