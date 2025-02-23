@@ -44,7 +44,7 @@ router.get('/write', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>트윗 작성</title>
+            <title>한마디 남기기</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; }
                 form { max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 10px; }
@@ -54,17 +54,18 @@ router.get('/write', (req, res) => {
             </style>
         </head>
         <body>
-            <h2>트윗 작성</h2>
+            <h2>한마디 남기기</h2>
             <form action="/board/write" method="POST">
-                <label for="title">트윗</label>
+                <label for="title">한마디 (최대 50자)</label>
                 <input type="text" name="title" id="title" maxlength="50" placeholder="50자 이내로 입력하세요..." required>
                 <input type="hidden" name="author" value="${req.user ? req.user.username : '익명'}"> <!-- 로그인 사용자 자동 입력 -->
-                <button type="submit">작성하기</button>
+                <button type="submit">등록</button>
             </form>
         </body>
         </html>
     `);
 });
+
 
 // 글 작성 처리
 router.post('/write', async (req, res) => {
