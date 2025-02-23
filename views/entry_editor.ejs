@@ -38,24 +38,48 @@
             bottom: 0;
             background: #fff;
         }
-        #board {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
     </style>
 </head>
 <body>
-    <!-- Entry 구조 -->
     <div id="workspace">
-        <div id="board"></div>
-        <div id="engineContainer"></div>
+        <!-- 기본 엔트리 구조 -->
+        <div class="containerWrapper">
+            <div class="container">
+                <!-- 왼쪽 패널 -->
+                <div class="leftArea">
+                    <div id="selectedObjectType"></div>
+                    <div id="objectList"></div>
+                    <div id="propertyPanel"></div>
+                </div>
+                
+                <!-- 중앙 영역 -->
+                <div class="centerArea">
+                    <div id="board">
+                        <div id="stage"></div>
+                        <div id="engineContainer"></div>
+                        <div id="canvasWrapper"></div>
+                    </div>
+                    <div id="buttonWrapper">
+                        <div id="defaultButtons"></div>
+                        <div id="customButtons"></div>
+                    </div>
+                </div>
+                
+                <!-- 오른쪽 패널 -->
+                <div class="rightArea">
+                    <div id="blocks"></div>
+                    <div id="variables"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 팝업 및 특수 컨테이너 -->
+        <div id="modalWindow"></div>
+        <div id="expertWindow"></div>
         <div id="dataTable"></div>
         <div id="pictureView"></div>
         <div id="soundEditor"></div>
-        <div id="container"></div>
+        <div id="hardwareWindow"></div>
     </div>
 
     <!-- Entry.js는 body 끝에서 로드 -->
@@ -79,7 +103,8 @@
                     const initOption = {
                         type: 'workspace',
                         container: 'workspace',
-                        textCodingEnable: true
+                        textCodingEnable: true,
+                        baseUrl: '<%= baseUrl %>'
                     };
                     
                     // Entry 초기화
