@@ -5,19 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Editor</title>
 
-    <!-- Entry CSS -->
-    <link href="/js/entry/entry.css" rel="stylesheet" />
+    <!-- Style sheets -->
     <link href="/js/entry/entry-tool.css" rel="stylesheet" />
+    <link href="/js/entry/entry.css" rel="stylesheet" />
 
-    <!-- 기본 의존성 -->
+    <!-- 외부 의존성 라이브러리들 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.6/velocity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
+
+    <!-- Entry 네임스페이스 초기화 -->
+    <script>
+        // 필요한 네임스페이스들 초기화
+        window.EntryTool = {};
+        window.EntryVideoLegacy = {};
+        window.EntrySoundEditor = {};
+        window.EntryPaint = {};
+    </script>
+
+    <!-- Entry 관련 스크립트 -->
+    <script src="/js/entry/entry-tool.js"></script>
+    <script src="/js/entry/entry.js"></script>
 
     <style>
         html, body {
@@ -42,48 +63,42 @@
         <div id="dataTable"></div>
         <div id="pictureView"></div>
         <div id="soundEditor"></div>
+        <div id="container"></div>
     </div>
 
-    <!-- Entry 네임스페이스 및 의존성 -->
     <script>
-        // EntryTool 네임스페이스 초기화
-        window.EntryTool = window.EntryTool || {};
-        // EntryVideoLegacy 네임스페이스 초기화
-        window.EntryVideoLegacy = window.EntryVideoLegacy || {};
-    </script>
-
-    <!-- Entry 스크립트 -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", async function() {
+        document.addEventListener("DOMContentLoaded", function() {
             try {
-                // Entry 객체 로드 대기
-                if (typeof Entry === 'undefined') {
-                    throw new Error('Entry is not loaded');
-                }
+                // 기본 옵션 설정
+                var initOption = {
+                    type: 'workspace',
+                    textCodingEnable: true,
+                    defaultProject: true
+                };
 
-                // 기본 Entry 객체 생성
-                var workspace = new Entry.Workspace({
-                    container: 'entryContainer',
-                    type: 'workspace'
-                });
+                // Entry 이벤트 초기화
+                Entry.creationChangedEvent = new Entry.Event(window);
+
+                // Entry 초기화
+                Entry.init(document.getElementById('entryContainer'), initOption);
 
                 // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= projectFile %>';
                 if (projectFile) {
-                    try {
-                        const response = await fetch(projectFile);
-                        const projectData = await response.json();
-                        workspace.loadProject(projectData);
-                    } catch (error) {
-                        console.error('프로젝트 로드 실패:', error);
-                    }
+                    fetch(projectFile)
+                        .then(response => response.json())
+                        .then(projectData => {
+                            Entry.loadProject(projectData);
+                        })
+                        .catch(error => {
+                            console.error('프로젝트 로드 실패:', error);
+                        });
+                } else {
+                    Entry.loadProject();
                 }
 
                 // Entry 시작
-                workspace.start();
+                Entry.start();
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
             }
