@@ -11,20 +11,49 @@
 
     <!-- Base dependencies -->
     <script>
-        // Entry 관련 전역 객체 초기화
-        window.EntryStatic = {
+        // Lang 네임스페이스 설정
+        var Lang = {
+            Blocks: {},
+            Workspace: {},
+            Buttons: {},
+            Category: {},
+            Menus: {},
+            Messages: {},
+            Hints: {},
+            General: {},
+            template: {},
+            DataAnalytics: {},
+            CustomSearch: {},
+            Blocks: {
+                START_BASIC_PREF: ''
+            }
+        };
+        
+        // Entry 전역 객체 초기화
+        var EntryStatic = {
             fontFamily: "NanumGothic",
-            baseUrl: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
-            defaultInitOption: {
+            defaultFontFamily: "NanumGothic",
+            exportBlockFontFamily: "NanumGothic",
+            STATIC_BLOCK_COLOR: "#fffae6",
+            VARIABLE_BLOCK_COLOR: "#ffd974",
+            HARDWARE_BLOCK_COLOR: "#59b8d9",
+            BasicBlockColor: "#EB4E00",
+            FUNCTION_BLOCK_COLOR: "#cc7bff",
+            BASE_URL: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
+            initOptions: {
                 type: 'workspace',
                 textCodingEnable: true,
                 defaultProject: true
             }
         };
+
         window.EntryTool = {};
         window.EntryPaint = {};
         window.EntrySoundEditor = {};
         window.EntryVideoLegacy = {};
+
+        // 전역 설정
+        window.PUBLIC_PATH_FOR_ENTRYJS = '/js/entry/';
     </script>
 
     <!-- Libraries -->
@@ -139,36 +168,57 @@
     <script src="/js/entry/entry.js"></script>
 
     <script>
-        $(document).ready(function() {
-            try {
-                console.log('Entry 초기화 시작');
-                
-                Entry.init({
-                    type: 'workspace',
-                    container: 'workspace',
-                    textCodingEnable: true
-                });
-
-                const projectFile = '<%= locals.projectFile || "" %>';
-                if (projectFile) {
-                    fetch(projectFile)
-                        .then(response => response.json())
-                        .then(project => {
-                            Entry.loadProject(project);
-                            Entry.start();
-                        })
-                        .catch(error => {
-                            console.error('프로젝트 로드 실패:', error);
-                        });
-                } else {
-                    Entry.loadProject();
-                    Entry.start();
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, waiting for Entry...');
+            
+            // Entry 로드 확인을 위한 재시도 로직
+            const waitForEntry = setInterval(function() {
+                if (typeof Entry !== 'undefined') {
+                    clearInterval(waitForEntry);
+                    initializeEntry();
                 }
+            }, 100);
 
-                console.log('Entry 초기화 완료');
-            } catch (error) {
-                console.error('Entry 초기화 오류:', error);
-                console.error('Error stack:', error.stack);
+            function initializeEntry() {
+                try {
+                    console.log('Entry found, initializing...');
+                    console.log('Entry:', Entry);
+                    
+                    // BlockMenu 초기화
+                    Entry.Blocks = {};
+                    Entry.Blocks.START_BASIC_PREF = '';
+
+                    // Workspace 초기화
+                    Entry.createDom();
+                    Entry.initEvent();
+                    Entry.init({
+                        container: 'workspace',
+                        type: 'workspace',
+                        textCodingEnable: true,
+                        loadProject: false
+                    });
+
+                    const projectFile = '<%= locals.projectFile || "" %>';
+                    if (projectFile) {
+                        fetch(projectFile)
+                            .then(response => response.json())
+                            .then(project => {
+                                Entry.loadProject(project);
+                                Entry.start();
+                            })
+                            .catch(error => {
+                                console.error('프로젝트 로드 실패:', error);
+                            });
+                    } else {
+                        Entry.loadProject();
+                        Entry.start();
+                    }
+
+                    console.log('Entry initialization completed');
+                } catch (error) {
+                    console.error('Entry 초기화 오류:', error);
+                    console.error('Error stack:', error.stack);
+                }
             }
         });
     </script>
