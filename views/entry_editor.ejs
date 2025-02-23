@@ -48,6 +48,8 @@
     <script>
         // EntryTool 네임스페이스 초기화
         window.EntryTool = window.EntryTool || {};
+        // EntryVideoLegacy 네임스페이스 초기화
+        window.EntryVideoLegacy = window.EntryVideoLegacy || {};
     </script>
 
     <!-- Entry 스크립트 -->
@@ -62,15 +64,11 @@
                     throw new Error('Entry is not loaded');
                 }
 
-                // Entry 초기화 옵션
-                const initOption = {
-                    type: 'workspace',
-                    textCodingEnable: true,
-                    defaultProject: true
-                };
-
-                // 컨테이너 설정
-                Entry.init(document.getElementById('entryContainer'), initOption);
+                // 기본 Entry 객체 생성
+                var workspace = new Entry.Workspace({
+                    container: 'entryContainer',
+                    type: 'workspace'
+                });
 
                 // 프로젝트 파일이 있는 경우 로드
                 const projectFile = '<%= projectFile %>';
@@ -78,14 +76,14 @@
                     try {
                         const response = await fetch(projectFile);
                         const projectData = await response.json();
-                        Entry.loadProject(projectData);
+                        workspace.loadProject(projectData);
                     } catch (error) {
                         console.error('프로젝트 로드 실패:', error);
                     }
                 }
 
                 // Entry 시작
-                Entry.start();
+                workspace.start();
             } catch (error) {
                 console.error('Entry 초기화 오류:', error);
             }
