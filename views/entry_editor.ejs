@@ -27,14 +27,23 @@
             height: 100%;
             overflow: hidden;
         }
-        #entryContainer {
+        #workspace {
             width: 100%;
             height: 100%;
+            position: relative;
         }
     </style>
 </head>
 <body>
-    <div id="entryContainer"></div>
+    <div id="workspace">
+        <!-- Entry 기본 구조 -->
+        <div id="canvas"></div>
+        <div id="engineContainer"></div>
+        <div id="dataTable"></div>
+        <div id="pictureView"></div>
+        <div id="soundEditor"></div>
+        <div id="container"></div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -42,9 +51,18 @@
                 const projectFile = '<%= projectFile %>';
                 
                 try {
-                    // Entry 초기화
+                    // Entry 네임스페이스 초기화 대기
+                    if (!window.Entry || typeof window.Entry.createDom !== 'function') {
+                        console.error('Entry namespace not properly initialized');
+                        return;
+                    }
+
+                    // 기본 DOM 요소 생성
+                    Entry.createDom();
+
+                    // 작업 공간 생성
                     const workspace = new Entry.Workspace({
-                        container: 'entryContainer',
+                        container: 'workspace',
                         type: 'workspace'
                     });
 
@@ -53,19 +71,20 @@
                         try {
                             const response = await fetch(projectFile);
                             const projectData = await response.json();
-                            Entry.loadProject(projectData);
+                            workspace.loadProject(projectData);
                         } catch (error) {
                             console.error('프로젝트 로드 실패:', error);
                         }
                     }
 
                     // Entry 시작
-                    Entry.start();
+                    workspace.start();
                 } catch (error) {
                     console.error('Entry 초기화 실패:', error);
                 }
             };
 
+            // Entry 초기화 시도
             initEntry();
         });
     </script>
