@@ -5,18 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Editor</title>
 
-    <!-- Entry CSS -->
-    <link rel="stylesheet" href="/js/entry/entry.css">
+    <!-- CSS -->
+    <link href="/js/entry/entry.css" rel="stylesheet" />
 
-    <!-- Core Dependencies -->
+    <!-- 기본 의존성 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.6/velocity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
 
-    <!-- Local Entry.js -->
+    <!-- React -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+    <!-- Entry Tool과 Entry -->
+    <script>
+        // EntryTool 네임스페이스 생성
+        window.EntryTool = {};
+    </script>
+    <script src="/js/entry/entry-tool.js"></script>
     <script src="/js/entry/entry.min.js"></script>
 
     <style>
@@ -27,65 +38,44 @@
             height: 100%;
             overflow: hidden;
         }
-        #workspace {
+        #entryContainer {
             width: 100%;
             height: 100%;
-            position: relative;
         }
     </style>
 </head>
 <body>
-    <div id="workspace">
-        <!-- Entry 기본 구조 -->
-        <div id="canvas"></div>
-        <div id="engineContainer"></div>
-        <div id="dataTable"></div>
-        <div id="pictureView"></div>
-        <div id="soundEditor"></div>
-        <div id="container"></div>
-    </div>
+    <div id="entryContainer"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const initEntry = async () => {
-                const projectFile = '<%= projectFile %>';
-                
-                try {
-                    // Entry 네임스페이스 초기화 대기
-                    if (!window.Entry || typeof window.Entry.createDom !== 'function') {
-                        console.error('Entry namespace not properly initialized');
-                        return;
-                    }
-
-                    // 기본 DOM 요소 생성
-                    Entry.createDom();
-
-                    // 작업 공간 생성
-                    const workspace = new Entry.Workspace({
-                        container: 'workspace',
-                        type: 'workspace'
-                    });
-
-                    // 프로젝트 파일이 있는 경우 로드
-                    if (projectFile) {
-                        try {
-                            const response = await fetch(projectFile);
-                            const projectData = await response.json();
-                            workspace.loadProject(projectData);
-                        } catch (error) {
-                            console.error('프로젝트 로드 실패:', error);
-                        }
-                    }
-
-                    // Entry 시작
-                    workspace.start();
-                } catch (error) {
-                    console.error('Entry 초기화 실패:', error);
-                }
+        document.addEventListener("DOMContentLoaded", function() {
+            // EntryJS 초기화
+            var initOption = {
+                type: 'workspace',
+                textCodingEnable: true,
+                container: document.getElementById('entryContainer')
             };
 
-            // Entry 초기화 시도
-            initEntry();
+            // 이벤트 초기화
+            Entry.creationChangedEvent = new Entry.Event(window);
+            
+            // Entry 초기화
+            Entry.init(initOption);
+
+            // 프로젝트 파일이 있는 경우 로드
+            const projectFile = '<%= projectFile %>';
+            if (projectFile) {
+                fetch(projectFile)
+                    .then(response => response.json())
+                    .then(projectData => {
+                        Entry.loadProject(projectData);
+                    })
+                    .catch(error => {
+                        console.error('프로젝트 로드 실패:', error);
+                    });
+            } else {
+                Entry.loadProject();
+            }
         });
     </script>
 </body>
