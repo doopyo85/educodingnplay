@@ -154,19 +154,19 @@ function createProjectCard(project, viewConfig) {
                 <p class="card-text">
                     <i class="bi bi-cpu"></i> C.T 학습 요소: ${project.ctElement || '정보 없음'}
                 </p>
-                <div class="d-flex flex-column gap-2">
+                <div class="btn-group mb-2">
                     ${project.basic ? `
-                        <button class="btn btn-primary load-project" data-url="${project.basic}">
+                        <button class="btn btn-secondary load-project" data-url="${project.basic}">
                             기본
                         </button>
                     ` : ''}
                     ${viewConfig.showComplete && project.complete ? `
-                        <button class="btn btn-success load-project" data-url="${project.complete}">
+                        <button class="btn btn-secondary load-project" data-url="${project.complete}">
                             완성
                         </button>
                     ` : ''}
                     ${viewConfig.showExtension && project.extension ? `
-                        <button class="btn btn-info load-project" data-url="${project.extension}">
+                        <button class="btn btn-secondary load-project" data-url="${project.extension}">
                             확장
                         </button>
                     ` : ''}
