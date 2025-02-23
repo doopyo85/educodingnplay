@@ -37,18 +37,48 @@ router.get('/', async (req, res) => {
     }
 });
 
-// 글쓰기 페이지 렌더링
+// 글쓰기 페이지 렌더링 (HTML 직접 제공)
 router.get('/write', (req, res) => {
-    res.render('write');
+    res.send(`
+        <html lang="ko">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>트윗 작성</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                form { max-width: 400px; margin: auto; display: flex; flex-direction: column; gap: 10px; }
+                input, button { padding: 10px; font-size: 16px; }
+                button { background-color: blue; color: white; border: none; cursor: pointer; }
+                button:hover { background-color: darkblue; }
+            </style>
+        </head>
+        <body>
+            <h2>트윗 작성</h2>
+            <form action="/board/write" method="POST">
+                <label for="title">트윗</label>
+                <input type="text" name="title" id="title" maxlength="50" placeholder="50자 이내로 입력하세요..." required>
+                <input type="hidden" name="author" value="${req.user ? req.user.username : '익명'}"> <!-- 로그인 사용자 자동 입력 -->
+                <button type="submit">작성하기</button>
+            </form>
+        </body>
+        </html>
+    `);
 });
 
 // 글 작성 처리
 router.post('/write', async (req, res) => {
-    const { title, content, author } = req.body;
-    const query = 'INSERT INTO posts (title, content, author) VALUES (?, ?, ?)';
+    const { title } = req.body;
+    const author = req.user ? req.user.username : '익명'; // 로그인 사용자가 없으면 '익명' 처리
 
+    // 제목 길이 제한 확인
+    if (title.length > 50) {
+        return res.status(400).send('<script>alert("트윗은 50자 이내로 작성해야 합니다."); history.back();</script>');
+    }
+
+    const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
-        await db.queryDatabase(query, [title, content, author]);
+        await db.queryDatabase(query, [title, author]);
         res.redirect('/board');
     } catch (err) {
         console.error('DB 에러:', err);
@@ -65,22 +95,21 @@ router.get('/edit/:id', async (req, res) => {
         const results = await db.queryDatabase(query, [postId]);
         if (results.length === 0) return res.status(404).send('글을 찾을 수 없습니다.');
 
-        res.render('board_edit', { post: results[0] }); // ✅ 파일명 변경
+        res.render('board_edit', { post: results[0] });
     } catch (err) {
         console.error('DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
 
-
 // 글 수정 처리
 router.post('/edit/:id', async (req, res) => {
     const postId = req.params.id;
-    const { title, content } = req.body;
-    const query = 'UPDATE posts SET title = ?, content = ? WHERE id = ?';
+    const { title } = req.body;
+    const query = 'UPDATE posts SET title = ? WHERE id = ?';
 
     try {
-        await db.queryDatabase(query, [title, content, postId]);
+        await db.queryDatabase(query, [title, postId]);
         res.redirect('/board');
     } catch (err) {
         console.error('DB 에러:', err);

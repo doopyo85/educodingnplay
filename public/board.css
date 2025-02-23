@@ -1,24 +1,92 @@
-.search-form {
-  width: 80%;
-  margin: 1rem auto;
+/* 전체 게시글 목록 스타일 */
+.mentions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 600px;
+  margin: auto;
 }
 
-.search-form input, .search-form select {
-  background: transparent;
-  border: 0;
-  padding: 1rem;
-  font-size: 1rem;
+/* 개별 멘션 스타일 (말풍선) */
+.mention {
+  position: relative;
+  background: #f1f1f1;
+  padding: 15px;
+  border-radius: 15px;
+  font-size: 16px;
+  max-width: 80%;
+  word-wrap: break-word;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.search-form button {
-  width: 100%;
-  font-size: 1rem;
+/* 왼쪽 말풍선 (다른 사용자) */
+.mention.left {
+  align-self: flex-start;
+  border-top-left-radius: 0;
 }
 
-.card-margin {
-  margin-bottom: 1.875rem;
+/* 오른쪽 말풍선 (현재 로그인한 사용자) */
+.mention.right {
+  align-self: flex-end;
+  border-top-right-radius: 0;
+  background: #d1e7ff;
 }
 
-.table {
-  margin-top: 1rem;
+/* 관리자 댓글 스타일 */
+.mention.admin-reply {
+  background: #ffeeba;
+  border: 1px solid #ffc107;
+}
+
+/* 말풍선 꼬리 스타일 */
+.mention.left::before,
+.mention.right::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+/* 왼쪽 말풍선 꼬리 */
+.mention.left::before {
+  left: -10px;
+  border-width: 10px 10px 0 0;
+  border-color: #f1f1f1 transparent transparent transparent;
+}
+
+/* 오른쪽 말풍선 꼬리 */
+.mention.right::before {
+  right: -10px;
+  border-width: 10px 0 0 10px;
+  border-color: #d1e7ff transparent transparent transparent;
+}
+
+/* 관리자 댓글 꼬리 */
+.mention.admin-reply::before {
+  left: -10px;
+  border-width: 10px 10px 0 0;
+  border-color: #ffeeba transparent transparent transparent;
+}
+
+/* 작성자 정보 */
+.mention-author {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* 작성일 */
+.mention-date {
+  font-size: 12px;
+  text-align: right;
+  color: gray;
+}
+
+/* 수정/삭제 버튼 스타일 */
+.mention-actions {
+  margin-top: 5px;
+  display: flex;
+  gap: 5px;
 }
