@@ -1,40 +1,73 @@
-document.addEventListener("DOMContentLoaded", loadTasks);
+document.addEventListener("DOMContentLoaded", async function() {
+    try {
+        console.log("📢 업무 리스트 로드 시작...");
+        await loadTaskData();
+    } catch (error) {
+        console.error("❌ 업무 리스트 불러오기 실패:", error);
+        displayTaskErrorMessage("업무 데이터를 불러오는 중 오류가 발생했습니다.");
+    }
+});
 
-function loadTasks() {
-    const spreadsheetId = document.getElementById("spreadsheetId").value;
-    const apiKey = document.getElementById("googleApiKey").value;
-    const range = "Tasks!A2:C10"; // 업무 리스트 범위
+async function loadTaskData() {
+    try {
+        const response = await fetch('/api/get-task-data'); // 서버에서 구글시트 데이터를 가져옴
+        if (!response.ok) {
+            throw new Error(`HTTP 오류! 상태: ${response.status}`);
+        }
+        const data = await response.json();
 
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`)
-        .then(response => response.json())
-        .then(data => {
-            const tasks = data.values || [];
-            const taskList = document.getElementById("task-list");
-            taskList.innerHTML = "";
+        if (!data || !data.length) {
+            throw new Error("구글시트에서 데이터를 가져올 수 없습니다.");
+        }
 
-            tasks.forEach(task => {
-                const [name, comment, progress] = task;
+        const tasks = processTaskData(data);
+        displayTasks(tasks);
+    } catch (error) {
+        console.error("❌ 업무 데이터 로드 오류:", error);
+        displayTaskErrorMessage("업무 데이터를 불러오는 중 오류가 발생했습니다.");
+    }
+}
 
-                // 진행도 값이 없거나 숫자가 아니면 기본값 0% 설정
-                let progressValue = 0;
-                if (progress) {
-                    progressValue = parseInt(progress.replace('%', '').trim()) || 0;
-                }
+function processTaskData(data) {
+    return data.map(row => {
+        const [name, comment, progress] = row;
+        let progressValue = parseInt(progress?.replace('%', '').trim()) || 0;
 
-                const taskCard = `
-                    <div class="task-card">
-                        <div class="task-info">
-                            <div class="task-name">${name}</div>
-                            <div class="task-comment">${comment || "설명 없음"}</div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: ${progressValue}%;"></div>
-                            </div>
-                        </div>
-                        <button class="like-btn"><i class="bi bi-heart"></i></button>
+        return {
+            name: name || "이름 없음",
+            comment: comment || "설명 없음",
+            progress: progressValue
+        };
+    });
+}
+
+function displayTasks(tasks) {
+    const taskList = document.getElementById("task-list");
+    taskList.innerHTML = "";
+
+    tasks.forEach(task => {
+        const taskCard = `
+            <div class="task-card">
+                <div class="task-info">
+                    <div class="task-name">${task.name}</div>
+                    <div class="task-comment">${task.comment}</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${task.progress}%;"></div>
                     </div>
-                `;
-                taskList.innerHTML += taskCard;
-            });
-        })
-        .catch(error => console.error("업무 리스트 불러오기 실패:", error));
+                </div>
+                <button class="like-btn"><i class="bi bi-heart"></i></button>
+            </div>
+        `;
+        taskList.innerHTML += taskCard;
+    });
+}
+
+function displayTaskErrorMessage(message) {
+    const taskList = document.getElementById("task-list");
+    taskList.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">오류 발생</h4>
+            <p>${message}</p>
+        </div>
+    `;
 }

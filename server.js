@@ -659,6 +659,17 @@ app.get('/entry', (req, res) => {
   res.redirect(`${config.BASE_URL}:8080`);
 });
 
+// Tasks 가져오기(너구리톡)
+router.get("/api/get-task-data", async (req, res) => {
+  try {
+      const data = await getGoogleSheetData();
+      res.json(data);
+  } catch (error) {
+      res.status(500).json({ error: "구글시트 데이터를 불러올 수 없습니다." });
+  }
+});
+
+
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {
   res.render('python_project');  // 'python_project.ejs' 템플릿을 렌더링
