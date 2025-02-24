@@ -3,12 +3,28 @@ body {
   background: #F5F5F5; /* 연한 회색 배경 */
 }
 
-/* 📌 채팅창 컨테이너 */
+/* 📌 채팅창 컨테이너 너비 조정 */
 .direct-message {
   background: white;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 50%; /* 화면의 50% 차지 */
+  max-width: 700px; /* 최대 너비 제한 */
+}
+
+/* 📌 채팅창 상단 (배경색 추가) */
+.chat-header {
+  background: #F1F3F5; /* 연한 회색 배경 */
+  padding: 15px;
+  border-radius: 8px 8px 0 0; /* 상단 모서리 둥글게 */
+}
+
+/* 📌 '너구리톡 채팅' 가운데 정렬 */
+.chat-header h2 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 /* 📌 메시지 컨테이너 (프로필 이미지 왼쪽 정렬) */
@@ -86,7 +102,7 @@ body {
 /* 📌 전송 버튼 */
 /* 📌 보내기 버튼 둥근 네모로 변경 */
 .material-button {
-  background: #DBC1AD; /* 초록색 */
+  background: green; /* 초록색 */
   color: white;
   border: none;
   padding: 10px 20px; /* 가로 길이 조정 */
