@@ -63,18 +63,17 @@ body {
   margin: 0 auto;
 }
 
-/* 📌 말풍선 한 줄 유지 */
+/* 📌 말풍선 크기를 메시지 길이에 맞게 조정 */
 .message-bubble {
   background: #F1F1F1;
   padding: 10px 15px;
   border-radius: 12px;
   font-size: 16px;
-  width: auto;
-  max-width: 75%; /* 🔥 컨테이너 75%까지 확장 가능 */
   display: inline-block;
-  white-space: nowrap; /* 🔥 한 줄 유지 */
-  overflow: hidden;
-  text-overflow: ellipsis; /* 🔥 너무 긴 텍스트는 ...으로 표시 */
+  max-width: 75%; /* 🔥 최대 너비: 컨테이너의 75% */
+  width: auto; /* 🔥 내용에 맞게 자동 조정 */
+  word-wrap: break-word; /* 🔥 긴 단어 줄바꿈 */
+  white-space: normal; /* 🔥 여러 줄 허용 */
 }
 
 
@@ -85,18 +84,19 @@ body {
 }
 
 
-/* 📌 글쓴이 + 날짜 정렬 */
-.message-author {
-  font-weight: bold;
+/* 📌 아이디 & 날짜 한 줄에 정렬 */
+.message-header {
   display: flex;
+  justify-content: space-between; /* 🔥 아이디 왼쪽, 날짜 오른쪽 */
   align-items: center;
-}
-
-/* 📌 날짜를 글쓴이 오른쪽으로 이동 */
+  width: 100%;
+  
+/* 📌 날짜 스타일 */
 .message-time {
   font-size: 12px;
   color: gray;
-  margin-left: 8px; /* 🔥 글쓴이 오른쪽에 배치 */
+  text-align: right;
+  margin-left: 10px; /* 🔥 아이디와 간격 */
 }
 
 /* 📌 입력창 스타일 */
