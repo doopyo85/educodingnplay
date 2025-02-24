@@ -1,33 +1,17 @@
-/* 색상 설정 */
+/* 헤더 아래 컨텐츠가 밀리지 않도록 마진 추가 */
 body {
-  background: linear-gradient(25deg, #eacda3, #d6ae7b);
-  color: #fefefe;
-  font-family: 'Roboto', sans-serif;
+  padding-top: 70px;
 }
 
-/* 전체 컨테이너 */
+/* 기존 스타일 유지 */
 .direct-message {
   width: 350px;
-  margin: 3rem auto;
+  margin: auto;
   background: #333333;
   border-radius: 5px;
   overflow: hidden;
   box-shadow: -3px 3px 0 3px #111, -30px 30px 15px rgba(0, 0, 0, 0.25);
   padding: 1rem;
-}
-
-/* 헤더 */
-h1 {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.chat-subtitle {
-  text-align: center;
-  font-size: 18px;
-  color: #d6ae7b;
-  margin-bottom: 15px;
 }
 
 /* 메시지 스타일 */
@@ -39,80 +23,14 @@ h1 {
   box-shadow: inset 0 0 3px 5px rgba(0, 0, 0, 0.075);
 }
 
-.message {
-  width: 75%;
-  margin-bottom: 1rem;
-  padding-bottom: 1px;
+/* 검색 박스 및 입력창 */
+.search-box {
   display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 10px;
 }
-.message.to {
-  text-align: left;
-}
-.message.from {
-  text-align: right;
-  padding-left: 25%;
-  justify-content: flex-end;
-}
-.message .favicon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
-.message p {
-  padding: 10px;
-  background: #67950C;
-  color: #fefefe;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  width: 100%;
-}
-.message .time {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: right;
-}
-
-/* 입력창 스타일 */
 .new {
   display: flex;
   background: #222;
   padding: 10px;
-}
-.new-input {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  color: #fefefe;
-  background: transparent;
-  font-size: 1rem;
-}
-.new-input:focus {
-  outline: none;
-}
-.material-button {
-  padding: 10px;
-  border: none;
-  background: #67950C;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.2rem;
-}
-.material-button:hover {
-  background: #086060;
-}
-
-/* 삭제 버튼 */
-.material-delete {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: rgba(255, 0, 0, 0.8);
-  cursor: pointer;
-  margin-left: 5px;
-}
-.material-delete:hover {
-  color: red;
 }
