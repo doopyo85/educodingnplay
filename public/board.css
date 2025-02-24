@@ -3,14 +3,15 @@ body {
   background: #F5F5F5; /* 연한 회색 배경 */
 }
 
-/* 📌 채팅 컨테이너 너비 조정 */
+/* 📌 채팅 컨테이너 높이 설정 및 스크롤 추가 */
 .direct-message {
   background: white;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%; /* 부모 요소인 col-6의 100% */
-  max-width: none; /* 최대 너비 제한 해제 */
+  height: 80vh; /* 🔥 화면 높이에 맞춰 고정 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 📌 업무 컨테이너 너비 조정 */
@@ -20,12 +21,19 @@ body {
   padding: 20px;
 }
 
+/* 📌 메시지 목록 (스크롤 가능하도록 설정) */
+.messages {
+  flex-grow: 1; /* 🔥 가변 크기 */
+  overflow-y: auto; /* 🔥 내부 스크롤 활성화 */
+  max-height: 70vh; /* 🔥 컨테이너보다 커지지 않도록 설정 */
+  padding-right: 10px; /* 🔥 스크롤바 여백 */
+}
 
 
-/* 📌 메시지 컨테이너 (프로필 이미지 왼쪽 정렬) */
+/* 📌 메시지 컨테이너 (프로필 왼쪽 정렬) */
 .message-container {
   display: flex;
-  align-items: flex-start; /* 위쪽 정렬 유지 */
+  align-items: flex-start;
   margin-bottom: 10px;
 }
 
@@ -49,28 +57,33 @@ body {
 
 /* 📌 메시지 말풍선 */
 .message-bubble {
-  background: #F1F1F1; /* 연한 회색 */
+  background: #F1F1F1;
   padding: 10px;
   border-radius: 12px;
   font-size: 16px;
   word-wrap: break-word;
-  width: 66%; /* 🔥 컨테이너 기준 2/3 크기로 고정 */
-  max-width: none; /* 기존 max-width 해제 */
+  width: 66%; /* 🔥 컨테이너 너비의 2/3 */
+  max-width: none;
 }
-
 
 /* 📌 보낸 메시지 스타일 */
 .message-container.to .message-bubble {
-  background: #E8EAF6; /* 연한 파란색 */
+  background: #E8EAF6;
   color: black;
 }
 
-/* 📌 시간 위치 조정 */
+/* 📌 글쓴이 + 날짜 정렬 */
+.message-author {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+/* 📌 날짜를 글쓴이 오른쪽으로 이동 */
 .message-time {
   font-size: 12px;
   color: gray;
-  text-align: right;
-  margin-top: 3px;
+  margin-left: 8px; /* 🔥 글쓴이 오른쪽에 배치 */
 }
 
 /* 📌 입력창 스타일 */
