@@ -43,7 +43,8 @@ body {
   border-radius: 12px;
   font-size: 16px;
   word-wrap: break-word;
-  max-width: 66%; /* 컨테이너의 2/3 크기로 설정 */
+  width: 66%; /* 🔥 컨테이너 기준 2/3 크기로 고정 */
+  max-width: none; /* 기존 max-width 해제 */
 }
 
 
@@ -83,12 +84,14 @@ body {
 }
 
 /* 📌 전송 버튼 */
+/* 📌 보내기 버튼 둥근 네모로 변경 */
 .material-button {
-  background: #4CAF50; /* 초록색 */
+  background: #DBC1AD; /* 초록색 */
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 50%;
+  padding: 10px 20px; /* 가로 길이 조정 */
+  border-radius: 10px; /* 둥근 네모 */
   cursor: pointer;
   margin-left: 8px;
+  font-size: 16px;
 }
