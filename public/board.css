@@ -1,9 +1,9 @@
-/* 배경 색상 조정 */
+/* 📌 전체 배경 스타일 */
 body {
   background: #F5F5F5; /* 연한 회색 배경 */
 }
 
-/* 채팅창 컨테이너 스타일 */
+/* 📌 채팅창 컨테이너 */
 .direct-message {
   background: white;
   border-radius: 8px;
@@ -11,32 +11,56 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 메시지 말풍선 스타일 */
+/* 📌 메시지 컨테이너 (프로필 이미지 왼쪽 정렬) */
+.message-container {
+  display: flex;
+  align-items: flex-start; /* 위쪽 정렬 유지 */
+  margin-bottom: 10px;
+}
+
+/* 📌 프로필 이미지 (왼쪽 정렬 유지) */
+.profile-wrapper {
+  margin-right: 8px; /* 말풍선과 간격 조정 */
+}
+
+.favicon {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+/* 📌 메시지 본문 */
+.message-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+/* 📌 메시지 말풍선 */
 .message-bubble {
   background: #F1F1F1; /* 연한 회색 */
   padding: 10px;
   border-radius: 12px;
   font-size: 16px;
   word-wrap: break-word;
-  position: relative;
   max-width: 80%;
 }
 
-/* 보낸 메시지 정렬 */
+/* 📌 보낸 메시지 스타일 */
 .message-container.to .message-bubble {
   background: #E8EAF6; /* 연한 파란색 */
   color: black;
 }
 
-/* 프로필 이미지 */
-.favicon {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  margin-right: 8px;
+/* 📌 시간 위치 조정 */
+.message-time {
+  font-size: 12px;
+  color: gray;
+  text-align: right;
+  margin-top: 3px;
 }
 
-/* 메시지 입력창 스타일 */
+/* 📌 입력창 스타일 */
 .new {
   background: white;
   padding: 10px;
@@ -46,7 +70,7 @@ body {
   border-radius: 8px;
 }
 
-/* 입력창 */
+/* 📌 입력 필드 */
 .new-input {
   flex: 1;
   padding: 10px;
@@ -57,7 +81,7 @@ body {
   outline: none;
 }
 
-/* 전송 버튼 */
+/* 📌 전송 버튼 */
 .material-button {
   background: #4CAF50; /* 초록색 */
   color: white;
