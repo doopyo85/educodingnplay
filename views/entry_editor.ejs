@@ -4,58 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Editor</title>
-
-    <!-- Style sheets -->
+    
+    <!-- Entry CSS -->
     <link href="/js/entry/entry.css" rel="stylesheet" />
-    <link href="/js/entry/entry-tool.css" rel="stylesheet" />
-
-    <!-- Base dependencies -->
-    <script>
-        // Lang 네임스페이스 설정
-        var Lang = {
-            Blocks: {},
-            Workspace: {},
-            Buttons: {},
-            Category: {},
-            Menus: {},
-            Messages: {},
-            Hints: {},
-            General: {},
-            template: {},
-            DataAnalytics: {},
-            CustomSearch: {},
-            Blocks: {
-                START_BASIC_PREF: ''
-            }
-        };
-        
-        // Entry 전역 객체 초기화
-        var EntryStatic = {
-            fontFamily: "NanumGothic",
-            defaultFontFamily: "NanumGothic",
-            exportBlockFontFamily: "NanumGothic",
-            STATIC_BLOCK_COLOR: "#fffae6",
-            VARIABLE_BLOCK_COLOR: "#ffd974",
-            HARDWARE_BLOCK_COLOR: "#59b8d9",
-            BasicBlockColor: "#EB4E00",
-            FUNCTION_BLOCK_COLOR: "#cc7bff",
-            BASE_URL: '<%= locals.baseUrl || "https://app.codingnplay.co.kr" %>',
-            initOptions: {
-                type: 'workspace',
-                textCodingEnable: true,
-                defaultProject: true
-            }
-        };
-
-        window.EntryTool = {};
-        window.EntryPaint = {};
-        window.EntrySoundEditor = {};
-        window.EntryVideoLegacy = {};
-
-        // 전역 설정
-        window.PUBLIC_PATH_FOR_ENTRYJS = '/js/entry/';
-    </script>
-
+    
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
@@ -63,167 +15,21 @@
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://playentry.org/lib/entry-tool/dist/entry-tool.js"></script>
-
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #workspace {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #fff;
-        }
-        #header {
-            height: 45px;
-            background-color: #f9f9f9;
-            border-bottom: 1px solid #ddd;
-        }
-        #container {
-            position: absolute;
-            top: 45px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-        }
-        #board {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .boardEditor {
-            flex: 1;
-            position: relative;
-        }
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        #stage {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+    
+    <!-- Entry Script -->
+    <script src="/js/entry/entry.js"></script>
 </head>
 <body>
-    <div id="workspace">
-        <div id="header"></div>
-        <div id="container">
-            <!-- 왼쪽 패널 -->
-            <div id="navigationBox" class="navigationBox">
-                <div id="selectedObjectType"></div>
-                <div id="objectList"></div>
-                <div id="propertyPanel" style="display: none">
-                    <div id="propertyHeader"></div>
-                    <div id="propertyContent"></div>
-                </div>
-            </div>
-
-            <!-- 중앙 영역 -->
-            <div id="board">
-                <div class="boardEditor">
-                    <div id="canvas"></div>
-                    <div id="stage"></div>
-                    <div id="engineContainer"></div>
-                </div>
-                <div id="buttonWrapper">
-                    <div id="defaultButtons"></div>
-                    <div id="customButtons"></div>
-                </div>
-            </div>
-
-            <!-- 오른쪽 패널 -->
-            <div id="codeWrapper">
-                <div id="blockMenu"></div>
-                <div id="workspaceBoard"></div>
-                <div id="variables" style="display: none"></div>
-            </div>
-        </div>
-
-        <!-- 모달 및 팝업 -->
-        <div id="fieldInfo"></div>
-        <div id="engineContainer"></div>
-        <div id="dataTable"></div>
-        <div id="pictureView"></div>
-        <div id="soundEditor"></div>
-        <div id="hardwareList" style="display: none"></div>
-    </div>
-
-    <!-- Entry.js -->
-    <script src="/js/entry/entry.js"></script>
-
+    <div id="workspace"></div>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, waiting for Entry...');
-            
-            // Entry 로드 확인을 위한 재시도 로직
-            const waitForEntry = setInterval(function() {
-                if (typeof Entry !== 'undefined') {
-                    clearInterval(waitForEntry);
-                    initializeEntry();
-                }
-            }, 100);
-
-            function initializeEntry() {
-                try {
-                    console.log('Entry found, initializing...');
-                    
-                    // 옵션 설정
-                    const initOption = {
-                        type: 'workspace',
-                        container: 'workspace',
-                        textCodingEnable: true,
-                        blockInjectOption: {
-                            importHardware: false
-                        },
-                        loadProject: false,
-                        hardwareEnable: false
-                    };
-
-                    // 초기화
-                    if (Entry.getMainWS) {
-                        Entry.init(initOption);
-                    } else {
-                        const workspace = new Entry.Workspace(initOption);
-                        Entry.start();
-                    }
-
-                    // 프로젝트 로드
-                    const projectFile = '<%= locals.projectFile || "" %>';
-                    if (projectFile) {
-                        fetch(projectFile)
-                            .then(response => response.json())
-                            .then(project => {
-                                Entry.loadProject(project);
-                            })
-                            .catch(error => {
-                                console.error('프로젝트 로드 실패:', error);
-                            });
-                    } else {
-                        Entry.loadProject();
-                    }
-
-                    console.log('Entry initialization completed');
-                } catch (error) {
-                    console.error('Entry 초기화 오류:', error);
-                    console.error('Error stack:', error.stack);
-                }
-            }
+        window.addEventListener('load', function() {
+            Entry.init({
+                type: 'workspace',
+                container: 'workspace',
+                projectFile: '<%= projectFile %>'
+            });
+            Entry.start();
         });
     </script>
 </body>
