@@ -52,18 +52,19 @@ body {
 .message-content {
   display: flex;
   flex-direction: column;
-  max-width: 70%;
+  max-width: 80%; /* 🔥 전체 채팅 컨테이너의 80%까지 사용 가능 */
 }
 
-/* 📌 메시지 말풍선 */
+/* 📌 말풍선 너비 조정 */
 .message-bubble {
-  background: #F1F1F1;
-  padding: 10px;
+  background: #F1F1F1; /* 연한 회색 */
+  padding: 10px 15px;
   border-radius: 12px;
   font-size: 16px;
   word-wrap: break-word;
-  width: 66%; /* 🔥 컨테이너 너비의 2/3 */
-  max-width: none;
+  width: auto; /* 🔥 내용 길이에 맞춰 유동적으로 조정 */
+  max-width: 75%; /* 🔥 채팅 컨테이너의 75%까지 확장 가능 */
+  display: inline-block;
 }
 
 /* 📌 보낸 메시지 스타일 */
@@ -71,6 +72,7 @@ body {
   background: #E8EAF6;
   color: black;
 }
+
 
 /* 📌 글쓴이 + 날짜 정렬 */
 .message-author {
