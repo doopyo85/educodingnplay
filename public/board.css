@@ -55,17 +55,28 @@ body {
   max-width: 80%; /* 🔥 전체 채팅 컨테이너의 80%까지 사용 가능 */
 }
 
-/* 📌 말풍선 너비 조정 */
+/* 📌 너구리 이미지 크기 제한 */
+.naguri-img {
+  max-width: 80%; /* 🔥 가로 크기 최대 80% */
+  height: auto; /* 🔥 비율 유지 */
+  display: block;
+  margin: 0 auto;
+}
+
+/* 📌 말풍선 한 줄 유지 */
 .message-bubble {
-  background: #F1F1F1; /* 연한 회색 */
+  background: #F1F1F1;
   padding: 10px 15px;
   border-radius: 12px;
   font-size: 16px;
-  word-wrap: break-word;
-  width: auto; /* 🔥 내용 길이에 맞춰 유동적으로 조정 */
-  max-width: 75%; /* 🔥 채팅 컨테이너의 75%까지 확장 가능 */
+  width: auto;
+  max-width: 75%; /* 🔥 컨테이너 75%까지 확장 가능 */
   display: inline-block;
+  white-space: nowrap; /* 🔥 한 줄 유지 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 🔥 너무 긴 텍스트는 ...으로 표시 */
 }
+
 
 /* 📌 보낸 메시지 스타일 */
 .message-container.to .message-bubble {

@@ -32,13 +32,16 @@
                                     <img src="/resource/co.ico" class="favicon">
                                 </div>
                                 <div class="message-content">
-                                    <div class="message-author"><%= post.author %></div>
+                                    <div class="message-header">
+                                        <span class="message-author"><%= post.author %></span>  <!-- 🔥 글쓴이 아이디 표시 -->
+                                        <span class="message-time"><%= post.created_at %></span> <!-- 🔥 날짜 오른쪽 정렬 -->
+                                    </div>
                                     <div class="message-bubble">
                                         <p><%= post.title %></p>
                                     </div>
-                                    <div class="message-time"><%= post.created_at %></div>
                                 </div>
                             </div>
+                            
                         <% }); %>
                     </div>
 

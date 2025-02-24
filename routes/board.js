@@ -38,19 +38,15 @@ router.get('/', async (req, res) => {
 // 새 글 등록 (하단 입력창에서 전송)
 router.post('/write', async (req, res) => {
     const { title } = req.body;
-    const author = req.user ? req.user.username : '익명'; 
-
-    if (!title || title.length > 50) {
-        return res.status(400).json({ error: '한마디는 50자 이내로 입력해야 합니다.' });
-    }
+    const author = req.session.user ? req.session.user.username : '익명'; // 🔥 세션에서 사용자명 가져오기
 
     const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
         await db.queryDatabase(query, [title, author]);
-        res.status(200).json({ message: '등록 완료' });
+        res.redirect('/board');
     } catch (err) {
-        console.error('❌ DB 에러:', err);
-        res.status(500).json({ error: 'DB 에러 발생' });
+        console.error('DB 에러:', err);
+        res.status(500).send('DB 에러 발생');
     }
 });
 
