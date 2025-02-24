@@ -43,8 +43,9 @@ body {
   border-radius: 12px;
   font-size: 16px;
   word-wrap: break-word;
-  max-width: 80%;
+  max-width: 66%; /* 컨테이너의 2/3 크기로 설정 */
 }
+
 
 /* 📌 보낸 메시지 스타일 */
 .message-container.to .message-bubble {
