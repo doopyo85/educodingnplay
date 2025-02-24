@@ -1,9 +1,13 @@
 <head>
-    <!-- Bootstrap Icons CDN 추가 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <title>일해라 너구리</title>
 </head>
 
 <main class="container chat-container">
+    <!-- 타이틀 -->
+    <h1 class="chat-title">일해라 너구리</h1>
+    <h2 class="chat-subtitle">너구리톡</h2>
+
     <!-- 검색 폼 -->
     <div class="search-box">
         <form id="search-form" method="GET" action="/board/search">
@@ -20,12 +24,12 @@
     <!-- 채팅 스타일 게시글 목록 -->
     <div class="chat-box" id="chat-box">
         <% posts.forEach(post => { %>
-            <div class="chat-message <% if (user && user.username === post.author) { %> right <% } else { %> left <% } %>">
+            <div class="chat-message-card <% if (user && user.username === post.author) { %> right <% } else { %> left <% } %>">
                 <div class="chat-profile-box">
                     <img src="/default-profile.png" class="chat-profile">
                 </div>
                 <div class="chat-content">
-                    <div class="chat-author"><%= post.author %></div>
+                    <div class="chat-author"><%= post.author %> 센터</div>
                     <div class="chat-text"><%= post.title %></div>
                     <div class="chat-time"><%= post.created_at %></div>
                 </div>
@@ -38,7 +42,7 @@
         <% }); %>
     </div>
 
-    <!-- 입력창 (게시판 하단 고정) -->
+    <!-- 입력창 -->
     <div class="chat-input-box">
         <textarea id="chat-input" placeholder="한마디를 입력하세요 (최대 50자)" maxlength="50"></textarea>
         <button id="send-btn"><i class="bi bi-send"></i></button>
@@ -46,22 +50,13 @@
 </main>
 
 <script>
-    // 글 삭제 요청
     function deletePost(postId) {
         if (!confirm("정말 삭제하시겠습니까?")) return;
-
         fetch(`/board/delete/${postId}`, { method: 'GET' })
-            .then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert("삭제 실패");
-                }
-            })
+            .then(response => response.ok ? location.reload() : alert("삭제 실패"))
             .catch(error => console.error("삭제 에러:", error));
     }
 
-    // 글 작성 요청
     document.getElementById('send-btn').addEventListener('click', sendMessage);
     document.getElementById('chat-input').addEventListener('keypress', function(event) {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -74,18 +69,15 @@
         const inputField = document.getElementById('chat-input');
         const message = inputField.value.trim();
         if (!message) return;
-
         fetch('/board/write', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: message })
-        })
-        .then(response => {
+        }).then(response => {
             if (response.ok) {
-                inputField.value = ''; 
+                inputField.value = '';
                 location.reload();
             }
-        })
-        .catch(error => console.error('에러 발생:', error));
+        }).catch(error => console.error('에러 발생:', error));
     }
 </script>
