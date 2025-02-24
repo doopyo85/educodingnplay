@@ -25,39 +25,36 @@
             <!-- 왼쪽: 채팅 컨테이너 -->
             <div class="col-md-6">
                 <main class="direct-message">
-                    <!-- 검색 폼 -->
-                    <div class="search-box">
-                        <form id="search-form" method="GET" action="/board/search">
-                            <select class="search-type" id="search-type" name="searchType">
-                                <option>글 한 마디</option>
-                                <option>닉네임</option>
-                                <option>해시태그</option>
-                            </select>
-                            <input type="text" placeholder="검색어..." id="search-value" name="searchValue">
-                            <button type="submit"><i class="bi bi-search"></i></button>
-                        </form>
+                    <div class="nav">
+                        <a href="/">
+                            <i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+                            <span class="screen-reader-text">뒤로 가기</span>
+                        </a>
+                        <h2>너구리톡 채팅</h2>
+                        <a href="#">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                            <span class="screen-reader-text">프로필</span>
+                        </a>
                     </div>
 
-                    <!-- 채팅 스타일 게시글 목록 -->
-                    <div class="messages">
+                    <!-- 메시지 목록 -->
+                    <div class="messages" id="chat-box">
                         <% posts.forEach(post => { %>
                             <div class="message <% if (user && user.username === post.author) { %> from <% } else { %> to <% } %>">
-                                <div class="favicon">
-                                    <img src="/default-profile.png" class="chat-profile">
-                                </div>
+                                <img src="/default-profile.png" class="favicon">
+                                <span class="time"><%= post.created_at %></span>
                                 <p><%= post.title %></p>
-                                <div class="time"><%= post.created_at %></div>
-                                <% if (user && user.username === post.author) { %>
-                                    <button class="material-delete" onclick="deletePost(<%= post.id %>)">✖</button>
-                                <% } %>
                             </div>
                         <% }); %>
                     </div>
 
                     <!-- 입력창 -->
                     <div class="new">
-                        <input type="text" class="new-input" id="chat-input" placeholder="한마디를 입력하세요 (최대 50자)" maxlength="50">
-                        <button class="material-button" id="send-btn"><i class="bi bi-send"></i></button>
+                        <textarea class="new-input" id="chat-input" placeholder="한마디를 입력하세요 (최대 50자)" maxlength="50"></textarea>
+                        <button type="submit" class="material-button" id="send-btn">
+                            <i class="fa fa-comment" aria-hidden="true"></i>
+                            <span class="screen-reader-text">보내기</span>
+                        </button>
                     </div>
                 </main>
             </div>
@@ -79,4 +76,5 @@
 
     <script src="/header.js"></script>
     <script src="/tasks.js"></script> <!-- 업무 리스트 로딩용 스크립트 추가 -->
+    <script src="/chat.js"></script> <!-- 채팅 기능 추가 -->
 </body>

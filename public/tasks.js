@@ -13,13 +13,21 @@ function loadTasks() {
             taskList.innerHTML = "";
 
             tasks.forEach(task => {
-                const [name, progress] = task;
+                const [name, comment, progress] = task;
+
+                // 진행도 값이 없거나 숫자가 아니면 기본값 0% 설정
+                let progressValue = 0;
+                if (progress) {
+                    progressValue = parseInt(progress.replace('%', '').trim()) || 0;
+                }
+
                 const taskCard = `
                     <div class="task-card">
                         <div class="task-info">
                             <div class="task-name">${name}</div>
+                            <div class="task-comment">${comment || "설명 없음"}</div>
                             <div class="progress-bar">
-                                <div class="progress" style="width: ${progress}%;"></div>
+                                <div class="progress" style="width: ${progressValue}%;"></div>
                             </div>
                         </div>
                         <button class="like-btn"><i class="bi bi-heart"></i></button>
