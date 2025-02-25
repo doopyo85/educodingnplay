@@ -662,13 +662,12 @@ app.get('/entry', (req, res) => {
 // Tasks 가져오기(너구리톡)
 app.get('/api/get-task-data', async (req, res) => {
   try {
-    const data = await getSheetData('Tasks!A2:C'); // 'Tasks' 시트에서 A2:C 범위 가져오기
-    res.json(data);
+      const data = await getSheetData('Tasks!A2:C');
+      res.json(data);
   } catch (error) {
-    res.status(500).json({ error: '업무 데이터를 불러오는 중 오류가 발생했습니다.' });
+      res.status(500).json({ error: '업무 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
-
 
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {

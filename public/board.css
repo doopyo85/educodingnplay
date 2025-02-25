@@ -14,13 +14,6 @@ body {
   flex-direction: column;
 }
 
-/* 📌 업무 컨테이너 너비 조정 */
-.task-container {
-  width: 100%; /* 부모 요소인 col-6의 100% */
-  max-width: none; /* 최대 너비 제한 해제 */
-  padding: 20px;
-}
-
 /* 📌 메시지 목록 (스크롤 가능하도록 설정) */
 .messages {
   flex-grow: 1; /* 🔥 가변 크기 */
@@ -129,4 +122,34 @@ body {
   cursor: pointer;
   margin-left: 8px;
   font-size: 16px;
+}
+
+/* ------여기서부터 Task-----*/
+
+/* 📌 업무 컨테이너 너비 조정 */
+.task-container {
+  width: 100%; /* 부모 요소인 col-6의 100% */
+  max-width: none; /* 최대 너비 제한 해제 */
+  padding: 20px;
+}
+
+
+.task-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.progress {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+}
+
+.progress-bar {
+  background: #4CAF50;
+  height: 100%;
+  border-radius: 5px;
 }
