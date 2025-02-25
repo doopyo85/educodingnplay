@@ -20,7 +20,7 @@
     </style>
 </head>
 <body>
-    <iframe id="entry-iframe" src="http://localhost:8080" allowfullscreen></iframe>
+    <iframe id="entry-iframe" src="https://playentry.org/ws/" allowfullscreen></iframe>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -28,16 +28,7 @@
             const projectFile = '<%= projectFile %>';
             
             if (projectFile) {
-                // .ent 파일 URL을 iframe에 전달
-                iframe.src = `http://localhost:8080?project_file=${encodeURIComponent(projectFile)}`;
-                
-                // 메시지를 통해 iframe 내부에 프로젝트 파일 경로 전달
-                iframe.onload = function() {
-                    iframe.contentWindow.postMessage({
-                        type: 'loadProject',
-                        projectFile: projectFile
-                    }, '*');
-                };
+                iframe.src = `https://playentry.org/ws/?project_file=${encodeURIComponent(projectFile)}`;
             }
         });
     </script>
