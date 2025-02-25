@@ -19,34 +19,6 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-    <!-- 네임스페이스 초기화 -->
-    <script>
-        // Lang 네임스페이스
-        var Lang = {
-            Blocks: {},
-            Workspace: {},
-            Menus: {}
-        };
-
-        // EntryStatic 네임스페이스
-        var EntryStatic = {
-            fontFamily: "NanumGothic",
-            initOptions: {
-                type: 'workspace',
-                textCodingEnable: true,
-                basketNum: 10,
-                baseUrl: '<%= baseUrl %>',
-            }
-        };
-
-        // EntryTool 네임스페이스
-        window.EntryTool = {};
-    </script>
-
-    <!-- Entry Tool 및 Entry -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
-
     <style>
         html, body {
             margin: 0;
@@ -63,85 +35,93 @@
             bottom: 0;
             background: #fff;
         }
+        #dataTable {
+            display: none;
+            position: absolute;
+        }
     </style>
 </head>
 <body>
     <div id="workspace">
-        <!-- 왼쪽 패널 -->
-        <div id="objectSelector"></div>
-        <!-- 중앙 패널 -->
-        <div id="board">
-            <div id="boardEditor">
-                <div id="canvas"></div>
+        <!-- 필수 DOM 요소들 -->
+        <div id="header"></div>
+        <div id="container">
+            <div id="objectView"></div>
+            <div id="stageView">
                 <div id="stage"></div>
                 <div id="engineContainer"></div>
+                <div id="canvas"></div>
             </div>
             <div id="propertyPanel"></div>
+            <div id="codeView">
+                <div id="blockMenu"></div>
+                <div id="workspaceBoard"></div>
+            </div>
+            <div id="dataTable"></div>
+            <div id="pictureView"></div>
+            <div id="soundView"></div>
         </div>
-        <!-- 오른쪽 패널 -->
-        <div id="codeWrapper">
-            <div id="blockMenu"></div>
-            <div id="workspaceBoard"></div>
-            <div id="targetSelector"></div>
-        </div>
-        <!-- 기타 요소 -->
-        <div id="overlayBoard" class="entryOverlayBoard"></div>
-        <div id="entryCategoryLayer"></div>
-        <div id="entryBlockLayer"></div>
-        <div id="entryAssembleBlock"></div>
-        <div id="entryVariableContainer"></div>
-        <div id="entryExtension"></div>
     </div>
+
+    <!-- Entry Tool 및 Entry -->
+    <script src="/js/entry/entry-tool.js"></script>
+    <script src="/js/entry/entry.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Entry Tool 초기화 대기
-            const checkEntryTool = setInterval(() => {
-                if (typeof EntryTool !== 'undefined') {
-                    clearInterval(checkEntryTool);
-                    initializeEntry();
-                }
-            }, 100);
-
-            function initializeEntry() {
-                try {
-                    // Entry 초기화
-                    Entry.init(document.getElementById('workspace'), {
-                        type: 'workspace',
-                        textCodingEnable: true,
-                        useCodeView: true,
-                        block: {
-                            category: true,
-                            design: 'entry'
-                        },
-                        workspace: {
-                            displayObjectView: true
-                        }
+            // Entry 모듈이 로드될 때까지 대기
+            let entryInstance = null;
+            
+            // EntryJS가 전역 객체 또는 UMD 모듈로 노출되는지 확인
+            if (typeof Entry === 'function') {
+                // Entry가 생성자 함수인 경우
+                entryInstance = new Entry({
+                    container: document.getElementById('workspace'),
+                    type: 'workspace'
+                });
+                
+                loadProject();
+            } else if (typeof Entry === 'object') {
+                // Entry가 객체로 노출된 경우
+                if (typeof Entry.init === 'function') {
+                    Entry.init({
+                        container: document.getElementById('workspace'),
+                        type: 'workspace'
                     });
-
-                    // 프로젝트 파일이 있는 경우 로드
-                    const projectFile = '<%= projectFile %>';
-                    if (projectFile) {
-                        fetch(projectFile)
-                            .then(response => response.json())
-                            .then(project => {
+                    
+                    loadProject();
+                } else {
+                    console.error('Entry.init is not available');
+                }
+            } else {
+                console.error('Entry is not available or not properly loaded');
+            }
+            
+            function loadProject() {
+                const projectFile = '<%= projectFile %>';
+                if (projectFile) {
+                    fetch(projectFile)
+                        .then(response => response.json())
+                        .then(project => {
+                            if (entryInstance) {
+                                entryInstance.loadProject(project);
+                                entryInstance.start();
+                            } else if (Entry) {
                                 Entry.loadProject(project);
-                                Entry.playground.changeViewMode('code');
                                 Entry.start();
-                            })
-                            .catch(error => {
-                                console.error('프로젝트 로드 실패:', error);
-                                Entry.start();
-                            });
-                    } else {
+                            }
+                        })
+                        .catch(error => {
+                            console.error('프로젝트 로드 실패:', error);
+                        });
+                } else {
+                    if (entryInstance) {
+                        entryInstance.loadProject();
+                        entryInstance.start();
+                    } else if (Entry) {
                         Entry.loadProject();
                         Entry.start();
                     }
-
-                    console.log('Entry 초기화 완료');
-                } catch (error) {
-                    console.error('Entry 초기화 오류:', error);
-                    console.error('Error stack:', error.stack);
                 }
             }
         });
