@@ -44,8 +44,22 @@ app.get('*', (req, res) => {
             General: {},
             Classes: {},
             DataAnalytics: {},
+            Messages: {},  // 메시지 관련 네임스페이스 추가
             template: {},
             Buttons: {}
+        };
+        
+        // Messages 초기화
+        Lang.Messages = {
+            hello: "안녕하세요"
+        };
+        
+        // 하드웨어 블록 관련 오류 해결
+        window.Entry = window.Entry || {};
+        window.Entry.HWMonitor = {
+            hwModule: {
+                buzzer: function() {}
+            }
         };
         
         // EntryTool 등 다른 네임스페이스
@@ -73,75 +87,70 @@ app.get('*', (req, res) => {
                         return;
                     }
                     
-                    // 다양한 초기화 방법 시도
+                    // 몇 가지 오류 우회
+                    Entry.setMessages = Entry.setMessages || function(msg) { 
+                        console.log('setMessages called with:', msg);
+                    };
+                    
+                    // 하드웨어 블록 비활성화
+                    Entry.HARDWARE_BLOCK = false;
+                    
+                    // Entry 초기화
+                    var initOption = {
+                        type: 'workspace',
+                        container: 'entryContainer',
+                        blockInjectOption: {
+                            importHardware: false
+                        },
+                        hardwareEnable: false,
+                        loadProject: false
+                    };
+                    
                     if (typeof Entry.init === 'function') {
-                        console.log("Entry.init 함수 사용");
-                        Entry.init({
-                            type: 'workspace',
-                            container: 'entryContainer'
-                        });
+                        Entry.init(initOption);
                     } else if (typeof Entry === 'function') {
-                        console.log("Entry 생성자 함수 사용");
-                        window.entry = new Entry({
-                            type: 'workspace',
-                            container: 'entryContainer'
-                        });
-                    } else {
-                        console.log("대체 초기화 방법 시도");
-                        // 기타 초기화 시도...
+                        window.entry = new Entry(initOption);
                     }
                     
-                    // 프로젝트 로드 시도
-                    if (projectFile) {
-                        fetch(projectFile)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (typeof Entry.loadProject === 'function') {
-                                    Entry.loadProject(data);
-                                } else if (window.entry && typeof window.entry.loadProject === 'function') {
-                                    window.entry.loadProject(data);
-                                }
-                                
-                                // 시작 시도
-                                if (typeof Entry.start === 'function') {
-                                    Entry.start();
-                                } else if (window.entry && typeof window.entry.start === 'function') {
-                                    window.entry.start();
-                                }
-                            })
-                            .catch(error => {
-                                console.error("프로젝트 로드 실패:", error);
-                                // 빈 프로젝트 로드
-                                if (typeof Entry.loadProject === 'function') {
-                                    Entry.loadProject();
-                                } else if (window.entry && typeof window.entry.loadProject === 'function') {
-                                    window.entry.loadProject();
-                                }
-                                
-                                // 시작 시도
-                                if (typeof Entry.start === 'function') {
-                                    Entry.start();
-                                } else if (window.entry && typeof window.entry.start === 'function') {
-                                    window.entry.start();
-                                }
-                            });
-                    } else {
-                        // 빈 프로젝트 로드
-                        if (typeof Entry.loadProject === 'function') {
-                            Entry.loadProject();
-                        } else if (window.entry && typeof window.entry.loadProject === 'function') {
-                            window.entry.loadProject();
-                        }
-                        
-                        // 시작 시도
-                        if (typeof Entry.start === 'function') {
-                            Entry.start();
-                        } else if (window.entry && typeof window.entry.start === 'function') {
-                            window.entry.start();
-                        }
+                    // 기본 프로젝트 로드
+                    if (typeof Entry.loadProject === 'function') {
+                        Entry.loadProject();
+                    } else if (window.entry && typeof window.entry.loadProject === 'function') {
+                        window.entry.loadProject();
+                    }
+                    
+                    // Entry 시작
+                    if (typeof Entry.start === 'function') {
+                        Entry.start();
+                    } else if (window.entry && typeof window.entry.start === 'function') {
+                        window.entry.start();
                     }
                     
                     console.log("Entry 초기화 완료");
+                    
+                    // 프로젝트 파일이 있는 경우 나중에 시도
+                    if (projectFile) {
+                        setTimeout(function() {
+                            console.log("프로젝트 파일 로드 시도:", projectFile);
+                            try {
+                                fetch(projectFile)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log("프로젝트 데이터 로드됨");
+                                        if (typeof Entry.loadProject === 'function') {
+                                            Entry.loadProject(data);
+                                        } else if (window.entry && typeof window.entry.loadProject === 'function') {
+                                            window.entry.loadProject(data);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error("프로젝트 로드 실패:", error);
+                                    });
+                            } catch (projectError) {
+                                console.error("프로젝트 로드 오류:", projectError);
+                            }
+                        }, 1000);
+                    }
                 } catch (error) {
                     console.error("Entry 초기화 오류:", error);
                     document.getElementById('entryContainer').innerHTML = 
