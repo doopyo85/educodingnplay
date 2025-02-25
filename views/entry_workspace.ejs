@@ -15,6 +15,26 @@
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 의존성 네임스페이스 정의 -->
+    <script>
+        // EntryTool 정의
+        window.EntryTool = {};
+        
+        // EntryVideoLegacy 정의
+        window.EntryVideoLegacy = {};
+        
+        // EntryPaint 정의
+        window.EntryPaint = {};
+        
+        // EntrySoundEditor 정의
+        window.EntrySoundEditor = {};
+    </script>
+    
+    <!-- Entry Tool 먼저 로드 -->
+    <script src="/js/entry/entry-tool.js"></script>
     
     <style>
         html, body {
@@ -33,94 +53,58 @@
 <body>
     <div id="workspace"></div>
     
-    <!-- EntryJS 로드 -->
+    <!-- Entry 마지막에 로드 -->
     <script src="/js/entry/entry.js"></script>
     
     <script>
-        // EntryVideoLegacy를 빈 객체로 정의하여 오류 회피
-        window.EntryVideoLegacy = {};
-        
-        // 프로젝트 파일 로드 및 초기화
-        document.addEventListener('DOMContentLoaded', async function() {
-            const projectFile = '<%= projectFile %>';
-            
-            // 메시지 수신 처리
-            window.addEventListener('message', async function(event) {
-                console.log('Message received:', event.data);
-                // 모든 도메인에서의 메시지 허용 (개발 환경)
-                if (event.data && event.data.type === 'loadProject') {
-                    await loadEntryProject(event.data.projectFile);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Entry가 로드될 때까지 대기
+            const checkInterval = setInterval(() => {
+                if (typeof window.Entry !== 'undefined') {
+                    clearInterval(checkInterval);
+                    console.log('Entry is loaded');
+                    setupEntry();
                 }
-            });
+            }, 100);
             
-            // URL 파라미터로 전달된 경우 처리
-            if (projectFile) {
-                console.log('Loading project from URL parameter:', projectFile);
-                await loadEntryProject(projectFile);
-            } else {
-                console.log('No project file specified, initializing empty editor');
-                initializeEntry();
-            }
-            
-            // Entry 프로젝트 로드 함수
-            async function loadEntryProject(projectUrl) {
+            function setupEntry() {
                 try {
-                    console.log('Fetching project:', projectUrl);
-                    const response = await fetch(projectUrl);
-                    const projectData = await response.json();
-                    console.log('Project data loaded');
+                    // 프로젝트 파일 확인
+                    const projectFile = '<%= projectFile %>';
+                    console.log('Project file:', projectFile);
                     
-                    // 초기화 후 로드
-                    initializeEntry(projectData);
-                } catch (error) {
-                    console.error('프로젝트 로드 실패:', error);
-                    initializeEntry();
-                }
-            }
-            
-            // Entry 초기화 함수
-            function initializeEntry(projectData) {
-                try {
-                    console.log('Initializing Entry');
-                    // EntryJS 생성자가 있는 경우
-                    if (typeof Entry === 'function') {
-                        console.log('Entry is a constructor');
-                        window.entryInstance = new Entry({
-                            container: 'workspace'
-                        });
-                        
-                        if (projectData) {
-                            window.entryInstance.loadProject(projectData);
-                        }
-                        window.entryInstance.start();
-                    }
-                    // EntryJS가 객체로 노출된 경우
-                    else if (typeof Entry === 'object') {
-                        console.log('Entry is an object');
-                        if (typeof Entry.initWorkspace === 'function') {
-                            Entry.initWorkspace({
-                                container: 'workspace'
-                            });
-                        } else if (typeof Entry.init === 'function') {
-                            Entry.init({
-                                container: 'workspace'
-                            });
+                    // EntryJS가 노출하는 인터페이스 확인
+                    console.log('Entry type:', typeof Entry);
+                    console.log('Entry methods:', Object.keys(Entry));
+                    
+                    // 임시 Entry 객체 생성
+                    if (typeof Entry === 'object') {
+                        if (Entry.playground) {
+                            console.log('Initializing Entry playground');
+                            Entry.enableForceMouseMove = true;
+                            
+                            // 프로젝트 파일이 있으면 로드 시도
+                            if (projectFile) {
+                                fetch(projectFile)
+                                    .then(r => r.json())
+                                    .then(project => {
+                                        console.log('Project loaded, trying to load into Entry');
+                                        if (typeof Entry.loadProject === 'function') {
+                                            Entry.loadProject(project);
+                                        } else {
+                                            console.error('Entry.loadProject is not available');
+                                        }
+                                    })
+                                    .catch(err => console.error('Failed to load project:', err));
+                            }
                         } else {
-                            console.warn('No suitable initialization method found for Entry');
+                            console.log('Entry playground not available');
                         }
-                        
-                        if (projectData) {
-                            Entry.loadProject(projectData);
-                        } else {
-                            Entry.loadProject();
-                        }
-                        Entry.start();
                     } else {
-                        console.error('Entry is not available:', typeof Entry);
+                        console.error('Entry is not an object or not available');
                     }
-                    console.log('Entry initialization completed');
                 } catch (error) {
-                    console.error('Entry 초기화 오류:', error);
+                    console.error('Entry setup error:', error);
                 }
             }
         });
