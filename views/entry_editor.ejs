@@ -4,21 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Editor</title>
-
-    <!-- Entry CSS -->
-    <link href="/js/entry/entry.css" rel="stylesheet" />
-    <link href="/js/entry/entry-tool.css" rel="stylesheet" />
-
-    <!-- 의존성 라이브러리들 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
-    <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
-    <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
     <style>
         html, body {
             margin: 0;
@@ -27,102 +12,23 @@
             height: 100%;
             overflow: hidden;
         }
-        #workspace {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #fff;
-        }
-        #dataTable {
-            display: none;
-            position: absolute;
+        #entry-iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <div id="workspace">
-        <!-- 필수 DOM 요소들 -->
-        <div id="header"></div>
-        <div id="container">
-            <div id="objectView"></div>
-            <div id="stageView">
-                <div id="stage"></div>
-                <div id="engineContainer"></div>
-                <div id="canvas"></div>
-            </div>
-            <div id="propertyPanel"></div>
-            <div id="codeView">
-                <div id="blockMenu"></div>
-                <div id="workspaceBoard"></div>
-            </div>
-            <div id="dataTable"></div>
-            <div id="pictureView"></div>
-            <div id="soundView"></div>
-        </div>
-    </div>
-
-    <!-- Entry Tool 및 Entry -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
+    <iframe id="entry-iframe" src="https://playentry.org/ws/" allowfullscreen></iframe>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Entry 모듈이 로드될 때까지 대기
-            let entryInstance = null;
+            const iframe = document.getElementById('entry-iframe');
+            const projectFile = '<%= projectFile %>';
             
-            // EntryJS가 전역 객체 또는 UMD 모듈로 노출되는지 확인
-            if (typeof Entry === 'function') {
-                // Entry가 생성자 함수인 경우
-                entryInstance = new Entry({
-                    container: document.getElementById('workspace'),
-                    type: 'workspace'
-                });
-                
-                loadProject();
-            } else if (typeof Entry === 'object') {
-                // Entry가 객체로 노출된 경우
-                if (typeof Entry.init === 'function') {
-                    Entry.init({
-                        container: document.getElementById('workspace'),
-                        type: 'workspace'
-                    });
-                    
-                    loadProject();
-                } else {
-                    console.error('Entry.init is not available');
-                }
-            } else {
-                console.error('Entry is not available or not properly loaded');
-            }
-            
-            function loadProject() {
-                const projectFile = '<%= projectFile %>';
-                if (projectFile) {
-                    fetch(projectFile)
-                        .then(response => response.json())
-                        .then(project => {
-                            if (entryInstance) {
-                                entryInstance.loadProject(project);
-                                entryInstance.start();
-                            } else if (Entry) {
-                                Entry.loadProject(project);
-                                Entry.start();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('프로젝트 로드 실패:', error);
-                        });
-                } else {
-                    if (entryInstance) {
-                        entryInstance.loadProject();
-                        entryInstance.start();
-                    } else if (Entry) {
-                        Entry.loadProject();
-                        Entry.start();
-                    }
-                }
+            if (projectFile) {
+                iframe.src = `https://playentry.org/ws/?project_file=${encodeURIComponent(projectFile)}`;
             }
         });
     </script>
