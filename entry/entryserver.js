@@ -1,4 +1,3 @@
-// entryserver.js
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -7,8 +6,17 @@ const PORT = 8080;
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, '../public')));
 
-// 최소한의 HTML 페이지 제공
-app.get('/', (req, res) => {
+// 모든 요청에 CORS 헤더 추가
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+// 모든 경로에 대해 Entry 에디터 제공
+app.get('*', (req, res) => {
+  const projectFile = req.query.project_file || '';
+  
   const html = `
 <!DOCTYPE html>
 <html>
@@ -17,7 +25,6 @@ app.get('/', (req, res) => {
     <title>Entry Editor</title>
     <link href="/js/entry/entry.css" rel="stylesheet" />
     
-    <!-- 의존성 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
@@ -33,35 +40,38 @@ app.get('/', (req, res) => {
 <body>
     <div id="entryCanvas"></div>
     
-    <!-- EntryTool 등의 네임스페이스 정의 -->
     <script>
+        // 기본 네임스페이스 정의
         window.EntryTool = {};
         window.EntryVideoLegacy = {};
         window.EntryPaint = {};
         window.EntrySoundEditor = {};
     </script>
     
-    <!-- EntryJS -->
-    <script src="/js/entry/entry-tool.js"></script>
     <script src="/js/entry/entry.js"></script>
     
     <script>
-        // 프로젝트 파일 URL (선택적)
-        const projectFile = "${req.query.project_file || ''}";
+        console.log("Entry 초기화 시도");
+        console.log("Entry 객체:", typeof Entry);
         
-        // 간단하게 로딩 시도
         $(document).ready(function() {
+            // 로딩 확인
+            if (typeof Entry === 'undefined') {
+                document.getElementById('entryCanvas').innerHTML = "Entry 라이브러리를 불러올 수 없습니다.";
+                return;
+            }
+            
             try {
-                console.log("Entry 로딩 시도");
+                // 프로젝트 파일
+                const projectFile = "${projectFile}";
                 
-                // 일반적인 초기화 방식 시도
-                if (typeof Entry === 'object' && Entry.init) {
-                    Entry.init({
-                        container: 'entryCanvas',
-                        type: 'workspace'
-                    });
+                // Entry 객체 메서드 확인 및 디버깅
+                console.log("Entry 메서드:", Object.keys(Entry));
+                
+                // 간단한 초기화 시도
+                if (typeof Entry.getMainWS === 'function') {
+                    Entry.init('entryCanvas');
                     
-                    // 프로젝트 파일이 있으면 로드
                     if (projectFile) {
                         fetch(projectFile)
                             .then(r => r.json())
@@ -74,20 +84,20 @@ app.get('/', (req, res) => {
                     Entry.start();
                     console.log("Entry 초기화 완료");
                 } else {
-                    console.error("Entry 객체를 찾을 수 없거나 초기화할 수 없습니다");
+                    document.getElementById('entryCanvas').innerHTML = "Entry 객체를 초기화할 수 없습니다.";
                 }
             } catch (e) {
                 console.error("Entry 초기화 오류", e);
+                document.getElementById('entryCanvas').innerHTML = "Entry 초기화 중 오류 발생: " + e.message;
             }
         });
     </script>
 </body>
-</html>
-  `;
+</html>`;
   
   res.send(html);
 });
 
 app.listen(PORT, () => {
-  console.log(`Entry server running at http://localhost:${PORT}`);
+  console.log(`Entry 서버가 http://localhost:${PORT} 에서 실행 중입니다`);
 });
