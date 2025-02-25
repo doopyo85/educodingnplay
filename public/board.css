@@ -125,23 +125,41 @@ body {
 }
 
 /* ------여기서부터 Task-----*/
-
-/* 📌 업무 컨테이너 너비 조정 */
+/* 📌 업무 카드 컨테이너 */
 .task-container {
-  width: 100%; /* 부모 요소인 col-6의 100% */
-  max-width: none; /* 최대 너비 제한 해제 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 }
 
-
+/* 📌 업무 카드 스타일 */
 .task-card {
   background: #fff;
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
+  width: 100%;
+  max-width: 400px; /* 카드 최대 너비 */
 }
 
+/* 📌 업무명 (A열) */
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* 📌 코멘트 (B열) */
+.card-comment {
+  font-size: 0.9rem;
+  color: gray;
+  margin-bottom: 10px;
+}
+
+/* 📌 진행률 바 */
 .progress {
   height: 10px;
   background: #e0e0e0;
@@ -152,4 +170,7 @@ body {
   background: #4CAF50;
   height: 100%;
   border-radius: 5px;
+  font-size: 0.8rem;
+  color: white;
+  text-align: center;
 }
