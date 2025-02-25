@@ -14,196 +14,208 @@ app.get('*', (req, res) => {
 <head>
     <meta charset="UTF-8">
     <title>Entry Editor</title>
-    <link href="/js/entry/entry.css" rel="stylesheet" />
-    <link href="/js/entry/entry-tool.css" rel="stylesheet" />
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <!-- 스타일시트 -->
+    <link href="/js/entry/entry.css" rel="stylesheet" />
+    
+    <!-- 기본 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
         #entryContainer { width: 100%; height: 100%; }
+        #errorMessage { 
+            display: none; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            max-width: 80%;
+        }
     </style>
 </head>
 <body>
     <div id="entryContainer"></div>
+    <div id="errorMessage"></div>
     
-    <!-- 하드웨어 관련 모듈 대체 -->
+    <!-- 패치 스크립트 - Entry 로드 전에 실행됨 -->
     <script>
-        // Lang 객체 (언어 정의)
-        window.Lang = {
-            Blocks: {},
-            Workspace: {},
-            Menus: {},
-            General: {},
-            Classes: {},
-            DataAnalytics: {},
-            Messages: {
-                hello: "안녕하세요"
-            },
-            template: {},
-            Buttons: {}
-        };
-        
-        // 필요한 네임스페이스들 초기화
-        window.EntryTool = {
-            DataAnalytics: function() { return {}; }
-        };
-        window.EntryPaint = {};
-        window.EntrySoundEditor = {};
-        window.EntryVideoLegacy = {};
-        
-        // 하드웨어 관련 기능 비활성화
-        window.__ENTRY_HARDWARE_MODULES = [];
-        window.__ENTRY_HARDWARE_LIST = [];
-        
-        // Entry 기본 객체 (하드웨어 관련 오류 방지)
-        window.Entry = window.Entry || {};
-        Entry.hw = {
-            initializeHardware: function() {},
-            disconnectHardware: function() {},
-            connectToBleDevice: function() {},
-            sendMessage: function() {},
-            downloadConnector: function() {},
-            downloadGuide: function() {},
-            setSocketMessage: function() {},
-            disconnectSocket: function() {},
-            update: function() {},
-            setDigitalPortValue: function() {},
-            getAnalogPortValue: function() {},
-            getDigitalPortValue: function() {},
-            sendQueue: {},
-            portData: {}
-        };
-        
-        // 모든 하드웨어 함수 대체
-        Entry.HW = {
-            TRIAL_LIMIT: 0,
-            HARDWARE_LIST: [],
-            programingLanguageList: [],
-            MODULES: [],
-            banAddList: [],
-            downloadConnector: function() {},
-            downloadGuide: function() {},
-            getHardwareModuleList: function() { return []; }
-        };
-        
-        // 하드웨어 블록 모의 객체
-        Entry.HWMonitor = {
-            prototype: {},
-            hwModule: { 
-                buzzer: function() {},
-                leds: {},
-                motor: function() {},
-                output: function() {}
-            }
-        };
-        
-        // 메시지 관련 기능 오버라이드
-        Entry.Utils = Entry.Utils || {};
-        Entry.Utils.setMessages = function() {};
-    </script>
-    
-    <!-- 스크립트 로드 -->
-    <script src="/js/entry/entry-tool.js"></script>
-    <script src="/js/entry/entry.js"></script>
-    
-    <script>
-        // 하드웨어 관련 기능 완전 비활성화
-        try {
-            // 하드웨어 관련 함수 무효화
-            const overrideMethods = [
-                'initHardware', 'connectToBleDevice', 'setSocketMessage',
-                'disconnectSocket', 'disconnectHardware', 'downloadConnector',
-                'downloadGuide', 'setDigitalPortValue', 'getAnalogPortValue', 
-                'getDigitalPortValue'
-            ];
-            
-            overrideMethods.forEach(function(method) {
-                if (Entry.hw && Entry.hw[method]) {
-                    Entry.hw[method] = function() { 
-                        console.log('Hardware method ' + method + ' called but disabled');
-                        return false;
+        // ----- 하드웨어 관련 패치 시작 -----
+        // 모든 하드웨어 기능 무력화를 위한 보호 조치
+        (function() {
+            // 전역 패치 함수
+            window.__patchEntryHardware = function() {
+                if (!window.Entry) window.Entry = {};
+                
+                // 하드웨어 관련 속성 및 메서드 모두 비활성화
+                var emptyFn = function() { return null; };
+                
+                // 하드웨어 속성 미리 정의
+                Entry.hw = {
+                    initializeHardware: emptyFn,
+                    disconnectHardware: emptyFn,
+                    update: emptyFn,
+                    downloadConnector: emptyFn,
+                    downloadGuide: emptyFn,
+                    setDigitalPortValue: emptyFn,
+                    getAnalogPortValue: emptyFn,
+                    sendQueue: {},
+                    portData: {}
+                };
+                
+                // 하드웨어 모니터 클래스 무효화
+                Entry.HWMonitor = function() {
+                    this.hwModule = { 
+                        buzzer: emptyFn,
+                        getPort: emptyFn,
+                        getHardwareVersion: emptyFn,
+                        leds: {},
+                        motor: emptyFn,
+                        output: emptyFn
                     };
-                }
+                    return this;
+                };
+                
+                // 하드웨어 설정 값 변경
+                Entry.HARDWARE_BLOCK = false;
+                window.__ENTRY_HARDWARE_MODULES = [];
+                window.__ENTRY_HARDWARE_LIST = [];
+                
+                console.log('[Entry] 하드웨어 기능이 비활성화되었습니다.');
+            };
+            
+            // 미리 한 번 실행
+            window.__patchEntryHardware();
+            
+            // Object.defineProperty를 사용해 Entry.HWMonitor 등이 변경되지 않도록 보호
+            Object.defineProperty(window, 'EntryHW', {
+                value: {
+                    downloadConnector: emptyFn,
+                    downloadGuide: emptyFn
+                },
+                writable: false,
+                configurable: false
             });
             
-            // 하드웨어 블록 비활성화
-            Entry.HARDWARE_BLOCK = false;
-            Entry.HARDWARE_LIST = [];
-            
-            if (Entry.block) {
-                for (var key in Entry.block) {
-                    if (key.includes('arduino') || key.includes('hw') || 
-                        key.includes('board') || key.includes('robot')) {
-                        delete Entry.block[key];
-                    }
-                }
+            // 메시지 관련 기능 대체
+            window.Lang = {
+                Blocks: {},
+                Workspace: {},
+                Menus: {},
+                General: {},
+                template: {},
+                Buttons: {},
+                Messages: { hello: "안녕하세요" },
+                DataAnalytics: {}
+            };
+        })();
+        
+        // Entry 로드 완료 후 추가 패치 적용 함수
+        function patchEntryAfterLoad() {
+            // Entry.Utils 패치
+            if (Entry.Utils) {
+                Entry.Utils.setMessages = function() {};
+                Entry.Utils.isChrome = function() { return true; };
             }
-        } catch (e) {
-            console.warn('Failed to disable hardware features:', e);
+            
+            // Entry.loadProject 패치
+            if (Entry.loadProject) {
+                const originalLoadProject = Entry.loadProject;
+                Entry.loadProject = function(project) {
+                    try {
+                        if (!project) {
+                            // 빈 프로젝트 구조
+                            project = {
+                                category: '',
+                                scenes: [{ name: 'Workspace', objects: [] }],
+                                variables: [],
+                                messages: [],
+                                functions: []
+                            };
+                        }
+                        return originalLoadProject.call(Entry, project);
+                    } catch (e) {
+                        console.error('프로젝트 로드 오류:', e);
+                        showErrorMessage('프로젝트 로드 오류: ' + e.message);
+                    }
+                };
+            }
+            
+            // 추가 하드웨어 패치
+            window.__patchEntryHardware();
+            
+            console.log('[Entry] 추가 패치가 적용되었습니다.');
         }
         
-        console.log("Entry 초기화 시작");
-        
+        // 오류 메시지 표시 함수
+        function showErrorMessage(message) {
+            var errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = '<h3>Entry 초기화 오류</h3><p>' + message + '</p>';
+        }
+    </script>
+    
+    <!-- Entry 스크립트 -->
+    <script src="/js/entry/entry.js"></script>
+    
+    <!-- 초기화 스크립트 -->
+    <script>
         $(document).ready(function() {
+            // Entry 로드 확인 및 초기화
             setTimeout(function() {
                 try {
-                    const projectFile = "${projectFile}";
-                    
-                    // Entry 초기화
-                    var options = {
-                        type: 'workspace',
-                        container: 'entryContainer',
-                        blockInjectOption: {
-                            importHardware: false
-                        },
-                        isForLecture: false,
-                        hardwareEnable: false
-                    };
-                    
-                    // 메시지 기능 재정의
-                    if (typeof Entry.Utils !== 'undefined') {
-                        Entry.Utils.setMessages = function() {};
+                    // Entry 객체 확인
+                    if (typeof Entry === 'undefined') {
+                        throw new Error('Entry 라이브러리를 불러올 수 없습니다.');
                     }
                     
-                    // 하드웨어 기능 오버라이드
-                    if (Entry.hwLiteConnect) {
-                        Entry.hwLiteConnect = function() { return false; };
-                    }
+                    // 추가 패치 적용
+                    patchEntryAfterLoad();
+                    
+                    // 프로젝트 파일 경로
+                    var projectFile = "${projectFile}";
+                    
+                    // 초기화 시도
+                    console.log('Entry 초기화 시작');
+                    
+                    // 기본 작업공간 초기화
+                    var container = document.getElementById('entryContainer');
+                    Entry.init(container);
                     
                     // 빈 프로젝트 로드
-                    if (Entry.loadProject) {
-                        // 기본 옵션 재정의
-                        Entry.loadProject._emptyProject = {
-                            category: '',
-                            scenes: [{
-                                name: 'Workspace',
-                                objects: []
-                            }],
-                            variables: [],
-                            messages: []
-                        };
-                        
-                        // 프로젝트 불러오기
-                        Entry.loadProject();
-                    } else {
-                        console.error('Entry.loadProject not found');
-                    }
+                    Entry.loadProject();
                     
-                    console.log("Entry 초기화 완료");
+                    // 시작
+                    Entry.start();
+                    
+                    console.log('Entry 초기화 완료');
+                    
+                    // 프로젝트 파일이 있으면 나중에 로드 (초기화 후)
+                    if (projectFile) {
+                        setTimeout(function() {
+                            fetch(projectFile)
+                                .then(function(response) { return response.json(); })
+                                .then(function(data) {
+                                    Entry.loadProject(data);
+                                })
+                                .catch(function(error) {
+                                    console.error('프로젝트 로드 실패:', error);
+                                });
+                        }, 1000);
+                    }
                 } catch (error) {
-                    console.error("Entry 초기화 오류:", error);
-                    document.getElementById('entryContainer').innerHTML = 
-                        "<h2>Entry 초기화 중 오류 발생</h2><p>" + error.message + "</p>";
+                    console.error('Entry 초기화 오류:', error);
+                    showErrorMessage(error.message);
                 }
-            }, 500);
+            }, 1000);
         });
     </script>
 </body>
