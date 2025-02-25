@@ -125,10 +125,10 @@ app.get('*', (req, res) => {
                 'getDigitalPortValue'
             ];
             
-            overrideMethods.forEach(method => {
+            overrideMethods.forEach(function(method) {
                 if (Entry.hw && Entry.hw[method]) {
                     Entry.hw[method] = function() { 
-                        console.log(`Hardware method ${method} called but disabled`);
+                        console.log('Hardware method ' + method + ' called but disabled');
                         return false;
                     };
                 }
@@ -139,7 +139,7 @@ app.get('*', (req, res) => {
             Entry.HARDWARE_LIST = [];
             
             if (Entry.block) {
-                for (let key in Entry.block) {
+                for (var key in Entry.block) {
                     if (key.includes('arduino') || key.includes('hw') || 
                         key.includes('board') || key.includes('robot')) {
                         delete Entry.block[key];
@@ -213,5 +213,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Entry 서버가 http://localhost:${PORT} 에서 실행 중입니다`);
+  console.log('Entry 서버가 http://localhost:' + PORT + ' 에서 실행 중입니다');
 });
