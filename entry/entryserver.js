@@ -1,3 +1,4 @@
+cat > /var/www/html/entry/entryserver.js << 'EOL'
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -136,3 +137,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log('Entry 서버가 http://localhost:' + PORT + ' 에서 실행 중입니다');
 });
+EOL
