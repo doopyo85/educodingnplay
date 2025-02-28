@@ -21,7 +21,7 @@ router.get('/login', (req, res) => {
     const title = '로그인';
     const body = `
       <div style="text-align: center;">
-        <img src="/resource/coding&academy_logo150x500.png" alt="로고" style="width: 150px; height: auto; margin-bottom: 10px;"/>
+        <img src="/resource/logo.png" alt="로고" style="width: 150px; height: auto; margin-bottom: 10px;"/>
       </div>
       <form id="loginForm">
         <input class="login" type="text" name="userID" placeholder="아이디" required>
