@@ -195,30 +195,34 @@ p {
 }
 
 /* 카드 내부 버튼 그룹 */
+/* 버튼 그룹 */
 .btn-group {
     display: flex;
     justify-content: center;
-    flex-wrap: wrap; /* 줄 바꿈 허용 */
-    gap: 4px; /* 버튼 간격 추가 */
-    width: 100%; /* 부모 요소 기준 정렬 */
+    flex-wrap: wrap; /* 버튼이 많을 경우 자동 줄바꿈 */
+    gap: 6px; /* 버튼 간격 추가 */
+    width: 100%;
 }
 
-/* 버튼 크기 조정 */
+/* 버튼 스타일 */
 .btn-group .btn {
-    padding: 6px 12px; /* 내부 여백 증가 */
-    font-size: 0.85rem; /* 글자 크기 유지 */
+    padding: 8px 14px; /* 내부 여백 증가 */
+    font-size: 0.9rem; /* 글자 크기 조정 */
     border-radius: 20px;
-    margin: 2px; /* 버튼 간격 추가 */
+    margin: 2px; /* 버튼 간 간격 */
     background-color: #f0f0f0;
     color: #333;
     border: none;
     transition: all 0.3s ease;
-    min-width: 80px; /* 최소 너비 설정 */
-    max-width: 120px; /* 최대 너비 설정 */
+    min-width: 85px; /* 버튼 최소 크기 증가 */
+    max-width: 110px; /* 버튼 최대 크기 지정 */
     text-align: center;
-    white-space: nowrap; /* 줄바꿈 방지 */
+    white-space: nowrap; /* 긴 텍스트 줄바꿈 방지 */
     overflow: hidden;
-    text-overflow: ellipsis; /* 긴 텍스트 생략 (...) 처리 */
+    text-overflow: ellipsis; /* 긴 텍스트는 ...으로 표시 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* 버튼 hover 효과 */
