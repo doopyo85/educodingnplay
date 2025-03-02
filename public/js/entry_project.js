@@ -184,17 +184,34 @@ function createProjectCard(project, viewConfig) {
 }
 
 // 함수 수정: Entry GUI에서 프로젝트 로드
+// 함수 수정: Entry GUI에서 프로젝트 로드
 function loadProjectInEntryGUI(projectUrl) {
     if (!projectUrl) {
         console.error('프로젝트 URL이 없습니다');
         return;
     }
     
-    // 새 창에서 직접 playentry.org 열기
-    const entryUrl = `https://playentry.org/ws#file:${encodeURIComponent(projectUrl)}`;
-    window.open(entryUrl, '_blank');
+    // 프로젝트 파일 다운로드
+    const fileName = projectUrl.split('/').pop();
+    const downloadLink = document.createElement('a');
+    downloadLink.href = projectUrl;
+    downloadLink.download = fileName;
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
     
-    // 학습 활동 기록 (선택 사항)
+    // 새 창에서 Entry Studio 열기
+    window.open('https://playentry.org/ws', '_blank');
+    
+    // 약간의 지연 후 다운로드 실행
+    setTimeout(() => {
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        // 사용자에게 안내 메시지 표시
+        alert(`프로젝트 파일(${fileName})이 다운로드되었습니다.\nEntry Studio에서 '불러오기' 버튼을 클릭하고 이 파일을 선택하세요.`);
+    }, 500);
+    
+    // 학습 활동 기록
     try {
         fetch('/learning/log', {
             method: 'POST',
