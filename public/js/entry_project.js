@@ -183,14 +183,13 @@ function createProjectCard(project, viewConfig) {
     return card;
 }
 
-// 수정된 함수: Entry GUI에서 프로젝트 로드
 function loadProjectInEntryGUI(projectUrl) {
     if (!projectUrl) {
-        console.error('Project URL is missing');
+        console.error('프로젝트 URL이 없습니다');
         return;
     }
     
-    // 통합된 Entry 페이지로 리다이렉트하며 프로젝트 URL 전달
+    // Entry URL로 리다이렉트 (project_file 파라미터 전달)
     window.location.href = `/entry?project_file=${encodeURIComponent(projectUrl)}`;
 }
 
