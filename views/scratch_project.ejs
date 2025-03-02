@@ -9,68 +9,6 @@
     <link rel="stylesheet" href="/styles.css">
     <script src="https://apis.google.com/js/api.js"></script> <!-- Google API 추가 -->
     <script src="/learning-tracker.js"></script>
-    <style>
-        .card {
-            height: 280px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .card-body {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 1rem;
-        }
-        .card-title {
-            font-size: 1rem;
-            line-height: 1.2;
-            max-height: 2.4em;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            margin-bottom: 0.5rem;
-            padding-right: 50px; /* PPT 버튼 공간 확보 */
-        }
-        .card-text {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        .btn-group {
-            justify-content: center;
-            margin-top: auto;
-            padding: 0.5rem 0;
-        }
-        .btn-group .btn {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: 20px;
-            margin: 0 0.25rem;
-            background-color: #f0f0f0;
-            color: #333;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        .btn-group .btn:hover {
-            background-color: #e0e0e0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .open-ppt {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 3px 8px;
-            font-size: 0.75rem;
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-        }
-        .open-ppt:hover {
-            background-color: #e2e6ea;
-        }
-    </style> 
 </head>
 <body>
     <%- include('partials/header') %>
@@ -88,7 +26,7 @@
             <!-- sb3 파일 카드 목록이 여기에 동적으로 추가됩니다 -->
         </div>
     </div>
-    <!-- 페이지 하단에 트래킹 초기화 코드 추가 -->
+
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
         try {
@@ -100,34 +38,32 @@
             
             window.learningTracker = new LearningTracker(contentType, pageTitle);
             await window.learningTracker.startTracking();
-            
-            // 실제 학습 진행도를 계산하는 함수
+    
+            // 진행도 업데이트 함수
             function calculateProgress() {
-                // 여기에 실제 진행도 계산 로직 구현
-                // 예: 완료된 단계 수, 수행된 작업 등을 기반으로 계산
                 return 0;  // 임시 반환값
             }
-    
-            // 주기적으로 진행도 업데이트 (선택적)
+
+            // 주기적으로 진행도 업데이트
             setInterval(() => {
                 if (window.learningTracker && window.learningTracker.isTracking) {
                     const currentProgress = calculateProgress();
                     window.learningTracker.endTracking(currentProgress);
                 }
             }, 300000);  // 5분마다 업데이트
-    
+
             // 새 프로젝트 시작 버튼 클릭 시 진행도 업데이트
             document.querySelector('.btn-success').addEventListener('click', function() {
                 if (window.learningTracker) {
-                    window.learningTracker.endTracking(100);  // 새 프로젝트 시작은 현재 세션 완료로 간주
+                    window.learningTracker.endTracking(100);
                 }
             });
-    
+
         } catch (error) {
             console.error('학습 트래커 초기화 오류:', error);
         }
     });
-    </script>
+</script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
