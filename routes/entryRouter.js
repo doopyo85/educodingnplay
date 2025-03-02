@@ -27,12 +27,4 @@ router.get('/', (req, res) => {
     }
 });
 
-// 프로젝트 파일 리다이렉트 라우트 (필요시 사용)
-router.get('/project/:filename', (req, res) => {
-    const filename = req.params.filename;
-    // S3 URL 또는 다른 저장소에서 프로젝트 파일 경로 생성
-    const projectUrl = `https://educodingnplaycontents.s3.amazonaws.com/entry/${filename}`;
-    res.redirect(`http://localhost:8080/?project_file=${encodeURIComponent(projectUrl)}`);
-});
-
 module.exports = router;
