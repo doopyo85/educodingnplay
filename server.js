@@ -144,8 +144,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
  }));
 
-// CSP 정책 수정 - Entry 임베딩 허용
-app.use((req, res, next) => {
+ app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
