@@ -189,9 +189,30 @@ function loadProjectInEntryGUI(projectUrl) {
         return;
     }
     
-    // Entry URL로 리다이렉트 (project_file 파라미터 전달)
-    window.location.href = `/entry?project_file=${encodeURIComponent(projectUrl)}`;
+    // 새 창에서 직접 playentry.org 열기
+    const entryUrl = `https://playentry.org/ws#file:${encodeURIComponent(projectUrl)}`;
+    window.open(entryUrl, '_blank');
+    
+    // 학습 활동 기록 (필요시)
+    try {
+        fetch('/learning/log', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'entry_load_project',
+                data: {
+                    projectUrl: projectUrl,
+                    timestamp: new Date().toISOString()
+                }
+            })
+        });
+    } catch (error) {
+        console.error('로그 기록 오류:', error);
+    }
 }
+
 
 function displayErrorMessage(message) {
     const container = document.getElementById('content-container');
