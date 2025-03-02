@@ -183,6 +183,7 @@ function createProjectCard(project, viewConfig) {
     return card;
 }
 
+// 함수 수정: Entry GUI에서 프로젝트 로드
 function loadProjectInEntryGUI(projectUrl) {
     if (!projectUrl) {
         console.error('프로젝트 URL이 없습니다');
@@ -193,7 +194,7 @@ function loadProjectInEntryGUI(projectUrl) {
     const entryUrl = `https://playentry.org/ws#file:${encodeURIComponent(projectUrl)}`;
     window.open(entryUrl, '_blank');
     
-    // 학습 활동 기록 (필요시)
+    // 학습 활동 기록 (선택 사항)
     try {
         fetch('/learning/log', {
             method: 'POST',
