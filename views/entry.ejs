@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry 코딩</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/learning-tracker.js"></script>
+    <script src="/header.js"></script>
+    <style>
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        #entryFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 10;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .toolbar {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .project-title {
+            font-weight: bold;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+    <input type="hidden" id="user-role" value="<%= role %>">
+    <input type="hidden" id="user-id" value="<%= userID %>">
+    <input type="hidden" id="center-id" value="<%= centerID %>">
+    <input type="hidden" id="project-file" value="<%= projectFile || '' %>">
+    
+    <div class="container-fluid mt-3">
+        <div class="toolbar d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <% if (projectName) { %>
+                    <span class="project-title"><i class="bi bi-code-slash"></i> <%= projectName %></span>
+                <% } else { %>
+                    <span class="project-title"><i class="bi bi-code-slash"></i> 새 프로젝트</span>
+                <% } %>
+                <button id="backToProjects" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 프로젝트 목록
+                </button>
+            </div>
+            <div>
+                <button id="helpBtn" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-question-circle"></i> 도움말
+                </button>
+            </div>
+        </div>
+        
+        <div class="iframe-container">
+            <div id="loadingOverlay" class="loading-overlay">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">로딩중...</span>
+                </div>
+                <p class="mt-3">Entry 초기화 중...</p>
+            </div>
+            <iframe id="entryFrame" src="about:blank" allowfullscreen></iframe>
+        </div>
+    </div>
+    
+    <!-- 도움말 모달 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">Entry 사용 도움말</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Entry 기본 사용법</h6>
+                    <ul>
+                        <li>좌측의 블록 메뉴에서 원하는 블록을 선택하여 우측 작업공간에 드래그합니다.</li>
+                        <li>블록들을 연결하여 프로그램을 만듭니다.</li>
+                        <li>실행 버튼을 눌러 만든 프로그램을 실행합니다.</li>
+                    </ul>
+                    <h6>단축키</h6>
+                    <ul>
+                        <li><strong>Ctrl+Z</strong>: 실행 취소</li>
+                        <li><strong>Ctrl+Y</strong>: 다시 실행</li>
+                        <li><strong>Delete</strong>: 선택한 블록 삭제</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/entry-integration.js"></script>
+</body>
+</html>

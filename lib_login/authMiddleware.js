@@ -1,5 +1,17 @@
 // lib_login/authMiddleware.js
 const { hasPageAccess } = require('./permissions');
+const { queryDatabase } = require('./db');
+
+// 기본 사용자 인증 미들웨어
+const authenticateUser = (req, res, next) => {
+  if (req.session && req.session.is_logined) {
+    // 세션이 존재하고 로그인 상태이면 다음 미들웨어로 진행
+    next();
+  } else {
+    // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
+    res.redirect('/auth/login');
+  }
+};
 
 const checkAdminRole = async (req, res, next) => {
     console.log('Checking admin role', {
@@ -77,6 +89,7 @@ function checkPageAccess(requiredPage) {
 }
 
 module.exports = { 
+    authenticateUser,
     checkPageAccess,
     checkRole,
     checkAdminRole

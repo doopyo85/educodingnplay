@@ -144,20 +144,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
  }));
 
- app.use((req, res, next) => {
+// CSP 정책 수정 - Entry 임베딩 허용
+app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self'; " +
     "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://code.org https://blockly.games; " +
-    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://app.codingnplay.co.kr:8080; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://code.jquery.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com https://playentry.org; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://playentry.org; " +
+    "img-src 'self' data: https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://code.org https://blockly.games https://playentry.org; " +
+    "connect-src 'self' https://apis.google.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com https://www.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://playentry.org; " +
+    "frame-src 'self' https://docs.google.com https://sheets.googleapis.com https://content-sheets.googleapis.com https://educodingnplaycontents.s3.amazonaws.com https://app.codingnplay.co.kr:8080 https://playentry.org; " +
     "worker-src 'self' blob:; " +
     "object-src 'none';"
   );
   next();
- }); 
+});
 
 app.set('trust proxy', 1);
 
@@ -654,10 +655,10 @@ app.get('/entry_project',
   }
 );
 
-// Entry GUI로 리다이렉트
-app.get('/entry', (req, res) => {
-  res.redirect(`${config.BASE_URL}:8080`);
-});
+// Entry 라우터 추가
+const entryRouter = require('./routes/entryRouter');
+app.use('/entry', entryRouter);
+
 
 // Tasks 가져오기(너구리톡)
 app.get('/api/get-task-data', async (req, res) => {
