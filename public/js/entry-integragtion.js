@@ -22,14 +22,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Entry 초기화 함수
     function initializeEntry() {
         // Entry 공용 계정으로 자동 로그인할 URL 구성
-        // 주의: 실제 배포 환경에서는 보안을 위해 서버 측에서 처리하는 것이 좋습니다.
         const entryBaseUrl = 'https://playentry.org';
         
         // 기본 Entry 작업 공간 URL
         let entryUrl = `${entryBaseUrl}/ws`;
-        
-        // 사용자 ID를 포함한 프로젝트 제목 설정
-        const projectTitle = userID ? `EDU_${userID}_${new Date().getTime()}` : 'NEW_PROJECT';
         
         // 프로젝트 파일이 지정된 경우 해당 파일 로드
         if (projectFile) {
@@ -42,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         
-        // iframe 소스 설정
+        // iframe 소스 설정 - 직접 URL 하드코딩
         entryFrame.src = entryUrl;
         
         // iframe 로드 이벤트
