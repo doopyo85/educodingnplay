@@ -36,9 +36,14 @@ router.get('/', async (req, res) => {
 });
 
 // 새 글 등록 (하단 입력창에서 전송)
+// 새 글 등록 (하단 입력창에서 전송)
 router.post('/write', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(403).send('로그인이 필요합니다.');
+    }
+
     const { title } = req.body;
-    const author = req.session.user ? req.session.user.username : '익명'; // 🔥 세션에서 사용자명 가져오기
+    const author = req.session.user.username; // ✅ 로그인한 사용자명 가져오기
 
     const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
@@ -49,6 +54,7 @@ router.post('/write', async (req, res) => {
         res.status(500).send('DB 에러 발생');
     }
 });
+
 
 // 글 수정 페이지 렌더링
 router.get('/edit/:id', async (req, res) => {
