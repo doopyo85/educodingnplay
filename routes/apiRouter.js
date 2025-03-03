@@ -52,12 +52,14 @@ router.get('/get-computer-data', async (req, res) => {
 
 router.get('/get-onlineclass-data', async (req, res) => {
   try {
-    const data = await getSheetData('onlineClass!A2:C'); 
+    const data = await getSheetData('onlineClass!A2:C');
     res.json(data);
   } catch (error) {
+    console.error('Error:', error);
     res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
+
 
 router.get('/get-sb2-data', 
   checkRole(['admin', 'teacher', 'manager']),
