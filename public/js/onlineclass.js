@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        await loadComputerData(); // 컴퓨터 데이터를 로드
+        await loadClassData(); // 컴퓨터 데이터를 로드
     } catch (error) {
         console.error('Error loading computer data:', error);
         displayErrorMessage("컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.");
@@ -8,9 +8,9 @@ document.addEventListener("DOMContentLoaded", async function() {
 });
 
 // 서버 API를 통해 컴퓨터 데이터를 가져오는 함수
-async function loadComputerData() {
+async function loadClassData() {
     try {
-        const data = await fetch('/api/get-computer-data')  // 서버의 API 호출
+        const data = await fetch('/api/get-onlineclass-data')  // 서버의 API 호출
             .then(res => res.json());
         
         if (data && data.length > 0) {

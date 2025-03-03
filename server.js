@@ -454,21 +454,30 @@ initGoogleSheets().catch(console.error);
 
 app.get('/api/get-computer-data', async (req, res) => {
   try {
-    const data = await getSheetData('computer!A2:E'); // 'computer' 시트에서 A2:E 범위의 데이터를 가져옴
+    const data = await getSheetData('computer!A2:E'); 
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: '컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+app.get('/api/get-onlineclass-data', async (req, res) => {
+  try {
+    const data = await getSheetData('onlineClass!A2:C'); 
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 
 app.get('/api/get-sb2-data', 
-  checkRole(['admin', 'teacher', 'manager']),  // 이제 정의됨
+  checkRole(['admin', 'teacher', 'manager']),  
   async (req, res) => {
       try {
           const data = await getSheetData('sb2!A2:F');
           res.json(data);
       } catch (error) {
-          res.status(500).json({ error: 'sb2 데이터를 불러오는 중 오류가 발생했습니다.' });
+          res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
       }
   }
 );
@@ -480,17 +489,16 @@ app.get('/api/get-sb3-data',
           const data = await getSheetData('sb3!A2:F');
           res.json(data);
       } catch (error) {
-          res.status(500).json({ error: 'sb3 데이터를 불러오는 중 오류가 발생했습니다.' });
+          res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
       }
   }
 );
 
-
 app.get('/api/get-ent-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']), // 모든 사용자 접근 가능
+  checkRole(['admin', 'teacher', 'manager', 'student']), 
   async (req, res) => {
       try {
-          const data = await getSheetData('ent!A2:F');  // 기존 getSheetData 함수 활용
+          const data = await getSheetData('ent!A2:F');  
           res.json(data);
       } catch (error) {
           console.error('구글 시트 데이터 불러오기 오류:', error);
@@ -523,6 +531,16 @@ app.get('/api/get-problem-data', async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '문제 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// Tasks 가져오기(너구리톡)
+app.get('/api/get-task-data', async (req, res) => {
+  try {
+      const data = await getSheetData('Tasks!A2:C'); // 📌 A~C열 데이터 가져오기
+      res.json(data);
+  } catch (error) {
+      res.status(500).json({ error: '업무 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 
@@ -606,18 +624,6 @@ app.get('/entry_project',
 // Entry 라우터 추가
 const entryRouter = require('./routes/entryRouter');
 app.use('/entry', entryRouter);
-
-
-// Tasks 가져오기(너구리톡)
-app.get('/api/get-task-data', async (req, res) => {
-  try {
-      const data = await getSheetData('Tasks!A2:C'); // 📌 A~C열 데이터 가져오기
-      res.json(data);
-  } catch (error) {
-      res.status(500).json({ error: '업무 데이터를 불러오는 중 오류가 발생했습니다.' });
-  }
-});
-
 
 // python 렌더링
 app.get('/python', authenticateUser, (req, res) => {
