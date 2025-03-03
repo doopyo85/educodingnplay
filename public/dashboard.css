@@ -1,0 +1,91 @@
+
+/* dashboard.css */
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 300px;
+}
+
+#usersTable th,
+#usersTable td {
+    white-space: nowrap;
+    padding: 6px;
+    vertical-align: middle;
+}
+
+#usersTable th[data-sort="no"],
+#usersTable td:first-child {
+    width: 50px;
+}
+
+#usersTable th[data-sort="userID"],
+#usersTable th[data-sort="name"],
+#usersTable th[data-sort="role"] {
+    width: 120px;
+}
+
+#usersTable th[data-sort="centerID"] {
+    width: 150px;
+}
+
+#usersTable th[data-sort="email"] {
+    width: 200px;
+}
+
+#usersTable th[data-sort="created_at"] {
+    width: 180px;
+}
+
+#usersTable th:last-child,
+#usersTable td:last-child {
+    width: 100px;
+    text-align: center;
+}
+
+#usersTable .btn-view {
+    font-size: 12px;
+    padding: 2px 6px;
+    height: auto;
+    line-height: 1.2;
+}
+
+.table-responsive {
+    margin-top: 1rem;
+    overflow-x: auto;
+}
+
+.column-filter {
+    width: 100%;
+    min-width: 50px;
+}
+
+#permissions-section .table {
+    font-size: 0.9rem;
+}
+
+#permissions-section .table th {
+    text-align: center;
+    vertical-align: middle;
+    background-color: #f8f9fa;
+}
+
+#permissions-section .form-check-input {
+    cursor: pointer;
+}
+
+#permissions-section .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+#permissions-section small.text-muted {
+    font-size: 0.8rem;
+}
