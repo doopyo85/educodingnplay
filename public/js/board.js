@@ -1,10 +1,12 @@
 /**
- * public/js/board.js
+ * public/js/boardClient.js
  * 게시판 기능 관련 클라이언트 로직
  */
 
 // DOM이 로드된 후 실행
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("게시판 클라이언트 스크립트 로드됨");
+    
     // 메시지 전송 버튼 이벤트 연결
     document.getElementById("send-btn").addEventListener("click", sendMessage);
     
@@ -23,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // 삭제 버튼 이벤트 설정
 function setupDeleteButtons() {
     const deleteButtons = document.querySelectorAll('.delete-btn');
+    console.log("삭제 버튼 개수:", deleteButtons.length);
     
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(event) {
@@ -30,15 +33,17 @@ function setupDeleteButtons() {
             
             if (confirm('이 글을 정말 삭제하시겠습니까?')) {
                 const deleteUrl = this.getAttribute('href');
+                console.log("삭제 URL:", deleteUrl);
                 
                 // AJAX로 삭제 요청 보내기
                 fetch(deleteUrl, {
-                    method: 'DELETE',
+                    method: 'GET', // DELETE 메서드 대신 GET 사용 (호환성 위해)
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 })
                 .then(response => {
+                    console.log("삭제 응답:", response.status);
                     if (response.ok) {
                         // 삭제 성공 시 화면에서 메시지 요소 제거
                         const messageContainer = this.closest('.message-container');
@@ -70,6 +75,8 @@ async function sendMessage() {
     const message = inputField.value.trim();
     if (!message) return;
 
+    console.log("메시지 전송 시도:", message);
+
     try {
         const response = await fetch("/board/write", {
             method: "POST",
@@ -77,9 +84,12 @@ async function sendMessage() {
             body: JSON.stringify({ title: message })
         });
 
+        console.log("메시지 전송 응답 상태:", response.status);
+
         // 응답이 JSON인지 확인
         const contentType = response.headers.get("content-type");
         const isJson = contentType && contentType.includes("application/json");
+        console.log("응답 콘텐츠 타입:", contentType);
 
         if (response.status === 403) {
             if (isJson) {

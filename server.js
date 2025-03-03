@@ -246,15 +246,15 @@ app.use('/admin', adminRouter);
 
 
 // 라우터 목록
+// 라우터 목록
 const routes = {
   admin: require('./routes/admin'),
-  board: require('./routes/board'),
+  board: require('./routes/boardRouter'),  
   kinder: require('./routes/kinder'),
   learning: require('./routes/learning'),
   machinelearning: require('./routes/machinelearningRouter'),
   metaverse: require('./routes/metaverseRouter'),
   onlineclass: require('./routes/onlineclassRouter'),
-  preschool: require('./routes/preschoolRouter'),
 };
 
 // 라우터 등록
