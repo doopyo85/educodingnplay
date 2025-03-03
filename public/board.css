@@ -51,7 +51,7 @@ body {
 
 /* 🔥 말풍선 너비 조정 */
 .message-bubble {
-  width: 200%;
+  width: 150%;
   max-width: 600px;
   background-color: #f0f0f0;
   border-radius: 10px;
@@ -61,7 +61,7 @@ body {
 
 .message-content {
   flex-grow: 1;
-  max-width: 90%;
+  max-width: 80%;
 }
 
 /* 📌 보낸 메시지 스타일 */
