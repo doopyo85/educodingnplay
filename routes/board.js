@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
 // 새 글 등록 (하단 입력창에서 전송)
 router.post('/write', async (req, res) => {
     if (!req.session.user) {
-        return res.status(403).send('로그인이 필요합니다.');
+        return res.status(403).json({ error: '로그인이 필요합니다.' }); // JSON 응답
     }
 
     const { title } = req.body;
@@ -48,12 +48,13 @@ router.post('/write', async (req, res) => {
     const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
         await db.queryDatabase(query, [title, author]);
-        res.redirect('/board');
+        res.json({ success: true }); // JSON 반환
     } catch (err) {
         console.error('DB 에러:', err);
-        res.status(500).send('DB 에러 발생');
+        res.status(500).json({ error: 'DB 에러 발생' }); // JSON 응답
     }
 });
+
 
 
 // 글 수정 페이지 렌더링
