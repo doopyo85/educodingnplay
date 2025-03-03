@@ -81,19 +81,37 @@ router.post('/edit/:id', async (req, res) => {
     }
 });
 
-// 글 삭제 처리
+// 글 삭제 처리 (권한 체크 추가)
 router.get('/delete/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(403).send('로그인이 필요합니다.');
+    }
+
     const postId = req.params.id;
-    const query = 'DELETE FROM posts WHERE id = ?';
+    const query = 'SELECT * FROM posts WHERE id = ?';
 
     try {
-        await db.queryDatabase(query, [postId]);
+        const results = await db.queryDatabase(query, [postId]);
+        if (results.length === 0) {
+            return res.status(404).send('글을 찾을 수 없습니다.');
+        }
+
+        const post = results[0];
+        const isAuthor = req.session.user.username === post.author;
+        const isAdmin = req.session.user.role === 'admin';
+
+        if (!isAuthor && !isAdmin) {
+            return res.status(403).send('삭제 권한이 없습니다.');
+        }
+
+        await db.queryDatabase('DELETE FROM posts WHERE id = ?', [postId]);
         res.redirect('/board');
     } catch (err) {
         console.error('❌ DB 에러:', err);
         res.status(500).send('DB 에러 발생');
     }
 });
+
 
 // 관리자 댓글 추가
 router.post('/comment', async (req, res) => {

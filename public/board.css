@@ -124,6 +124,21 @@ body {
   font-size: 16px;
 }
 
+/* 삭제 버튼 스타일 추가 */
+.delete-btn {
+  float: right;
+  margin-left: 10px;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.delete-btn:hover {
+  color: darkred;
+}
+
+
 /* ------여기서부터 Task-----*/
 /* 📌 업무 카드 컨테이너 */
 .task-container {

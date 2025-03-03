@@ -38,6 +38,9 @@
                                     </div>
                                     <div class="message-bubble">
                                         <p><%= post.title %></p>
+                                        <% if (user && (user.username === post.author || user.role === 'admin')) { %>
+                                            <a href="/board/delete/<%= post.id %>" class="delete-btn">❌</a>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>
