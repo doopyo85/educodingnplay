@@ -287,7 +287,6 @@ module.exports = { getSheetData };
 // =====================================================================
 // 라우터 등록
 // =====================================================================
-
 // 페이지 라우터 등록
 const routes = {
   'auth': require('./lib_login/auth'),
@@ -302,15 +301,18 @@ const routes = {
   'python': require('./routes/pythonRouter')
 };
 
-// onlineclass 라우트에 인증 미들웨어 적용
-app.use('/onlineclass', authenticateUser, onlineclassRouter);
-
 // API 라우터 등록 (새로 분리된 API)
 app.use('/api', require('./routes/apiRouter'));
 
-// 페이지 라우터 등록
+// 페이지 라우터 등록 - 여기에서 인증 미들웨어를 적용하세요
 Object.entries(routes).forEach(([path, router]) => {
-  app.use(`/${path}`, router);
+  if (path === 'auth') {
+    // 인증 라우터는 인증 미들웨어 없이 등록
+    app.use(`/${path}`, router);
+  } else {
+    // 다른 모든 라우터에 인증 미들웨어 적용
+    app.use(`/${path}`, authenticateUser, router);
+  }
 });
 
 // =====================================================================
