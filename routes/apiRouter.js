@@ -51,6 +51,7 @@ router.get('/get-computer-data', async (req, res) => {
 });
 
 router.get('/get-onlineclass-data', async (req, res) => {
+  console.log('GET /api/get-onlineclass-data 요청 받음');
   try {
     const data = await getSheetData('onlineClass!A2:C');
     res.json(data);

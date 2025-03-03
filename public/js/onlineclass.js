@@ -10,18 +10,25 @@ document.addEventListener("DOMContentLoaded", async function() {
 // 서버 API를 통해 클래스데이터를 가져오는 함수
 async function loadClassData() {
     try {
-        const data = await fetch('/api/get-onlineclass-data')  // 서버의 API 호출
-            .then(res => res.json());
+        // API 경로가 라우터 설정과 일치하는지 확인
+        const response = await fetch('/api/get-onlineclass-data');
+        
+        if (!response.ok) {
+            console.error(`API 요청 실패: ${response.status}`);
+            throw new Error(`API 응답이 정상이 아닙니다: ${response.status}`);
+        }
+        
+        const data = await response.json();
         
         if (data && data.length > 0) {
             const projects = groupByCategory(data);
-            displayTabsAndProjects(projects); // HTML에 탭과 프로젝트 데이터 표시
+            displayTabsAndProjects(projects);
         } else {
             displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading computer data', error);
-        displayErrorMessage("컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error('온라인 클래스 데이터 로딩 오류:', error);
+        displayErrorMessage("온라인 클래스 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
 

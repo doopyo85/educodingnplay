@@ -6,6 +6,7 @@ const { getSheetData } = require('../server'); // 또는 적절한 경로
 
 // 중요: 엔드포인트 앞에 /api/ 접두사가 없어야 함
 router.get('/get-onlineclass-data', async (req, res) => {
+  console.log('GET /onlineclass/get-onlineclass-data 요청 받음');
   try {
     const data = await getSheetData('onlineClass!A2:C');
     res.json(data);

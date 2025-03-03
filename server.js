@@ -302,6 +302,9 @@ const routes = {
   'python': require('./routes/pythonRouter')
 };
 
+// onlineclass 라우트에 인증 미들웨어 적용
+app.use('/onlineclass', authenticateUser, onlineclassRouter);
+
 // API 라우터 등록 (새로 분리된 API)
 app.use('/api', require('./routes/apiRouter'));
 
