@@ -39,7 +39,7 @@
                                         <span class="message-author"><%= post.author %></span>
                                         <span class="message-time"><%= post.created_at %></span> <!-- 🔥 날짜 오른쪽 -->
                                     </div>
-                                    <div class="message-bubble" style="width: 200%; max-width: 600px;">
+                                    <div class="message-bubble">
                                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                             <p style="margin-right: 5px; flex-grow: 1;"><%= post.title %></p>
                                             <% if (user && (user.username === post.author || user.role === 'admin')) { %>
