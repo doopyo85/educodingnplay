@@ -36,22 +36,22 @@ router.get('/', async (req, res) => {
 });
 
 // 새 글 등록 (하단 입력창에서 전송)
-// 새 글 등록 (하단 입력창에서 전송)
 router.post('/write', async (req, res) => {
+    console.log("🔍 현재 세션 정보:", req.session);  // 세션 데이터 확인용
+
     if (!req.session.user) {
         return res.status(403).json({ error: '로그인이 필요합니다.' }); // JSON 응답
     }
 
     const { title } = req.body;
-    const author = req.session.user.username; // ✅ 로그인한 사용자명 가져오기
+    const author = req.session.user.username;
 
-    const query = 'INSERT INTO posts (title, author) VALUES (?, ?)';
     try {
-        await db.queryDatabase(query, [title, author]);
-        res.json({ success: true }); // JSON 반환
+        await db.queryDatabase('INSERT INTO posts (title, author) VALUES (?, ?)', [title, author]);
+        res.json({ success: true });
     } catch (err) {
         console.error('DB 에러:', err);
-        res.status(500).json({ error: 'DB 에러 발생' }); // JSON 응답
+        res.status(500).json({ error: 'DB 에러 발생' });
     }
 });
 
