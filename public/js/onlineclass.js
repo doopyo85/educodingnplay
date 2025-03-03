@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        await loadClassData(); // 컴퓨터 데이터를 로드
+        await loadClassData(); 
     } catch (error) {
-        console.error('Error loading computer data:', error);
-        displayErrorMessage("컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading data:', error);
+        displayErrorMessage("데이터를 불러오는 중 오류가 발생했습니다.");
     }
 });
 
-// 서버 API를 통해 컴퓨터 데이터를 가져오는 함수
+// 서버 API를 통해 클래스데이터를 가져오는 함수
 async function loadClassData() {
     try {
         const data = await fetch('/api/get-onlineclass-data')  // 서버의 API 호출
