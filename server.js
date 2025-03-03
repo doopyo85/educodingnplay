@@ -555,57 +555,8 @@ app.get('/computer', authenticateUser, (req, res) => {
   });
 });
 
-// 구글 시트에서 books 데이터를 가져오는 API
-app.get('/api/get-books-data', async (req, res) => {
-  try {
-    const data = await getSheetData('books!A2:e');
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: '책 데이터를 불러오는 중 오류가 발생했습니다.' });
-  }
-});
-// /books 페이지를 렌더링하는 라우트
-app.get('/books', authenticateUser, (req, res) => {
-  console.log('User session:', req.session);  // 세션 정보 로깅
-  res.render('books', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
-  });
-});
-
-// /reader 페이지 라우트 추가 (pdfUrl을 쿼리 파라미터로 받아서 처리)
-app.get('/reader', authenticateUser, (req, res) => {
-  const pdfUrl = req.query.pdfUrl;  // 쿼리 파라미터에서 PDF URL을 받아옴
-  if (pdfUrl) {
-    res.render('reader', { pdfUrl: pdfUrl });
-  } else {
-    res.status(400).send('PDF URL이 제공되지 않았습니다.');
-  }
-});
-
-// reader.js 파일을 제공하는 라우트
-app.get('/reader.js', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'reader.js');
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      console.error('Error sending reader.js:', err);
-      res.status(err.status || 500).end();
-    }
-  });
-});
-
 // Turn.js 라이브러리 제공 (node_modules에서)
 app.use('/js/turn.js', express.static(path.join(__dirname, 'node_modules/turn.js/turn.min.js')));
-
-// reader.js에 대한 특별한 라우트 추가
-app.get('/reader.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'reader.js'), {
-    headers: {
-      'Content-Type': 'application/javascript'
-    }
-  });
-});
 
 app.get('/js/turn.js', (req, res) => {
   const turnJsPath = path.join(__dirname, 'node_modules/turn.js/index.js');

@@ -16,10 +16,6 @@
                 "name": "컴퓨터 학습",
                 "roles": ["admin", "manager", "teacher", "student"]
             },
-            "/books": {
-                "name": "교재 학습",
-                "roles": ["admin", "manager", "teacher", "student"]
-            },
             "/scratch_project": {
                 "name": "스크래치",
                 "roles": ["admin", "manager", "teacher", "student"]
