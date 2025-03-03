@@ -37,21 +37,20 @@
                                 <div class="message-content">
                                     <div class="message-header">
                                         <span class="message-author"><%= post.author %></span>
-                                        <span class="message-time"><%= post.created_at %></span> <!-- 🔥 날짜 오른쪽 -->
+                                        <span class="message-time"><%= post.created_at %></span>
                                     </div>
                                     <div class="message-bubble">
                                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                            <p style="margin-right: 5px; flex-grow: 1;"><%= post.title %></p>
+                                            <p style="margin: 0; padding-right: 16px;"><%= post.title %></p>
                                             <% if (user && (user.username === post.author || user.role === 'admin')) { %>
-                                                <a href="/board/delete/<%= post.id %>" class="delete-btn" style="color: inherit; text-decoration: none; margin-left: 5px;">
+                                                <a href="/board/delete/<%= post.id %>" class="delete-btn" style="color: inherit; text-decoration: none; position: absolute; right: 8px; top: 8px;">
                                                     <i class="bi bi-x"></i>
                                                 </a>
                                             <% } %>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
+                            </div>                            
                         <% }); %>
                     </div>
                     <!-- 🔥 입력창 -->

@@ -13,78 +13,53 @@ body {
   display: flex;
   flex-direction: column;
 }
-
-/* 📌 메시지 목록 (스크롤 가능하도록 설정) */
 .messages {
-  flex-grow: 1; /* 🔥 가변 크기 */
-  overflow-y: auto; /* 🔥 내부 스크롤 활성화 */
-  max-height: 70vh; /* 🔥 컨테이너보다 커지지 않도록 설정 */
-  padding-right: 10px; /* 🔥 스크롤바 여백 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  overflow-y: auto;
 }
 
-
-/* 📌 메시지 컨테이너 (프로필 왼쪽 정렬) */
 .message-container {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  width: 100%;
 }
 
-/* 📌 프로필 이미지 (왼쪽 정렬 유지) */
 .profile-wrapper {
-  margin-right: 8px; /* 말풍선과 간격 조정 */
-}
-
-.favicon {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-}
-
-/* 📌 너구리 이미지 크기 제한 */
-.naguri-img {
-  max-width: 80%; /* 🔥 가로 크기 최대 80% */
-  height: auto; /* 🔥 비율 유지 */
-  display: block;
-  margin: 0 auto;
-}
-
-/* 🔥 말풍선 너비 조정 */
-.message-bubble {
-  width: 150%;
-  max-width: 400px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  padding: 8px 12px;
-  position: relative;
+  margin-right: 10px;
 }
 
 .message-content {
   flex-grow: 1;
-  max-width: 80%;
+  min-width: 0; /* 중요: flexbox 내에서 오버플로우를 적절히 처리하기 위함 */
+  max-width: calc(100% - 50px); /* 프로필 이미지와 여백 고려 */
 }
 
-/* 📌 보낸 메시지 스타일 */
-.message-container.to .message-bubble {
-  background: #E8EAF6;
-  color: black;
+.message-bubble {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  min-width: 150px; /* 최소 너비 설정 */
 }
 
-
-/* 🔥 메시지 헤더 (아이디 + 날짜) */
 .message-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  width: 100%;
+  margin-bottom: 4px;
 }
 
-/* 📌 날짜 스타일 */
-.message-time {
-  font-size: 12px;
-  color: gray;
-  text-align: right;
-  margin-left: 10px; /* 🔥 아이디와 간격 */
+.delete-btn {
+  opacity: 0.7;
+}
+
+.delete-btn:hover {
+  opacity: 1;
 }
 
 /* 📌 입력창 스타일 */
