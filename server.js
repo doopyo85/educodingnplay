@@ -298,7 +298,7 @@ const routes = {
   'machinelearning': require('./routes/machinelearningRouter'),
   'metaverse': require('./routes/metaverseRouter'),
   'onlineclass': require('./routes/onlineclassRouter'),
-  'entry': require('./routes/entryRouter')
+  'entry': require('./routes/entryRouter'),
   'python': require('./routes/pythonRouter')
 };
 
