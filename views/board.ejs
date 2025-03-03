@@ -57,18 +57,18 @@
 
             <!-- 📌 오른쪽 업무 컨테이너 (50%) -->
             <% 
-            const images = [
-                { src: "sleep_nuguri.webp", text: "자는 중..." },
-                { src: "coffee_nuguri.webp", text: "커피 마시는 중..." },
-                { src: "coding_nuguri.webp", text: "코딩 하는 중..." }
-            ];
-            const randomImage = images[Math.floor(Math.random() * images.length)];
+    const images = [
+        { src: "sleep_nuguri.webp", text: "자는 중..." },
+        { src: "coffee_nuguri.webp", text: "커피 마시는 중..." },
+        { src: "coding_nuguri.webp", text: "코딩 하는 중..." }
+    ];
+                const randomImage = images[Math.floor(Math.random() * images.length)];
             %>
-            
+
             <div class="col-lg-6 col-md-6">
                 <div class="task-container">
                     <div class="text-center position-relative">
-                        <img src="/resource/<%= randomImage.src %>" alt="너구리" class="naguri-img rounded-img">
+                        <img src="/resource/<%= randomImage.src %>" alt="너구리" class="naguri-img">
                         <div class="speech-bubble"><%= randomImage.text %></div>
                     </div>
                     <h4 class="mt-3">현재 진행 중인 업무</h4>

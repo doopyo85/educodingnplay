@@ -274,32 +274,6 @@ p {
     margin-bottom: 20px;
 }
 
-/**너구리 페이지 스타일**/
-
-.naguri-img {
-    width: 300px;  /* 원하는 크기로 조정 */
-    height: auto;
-    border-radius: 15px; /* 둥근 사각형 테두리 */
-    display: block;
-    margin: 0 auto;
-}
-
-/* 말풍선 스타일 */
-.speech-bubble {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: nowrap;
-}
-
-
 /* 여기서부터 대시보드 관련 스타일 */
 
 /* 대시보드 테이블 정렬 아이콘 */
