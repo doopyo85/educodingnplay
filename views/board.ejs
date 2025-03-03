@@ -56,10 +56,15 @@
             </div>
 
             <!-- 📌 오른쪽 업무 컨테이너 (50%) -->
+            <% 
+            const images = ["sleep_nuguri.webp", "coffee_nuguri.webp", "coding_nuguri.webp"];
+            const randomImage = images[Math.floor(Math.random() * images.length)];
+            %>
+            
             <div class="col-lg-6 col-md-6">
                 <div class="task-container">
                     <div class="text-center">
-                        <img src="/resource/racoon.jpg" alt="너구리" class="naguri-img">
+                        <img src="/resource/<%= randomImage %>" alt="너구리" class="naguri-img">
                     </div>
                     <h4 class="mt-3">현재 진행 중인 업무</h4>
                     <div id="task-list"></div>
