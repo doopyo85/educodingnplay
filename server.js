@@ -13,6 +13,7 @@ const fs = require('fs');
 const { google } = require('googleapis');
 const cron = require('node-cron');
 const { ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const bcrypt = require('bcrypt');
 
 // 설정 파일 불러오기
 const config = require('./config');
@@ -298,6 +299,7 @@ const routes = {
   'metaverse': require('./routes/metaverseRouter'),
   'onlineclass': require('./routes/onlineclassRouter'),
   'entry': require('./routes/entryRouter')
+  'python': require('./routes/pythonRouter')
 };
 
 // API 라우터 등록 (새로 분리된 API)
