@@ -290,7 +290,7 @@ module.exports = { getSheetData };
 
 // 페이지 라우터 등록
 const routes = {
-  'auth': require('./routes/authRouter'),
+  'auth': require('./lib_login/auth'),
   'admin': require('./routes/adminRouter'),
   'board': require('./routes/boardRouter'),
   'kinder': require('./routes/kinderRouter'),
