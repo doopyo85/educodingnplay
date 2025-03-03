@@ -130,7 +130,7 @@ function renderMenu(data) {
         return;
     }
 
-    navList.innerHTML = ''; // Clear existing menu items
+    navList.innerHTML = ''; // 기존 메뉴 초기화
 
     if (!data || !Array.isArray(data) || data.length === 0) {
         console.error('Invalid menu data');
@@ -140,89 +140,63 @@ function renderMenu(data) {
     const topLevelMenus = new Map();
     data.forEach(function(row) {
         if (row && row.length >= 3) {
-            const [topLevelMenu, subMenu, examName] = row;
+            const [topLevelMenu, subMenu, url] = row;
             if (!topLevelMenus.has(topLevelMenu)) {
                 topLevelMenus.set(topLevelMenu, []);
             }
-            topLevelMenus.get(topLevelMenu).push({ subMenu, examName });
+            topLevelMenus.get(topLevelMenu).push({ subMenu, url });
         }
     });
 
     let index = 0;
-    let firstSubmenu = null;
     topLevelMenus.forEach(function(subMenus, topLevelMenu) {
-        const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
-        const subMenuItems = createSubMenuItems(subMenus, index);
-        navList.appendChild(topLevelMenuItem);
-        navList.appendChild(subMenuItems);
+        const hasSubMenus = subMenus.some(item => item.subMenu.trim() !== ""); // 서브메뉴 존재 여부 확인
+        const topLevelMenuItem = document.createElement('li');
+        topLevelMenuItem.classList.add('menu-item');
 
-        // 첫 번째 하위 메뉴 저장
-        if (index === 0 && subMenus.length > 0) {
-            firstSubmenu = subMenus[0];
-        }        
+        const link = document.createElement('a');
+        link.href = hasSubMenus ? `#collapse${index}` : subMenus[0].url; // 서브메뉴가 없으면 URL로 이동
+        link.setAttribute('role', 'button');
+        link.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+        link.textContent = topLevelMenu;
+        
+        if (hasSubMenus) {
+            link.setAttribute('data-bs-toggle', 'collapse');
+            link.setAttribute('aria-expanded', 'false');
+            link.setAttribute('aria-controls', `collapse${index}`);
+            
+            const arrow = document.createElement('i');
+            arrow.classList.add('bi', 'bi-chevron-down');
+            link.appendChild(arrow);
+        } else {
+            link.target = "_blank"; // 새 창에서 열기
+        }
+
+        topLevelMenuItem.appendChild(link);
+        navList.appendChild(topLevelMenuItem);
+
+        if (hasSubMenus) {
+            const subMenuItems = createSubMenuItems(subMenus, index);
+            navList.appendChild(subMenuItems);
+        }
 
         index++;
     });
-
-    // Bootstrap의 collapse 기능 초기화 및 이벤트 리스너 추가
-    var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
-    collapseElementList.forEach(function(collapseEl) {
-        var collapse = new bootstrap.Collapse(collapseEl, {
-            toggle: false
-        });
-
-        collapseEl.addEventListener('show.bs.collapse', function() {
-            // 다른 모든 열린 메뉴 닫기
-            collapseElementList.forEach(function(el) {
-                if (el !== collapseEl && el.classList.contains('show')) {
-                    bootstrap.Collapse.getInstance(el).hide();
-                }
-            });
-        });
-    });
-
-    // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
-    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-    el.addEventListener('click', function(event) {
-        event.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        const bsCollapse = bootstrap.Collapse.getInstance(target);
-        if (bsCollapse) {
-            if (target.classList.contains('show')) {
-                bsCollapse.hide();
-            } else {
-                // 다른 열린 메뉴 닫기
-                document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
-                    if (openMenu !== target) {
-                        bootstrap.Collapse.getInstance(openMenu).hide();
-                    }
-                });
-                bsCollapse.show();
-            }
-        }
-        updateToggleIcon(this);
-    });
-
-    // 첫 번째 하위 메뉴 자동 선택
-    if (firstSubmenu) {
-        onMenuSelect(firstSubmenu.examName);
-    }    
-});
+}
     
-    // 아이콘 변경
-    function updateToggleIcon(element) {
-        const icon = element.querySelector('.bi');
-        if (icon) {
-            if (element.getAttribute('aria-expanded') === 'true') {
-                icon.classList.remove('bi-chevron-down');
-                icon.classList.add('bi-chevron-up');
-            } else {
-                icon.classList.remove('bi-chevron-up');
-                icon.classList.add('bi-chevron-down');
-            }
+// 아이콘 변경
+function updateToggleIcon(element) {
+    const icon = element.querySelector('.bi');
+    if (icon) {
+        if (element.getAttribute('aria-expanded') === 'true') {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
+        } else {
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
         }
     }
-}  
+}
 
 
 function createTopLevelMenuItem(topLevelMenu, index) {
@@ -260,23 +234,20 @@ function createSubMenuItems(subMenus, index) {
     const subMenuList = document.createElement('ul');
     subMenuList.classList.add('list-unstyled', 'pl-3');
 
-    subMenus.forEach(function({ subMenu, examName }) {
+    subMenus.forEach(function({ subMenu, url }) {
+        if (subMenu.trim() === "") return; // 서브메뉴가 없으면 추가하지 않음
+
         const subMenuItem = document.createElement('li');
         subMenuItem.classList.add('menu-item');
 
-        const icon = document.createElement('i');
-        icon.classList.add('bi', 'bi-file-text', 'me-2');
-        subMenuItem.appendChild(icon);
+        const link = document.createElement('a');
+        link.href = url;
+        link.textContent = subMenu;
+        link.target = "_blank"; // 새 창에서 열기
+        link.style.textDecoration = "none";
+        link.style.color = "inherit";
 
-        const text = document.createTextNode(subMenu);
-        subMenuItem.appendChild(text);
-
-        subMenuItem.addEventListener('click', function(event) {
-            event.stopPropagation();
-            onMenuSelect(examName);
-            applySubMenuHighlight(subMenuItem);
-        });
-
+        subMenuItem.appendChild(link);
         subMenuList.appendChild(subMenuItem);
     });
 
