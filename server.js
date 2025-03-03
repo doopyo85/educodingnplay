@@ -244,8 +244,6 @@ app.use('/auth', authRouter);
 const adminRouter = require('./routes/admin');
 app.use('/admin', adminRouter);
 
-
-// 라우터 목록
 // 라우터 목록
 const routes = {
   admin: require('./routes/admin'),
