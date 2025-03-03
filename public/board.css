@@ -41,13 +41,6 @@ body {
   border-radius: 50%;
 }
 
-/* 📌 메시지 본문 */
-.message-content {
-  display: flex;
-  flex-direction: column;
-  max-width: 80%; /* 🔥 전체 채팅 컨테이너의 80%까지 사용 가능 */
-}
-
 /* 📌 너구리 이미지 크기 제한 */
 .naguri-img {
   max-width: 80%; /* 🔥 가로 크기 최대 80% */
@@ -58,15 +51,18 @@ body {
 
 /* 🔥 말풍선 너비 조정 */
 .message-bubble {
-  background: #F1F1F1;
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 16px;
-  word-wrap: break-word;
-  width: 80%;  /* ✅ 너비 확대 (컨테이너 기준) */
-  max-width: none;
+  width: 200%;
+  max-width: 600px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  position: relative;
 }
 
+.message-content {
+  flex-grow: 1;
+  max-width: 100%;
+}
 
 /* 📌 보낸 메시지 스타일 */
 .message-container.to .message-bubble {
