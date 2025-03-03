@@ -61,7 +61,7 @@ body {
 
 .message-content {
   flex-grow: 1;
-  max-width: 100%;
+  max-width: 90%;
 }
 
 /* 📌 보낸 메시지 스타일 */
