@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoutButtonElement = document.getElementById('logoutButton');
 
     if (userNameElement) {
-        fetch('/get-user-session', { 
+        fetch('/api/get-user-session', { 
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
