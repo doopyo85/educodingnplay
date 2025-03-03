@@ -1,5 +1,7 @@
-/* style.css */
-body {
+/* =============================================
+   📌 기본 레이아웃 및 글꼴 설정
+   ============================================= */
+   body {
     font-family: 'Noto Sans KR', sans-serif;
     margin: 0;
     padding: 0;
@@ -15,25 +17,28 @@ html, body {
 }
 
 main {
-    flex-grow: 1;
+    flex-grow: 1;  /* 콘텐츠가 부족해도 footer를 하단으로 밀기 위한 설정 */
 }
 
 footer {
     background-color: #f8f9fa;
     padding: 10px 20px;
     text-align: center;
-    position: fixed;
+    position: fixed; /* 화면 하단에 고정 */
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 1000; /* 다른 요소들 위에 오도록 */
 }
 
+/* =============================================
+   📌 헤더와 내비게이션 스타일
+   ============================================= */
 .multicolor-text {
-    font-size: 2.5rem;
-    font-weight: bold;
-    background: linear-gradient(to right, #4a90e2, #e94e77);
+    font-size: 2.5rem; /* 적절한 폰트 크기 */
+    font-weight: bold; /* 굵은 폰트 */
+    background: linear-gradient(to right, #4a90e2, #e94e77); /* 파란색에서 분홍색으로 그라디언트 */
     -webkit-background-clip: text;
     color: transparent;
 }
@@ -56,14 +61,15 @@ footer {
     color: #495057;
 }
 
+/* 내비게이션 바 */
 nav {
     position: fixed;
     left: 0;
-    width: 200px;
-    height: calc(100% - 50px);
+    width: 200px; /* 기존 너비 유지 */
+    height: calc(100% - 50px); /* 헤더를 제외한 높이 */
     background-color: #f8f9fa;
-    z-index: 1000;
-    padding-top: 10px;
+    z-index: 1000; /* header보다 낮게 설정 */
+    padding-top: 10px; /* 내부 여백 */
 }
 
 #navList {
@@ -80,6 +86,28 @@ nav {
     border-radius: 8px;
 }
 
+.sub-menu {
+    display: none;
+    margin-left: 0px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.sub-menu .menu-item {
+    padding: 8px 10px;
+    margin-left: 0px;
+}
+
+.sub-menu .menu-item:hover {
+    background-color: #dcdcdc; /* 원하는 롤오버 색상으로 변경 */
+    color: #000;
+}
+
+.sub-menu .menu-item.active {
+    background-color: #e9ecef;
+    color: #000;
+}
+
 .menu-item.active .sub-menu {
     display: block;
 }
@@ -89,10 +117,25 @@ nav {
 }
 
 #content {
-    margin-left: 220px;
+    margin-left: 220px; /* 네비게이션 바 너비만큼 마진 추가 */
     padding: 20px;
 }
 
+.arrow {
+    margin-left: 10px;
+}
+
+.arrow-down::after {
+    content: '▼';
+}
+
+.arrow-up::after {
+    content: '▲';
+}
+
+/* =============================================
+   📌 컨테이너 및 일반 컨텐츠 스타일
+   ============================================= */
 .container {
     margin-top: 50px;
 }
@@ -105,4 +148,144 @@ h1 {
 p {
     font-size: 1.1rem;
     color: #6c757d;
+}
+
+.col-lg-3, .col-md-4, .col-sm-6 {
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 15px; 
+}
+
+/* =============================================
+   📌 카드 스타일
+   ============================================= */
+/* 메인 화면 카드 */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    min-height: 120px; /* 카드 높이 안정적 유지 */
+    position: relative;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    cursor: pointer; /* 포인터 커서 추가 */
+}
+
+/* 카드 제목 */
+.card-title {
+    position: absolute;
+    top: 17px;
+    left: 17px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 20px;
+    min-height: 48px;
+    max-width: 80%;
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    padding: 5px 10px; /* 제목에 패딩 추가 */
+}
+
+.ppt-btn {
+    position: absolute;
+    top: 17px;
+    right: 17px;
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+/* 카드 텍스트 */
+.card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-align: left;
+    margin-bottom: 10px; /* 버튼과의 간격 최소화 */
+}
+
+/* 카드 이미지 */
+.card-img-top, .card-img-entry {
+    object-fit: contain;
+    padding: 10px; /* 모든 방향 동일 여백 */
+    margin-top: 30px;
+    display: block;
+    max-width: 100%;
+    max-height: 180px; /* 높이 조정 */
+}
+
+/* 카드 본문 */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 60px; /* 제목과 본문 간격 확보 */
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* =============================================
+   📌 버튼 스타일
+   ============================================= */
+/* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
+.btn-primary {
+    border-radius: 50px; /* 캡슐형 */
+    padding: 10px 24px;
+    font-size: 1rem;
+    text-align: center;
+    width: auto; /* 내용에 맞게 크기 조정 */
+    min-width: 160px;
+    max-width: 200px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin: 0 auto; /* 가운데 정렬 */
+}
+
+/* 버튼 그룹 - 한 줄 정렬 */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap; /* 줄바꿈 방지 */
+    gap: 1px; /* 버튼 간 간격 최소화 */
+    width: auto; /* 카드 너비 내에서 자동 조정 */
+}
+
+/* 회색 버튼 (기본/확장1/확장2) */
+.btn-secondary {
+    border-radius: 50px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    width: auto; /* 내용 크기에 맞게 조정 */
+    min-width: 60px; /* 최소 너비 제한 */
+    max-width: 90px; /* 최대 너비 제한 */
+    height: 28px; /* 버튼 높이 균일 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: normal;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+/* =============================================
+   📌 탭 스타일
+   ============================================= */
+.nav-tabs {
+    justify-content: center;
+    margin-bottom: 20px;
 }
