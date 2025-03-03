@@ -13,6 +13,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .messages {
   display: flex;
   flex-direction: column;
@@ -60,6 +61,7 @@ body {
 
 .delete-btn:hover {
   opacity: 1;
+  color: darkred;
 }
 
 /* 📌 입력창 스타일 */
@@ -85,32 +87,16 @@ body {
 
 /* 📌 전송 버튼 */
 .material-button {
-  background: green; /* 초록색 */
+  background: green;
   color: white;
   border: none;
-  padding: 10px 20px; /* 가로 길이 조정 */
-  border-radius: 10px; /* 둥근 네모 */
+  padding: 10px 20px;
+  border-radius: 10px;
   cursor: pointer;
   margin-left: 8px;
   font-size: 16px;
 }
 
-/* 삭제 버튼 스타일 추가 */
-.delete-btn {
-  float: right;
-  margin-left: 10px;
-  color: red;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.delete-btn:hover {
-  color: darkred;
-}
-
-
-/* ------여기서부터 Task-----*/
 /* 📌 업무 카드 컨테이너 */
 .task-container {
   display: flex;
@@ -127,7 +113,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
   width: 100%;
-  max-width: 400px; /* 카드 최대 너비 */
+  max-width: 400px;
 }
 
 /* 📌 업무명 (A열) */
@@ -161,15 +147,14 @@ body {
   text-align: center;
 }
 
-/*너구리 말풍선*/
 /* ✅ 너구리 이미지 크기 및 둥근 테두리 */
 .naguri-img {
-  width: 250px;  /* 이미지 크기 조정 */
+  width: 250px;
   height: auto;
-  border-radius: 15px; /* 둥근 사각형 테두리 */
+  border-radius: 15px;
   display: block;
   margin: 0 auto;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* ✅ 말풍선 스타일 */
