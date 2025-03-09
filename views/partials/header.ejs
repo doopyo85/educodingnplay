@@ -56,17 +56,17 @@
                 <% if (role === 'admin' || role === 'teacher' || role === 'manager') { %>
                     <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="teacherResourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-book"></i> 교사 리소스
+                        <i class="bi bi-book"></i> 교사 전용페이지
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="teacherResourcesDropdown">
                         <li>
                         <a class="dropdown-item" href="https://shop.codingnplay.co.kr/" target="_blank">
-                            <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재
+                            <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재몰
                         </a>
                         </li>
                         <li>
                         <a class="dropdown-item" href="https://www.miricanvas.com/workspace/team/drive" target="_blank">
-                            <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보
+                            <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보물
                         </a>
                         </li>
                         <li>
@@ -81,7 +81,7 @@
                         </li>
                         <li>
                         <a class="dropdown-item" href="https://app.codingnplay.co.kr/teacher">
-                            <i class="bi bi-clipboard-check me-2"></i> 평가지
+                            <i class="bi bi-clipboard-check me-2"></i> 평가지 출력
                         </a>
                         </li>
                         <li>
@@ -94,12 +94,14 @@
                             <img src="/resource/zoom.png" alt="줌 회의실" width="20" height="20" class="me-2"> 줌 회의실
                         </a>
                         </li>
+                        <li>
+                            <a class="dropdown-item" href="https://app.codingnplay.co.kr/board" target="_blank">
+                                <img src="/resource/co.ico" alt="일해라너구리" width="20" height="20" class="me-2"> 일해라너구리
+                            </a>
+                        </li>
                     </ul>
                     </li>
                 <% } %>
-
-                <!-- 메시지 아이콘 (메시지 화면으로 이동) -->
-                <i id="app-drawer-button" class="bi bi-chat me-3" style="font-size: 2rem; cursor: pointer;"></i>
 
                 <!-- 프로필 아이콘 -->
                 <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
