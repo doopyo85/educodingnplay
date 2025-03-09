@@ -3,12 +3,14 @@ const router = express.Router();
 const db = require('../lib_login/db');
 const bcrypt = require('bcrypt');
 const { checkRole } = require('../lib_login/authMiddleware');
+const { authenticateUser } = require('../lib_login/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
 // Google Sheets 함수는 server.js에서 가져옵니다
 const { getSheetData } = require('../server');
+
 
 // 사용자 관련 API
 router.get('/get-user', (req, res) => {
