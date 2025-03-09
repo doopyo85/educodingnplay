@@ -3,6 +3,7 @@ var currentProblemNumber = 1;
 var totalProblems = 0;  // 초기값을 0으로 설정
 var currentExamName = '';
 var problemData = [];
+var currentDomain = window.location.hostname; // 현재 도메인 저장
 
 document.addEventListener("DOMContentLoaded", function() {
     if (!window.menuLoaded) {
@@ -137,7 +138,7 @@ function renderMenu(data) {
             // 서브메뉴가 없는 경우 클릭 이벤트 추가
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                loadContentInIframe(subMenus[0].url);
+                handleNavigation(subMenus[0].url);
             });
         }
 
@@ -215,10 +216,10 @@ function createSubMenuItems(subMenus, index) {
         link.style.textDecoration = "none";
         link.style.color = "inherit";
         
-        // URL 처리 로직 변경
+        // URL 처리 로직 변경 - 내부/외부 URL 구분
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            loadContentInIframe(url);
+            handleNavigation(url);
             
             // 선택된 메뉴 하이라이트
             applySubMenuHighlight(subMenuItem);
@@ -230,6 +231,43 @@ function createSubMenuItems(subMenus, index) {
 
     subMenuContainer.appendChild(subMenuList);
     return subMenuContainer;
+}
+
+// URL에 따라 내부/외부 페이지 구분하여 처리하는 함수
+function handleNavigation(url) {
+    // URL이 없으면 아무 작업 안함
+    if (!url) return;
+    
+    // URL 객체 생성 시도 (올바른 URL 형식인지 확인)
+    let urlObj;
+    try {
+        // 프로토콜이 없는 경우 (상대 경로) 프로토콜 추가
+        if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('//')) {
+            urlObj = new URL(url, window.location.origin);
+        } else {
+            urlObj = new URL(url);
+        }
+    } catch (e) {
+        // URL 파싱 오류 - 상대 경로로 가정
+        console.log('Invalid URL format, treating as relative path');
+        urlObj = new URL(url, window.location.origin);
+    }
+    
+    // 내부 페이지 체크 (같은 도메인 또는 app.codingnplay.co.kr 도메인)
+    const isInternalUrl = 
+        urlObj.hostname === window.location.hostname || 
+        urlObj.hostname === 'app.codingnplay.co.kr' || 
+        urlObj.hostname === 'www.app.codingnplay.co.kr';
+    
+    console.log(`URL: ${url}, isInternal: ${isInternalUrl}`);
+    
+    if (isInternalUrl) {
+        // 내부 URL - iframe에 로드
+        loadContentInIframe(url);
+    } else {
+        // 외부 URL - 새 창에서 열기
+        window.open(url, '_blank');
+    }
 }
 
 // iframe에 컨텐츠 로드하는 함수
@@ -253,19 +291,43 @@ function loadContentInIframe(url) {
         contentContainer.appendChild(iframe);
     }
 
-    // URL이 상대 경로인지 확인
-    if (url.startsWith('http') || url.startsWith('//')) {
-        // 외부 URL은 그대로 사용
-        iframe.src = url;
-    } else {
-        // 상대 경로는 현재 도메인 기준으로 조정
-        iframe.src = url;
-    }
+    // 로딩 메시지 표시 (선택적)
+    contentContainer.innerHTML = `
+        <div class="loading-message" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">페이지를 불러오는 중...</p>
+            </div>
+        </div>
+    `;
 
-    // iframe 로드 완료 후 크기 조정
-    iframe.onload = function() {
-        resizeIframe(iframe);
-    };
+    // iframe 생성 및 로드
+    setTimeout(() => {
+        iframe = document.createElement('iframe');
+        iframe.id = 'iframeContent';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        
+        // iframe 로드 이벤트 설정
+        iframe.onload = function() {
+            resizeIframe(iframe);
+        };
+        
+        // URL이 상대 경로인지 확인
+        if (!url.startsWith('http') && !url.startsWith('//')) {
+            // 상대 경로는 현재 도메인 기준으로 조정
+            iframe.src = url.startsWith('/') ? url : `/${url}`;
+        } else {
+            // 외부 URL은 그대로 사용
+            iframe.src = url;
+        }
+        
+        contentContainer.innerHTML = '';
+        contentContainer.appendChild(iframe);
+    }, 300); // 로딩 표시를 잠시 보여주기 위한 지연
 }
 
 // 아이콘을 변경하는 함수
