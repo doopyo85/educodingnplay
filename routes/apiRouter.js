@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../lib_login/db');
 const bcrypt = require('bcrypt');
 const { checkRole } = require('../lib_login/authMiddleware');
-const { authenticateUser } = require('../lib_login/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -216,7 +215,7 @@ const upload = multer({
 });
 
 // 프로필 이미지 업로드 API
-router.post('/upload-profile', authenticateUser, upload.single('profileImage'), (req, res) => {
+router.post('/upload-profile', upload.single('profileImage'), (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: '파일이 업로드되지 않았습니다.' });
@@ -236,7 +235,7 @@ router.post('/upload-profile', authenticateUser, upload.single('profileImage'), 
 });
 
 // 프로필 선택 저장 API
-router.post('/save-profile-preference', authenticateUser, (req, res) => {
+router.post('/save-profile-preference', (req, res) => {
     try {
         const { profilePath } = req.body;
         const userId = req.session?.userID;
