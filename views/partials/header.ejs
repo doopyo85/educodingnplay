@@ -52,17 +52,51 @@
                         <span class="text-primary">student</span>
                     </a>
                 <% } %> 
-
-                <!-- 다크 모드 토글 버튼 -->
-                <i id="toggle-dark-mode" class="bi bi-brightness-high me-3"></i>
-
-                <!-- 알림 아이콘 (새 글이 있으면 New 배지 표시) -->
-                <div class="position-relative me-3">
-                    <i id="notification-icon" class="bi bi-bell" style="font-size: 2rem; cursor: pointer;"></i>
-                    <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                        New
-                    </span>
-                </div>
+                <!-- header.ejs 파일 내부의 적절한 위치에 추가 -->
+                <% if (role === 'admin' || role === 'teacher' || role === 'manager') { %>
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="teacherResourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-book"></i> 교사 리소스
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="teacherResourcesDropdown">
+                        <li>
+                        <a class="dropdown-item" href="https://shop.codingnplay.co.kr/" target="_blank">
+                            <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="https://www.miricanvas.com/workspace/team/drive" target="_blank">
+                            <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="http://naver.me/5YwLMZzj" target="_blank">
+                            <img src="/resource/navermybox.jpg" alt="운영자료" width="20" height="20" class="me-2"> 운영자료
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="https://edu.codingnplay.co.kr/" target="_blank">
+                            <img src="/resource/glide.png" alt="지도서" width="20" height="20" class="me-2"> 지도서
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="https://app.codingnplay.co.kr/teacher">
+                            <i class="bi bi-clipboard-check me-2"></i> 평가지
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="https://codingnplay.co.kr/%ec%bd%94%ed%94%8c%ec%86%8c%ec%8b%9d/" target="_blank">
+                            <i class="bi bi-award me-2"></i> 자격증
+                        </a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item" href="https://us02web.zoom.us/j/3566471255?pwd=U3hGeFJ4dVZnYlRVNThTcHVKbUxTUT09" target="_blank">
+                            <img src="/resource/zoom.png" alt="줌 회의실" width="20" height="20" class="me-2"> 줌 회의실
+                        </a>
+                        </li>
+                    </ul>
+                    </li>
+                <% } %>
 
                 <!-- 메시지 아이콘 (메시지 화면으로 이동) -->
                 <i id="app-drawer-button" class="bi bi-chat me-3" style="font-size: 2rem; cursor: pointer;"></i>
