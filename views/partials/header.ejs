@@ -80,7 +80,7 @@
                 <!-- 프로필 드롭다운 -->
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0;">
-                        <img src="/resource/profiles/default.png" alt="Profile" id="profileImage" class="rounded-circle" style="width: 40px; height: 40px;">
+                        <img src="/resource/profiles/default.webp" alt="Profile" id="profileImage" class="rounded-circle" style="width: 40px; height: 40px;">
                         <span id="userName" class="ms-2"><%= locals.userID || '게스트' %></span>
                     </a>
 
@@ -94,7 +94,7 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li class="px-3 py-2 text-muted">
                             <div class="d-flex align-items-center">
-                                <img src="/resource/profiles/default.png" alt="Profile" id="profileDropdownImage" class="rounded-circle" style="width: 50px; height: 50px;">
+                                <img src="/resource/profiles/default.webp" alt="Profile" id="profileDropdownImage" class="rounded-circle" style="width: 50px; height: 50px;">
                                 <div class="ms-3">
                                     <div id="profileDropdownUserID"><%= locals.userID || '게스트' %></div>
                                     <div class="small text-muted" id="profileDropdownRole"><%= locals.role || 'guest' %></div>
@@ -205,7 +205,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // 현재 프로필 이미지 가져오기
-    let currentProfile = localStorage.getItem('userProfile') || '/resource/profiles/default.png';
+    let currentProfile = localStorage.getItem('userProfile') || '/resource/profiles/default.webp';
     
     // 프로필 이미지 설정
     const profileImage = document.getElementById('profileImage');
