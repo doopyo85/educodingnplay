@@ -55,10 +55,11 @@ const CORS = {
   ALLOWED_ORIGINS: [
     'https://codingnplay.co.kr',
     'https://www.codingnplay.co.kr',
-    'https://app.codingnplay.co.kr',
+    'https://app.codingnplay.co.kr',  // app 도메인이 기존에 포함되어 있음
     'http://codingnplay.co.kr',
     'http://www.codingnplay.co.kr',
-    undefined, // 같은 origin 요청 허용
+    'http://app.codingnplay.co.kr',   // HTTP 버전도 추가
+    undefined  // 같은 origin 요청 허용
   ],
 };
 
@@ -70,7 +71,18 @@ const CSP = {
   STYLE_SRC: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://playentry.org"],
   IMG_SRC: ["'self'", "data:", "https://educodingnplaycontents.s3.amazonaws.com", "https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com", "https://www.google.com", "https://code.org", "https://blockly.games", "https://playentry.org"],
   CONNECT_SRC: ["'self'", "https://apis.google.com", "https://content-sheets.googleapis.com", "https://educodingnplaycontents.s3.amazonaws.com", "https://educodingnplaycontents.s3.ap-northeast-2.amazonaws.com", "https://www.google.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://playentry.org"],
-  FRAME_SRC: ["'self'", "https://docs.google.com", "https://sheets.googleapis.com", "https://content-sheets.googleapis.com", "https://educodingnplaycontents.s3.amazonaws.com", "https://app.codingnplay.co.kr:8080", "https://playentry.org"],
+  // FRAME_SRC 업데이트 - report 경로 추가
+  FRAME_SRC: [
+    "'self'", 
+    "https://docs.google.com", 
+    "https://sheets.googleapis.com", 
+    "https://content-sheets.googleapis.com", 
+    "https://educodingnplaycontents.s3.amazonaws.com", 
+    "https://app.codingnplay.co.kr:8080", 
+    "https://app.codingnplay.co.kr", 
+    "https://app.codingnplay.co.kr/report/",
+    "https://playentry.org"
+  ],
   WORKER_SRC: ["'self'", "blob:"],
   OBJECT_SRC: ["'none'"],
 };

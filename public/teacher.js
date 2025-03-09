@@ -120,7 +120,7 @@ function renderMenu(data) {
         topLevelMenuItem.classList.add('menu-item');
 
         const link = document.createElement('a');
-        link.href = hasSubMenus ? `#collapse${index}` : subMenus[0].url; // 서브메뉴가 없으면 URL로 이동
+        link.href = hasSubMenus ? `#collapse${index}` : '#'; // 서브메뉴가 없어도 URL로 직접 이동하지 않음
         link.setAttribute('role', 'button');
         link.classList.add('d-flex', 'justify-content-between', 'align-items-center');
         link.textContent = topLevelMenu;
@@ -134,7 +134,11 @@ function renderMenu(data) {
             arrow.classList.add('bi', 'bi-chevron-down');
             link.appendChild(arrow);
         } else {
-            link.target = "_blank"; // 새 창에서 열기
+            // 서브메뉴가 없는 경우 클릭 이벤트 추가
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadContentInIframe(subMenus[0].url);
+            });
         }
 
         topLevelMenuItem.appendChild(link);
@@ -206,11 +210,19 @@ function createSubMenuItems(subMenus, index) {
         subMenuItem.classList.add('menu-item');
 
         const link = document.createElement('a');
-        link.href = url;
+        link.href = '#';
         link.textContent = subMenu;
-        link.target = "_blank"; // 새 창에서 열기
         link.style.textDecoration = "none";
         link.style.color = "inherit";
+        
+        // URL 처리 로직 변경
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadContentInIframe(url);
+            
+            // 선택된 메뉴 하이라이트
+            applySubMenuHighlight(subMenuItem);
+        });
 
         subMenuItem.appendChild(link);
         subMenuList.appendChild(subMenuItem);
@@ -218,6 +230,42 @@ function createSubMenuItems(subMenus, index) {
 
     subMenuContainer.appendChild(subMenuList);
     return subMenuContainer;
+}
+
+// iframe에 컨텐츠 로드하는 함수
+function loadContentInIframe(url) {
+    // 컨텐츠 컨테이너 확인
+    const contentContainer = document.getElementById('content-container');
+    if (!contentContainer) {
+        console.error('Content container not found');
+        return;
+    }
+
+    // 기존 iframe 확인 또는 생성
+    let iframe = document.getElementById('iframeContent');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'iframeContent';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        contentContainer.innerHTML = '';
+        contentContainer.appendChild(iframe);
+    }
+
+    // URL이 상대 경로인지 확인
+    if (url.startsWith('http') || url.startsWith('//')) {
+        // 외부 URL은 그대로 사용
+        iframe.src = url;
+    } else {
+        // 상대 경로는 현재 도메인 기준으로 조정
+        iframe.src = url;
+    }
+
+    // iframe 로드 완료 후 크기 조정
+    iframe.onload = function() {
+        resizeIframe(iframe);
+    };
 }
 
 // 아이콘을 변경하는 함수
@@ -251,7 +299,7 @@ function applySubMenuHighlight(selectedItem) {
 function resizeIframe(iframe) {
     if (!iframe) return;
 
-    const container = document.getElementById('problem-container');
+    const container = document.getElementById('content-container');
     if (!container) return;
 
     const containerHeight = container.clientHeight;
@@ -278,3 +326,13 @@ window.addEventListener('load', function() {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
     }
 });
+
+// 이벤트 리스너 설정 함수
+function setupEventListeners() {
+    // 상위 메뉴 클릭 시 아이콘 변경
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            updateToggleIcon(this);
+        });
+    });
+}

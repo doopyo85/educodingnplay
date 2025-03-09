@@ -191,10 +191,10 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         
         res.json({
             book: {
-                category: bookData.category,
-                volume: bookData.volume,
-                title: bookData.title || `${bookData.category} ${bookData.volume}호`,
-                thumbnail: bookData.thumbnail_url || '/img/book_placeholder.png'
+                category: category,
+                volume: volume,
+                title: `${category} ${volume}호`,
+                thumbnail: allLessons.length > 0 ? (allLessons[0]['thumbnail_url'] || '') : ''
             },
             evaluationItems: evaluationItems
         });
