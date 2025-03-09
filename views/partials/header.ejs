@@ -90,26 +90,7 @@
                         const permissions = require('../../lib_login/permissions');
                         return permissions.hasFeatureAccess(locals.role, feature);
                     }
-                    %>
-                    <% if (typeof role !== 'undefined' && role === 'admin') { %>
-                        <a href="/admin" class="text-decoration-none me-3">
-                            <span class="text-primary">admin</span>
-                        </a>
-                        <a href="/teacher" class="text-decoration-none me-3">
-                            <span class="text-primary">teacher</span>
-                        </a>
-                    <% } %> 
-                    <% if (typeof role !== 'undefined' && role === 'manager') { %>
-                        <a href="/teacher" class="text-decoration-none me-3">
-                            <span class="text-primary">teacher</span>
-                        </a>
-                    <% } %> 
-                    <% if (typeof role !== 'undefined' && role === 'student') { %>
-                        <a href="/" class="text-decoration-none me-3">
-                            <span class="text-primary">student</span>
-                        </a>
-                    <% } %> 
-                    
+                    %>                    
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li class="px-3 py-2 text-muted">
                             <div class="d-flex align-items-center">
