@@ -62,41 +62,6 @@ async function loadMenuData() {
     }
 }
 
-
-function setupEventListeners() {
-    const runCodeBtn = document.getElementById('runCodeBtn');
-    const prevButton = document.getElementById('prev-problem');
-    const nextButton = document.getElementById('next-problem');
-
-    // Ace 에디터와 연동된 코드 실행
-    if (runCodeBtn) {
-        runCodeBtn.addEventListener('click', function() {
-            var editor = ace.edit("editor");  // Ace 에디터 가져오기
-            const code = editor.getValue();  // 에디터에서 코드 가져오기
-            document.getElementById('output-content').innerText = `Running code:\n${code}`;
-        });
-    }
-
-    if (prevButton) {
-        prevButton.addEventListener('click', () => {
-            if (currentProblemNumber > 1) {
-                navigateToProblem(currentProblemNumber - 1);
-            }
-        });
-    }
-
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            if (currentProblemNumber < totalProblems) {
-                navigateToProblem(currentProblemNumber + 1);
-            }
-        });
-    }
-
-    fetchUserData();
-}
-
-
 function fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {

@@ -35,13 +35,37 @@ async function updateReportCache() {
         // 데이터를 카테고리별로 정리
         const categorizedData = {};
         parsedData.forEach(item => {
-            const category = item.category || '기타';
+            // 구글 시트의 컬럼명을 확인
+            const category = item['교재카테고리'] || '기타';
             
+            // 레벨-호 형식에서 볼륨(호수) 추출
+            let volume = '1';
+            if (item['교재레벨-호']) {
+                const parts = item['교재레벨-호'].split('-');
+                if (parts.length > 1) {
+                    volume = parts[1];
+                }
+            }
+            
+            // 카테고리가 없는 경우 생성
             if (!categorizedData[category]) {
                 categorizedData[category] = [];
             }
             
-            categorizedData[category].push(item);
+            // 이미 추가된 볼륨인지 확인
+            const existingVolume = categorizedData[category].find(book => 
+                book.volume === volume
+            );
+            
+            // 중복된 볼륨이 없을 경우에만 추가
+            if (!existingVolume) {
+                categorizedData[category].push({
+                    category: category,
+                    volume: volume,
+                    title: `${category} ${volume}호`,
+                    thumbnail_url: item['thumbnail_url'] || ''
+                });
+            }
         });
         
         // 캐시 저장 및 타임스탬프 업데이트
@@ -105,31 +129,65 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         }
         
         // 해당 볼륨 찾기
-        const bookData = reportData[category].find(item => 
+        const bookVolume = reportData[category].find(item => 
             item.volume && item.volume.toString() === volume.toString()
         );
         
-        if (!bookData) {
+        if (!bookVolume) {
             return res.status(404).json({ error: '해당 호수의 교재를 찾을 수 없습니다.' });
+        }
+        
+        // 해당 카테고리와 볼륨의 모든 차시 데이터 수집
+        // 원본 데이터에서 다시 검색
+        const allLessons = [];
+        const sheetData = await getSheetData('report!A1:Z1000');
+        
+        if (sheetData && Array.isArray(sheetData) && sheetData.length > 0) {
+            const headers = sheetData[0];
+            const lessons = sheetData.slice(1).map(row => {
+                const item = {};
+                headers.forEach((header, index) => {
+                    item[header] = row[index] || '';
+                });
+                return item;
+            });
+            
+            // 해당 카테고리와 볼륨에 맞는 차시 찾기
+            lessons.forEach(lesson => {
+                const lessonCategory = lesson['교재카테고리'] || '';
+                const lessonLevelVolume = lesson['교재레벨-호'] || '';
+                
+                // 볼륨 추출
+                let lessonVolume = '1';
+                if (lessonLevelVolume) {
+                    const parts = lessonLevelVolume.split('-');
+                    if (parts.length > 1) {
+                        lessonVolume = parts[1];
+                    }
+                }
+                
+                if (lessonCategory === category && lessonVolume === volume) {
+                    allLessons.push(lesson);
+                }
+            });
         }
         
         // 해당 교재의 평가 항목 구성
         const evaluationItems = [];
-        const ctPrinciples = ['추상화', '분해', '패턴인식', '알고리즘'];
         
-        // 교재에 해당하는 평가 항목 생성
-        for (let i = 1; i <= 8; i++) {
-            const principleField = `ct_principle_${i}`;
-            const descriptionField = `evaluation_${i}`;
+        // 각 차시별 CT요소와 평가항목을 추가
+        allLessons.forEach((lesson, index) => {
+            const ctPrinciple = lesson['차시CT요소'] || '';
+            const evaluation = lesson['평가항목'] || '';
             
-            if (bookData[principleField] && bookData[descriptionField]) {
+            if (ctPrinciple && evaluation) {
                 evaluationItems.push({
-                    id: i,
-                    principle: bookData[principleField],
-                    description: bookData[descriptionField]
+                    id: index + 1,
+                    principle: ctPrinciple,
+                    description: evaluation
                 });
             }
-        }
+        });
         
         res.json({
             book: {
