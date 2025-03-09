@@ -77,38 +77,62 @@
                     </div>
                 <% } %>
                 
-                <!-- 역할 권한 헬퍼 함수 -->
-                <%
-                function canAccess(feature) {
-                    const permissions = require('../../lib_login/permissions');
-                    return permissions.hasFeatureAccess(locals.role, feature);
-                }
-                %>
-                <% if (typeof role !== 'undefined' && role === 'admin') { %>
-                    <a href="/admin" class="text-decoration-none me-3">
-                        <span class="text-primary">admin</span>
+                <!-- 프로필 드롭다운 -->
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0;">
+                        <img src="/resource/profiles/default.png" alt="Profile" id="profileImage" class="rounded-circle" style="width: 40px; height: 40px;">
+                        <span id="userName" class="ms-2"><%= locals.userID || '게스트' %></span>
                     </a>
-                    <a href="/teacher" class="text-decoration-none me-3">
-                        <span class="text-primary">teacher</span>
-                    </a>
-                <% } %> 
-                <% if (typeof role !== 'undefined' && role === 'manager') { %>
-                    <a href="/teacher" class="text-decoration-none me-3">
-                        <span class="text-primary">teacher</span>
-                    </a>
-                <% } %> 
-                <% if (typeof role !== 'undefined' && role === 'student') { %>
-                    <a href="/" class="text-decoration-none me-3">
-                        <span class="text-primary">student</span>
-                    </a>
-                <% } %> 
 
-                <!-- 프로필 아이콘 -->
-                <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
-                <span id="userName" class="ms-2"></span>
-
-                <!-- 로그아웃 버튼 -->
-                <button id="logoutButton" class="btn btn-outline-secondary ms-2" style="font-size: 16px; padding: 8px 12px;">로그아웃</button>
+                    <!-- 역할 권한 헬퍼 함수 -->
+                    <%
+                    function canAccess(feature) {
+                        const permissions = require('../../lib_login/permissions');
+                        return permissions.hasFeatureAccess(locals.role, feature);
+                    }
+                    %>
+                    <% if (typeof role !== 'undefined' && role === 'admin') { %>
+                        <a href="/admin" class="text-decoration-none me-3">
+                            <span class="text-primary">admin</span>
+                        </a>
+                        <a href="/teacher" class="text-decoration-none me-3">
+                            <span class="text-primary">teacher</span>
+                        </a>
+                    <% } %> 
+                    <% if (typeof role !== 'undefined' && role === 'manager') { %>
+                        <a href="/teacher" class="text-decoration-none me-3">
+                            <span class="text-primary">teacher</span>
+                        </a>
+                    <% } %> 
+                    <% if (typeof role !== 'undefined' && role === 'student') { %>
+                        <a href="/" class="text-decoration-none me-3">
+                            <span class="text-primary">student</span>
+                        </a>
+                    <% } %> 
+                    
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li class="px-3 py-2 text-muted">
+                            <div class="d-flex align-items-center">
+                                <img src="/resource/profiles/default.png" alt="Profile" id="profileDropdownImage" class="rounded-circle" style="width: 50px; height: 50px;">
+                                <div class="ms-3">
+                                    <div id="profileDropdownUserID"><%= locals.userID || '게스트' %></div>
+                                    <div class="small text-muted" id="profileDropdownRole"><%= locals.role || 'guest' %></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                <i class="bi bi-person-fill me-2"></i>프로필 선택
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/logout">
+                                <i class="bi bi-box-arrow-right me-2"></i>로그아웃
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -163,6 +187,172 @@
     }
     setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
 
-
+document.addEventListener('DOMContentLoaded', function() {
+    // 현재 프로필 이미지 가져오기
+    let currentProfile = localStorage.getItem('userProfile') || '/resource/profiles/default.png';
+    
+    // 프로필 이미지 설정
+    const profileImage = document.getElementById('profileImage');
+    const profileDropdownImage = document.getElementById('profileDropdownImage');
+    
+    if (profileImage) profileImage.src = currentProfile;
+    if (profileDropdownImage) profileDropdownImage.src = currentProfile;
+    
+    // 기본 프로필 이미지 목록 (실제 파일에 맞게 수정 필요)
+    const defaultProfiles = [
+        '/resource/profiles/default.png',
+        '/resource/profiles/profile1.png',
+        '/resource/profiles/profile2.png',
+        '/resource/profiles/profile3.png',
+        '/resource/profiles/profile4.png'
+    ];
+    
+    // 기본 프로필 이미지 로드
+    const defaultProfileContainer = document.getElementById('defaultProfileContainer');
+    
+    if (defaultProfileContainer) {
+        defaultProfileContainer.innerHTML = '';
+        
+        defaultProfiles.forEach(profile => {
+            const profileDiv = document.createElement('div');
+            profileDiv.className = `profile-image-item m-2 ${profile === currentProfile ? 'selected' : ''}`;
+            profileDiv.dataset.profile = profile;
+            
+            profileDiv.innerHTML = `
+                <img src="${profile}" alt="Profile" class="rounded-circle" 
+                        style="width: 60px; height: 60px; cursor: pointer; 
+                        ${profile === currentProfile ? 'border: 3px solid #0d6efd;' : ''}">
+            `;
+            
+            profileDiv.addEventListener('click', function() {
+                // 모든 프로필에서 선택 표시 제거
+                document.querySelectorAll('.profile-image-item').forEach(item => {
+                    item.classList.remove('selected');
+                    item.querySelector('img').style.border = 'none';
+                });
+                
+                // 현재 선택된 프로필에 선택 표시 추가
+                this.classList.add('selected');
+                this.querySelector('img').style.border = '3px solid #0d6efd';
+                
+                // 선택된 프로필 저장
+                currentProfile = this.dataset.profile;
+            });
+            
+            defaultProfileContainer.appendChild(profileDiv);
+        });
+    }
+    
+    // 프로필 업로드 처리
+    const profileUploadForm = document.getElementById('profileUploadForm');
+    if (profileUploadForm) {
+        profileUploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('profileImageUpload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+            
+            // 파일 크기 제한 (1MB)
+            if (file.size > 1024 * 1024) {
+                alert('1MB 이하의 파일만 업로드 가능합니다.');
+                return;
+            }
+            
+            // FormData 생성
+            const formData = new FormData();
+            formData.append('profileImage', file);
+            
+            // 서버에 프로필 이미지 업로드
+            fetch('/api/upload-profile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 업로드된 이미지 경로
+                    const uploadedImagePath = data.imagePath;
+                    
+                    // 업로드된 이미지를 선택 옵션에 추가
+                    const profileDiv = document.createElement('div');
+                    profileDiv.className = 'profile-image-item m-2 selected';
+                    profileDiv.dataset.profile = uploadedImagePath;
+                    
+                    profileDiv.innerHTML = `
+                        <img src="${uploadedImagePath}" alt="Uploaded Profile" class="rounded-circle" 
+                                style="width: 60px; height: 60px; cursor: pointer; border: 3px solid #0d6efd;">
+                    `;
+                    
+                    // 모든 프로필에서 선택 표시 제거
+                    document.querySelectorAll('.profile-image-item').forEach(item => {
+                        item.classList.remove('selected');
+                        item.querySelector('img').style.border = 'none';
+                    });
+                    
+                    // 업로드된 이미지를 컨테이너에 추가
+                    defaultProfileContainer.appendChild(profileDiv);
+                    
+                    // 현재 프로필 업데이트
+                    currentProfile = uploadedImagePath;
+                    
+                    // 폼 초기화
+                    fileInput.value = '';
+                    
+                    alert('프로필 이미지가 업로드되었습니다.');
+                } else {
+                    alert('업로드 실패: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('업로드 중 오류가 발생했습니다.');
+            });
+        });
+    }
+    
+    // 프로필 저장
+    const saveProfileButton = document.getElementById('saveProfileButton');
+    if (saveProfileButton) {
+        saveProfileButton.addEventListener('click', function() {
+            // 로컬 스토리지에 선택한 프로필 저장
+            localStorage.setItem('userProfile', currentProfile);
+            
+            // 프로필 이미지 업데이트
+            if (profileImage) profileImage.src = currentProfile;
+            if (profileDropdownImage) profileDropdownImage.src = currentProfile;
+            
+            // 서버에 프로필 선택 정보 저장 (필요한 경우)
+            fetch('/api/save-profile-preference', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ profilePath: currentProfile })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 저장 성공 시 모달 닫기
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+                    modal.hide();
+                } else {
+                    alert('프로필 저장 실패: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            modal.hide();
+        });
+    }
+});    
 
 </script>
