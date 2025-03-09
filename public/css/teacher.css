@@ -1,0 +1,80 @@
+/* 메인 레이아웃 스타일 */
+.main-container {
+    display: flex;
+    height: calc(100vh - 56px); /* 헤더 높이를 뺀 전체 높이 */
+    overflow: hidden;
+}
+
+.nav-container {
+    width: 250px;
+    min-width: 250px; /* 최소 너비 보장 */
+    height: 100%;
+    overflow-y: auto;
+    border-right: 1px solid #dee2e6;
+    padding: 15px;
+    background-color: #f8f9fa;
+    z-index: 10; /* 네비게이션이 항상 위에 오도록 */
+}
+
+#content-container {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    position: relative; /* iframe의 절대 위치 기준점 */
+}
+
+/* iframe 스타일 */
+#iframeContent {
+    width: 100%;
+    height: 100%;
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* 메뉴 스타일 */
+.menu-item {
+    margin-bottom: 10px;
+}
+
+.menu-item a {
+    color: #212529;
+    text-decoration: none;
+    display: block;
+    padding: 8px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.menu-item a:hover {
+    background-color: #e9ecef;
+}
+
+.menu-item.active > a {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* 빈 컨텐츠 메시지 */
+.empty-content-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+}
+
+/* 로딩 메시지 */
+.loading-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 5;
+}
+

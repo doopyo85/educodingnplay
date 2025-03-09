@@ -279,18 +279,6 @@ function loadContentInIframe(url) {
         return;
     }
 
-    // 기존 iframe 확인 또는 생성
-    let iframe = document.getElementById('iframeContent');
-    if (!iframe) {
-        iframe = document.createElement('iframe');
-        iframe.id = 'iframeContent';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        contentContainer.innerHTML = '';
-        contentContainer.appendChild(iframe);
-    }
-
     // 로딩 메시지 표시 (선택적)
     contentContainer.innerHTML = `
         <div class="loading-message" style="display: flex; justify-content: center; align-items: center; height: 100%;">
@@ -305,11 +293,19 @@ function loadContentInIframe(url) {
 
     // iframe 생성 및 로드
     setTimeout(() => {
-        iframe = document.createElement('iframe');
+        const iframe = document.createElement('iframe');
         iframe.id = 'iframeContent';
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
+        iframe.style.position = 'absolute'; // 절대 위치로 설정
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        
+        // 컨테이너의 position을 설정하여 iframe이 컨테이너 내에 상대적으로 배치되도록 함
+        contentContainer.style.position = 'relative';
         
         // iframe 로드 이벤트 설정
         iframe.onload = function() {
@@ -358,19 +354,16 @@ function applySubMenuHighlight(selectedItem) {
 }
 
 
+
 function resizeIframe(iframe) {
     if (!iframe) return;
 
     const container = document.getElementById('content-container');
     if (!container) return;
 
-    const containerHeight = container.clientHeight;
-    iframe.style.height = containerHeight + 'px';
-
-    // cross-origin 접근 시도 제거
-    iframe.onload = function() {
-        iframe.style.height = containerHeight + 'px';
-    };
+    // iframe이 컨테이너를 꽉 채우도록 설정
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
 }
 
 // 창 크기가 변경될 때마다 iframe 크기를 조정합니다
