@@ -1,3 +1,6 @@
+<!-- CSS 파일 참조 추가 -->
+<link rel="stylesheet" href="/css/report.css">
+
 <div class="container my-4">
   <div class="row mb-3">
     <div class="col-md-6">
@@ -110,7 +113,7 @@
               
               <div class="mt-4">
                 <h5 class="mb-3">선생님 의견</h5>
-                <div class="border p-3 mb-4" style="min-height: 100px;" id="teacherCommentCell"></div>
+                <div class="teacher-comment-area mb-4" id="teacherCommentCell"></div>
               </div>
               
               <div class="mt-4 mb-4">
@@ -208,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 썸네일 이미지 표시
     if (data.book.thumbnail) {
       bookThumbnailsCell.innerHTML = `
-        <img src="${data.book.thumbnail}" alt="${data.book.title}" class="img-thumbnail" style="max-height: 120px;">
+        <img src="${data.book.thumbnail}" alt="${data.book.title}" class="book-thumbnail">
         <p class="small mt-2">${data.book.title}</p>
       `;
     } else {
@@ -327,65 +330,3 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
 </script>
-
-<style>
-/* 인쇄 스타일 */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #printableReport, #printableReport * {
-    visibility: visible;
-  }
-  #printableReport {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 15px;
-  }
-  
-  .card, .card-header, .card-body {
-    border: none !important;
-    box-shadow: none !important;
-  }
-  
-  .form-check-input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border: 1px solid #000;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-  }
-  
-  .form-check-input:checked {
-    background-color: #000;
-    border-color: #000;
-  }
-}
-
-/* 일반 스타일 */
-.form-check-inline {
-  display: flex;
-  margin-right: 0;
-  justify-content: center;
-}
-
-table th, table td {
-  vertical-align: middle;
-}
-
-#reportPreview {
-  min-height: 800px;
-}
-
-#printableReport {
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
-.form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}

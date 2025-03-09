@@ -1,0 +1,145 @@
+/* report.css */
+/* 전체 리포트 페이지 스타일 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+  
+  /* 헤더 스타일 */
+  .report-header {
+    padding: 20px 0;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  /* 카드 스타일 */
+  .category-section {
+    margin-bottom: 2rem;
+  }
+  
+  .category-title {
+    border-left: 4px solid #0d6efd;
+    padding-left: 12px;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  /* 리포트 생성 페이지 스타일 */
+  #reportPreview {
+    min-height: 800px;
+  }
+  
+  #printableReport {
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  
+  /* 테이블 스타일 */
+  .table th {
+    background-color: #f8f9fa !important;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  
+  .table td {
+    vertical-align: middle;
+  }
+  
+  /* 평가 항목 테이블 스타일 */
+  #evaluationTableBody td {
+    padding: 0.75rem;
+  }
+  
+  .form-check-inline {
+    display: flex;
+    margin-right: 0;
+    justify-content: center;
+  }
+  
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  /* 선생님 의견 영역 */
+  .teacher-comment-area {
+    min-height: 100px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+  }
+  
+  /* 교재 썸네일 영역 */
+  .book-thumbnail {
+    max-height: 120px;
+    margin-bottom: 10px;
+  }
+  
+  /* 버튼 스타일 */
+  .btn-outline-primary {
+    transition: all 0.3s;
+  }
+  
+  .btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* 로딩 메시지 */
+  .loading-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    flex-direction: column;
+  }
+  
+  /* 인쇄 스타일 */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #printableReport, #printableReport * {
+      visibility: visible;
+    }
+    #printableReport {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 15px;
+      box-shadow: none;
+    }
+    
+    .card, .card-header, .card-body {
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    .form-check-input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border: 1px solid #000;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+    
+    .form-check-input:checked {
+      background-color: #000;
+      border-color: #000;
+    }
+    
+    .btn, .card-header, .form-control {
+      display: none !important;
+    }
+  }
