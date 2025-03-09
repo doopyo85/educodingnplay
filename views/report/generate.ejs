@@ -1,0 +1,393 @@
+<%- include('../partials/header') %>
+
+<div class="container my-4">
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <h2>월간 학습리포트 POD</h2>
+      <p class="text-muted" id="reportTitle">...</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <a href="/report/books-page" class="btn btn-outline-secondary me-2">
+        <i class="bi bi-arrow-left"></i> 목록으로
+      </a>
+      <button id="printBtn" class="btn btn-primary">
+        <i class="bi bi-printer"></i> 인쇄하기
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">보고서 정보 입력</h5>
+        </div>
+        <div class="card-body">
+          <form id="reportForm">
+            <div class="mb-3">
+              <label for="studentName" class="form-label">학생 이름</label>
+              <input type="text" class="form-control" id="studentName" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="teacherName" class="form-label">강사 이름</label>
+              <input type="text" class="form-control" id="teacherName" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="startDate" class="form-label">학습 시작일</label>
+              <input type="date" class="form-control" id="startDate" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="endDate" class="form-label">학습 종료일</label>
+              <input type="date" class="form-control" id="endDate" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="teacherComment" class="form-label">선생님 의견</label>
+              <textarea class="form-control" id="teacherComment" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <div class="card shadow-sm" id="reportPreview">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">리포트 미리보기</h5>
+        </div>
+        <div class="card-body">
+          <div id="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">교재 정보를 불러오는 중...</p>
+          </div>
+          
+          <div id="reportContent" class="d-none">
+            <!-- 리포트 컨텐츠 시작 -->
+            <div id="printableReport">
+              <div class="text-center mb-4">
+                <h1 class="display-6 fw-bold">Monthly Assessment</h1>
+                <div class="text-end">
+                  <h6>센터</h6>
+                </div>
+              </div>
+              
+              <table class="table table-bordered">
+                <tr>
+                  <th style="width: 15%;" class="text-center bg-light">학습 기간</th>
+                  <td style="width: 35%;" id="studyPeriodCell"></td>
+                  <th style="width: 15%;" class="text-center bg-light">프로그램명</th>
+                  <td style="width: 35%;" id="programNameCell"></td>
+                </tr>
+                <tr>
+                  <th class="text-center bg-light">학 생 명</th>
+                  <td id="studentNameCell"></td>
+                  <th class="text-center bg-light">강 사 명</th>
+                  <td id="teacherNameCell"></td>
+                </tr>
+              </table>
+              
+              <table class="table table-bordered mt-4">
+                <thead>
+                  <tr>
+                    <th style="width: 5%;" class="text-center bg-light">항목</th>
+                    <th style="width: 15%;" class="text-center bg-light">
+                      CT<br>
+                      <small>(컴퓨팅 사고력)</small>
+                    </th>
+                    <th style="width: 55%;" class="text-center bg-light">평가 내용</th>
+                    <th style="width: 8%;" class="text-center bg-light">상</th>
+                    <th style="width: 8%;" class="text-center bg-light">중</th>
+                    <th style="width: 8%;" class="text-center bg-light">하</th>
+                  </tr>
+                </thead>
+                <tbody id="evaluationTableBody">
+                  <!-- 평가 항목이 여기에 동적으로 삽입됩니다 -->
+                </tbody>
+              </table>
+              
+              <div class="mt-4">
+                <h5 class="mb-3">선생님 의견</h5>
+                <div class="border p-3 mb-4" style="min-height: 100px;" id="teacherCommentCell"></div>
+              </div>
+              
+              <div class="mt-4 mb-4">
+                <h5 class="mb-3 text-center" id="contentsTitle"></h5>
+                
+                <table class="table table-bordered">
+                  <tr>
+                    <th class="text-center bg-light" style="width: 15%;">교재</th>
+                    <td id="bookThumbnailsCell" class="text-center">
+                      <!-- 썸네일 이미지가 여기에 삽입됩니다 -->
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div class="text-center mt-4">
+                <img src="/resource/images/logo.png" alt="코딩엔플레이" style="max-width: 80px;" />
+              </div>
+            </div>
+            <!-- 리포트 컨텐츠 끝 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  // URL에서 카테고리와 볼륨 값 가져오기
+  const pathParts = window.location.pathname.split('/');
+  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
+  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+  
+  // 초기 로딩 상태
+  const loadingElement = document.getElementById('loading');
+  const reportContentElement = document.getElementById('reportContent');
+  
+  // 폼 요소
+  const studentNameInput = document.getElementById('studentName');
+  const teacherNameInput = document.getElementById('teacherName');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const teacherCommentInput = document.getElementById('teacherComment');
+  
+  // 리포트 요소
+  const reportTitleElement = document.getElementById('reportTitle');
+  const studentNameCell = document.getElementById('studentNameCell');
+  const teacherNameCell = document.getElementById('teacherNameCell');
+  const studyPeriodCell = document.getElementById('studyPeriodCell');
+  const programNameCell = document.getElementById('programNameCell');
+  const teacherCommentCell = document.getElementById('teacherCommentCell');
+  const evaluationTableBody = document.getElementById('evaluationTableBody');
+  const contentsTitle = document.getElementById('contentsTitle');
+  const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
+  
+  // 날짜 기본값 설정 (오늘 및 1개월 전)
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+  
+  startDateInput.value = formatDateForInput(oneMonthAgo);
+  endDateInput.value = formatDateForInput(today);
+  
+  // 카테고리 이름 매핑 (영문 -> 한글)
+  const categoryMapping = {
+    'preschool': '프리스쿨',
+    'junior': '주니어',
+    'cps': 'CPS',
+    'cpa': 'CPA',
+    'ctr_appinventor': 'CTR앱인벤터',
+    'ctr_python': 'CTR파이썬'
+  };
+  
+  try {
+    // 교재 정보 가져오기
+    const response = await fetch(`/report/book/${category}/${volume}`);
+    
+    if (!response.ok) {
+      throw new Error('교재 정보를 불러오는데 실패했습니다.');
+    }
+    
+    const data = await response.json();
+    
+    // 리포트 제목 설정
+    const displayCategory = categoryMapping[category] || category;
+    reportTitleElement.textContent = `${displayCategory} ${volume}호`;
+    
+    // 프로그램 이름 설정
+    programNameCell.textContent = displayCategory;
+    
+    // 컨텐츠 타이틀 설정
+    contentsTitle.textContent = `${displayCategory} CT컴퓨팅 사고력 신규확장 콘텐츠`;
+    
+    // 썸네일 이미지 표시
+    if (data.book.thumbnail) {
+      bookThumbnailsCell.innerHTML = `
+        <img src="${data.book.thumbnail}" alt="${data.book.title}" class="img-thumbnail" style="max-height: 120px;">
+        <p class="small mt-2">${data.book.title}</p>
+      `;
+    } else {
+      bookThumbnailsCell.innerHTML = `
+        <p class="text-muted small">이미지 없음</p>
+        <p class="small mt-2">${data.book.title}</p>
+      `;
+    }
+    
+    // 평가 항목 테이블 생성
+    if (data.evaluationItems && data.evaluationItems.length > 0) {
+      evaluationTableBody.innerHTML = '';
+      
+      data.evaluationItems.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-center">${item.principle}</td>
+          <td>${item.description}</td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-high" value="상" checked>
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-mid" value="중">
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-low" value="하">
+            </div>
+          </td>
+        `;
+        evaluationTableBody.appendChild(row);
+      });
+    } else {
+      evaluationTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted py-3">
+            평가 항목이 없습니다.
+          </td>
+        </tr>
+      `;
+    }
+    
+    // 로딩 완료 후 컨텐츠 표시
+    loadingElement.classList.add('d-none');
+    reportContentElement.classList.remove('d-none');
+    
+    // 폼 입력값 변경 이벤트 리스너 등록
+    setupFormListeners();
+    
+  } catch (error) {
+    console.error('Error:', error);
+    loadingElement.innerHTML = `
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+      </div>
+    `;
+  }
+  
+  // 폼 입력값 변경시 리포트 업데이트
+  function setupFormListeners() {
+    // 초기 값 설정
+    updateReportFromForm();
+    
+    // 이벤트 리스너 등록
+    studentNameInput.addEventListener('input', updateReportFromForm);
+    teacherNameInput.addEventListener('input', updateReportFromForm);
+    startDateInput.addEventListener('change', updateReportFromForm);
+    endDateInput.addEventListener('change', updateReportFromForm);
+    teacherCommentInput.addEventListener('input', updateReportFromForm);
+  }
+  
+  // 폼 입력값으로 리포트 업데이트
+  function updateReportFromForm() {
+    // 학생 및 강사 이름
+    studentNameCell.textContent = studentNameInput.value || '-';
+    teacherNameCell.textContent = teacherNameInput.value || '-';
+    
+    // 학습 기간
+    if (startDateInput.value && endDateInput.value) {
+      studyPeriodCell.textContent = formatDateRange(startDateInput.value, endDateInput.value);
+    } else {
+      studyPeriodCell.textContent = '-';
+    }
+    
+    // 선생님 의견
+    teacherCommentCell.textContent = teacherCommentInput.value || '';
+  }
+  
+  // 인쇄 버튼 이벤트
+  document.getElementById('printBtn').addEventListener('click', function() {
+    window.print();
+  });
+  
+  // 날짜 포맷 함수 (YYYY-MM-DD)
+  function formatDateForInput(date) {
+    return date.toISOString().split('T')[0];
+  }
+  
+  // 날짜 범위 포맷 함수 (YYYY.MM.DD ~ YYYY.MM.DD)
+  function formatDateRange(start, end) {
+    const formatDate = (dateStr) => {
+      const parts = dateStr.split('-');
+      return `${parts[0]}.${parts[1]}.${parts[2]}`;
+    };
+    
+    return `${formatDate(start)} ~ ${formatDate(end)}`;
+  }
+});
+</script>
+
+<style>
+/* 인쇄 스타일 */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printableReport, #printableReport * {
+    visibility: visible;
+  }
+  #printableReport {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 15px;
+  }
+  
+  .card, .card-header, .card-body {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .form-check-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #000;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+  
+  .form-check-input:checked {
+    background-color: #000;
+    border-color: #000;
+  }
+}
+
+/* 일반 스타일 */
+.form-check-inline {
+  display: flex;
+  margin-right: 0;
+  justify-content: center;
+}
+
+table th, table td {
+  vertical-align: middle;
+}
+
+#reportPreview {
+  min-height: 800px;
+}
+
+#printableReport {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}

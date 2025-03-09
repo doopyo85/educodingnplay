@@ -1,0 +1,130 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="text-center">월간 학습리포트 POD</h2>
+      <p class="text-center text-muted">교재 카테고리와 호수를 선택하여 학습 리포트를 생성하세요</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">교재 선택</h4>
+        </div>
+        <div class="card-body" id="categoryContainer">
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">교재 정보를 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const categoryContainer = document.getElementById('categoryContainer');
+  
+  // 카테고리 이름 매핑 (영문 -> 한글)
+  const categoryMapping = {
+    'preschool': '프리스쿨',
+    'junior': '주니어',
+    'cps': 'CPS',
+    'cpa': 'CPA',
+    'ctr_appinventor': 'CTR앱인벤터',
+    'ctr_python': 'CTR파이썬'
+  };
+  
+  // 교재 목록 가져오기
+  fetch('/report/books')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('교재 목록을 불러오는데 실패했습니다.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // 컨테이너 초기화
+      categoryContainer.innerHTML = '';
+      
+      // 데이터가 없는 경우
+      if (Object.keys(data).length === 0) {
+        categoryContainer.innerHTML = `
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            사용 가능한 교재 정보가 없습니다.
+          </div>
+        `;
+        return;
+      }
+      
+      // 각 카테고리별 교재 목록 표시
+      Object.keys(data).forEach(category => {
+        const displayName = categoryMapping[category] || category;
+        const volumes = data[category];
+        
+        // 카테고리 섹션 생성
+        const categorySection = document.createElement('div');
+        categorySection.className = 'category-section mb-4';
+        
+        // 카테고리 제목
+        const categoryTitle = document.createElement('h5');
+        categoryTitle.className = 'category-title bg-light p-2 rounded mb-3';
+        categoryTitle.textContent = displayName;
+        categorySection.appendChild(categoryTitle);
+        
+        // 교재 버튼 컨테이너
+        const volumeContainer = document.createElement('div');
+        volumeContainer.className = 'row g-3';
+        
+        // 정렬된 교재 목록 (볼륨 숫자 기준)
+        const sortedVolumes = [...volumes].sort((a, b) => {
+          return parseInt(a.volume) - parseInt(b.volume);
+        });
+        
+        // 각 교재 버튼 생성
+        sortedVolumes.forEach(book => {
+          if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
+          
+          const volumeCol = document.createElement('div');
+          volumeCol.className = 'col-md-2 col-sm-3 col-4';
+          
+          const volumeBtn = document.createElement('a');
+          volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+          volumeBtn.className = 'btn btn-outline-primary w-100';
+          volumeBtn.textContent = `${book.volume}호`;
+          
+          volumeCol.appendChild(volumeBtn);
+          volumeContainer.appendChild(volumeCol);
+        });
+        
+        categorySection.appendChild(volumeContainer);
+        categoryContainer.appendChild(categorySection);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      categoryContainer.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+        </div>
+      `;
+    });
+});
+</script>
+
+<style>
+.category-title {
+  border-left: 4px solid #0d6efd;
+  padding-left: 12px;
+}
+</style>
+
+<%- include('../partials/footer') %>
