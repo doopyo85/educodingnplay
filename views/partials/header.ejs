@@ -27,55 +27,54 @@
                 <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search" style="font-size: 16px; padding: 8px;">
             </form>          
             <div class="d-flex align-items-center">
-                <!-- header.ejs 파일 내부의 적절한 위치에 추가 -->
                 <% if (role === 'admin' || role === 'teacher' || role === 'manager') { %>
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="teacherResourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        교사 전용페이지
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="teacherResourcesDropdown">
-                        <li>
-                        <a class="dropdown-item" href="https://shop.codingnplay.co.kr/" target="_blank">
-                            <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재몰
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="teacherResourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            교사 전용페이지
                         </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="https://www.miricanvas.com/workspace/team/drive" target="_blank">
-                            <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보물
-                        </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="http://naver.me/5YwLMZzj" target="_blank">
-                            <img src="/resource/navermybox.jpg" alt="운영자료" width="20" height="20" class="me-2"> 운영자료
-                        </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="https://edu.codingnplay.co.kr/" target="_blank">
-                            <img src="/resource/glide.png" alt="지도서 영상보기" width="20" height="20" class="me-2"> 지도서 영상보기
-                        </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="https://app.codingnplay.co.kr/teacher">
-                            <i class="bi bi-clipboard-check me-2"></i> 평가지 출력
-                        </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="https://codingnplay.co.kr/%ec%bd%94%ed%94%8c%ec%86%8c%ec%8b%9d/" target="_blank">
-                            <i class="bi bi-award me-2"></i> 자격증/행사
-                        </a>
-                        </li>
-                        <li>
-                        <a class="dropdown-item" href="https://us02web.zoom.us/j/3566471255?pwd=U3hGeFJ4dVZnYlRVNThTcHVKbUxTUT09" target="_blank">
-                            <img src="/resource/zoom.png" alt="줌 회의실" width="20" height="20" class="me-2"> 줌 회의실
-                        </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="https://app.codingnplay.co.kr/board" target="_blank">
-                                <img src="/resource/co.ico" alt="일해라너구리" width="20" height="20" class="me-2"> 일해라너구리
-                            </a>
-                        </li>
-                    </ul>
-                    </li>
+                        <ul class="dropdown-menu" aria-labelledby="teacherResourcesDropdown">
+                            <li>
+                                <a class="dropdown-item" href="https://shop.codingnplay.co.kr/" target="_blank">
+                                    <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재몰
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://www.miricanvas.com/workspace/team/drive" target="_blank">
+                                    <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보물
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="http://naver.me/5YwLMZzj" target="_blank">
+                                    <img src="/resource/navermybox.jpg" alt="운영자료" width="20" height="20" class="me-2"> 운영자료
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://edu.codingnplay.co.kr/" target="_blank">
+                                    <img src="/resource/glide.png" alt="지도서 영상보기" width="20" height="20" class="me-2"> 지도서 영상보기
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://app.codingnplay.co.kr/teacher">
+                                    <i class="bi bi-clipboard-check me-2"></i> 평가지 출력
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://codingnplay.co.kr/%ec%bd%94%ed%94%8c%ec%86%8c%ec%8b%9d/" target="_blank">
+                                    <i class="bi bi-award me-2"></i> 자격증/행사
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://us02web.zoom.us/j/3566471255?pwd=U3hGeFJ4dVZnYlRVNThTcHVKbUxTUT09" target="_blank">
+                                    <img src="/resource/zoom.png" alt="줌 회의실" width="20" height="20" class="me-2"> 줌 회의실
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="https://app.codingnplay.co.kr/board" target="_blank">
+                                    <img src="/resource/co.ico" alt="일해라너구리" width="20" height="20" class="me-2"> 일해라너구리
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 <% } %>
                 
                 <!-- 역할 권한 헬퍼 함수 -->
