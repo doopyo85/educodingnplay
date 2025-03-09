@@ -27,31 +27,6 @@
                 <input class="form-control me-2" type="search" placeholder="Search..." aria-label="Search" style="font-size: 16px; padding: 8px;">
             </form>          
             <div class="d-flex align-items-center">
-                <!-- 역할 권한 헬퍼 함수 -->
-                <%
-                function canAccess(feature) {
-                    const permissions = require('../../lib_login/permissions');
-                    return permissions.hasFeatureAccess(locals.role, feature);
-                }
-                %>
-                <% if (typeof role !== 'undefined' && role === 'admin') { %>
-                    <a href="/admin" class="text-decoration-none me-3">
-                        <span class="text-primary">admin</span>
-                    </a>
-                    <a href="/teacher" class="text-decoration-none me-3">
-                        <span class="text-primary">teacher</span>
-                    </a>
-                <% } %> 
-                <% if (typeof role !== 'undefined' && role === 'manager') { %>
-                    <a href="/teacher" class="text-decoration-none me-3">
-                        <span class="text-primary">teacher</span>
-                    </a>
-                <% } %> 
-                <% if (typeof role !== 'undefined' && role === 'student') { %>
-                    <a href="/" class="text-decoration-none me-3">
-                        <span class="text-primary">student</span>
-                    </a>
-                <% } %> 
                 <!-- header.ejs 파일 내부의 적절한 위치에 추가 -->
                 <% if (role === 'admin' || role === 'teacher' || role === 'manager') { %>
                     <li class="nav-item dropdown">
@@ -86,7 +61,7 @@
                         </li>
                         <li>
                         <a class="dropdown-item" href="https://codingnplay.co.kr/%ec%bd%94%ed%94%8c%ec%86%8c%ec%8b%9d/" target="_blank">
-                            <i class="bi bi-award me-2"></i> 자격증
+                            <i class="bi bi-award me-2"></i> 자격증/행사
                         </a>
                         </li>
                         <li>
@@ -102,7 +77,33 @@
                     </ul>
                     </li>
                 <% } %>
-
+                
+                <!-- 역할 권한 헬퍼 함수 -->
+                <%
+                function canAccess(feature) {
+                    const permissions = require('../../lib_login/permissions');
+                    return permissions.hasFeatureAccess(locals.role, feature);
+                }
+                %>
+                <% if (typeof role !== 'undefined' && role === 'admin') { %>
+                    <a href="/admin" class="text-decoration-none me-3">
+                        <span class="text-primary">admin</span>
+                    </a>
+                    <a href="/teacher" class="text-decoration-none me-3">
+                        <span class="text-primary">teacher</span>
+                    </a>
+                <% } %> 
+                <% if (typeof role !== 'undefined' && role === 'manager') { %>
+                    <a href="/teacher" class="text-decoration-none me-3">
+                        <span class="text-primary">teacher</span>
+                    </a>
+                <% } %> 
+                <% if (typeof role !== 'undefined' && role === 'student') { %>
+                    <a href="/" class="text-decoration-none me-3">
+                        <span class="text-primary">student</span>
+                    </a>
+                <% } %> 
+                
                 <!-- 프로필 아이콘 -->
                 <img src="/resource/co.ico" alt="Profile" id="profileIcon" class="rounded-circle" style="width: 40px; height: 40px;">
                 <span id="userName" class="ms-2"></span>
