@@ -27,17 +27,7 @@ body {
   margin-left: auto;
   max-width: 100%;
 }
-
-/* 나머지 report.css 내용 계속... */
-
-
-/* 전체 리포트 페이지 스타일 */
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
-  }
-  
+ 
   /* 헤더 스타일 */
   .report-header {
     padding: 20px 0;
