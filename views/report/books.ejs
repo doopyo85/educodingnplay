@@ -38,12 +38,15 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 카테고리 이름 매핑 (영문 -> 한글)
   const categoryMapping = {
-    'preschool': '프리스쿨',
-    'junior': '주니어',
+    'preschool_lv1': '프리스쿨 LV1',
+    'preschool_lv2': '프리스쿨 LV2',
+    'preschool_lv3': '프리스쿨 LV3',
+    'junior_lv1': '주니어 LV1',
+    'junior_lv2': '주니어 LV2',
     'cps': 'CPS',
     'cpa': 'CPA',
-    'ctr_appinventor': 'CTR앱인벤터',
-    'ctr_python': 'CTR파이썬'
+    'appinventor': '앱인벤터',
+    'python': '파이썬'
   };
   
   // 교재 목록 가져오기
@@ -78,15 +81,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const categorySection = document.createElement('div');
         categorySection.className = 'category-section mb-4';
         
+        // 카테고리 행 생성 (카테고리 이름과 버튼이 한 행에 표시되도록)
+        const categoryRow = document.createElement('div');
+        categoryRow.className = 'row align-items-center';
+        
+        // 카테고리 제목 컬럼
+        const titleCol = document.createElement('div');
+        titleCol.className = 'col-md-2 col-sm-3';
+        
         // 카테고리 제목
         const categoryTitle = document.createElement('h5');
-        categoryTitle.className = 'category-title bg-light p-2 rounded mb-3';
+        categoryTitle.className = 'category-title bg-light p-2 rounded mb-0';
         categoryTitle.textContent = displayName;
-        categorySection.appendChild(categoryTitle);
+        titleCol.appendChild(categoryTitle);
         
-        // 교재 버튼 컨테이너
-        const volumeContainer = document.createElement('div');
-        volumeContainer.className = 'row g-3';
+        // 교재 버튼 컨테이너 컬럼
+        const volumeCol = document.createElement('div');
+        volumeCol.className = 'col-md-10 col-sm-9';
+        
+        // 교재 버튼 래퍼
+        const volumeWrapper = document.createElement('div');
+        volumeWrapper.className = 'd-flex flex-wrap gap-2';
         
         // 정렬된 교재 목록 (볼륨 숫자 기준)
         const sortedVolumes = [...volumes].sort((a, b) => {
@@ -97,19 +112,24 @@ document.addEventListener('DOMContentLoaded', function() {
         sortedVolumes.forEach(book => {
           if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
           
-          const volumeCol = document.createElement('div');
-          volumeCol.className = 'col-md-2 col-sm-3 col-4';
-          
           const volumeBtn = document.createElement('a');
           volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
-          volumeBtn.className = 'btn btn-outline-primary w-100';
+          volumeBtn.className = 'btn btn-outline-secondary'; // 회색 버튼으로 변경
           volumeBtn.textContent = `${book.volume}호`;
           
-          volumeCol.appendChild(volumeBtn);
-          volumeContainer.appendChild(volumeCol);
+          volumeWrapper.appendChild(volumeBtn);
         });
         
-        categorySection.appendChild(volumeContainer);
+        volumeCol.appendChild(volumeWrapper);
+        
+        // 행에 컬럼 추가
+        categoryRow.appendChild(titleCol);
+        categoryRow.appendChild(volumeCol);
+        
+        // 섹션에 행 추가
+        categorySection.appendChild(categoryRow);
+        
+        // 컨테이너에 섹션 추가
         categoryContainer.appendChild(categorySection);
       });
     })
