@@ -22,11 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
         window.menuLoaded = true;
     }
     setupEventListeners(); // 여기에 추가
-    setupEditorToggle(); // 에디터 토글 기능 설정
-});
-
-// 에디터 토글 기능 설정
-function setupEditorToggle() {
+    
+    // 에디터 토글 기능 직접 구현 (setupEditorToggle 함수 대신)
     // 토글 버튼 요소 추가
     const ideContainer = document.querySelector('.ide-container');
     if (ideContainer) {
@@ -38,43 +35,45 @@ function setupEditorToggle() {
             </button>
         `;
         ideContainer.appendChild(toggleControl);
-    }
-    
-    // 토글 기능 구현
-    const toggleBtn = document.getElementById('toggleEditor');
-    const contentsDiv = document.querySelector('.contents');
-    
-    if (toggleBtn && contentsDiv) {
-        // 기본 상태
-        let isExpanded = false;
         
-        toggleBtn.addEventListener('click', function() {
-            isExpanded = !isExpanded;
+        // 토글 기능 즉시 설정
+        const toggleBtn = document.getElementById('toggleEditor');
+        const contentsDiv = document.querySelector('.contents');
+        
+        if (toggleBtn && contentsDiv) {
+            // 기본 상태
+            let isExpanded = false;
             
-            if (isExpanded) {
-                contentsDiv.classList.add('expanded-editor');
-                contentsDiv.classList.remove('collapsed-editor');
-                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
-                toggleBtn.setAttribute('title', '에디터 축소');
-            } else {
-                contentsDiv.classList.remove('expanded-editor');
-                contentsDiv.classList.add('collapsed-editor');
-                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
-                toggleBtn.setAttribute('title', '에디터 확장');
-            }
-            
-            // ACE 에디터 리사이징
-            setTimeout(() => {
-                if (window.editor) {
-                    window.editor.resize();
+            toggleBtn.addEventListener('click', function() {
+                console.log('Toggle button clicked, current state:', isExpanded);
+                isExpanded = !isExpanded;
+                
+                if (isExpanded) {
+                    contentsDiv.classList.add('expanded-editor');
+                    contentsDiv.classList.remove('collapsed-editor');
+                    toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
+                    toggleBtn.setAttribute('title', '에디터 축소');
+                } else {
+                    contentsDiv.classList.remove('expanded-editor');
+                    contentsDiv.classList.add('collapsed-editor');
+                    toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
+                    toggleBtn.setAttribute('title', '에디터 확장');
                 }
-            }, 300);
-        });
-        
-        // 초기 상태 설정
-        contentsDiv.classList.remove('expanded-editor', 'collapsed-editor');
+                
+                // ACE 에디터 리사이징
+                setTimeout(() => {
+                    var editor = ace.edit("editor");
+                    if (editor) {
+                        editor.resize();
+                    }
+                }, 300);
+            });
+            
+            // 초기 상태 설정
+            contentsDiv.classList.remove('expanded-editor', 'collapsed-editor');
+        }
     }
-}
+});
 
 // 데이터 로딩을 기다리는 함수
 function waitForDataLoading() {
@@ -141,6 +140,22 @@ function setupEventListeners() {
             var editor = ace.edit("editor");  // Ace 에디터 가져오기
             const code = editor.getValue();  // 에디터에서 코드 가져오기
             document.getElementById('output-content').innerText = `Running code:\n${code}`;
+            
+            // 실제 서버로 코드 전송
+            fetch('/run-python', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output-content").textContent = data.output;
+            })
+            .catch(error => {
+                document.getElementById("output-content").textContent = "코드 실행 중 오류 발생: " + error;
+            });
         });
     }
 
@@ -596,5 +611,58 @@ window.addEventListener('load', function() {
     const contentContainer = document.querySelector('.content-container');
     if (contentContainer) {
         contentContainer.style.display = 'flex'; // Set the display as flex for horizontal layout
+    }
+    
+    // 추가 디버깅 로그
+    console.log('Window load complete');
+    
+    // 에디터 토글 버튼이 아직 없으면 다시 생성 시도
+    if (!document.getElementById('toggleEditor')) {
+        const ideContainer = document.querySelector('.ide-container');
+        if (ideContainer) {
+            console.log('Creating toggle button on window load');
+            const toggleControl = document.createElement('div');
+            toggleControl.className = 'editor-toggle-controls';
+            toggleControl.innerHTML = `
+                <button id="toggleEditor" class="btn btn-sm btn-outline-secondary" title="에디터 확장">
+                    <i class="bi bi-arrows-angle-expand"></i>
+                </button>
+            `;
+            ideContainer.appendChild(toggleControl);
+            
+            // 토글 기능 다시 설정
+            const toggleBtn = document.getElementById('toggleEditor');
+            const contentsDiv = document.querySelector('.contents');
+            
+            if (toggleBtn && contentsDiv) {
+                console.log('Setting up toggle button event listener');
+                let isExpanded = false;
+                
+                toggleBtn.addEventListener('click', function() {
+                    console.log('Toggle button clicked on window load handler');
+                    isExpanded = !isExpanded;
+                    
+                    if (isExpanded) {
+                        contentsDiv.classList.add('expanded-editor');
+                        contentsDiv.classList.remove('collapsed-editor');
+                        toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
+                        toggleBtn.setAttribute('title', '에디터 축소');
+                    } else {
+                        contentsDiv.classList.remove('expanded-editor');
+                        contentsDiv.classList.add('collapsed-editor');
+                        toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
+                        toggleBtn.setAttribute('title', '에디터 확장');
+                    }
+                    
+                    // ACE 에디터 리사이징
+                    setTimeout(() => {
+                        var editor = ace.edit("editor");
+                        if (editor) {
+                            editor.resize();
+                        }
+                    }, 300);
+                });
+            }
+        }
     }
 });
