@@ -34,28 +34,10 @@
   </div>
 </div>
 
-<!-- 호수 선택 모달 템플릿 -->
-<div class="modal fade" id="volumeModal" tabindex="-1" aria-labelledby="volumeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="volumeModalLabel">호수 선택</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="volume-buttons d-flex flex-wrap gap-2">
-          <!-- 여기에 선택된 카테고리의 호수 버튼이 동적으로 생성됩니다 -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <%- include('../partials/footer') %>
 
 <!-- 교재 선택 스크립트 인라인 추가 -->
 <script>
-// books.js - 교재 선택 화면 구현
 document.addEventListener('DOMContentLoaded', function() {
   // 메인 컨테이너 요소 확인
   const categoryContainer = document.getElementById('categoryContainer');
@@ -64,34 +46,294 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
-  // API 호출에서 오류가 발생하는지 확인하기 위한 테스트
-  console.log('API 호출 테스트');
+  // 카테고리 이름 매핑 (영문 -> 한글)
+  const categoryMapping = {
+    'preschool_lv1': '프리스쿨 LV1',
+    'preschool_lv2': '프리스쿨 LV2',
+    'preschool_lv3': '프리스쿨 LV3',
+    'junior_lv1': '주니어 LV1',
+    'junior_lv2': '주니어 LV2',
+    'cps': 'CPS',
+    'cpa': 'CPA',
+    'appinventor': '앱인벤터',
+    'python': '파이썬'
+  };
+  
+  // 카테고리 그룹화 설정
+  const categoryGroups = {
+    'preschool': {
+      title: '프리스쿨',
+      description: '유아 코딩 교육 (5-7세)',
+      icon: 'book',
+      iconColor: '#3b82f6',
+      categories: ['preschool_lv1', 'preschool_lv2', 'preschool_lv3']
+    },
+    'junior': {
+      title: '주니어',
+      description: '초등학생 코딩 교육 (8-12세)',
+      icon: 'journal-code',
+      iconColor: '#8b5cf6',
+      categories: ['junior_lv1', 'junior_lv2']
+    },
+    'epl': {
+      title: 'EPL 프로젝트',
+      description: '교육용 프로그래밍 언어',
+      icon: 'code-square',
+      iconColor: '#ec4899',
+      categories: ['cps', 'cpa']
+    },
+    'advanced': {
+      title: '고급 프로그래밍',
+      description: '실전 프로그래밍 언어',
+      icon: 'laptop-code',
+      iconColor: '#10b981',
+      categories: ['appinventor', 'python']
+    }
+  };
+  
+  // 교재별 설명 추가
+  const bookDescriptions = {
+    'preschool_lv1': '기초 코딩 개념 이해하기',
+    'preschool_lv2': '논리적 사고력 발달',
+    'preschool_lv3': '창의적 문제 해결력',
+    'junior_lv1': '기본 알고리즘 이해하기',
+    'junior_lv2': '프로그래밍 심화',
+    'cps': '스크래치 프로그래밍',
+    'cpa': '앱 인벤터 기초',
+    'appinventor': '모바일 앱 개발',
+    'python': '텍스트 기반 프로그래밍'
+  };
+  
+  // 교재 목록 가져오기
   fetch('/report/books')
     .then(response => {
-      console.log('API 응답:', response);
       if (!response.ok) {
-        throw new Error(`API 응답 오류: ${response.status}`);
+        throw new Error('교재 목록을 불러오는데 실패했습니다.');
       }
-      return response.text(); // 먼저 텍스트로 받아보고
-    })
-    .then(text => {
-      console.log('응답 텍스트 미리보기:', text.substring(0, 100));
-      // JSON 파싱 시도
-      try {
-        return JSON.parse(text);
-      } catch (error) {
-        console.error('JSON 파싱 오류:', error);
-        console.log('서버 응답:', text);
-        throw new Error('서버에서 올바른 JSON을 반환하지 않았습니다');
-      }
+      return response.json();
     })
     .then(data => {
-      console.log('파싱된 데이터:', data);
-      // 여기에 원래 데이터 처리 코드 넣기
-      displayBooks(data);
+      console.log('받아온 교재 데이터:', data);
+      
+      // 컨테이너 초기화
+      categoryContainer.innerHTML = '';
+      
+      // 데이터가 없는 경우
+      if (!data || Object.keys(data).length === 0) {
+        categoryContainer.innerHTML = `
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            사용 가능한 교재 정보가 없습니다.
+          </div>
+        `;
+        return;
+      }
+      
+      // 1단계: 기존 코드와 동일한 방식으로 먼저 출력 (확인용)
+      // 주석 처리하고 단계별로 테스트할 수 있습니다
+      /*
+      Object.keys(data).forEach(category => {
+        if (!data[category] || data[category].length === 0) return;
+        
+        // 카테고리 섹션 컨테이너 생성
+        const categorySection = document.createElement('div');
+        categorySection.className = 'category-section mb-4';
+        
+        // 카테고리 제목 요소 생성
+        const categoryTitle = document.createElement('h5');
+        categoryTitle.className = 'category-title';
+        categoryTitle.textContent = categoryMapping[category] || category;
+        
+        // 교재 버튼 컨테이너 생성
+        const volumeWrapper = document.createElement('div');
+        volumeWrapper.className = 'd-flex flex-wrap gap-2';
+        
+        // 정렬된 교재 목록 (볼륨 숫자 기준)
+        const sortedVolumes = [...data[category]].sort((a, b) => {
+          return parseInt(a.volume) - parseInt(b.volume);
+        });
+        
+        // 각 교재 버튼 생성
+        sortedVolumes.forEach(book => {
+          if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
+          
+          const volumeBtn = document.createElement('a');
+          volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+          volumeBtn.className = 'btn btn-outline-primary';
+          volumeBtn.textContent = `${book.volume}호`;
+          
+          volumeWrapper.appendChild(volumeBtn);
+        });
+        
+        // 요소 결합
+        categorySection.appendChild(categoryTitle);
+        categorySection.appendChild(volumeWrapper);
+        
+        // 컨테이너에 섹션 추가
+        categoryContainer.appendChild(categorySection);
+      });
+      */
+      
+      // 2단계: 칸아카데미 스타일 UI 구현 - 카테고리 그룹화
+      // 카테고리 컨테이너 생성
+      const courseContainer = document.createElement('div');
+      courseContainer.className = 'course-container';
+      
+      // 그룹별로 카테고리 렌더링
+      Object.keys(categoryGroups).forEach(groupKey => {
+        const group = categoryGroups[groupKey];
+        let hasContent = false;
+        
+        // 해당 그룹에 속한 카테고리가 데이터에 있는지 확인
+        group.categories.forEach(category => {
+          if (data[category] && data[category].length > 0) {
+            hasContent = true;
+          }
+        });
+        
+        // 콘텐츠가 없으면 이 그룹은 표시하지 않음
+        if (!hasContent) return;
+        
+        // 그룹 섹션 컨테이너 생성
+        const groupSection = document.createElement('div');
+        groupSection.className = 'course-category mb-4';
+        
+        // 그룹 헤더 생성
+        const groupHeader = document.createElement('div');
+        groupHeader.className = 'category-header';
+        groupHeader.innerHTML = `
+          <div class="category-icon" style="background-color: ${group.iconColor}">
+            <i class="bi bi-${group.icon}"></i>
+          </div>
+          <h2 class="category-title">${group.title}</h2>
+          <span class="category-description">${group.description}</span>
+        `;
+        
+        // 교재 컨테이너 생성
+        const booksContainer = document.createElement('div');
+        booksContainer.className = 'books-container';
+        
+        // 그룹 내 카테고리별 교재 추가
+        group.categories.forEach(category => {
+          if (data[category] && data[category].length > 0) {
+            // 교재 아이템 생성
+            const bookItem = document.createElement('div');
+            bookItem.className = 'book-item';
+            
+            // 교재 볼륨 수 계산
+            const volumeCount = data[category].length;
+            
+            // 교재 아이콘
+            const bookIcon = document.createElement('div');
+            bookIcon.className = 'book-icon';
+            bookIcon.innerHTML = `<i class="bi bi-${group.icon}"></i>`;
+            
+            // 교재 내용
+            const bookContent = document.createElement('div');
+            bookContent.className = 'book-content';
+            bookContent.innerHTML = `
+              <h3 class="book-title">${categoryMapping[category] || category}</h3>
+              <p class="book-description">${bookDescriptions[category] || '교재 설명'}</p>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${Math.random() * 50 + 50}%"></div>
+              </div>
+              <div class="book-info">
+                <span>${volumeCount}호 시리즈</span>
+                <span>학습자료</span>
+              </div>
+            `;
+            
+            // 호수 선택을 위한 드롭다운 메뉴
+            // 정렬된 교재 목록 (볼륨 숫자 기준)
+            const sortedVolumes = [...data[category]].sort((a, b) => {
+              return parseInt(a.volume) - parseInt(b.volume);
+            });
+            
+            // 액션 버튼 (클릭했을 때 볼륨 선택 창 표시)
+            const actionButton = document.createElement('a');
+            actionButton.href = '#';
+            actionButton.className = 'action-button';
+            actionButton.textContent = '호수 선택';
+            actionButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              
+              // 현재 열려있는 다른 드롭다운 닫기
+              const existingDropdowns = document.querySelectorAll('.volume-dropdown');
+              existingDropdowns.forEach(dropdown => dropdown.remove());
+              
+              // 볼륨 선택 드롭다운 생성
+              const volumeDropdown = document.createElement('div');
+              volumeDropdown.className = 'volume-dropdown card shadow-sm position-absolute';
+              volumeDropdown.style.zIndex = '1000';
+              volumeDropdown.style.minWidth = '200px';
+              volumeDropdown.style.top = '100%';
+              volumeDropdown.style.left = '50%';
+              volumeDropdown.style.transform = 'translateX(-50%)';
+              
+              const dropdownHeader = document.createElement('div');
+              dropdownHeader.className = 'card-header bg-light';
+              dropdownHeader.innerHTML = `<h6 class="m-0">${categoryMapping[category] || category} 호수</h6>`;
+              
+              const dropdownBody = document.createElement('div');
+              dropdownBody.className = 'card-body p-2';
+              
+              const volumeButtonsContainer = document.createElement('div');
+              volumeButtonsContainer.className = 'd-flex flex-wrap gap-2';
+              
+              // 각 교재 버튼 생성
+              sortedVolumes.forEach(book => {
+                if (!book.volume) return;
+                
+                const volumeBtn = document.createElement('a');
+                volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+                volumeBtn.className = 'btn btn-outline-primary';
+                volumeBtn.textContent = `${book.volume}호`;
+                
+                volumeButtonsContainer.appendChild(volumeBtn);
+              });
+              
+              dropdownBody.appendChild(volumeButtonsContainer);
+              volumeDropdown.appendChild(dropdownHeader);
+              volumeDropdown.appendChild(dropdownBody);
+              
+              // 드롭다운을 상대적으로 위치시키기 위해 컨테이너 생성
+              const dropdownContainer = document.createElement('div');
+              dropdownContainer.className = 'position-relative';
+              dropdownContainer.appendChild(volumeDropdown);
+              
+              // 버튼 아래에 드롭다운 추가
+              bookItem.appendChild(dropdownContainer);
+              
+              // 외부 클릭 시 드롭다운 닫기
+              document.addEventListener('click', function closeDropdown(evt) {
+                if (!volumeDropdown.contains(evt.target) && evt.target !== actionButton) {
+                  volumeDropdown.remove();
+                  document.removeEventListener('click', closeDropdown);
+                }
+              });
+            });
+            
+            // 요소 결합
+            bookItem.appendChild(bookIcon);
+            bookItem.appendChild(bookContent);
+            bookItem.appendChild(actionButton);
+            booksContainer.appendChild(bookItem);
+          }
+        });
+        
+        // 그룹 섹션에 헤더와 콘텐츠 추가
+        groupSection.appendChild(groupHeader);
+        groupSection.appendChild(booksContainer);
+        
+        // 메인 컨테이너에 그룹 섹션 추가
+        courseContainer.appendChild(groupSection);
+      });
+      
+      // 최종 결과물을 DOM에 추가
+      categoryContainer.appendChild(courseContainer);
     })
     .catch(error => {
-      console.error('API 호출 오류:', error);
+      console.error('Error:', error);
       categoryContainer.innerHTML = `
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-circle me-2"></i>
@@ -99,81 +341,5 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
     });
-    
-  // 교재 표시 함수
-  function displayBooks(data) {
-    // 컨테이너 초기화
-    categoryContainer.innerHTML = '';
-    
-    // 데이터가 없는 경우
-    if (!data || Object.keys(data).length === 0) {
-      categoryContainer.innerHTML = `
-        <div class="alert alert-warning">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          사용 가능한 교재 정보가 없습니다.
-        </div>
-      `;
-      return;
-    }
-    
-    // 카테고리별 교재 표시
-    Object.keys(data).forEach(category => {
-      const volumes = data[category];
-      
-      // 카테고리 섹션 생성
-      const categorySection = document.createElement('div');
-      categorySection.className = 'category-section mb-4';
-      
-      // 카테고리 제목 생성
-      const categoryTitle = document.createElement('h5');
-      categoryTitle.className = 'category-title bg-light p-2 rounded mb-3';
-      categoryTitle.textContent = getCategoryDisplayName(category);
-      
-      // 교재 버튼 컨테이너
-      const volumeWrapper = document.createElement('div');
-      volumeWrapper.className = 'd-flex flex-wrap gap-2';
-      
-      // 정렬된 교재 목록
-      const sortedVolumes = [...volumes].sort((a, b) => {
-        return parseInt(a.volume) - parseInt(b.volume);
-      });
-      
-      // 각 교재 버튼 생성
-      sortedVolumes.forEach(book => {
-        if (!book.volume) return;
-        
-        const volumeBtn = document.createElement('a');
-        volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
-        volumeBtn.className = 'btn btn-outline-primary';
-        volumeBtn.textContent = `${book.volume}호`;
-        
-        volumeWrapper.appendChild(volumeBtn);
-      });
-      
-      // 요소 결합
-      categorySection.appendChild(categoryTitle);
-      categorySection.appendChild(volumeWrapper);
-      
-      // 컨테이너에 추가
-      categoryContainer.appendChild(categorySection);
-    });
-  }
-  
-  // 카테고리 이름 표시 함수
-  function getCategoryDisplayName(category) {
-    const mapping = {
-      'preschool_lv1': '프리스쿨 LV1',
-      'preschool_lv2': '프리스쿨 LV2',
-      'preschool_lv3': '프리스쿨 LV3',
-      'junior_lv1': '주니어 LV1',
-      'junior_lv2': '주니어 LV2',
-      'cps': 'CPS',
-      'cpa': 'CPA',
-      'appinventor': '앱인벤터',
-      'python': '파이썬'
-    };
-    
-    return mapping[category] || category;
-  }
 });
 </script>
