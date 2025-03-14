@@ -1,3 +1,5 @@
+<!-- books.ejs - 교재 선택 페이지 템플릿 -->
+
 <!-- CSS 파일 참조 추가 -->
 <link rel="stylesheet" href="/css/report.css">
 
@@ -5,19 +7,20 @@
 
 <div class="container mt-5"> 
   <div class="row mb-4">
-    <div class="col">
-      <h2 class="text-center">월간 학습리포트 POD</h2>
+    <div class="col-md-8 offset-md-2">
+      <h1 class="text-center fw-bold mb-2">월간 학습리포트 POD</h1>
       <p class="text-center text-muted">교재 카테고리와 호수를 선택하여 학습 리포트를 생성하세요</p>
     </div>
   </div>
-
+  
   <div class="row">
-    <div class="col-12">
+    <div class="col-md-10 offset-md-1">
+      <!-- 코스 컨테이너 -->
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">교재 선택</h4>
         </div>
-        <div class="card-body" id="categoryContainer">
+        <div class="card-body p-3" id="categoryContainer">
           <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
@@ -30,117 +33,24 @@
   </div>
 </div>
 
+<!-- 호수 선택 모달 템플릿 -->
+<div class="modal fade" id="volumeModal" tabindex="-1" aria-labelledby="volumeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="volumeModalLabel">호수 선택</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="volume-buttons d-flex flex-wrap gap-2">
+          <!-- 여기에 선택된 카테고리의 호수 버튼이 동적으로 생성됩니다 -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <%- include('../partials/footer') %>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const categoryContainer = document.getElementById('categoryContainer');
-  
-  // 카테고리 이름 매핑 (영문 -> 한글)
-  const categoryMapping = {
-    'preschool_lv1': '프리스쿨 LV1',
-    'preschool_lv2': '프리스쿨 LV2',
-    'preschool_lv3': '프리스쿨 LV3',
-    'junior_lv1': '주니어 LV1',
-    'junior_lv2': '주니어 LV2',
-    'cps': 'CPS',
-    'cpa': 'CPA',
-    'appinventor': '앱인벤터',
-    'python': '파이썬'
-  };
-  
-  // 교재 목록 가져오기
-  fetch('/report/books')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('교재 목록을 불러오는데 실패했습니다.');
-      }
-      return response.json();
-    })
-    .then(data => {
-      // 컨테이너 초기화
-      categoryContainer.innerHTML = '';
-      
-      // 데이터가 없는 경우
-      if (Object.keys(data).length === 0) {
-        categoryContainer.innerHTML = `
-          <div class="alert alert-warning">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            사용 가능한 교재 정보가 없습니다.
-          </div>
-        `;
-        return;
-      }
-      
-      // 각 카테고리별 교재 목록 표시
-      Object.keys(data).forEach(category => {
-        const displayName = categoryMapping[category] || category;
-        const volumes = data[category];
-        
-        // 카테고리 섹션 생성
-        const categorySection = document.createElement('div');
-        categorySection.className = 'category-section mb-4';
-        
-        // 카테고리 행 생성 (카테고리 이름과 버튼이 한 행에 표시되도록)
-        const categoryRow = document.createElement('div');
-        categoryRow.className = 'row align-items-center';
-        
-        // 카테고리 제목 컬럼
-        const titleCol = document.createElement('div');
-        titleCol.className = 'col-md-2 col-sm-3';
-        
-        // 카테고리 제목
-        const categoryTitle = document.createElement('h5');
-        categoryTitle.className = 'category-title bg-light p-2 rounded mb-0';
-        categoryTitle.textContent = displayName;
-        titleCol.appendChild(categoryTitle);
-        
-        // 교재 버튼 컨테이너 컬럼
-        const volumeCol = document.createElement('div');
-        volumeCol.className = 'col-md-10 col-sm-9';
-        
-        // 교재 버튼 래퍼
-        const volumeWrapper = document.createElement('div');
-        volumeWrapper.className = 'd-flex flex-wrap gap-2';
-        
-        // 정렬된 교재 목록 (볼륨 숫자 기준)
-        const sortedVolumes = [...volumes].sort((a, b) => {
-          return parseInt(a.volume) - parseInt(b.volume);
-        });
-        
-        // 각 교재 버튼 생성
-        sortedVolumes.forEach(book => {
-          if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
-          
-          const volumeBtn = document.createElement('a');
-          volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
-          volumeBtn.className = 'btn btn-outline-secondary'; // 회색 버튼으로 변경
-          volumeBtn.textContent = `${book.volume}호`;
-          
-          volumeWrapper.appendChild(volumeBtn);
-        });
-        
-        volumeCol.appendChild(volumeWrapper);
-        
-        // 행에 컬럼 추가
-        categoryRow.appendChild(titleCol);
-        categoryRow.appendChild(volumeCol);
-        
-        // 섹션에 행 추가
-        categorySection.appendChild(categoryRow);
-        
-        // 컨테이너에 섹션 추가
-        categoryContainer.appendChild(categorySection);
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      categoryContainer.innerHTML = `
-        <div class="alert alert-danger">
-          <i class="bi bi-exclamation-circle me-2"></i>
-          교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
-        </div>
-      `;
-    });
-});
-</script>
+<!-- 교재 선택 스크립트 파일 -->
+<script src="/js/books.js"></script>
