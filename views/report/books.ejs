@@ -37,28 +37,106 @@
 <%- include('../partials/footer') %>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // API 테스트
-  fetch('/report/books')
-    .then(response => {
-      console.log('API 응답:', response);
-      if (!response.ok) {
-        throw new Error(`API 응답 오류: ${response.status}`);
-      }
-      return response.text(); // 일단 텍스트로 받아보기
-    })
-    .then(text => {
-      console.log('응답 내용 (처음 100자):', text.substring(0, 100));
-      try {
-        // JSON으로 파싱 시도
-        const data = JSON.parse(text);
-        console.log('파싱된 데이터:', data);
-      } catch (error) {
-        console.error('JSON 파싱 실패:', error);
-      }
-    })
-    .catch(error => {
-      console.error('API 호출 실패:', error);
-    });
-});
-</script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const categoryContainer = document.getElementById('categoryContainer');
+    
+    // 카테고리 이름 매핑 (영문 -> 한글)
+    const categoryMapping = {
+      'preschool_lv1': '프리스쿨 LV1',
+      'preschool_lv2': '프리스쿨 LV2',
+      'preschool_lv3': '프리스쿨 LV3',
+      'junior_lv1': '주니어 LV1',
+      'junior_lv2': '주니어 LV2',
+      'cps': 'CPS',
+      'cpa': 'CPA',
+      'appinventor': '앱인벤터',
+      'python': '파이썬'
+    };
+    
+    // 교재 목록 가져오기
+    fetch('/report/books')
+      .then(response => {
+        console.log('응답 상태:', response.status);
+        if (!response.ok) {
+          throw new Error('교재 목록을 불러오는데 실패했습니다.');
+        }
+        return response.text(); // 텍스트로 먼저 받기
+      })
+      .then(text => {
+        console.log('응답 내용 (처음 100자):', text.substring(0, 100));
+        try {
+          return JSON.parse(text);
+        } catch (err) {
+          console.error('JSON 파싱 오류:', err);
+          throw new Error('서버 응답이 유효한 JSON이 아닙니다');
+        }
+      })
+      .then(data => {
+        // 컨테이너 초기화
+        categoryContainer.innerHTML = '';
+        
+        // 데이터가 없는 경우
+        if (Object.keys(data).length === 0) {
+          categoryContainer.innerHTML = `
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              사용 가능한 교재 정보가 없습니다.
+            </div>
+          `;
+          return;
+        }
+        
+        // 각 카테고리별 교재 목록 표시
+        Object.keys(data).forEach(category => {
+          const displayName = categoryMapping[category] || category;
+          const volumes = data[category];
+          
+          // 카테고리 섹션 생성
+          const categorySection = document.createElement('div');
+          categorySection.className = 'category-section mb-4';
+          
+          // 카테고리 제목
+          const categoryTitle = document.createElement('h5');
+          categoryTitle.className = 'category-title bg-light p-2 rounded mb-0';
+          categoryTitle.textContent = displayName;
+          
+          // 교재 버튼 래퍼
+          const volumeWrapper = document.createElement('div');
+          volumeWrapper.className = 'd-flex flex-wrap gap-2 mt-3';
+          
+          // 정렬된 교재 목록 (볼륨 숫자 기준)
+          const sortedVolumes = [...volumes].sort((a, b) => {
+            return parseInt(a.volume) - parseInt(b.volume);
+          });
+          
+          // 각 교재 버튼 생성
+          sortedVolumes.forEach(book => {
+            if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
+            
+            const volumeBtn = document.createElement('a');
+            volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+            volumeBtn.className = 'btn btn-outline-primary';
+            volumeBtn.textContent = `${book.volume}호`;
+            
+            volumeWrapper.appendChild(volumeBtn);
+          });
+          
+          // 요소 결합
+          categorySection.appendChild(categoryTitle);
+          categorySection.appendChild(volumeWrapper);
+          
+          // 컨테이너에 섹션 추가
+          categoryContainer.appendChild(categorySection);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        categoryContainer.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+          </div>
+        `;
+      });
+  });
+  </script>
