@@ -133,29 +133,17 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
-        // 첫 번째 행이 헤더인지 확인
-        const firstRow = sheetData[0];
-        console.log('첫 번째 행:', firstRow);
-        
-        // ** 수정된 부분: 실제 열 위치에 맞게 인덱스 조정 **
+        // 인덱스 설정
         const noIndex = 0;  // 'NO' 열 (A열)
         const categoryIndex = 1;  // '교재카테고리' 열 (B열)
         const volumeIndex = 2;  // '교재레벨-호' 열 (C열)
         const lessonNameIndex = 3;  // '차시명' 열 (D열)
         const thumbnailIndex = 4;  // 'thumbnail_url' 열 (E열)
-        const ctElementIndex = 6;  // '차시CT요소' 열 (G열) - 수정됨
-        const evalItemIndex = 7;  // '평가항목' 열 (H열) - 수정됨
-        
-        console.log('사용할 열 인덱스:', {
-            categoryIndex,
-            volumeIndex,
-            ctElementIndex,
-            evalItemIndex
-        });
+        const ctElementIndex = 6;  // '차시CT요소' 열 (G열)
+        const evalItemIndex = 7;  // '평가항목' 열 (H열)
         
         // 구글 시트 데이터에서 해당 카테고리/볼륨 필터링
         let targetCategory = '';
-        let targetVolumeNumber = '';
         
         // 카테고리 매핑
         if (category.toLowerCase() === 'preschool') {
@@ -174,44 +162,33 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             targetCategory = category;
         }
         
-        // 볼륨 번호 추출
-        targetVolumeNumber = volume;
+        // 볼륨에 해당하는 교재레벨-호 형식 (예: "프리스쿨1-1") 찾기
+        const targetVolume = `${category.toLowerCase().includes('preschool') ? '프리스쿨' : category}${volume.includes('-') ? volume : `1-${volume}`}`;
         
-        console.log(`목표 검색: 카테고리=${targetCategory}, 볼륨번호=${targetVolumeNumber}`);
+        console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${targetVolume}"`);
         
-        // 필터링 (여러 방식으로 시도)
+        // 필터링 - 정확한 교재레벨-호 매칭으로 변경
         const filteredRows = sheetData.slice(1).filter(row => {
             if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
             }
             
             const rowCategory = row[categoryIndex] || '';
-            const rowVolumeStr = row[volumeIndex] || '';
+            const rowVolume = row[volumeIndex] || '';
             
-            // 볼륨 번호 추출 (예: '프리스쿨1-1'에서 '1')
-            let rowVolumeNumber = '';
-            if (rowVolumeStr.includes('-')) {
-                const parts = rowVolumeStr.split('-');
-                if (parts.length > 1) {
-                    rowVolumeNumber = parts[1];
-                }
-            }
+            // 카테고리와 볼륨 모두 정확히 일치해야 함
+            const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 여러 방식으로 매칭 시도
-            const categoryMatch = 
-                rowCategory.includes(targetCategory) || 
-                (targetCategory.includes('프리스쿨') && rowCategory.includes('프리스쿨'));
-                
-            const volumeMatch = 
-                rowVolumeNumber === targetVolumeNumber || 
-                rowVolumeStr.includes(`-${targetVolumeNumber}`);
+            // 정확한 볼륨 매칭 (예: "프리스쿨1-1")
+            const volumeMatch = rowVolume === targetVolume;
             
-            const isMatch = categoryMatch && volumeMatch;
+            // 대체 볼륨 매칭 시도 (URL에서 '1' 입력 시 '프리스쿨1-1'과 매칭)
+            const altVolumeMatch = rowVolume.endsWith(`-${volume}`);
+            
+            const isMatch = categoryMatch && (volumeMatch || altVolumeMatch);
             
             if (isMatch) {
-                console.log(`매칭된 행: ${rowCategory} / ${rowVolumeStr}`);
-                // 디버깅용으로 모든 컬럼 출력
-                console.log(`전체 행 데이터: ${row.join(' | ')}`);
+                console.log(`매칭된 행: ${rowCategory} / ${rowVolume}`);
             }
             
             return isMatch;
@@ -219,12 +196,52 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         
         console.log(`필터링 결과: ${filteredRows.length}개 행 일치`);
         
-        if (filteredRows.length === 0) {
-            console.error('일치하는 행이 없습니다');
-            return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
+        // 첫 번째 일치 항목 로깅
+        if (filteredRows.length > 0) {
+            console.log('첫 번째 일치 항목:', filteredRows[0]);
         }
         
-        // 썸네일 URL 가져오기 (있다면)
+        if (filteredRows.length === 0) {
+            // 보다 완화된 검색 시도
+            console.log('정확한 매칭 실패, 더 유연한 검색 시도...');
+            
+            const looseFilteredRows = sheetData.slice(1).filter(row => {
+                if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
+                    return false;
+                }
+                
+                const rowCategory = row[categoryIndex] || '';
+                const rowVolume = row[volumeIndex] || '';
+                
+                // 카테고리 매칭
+                const categoryMatch = rowCategory.includes(targetCategory);
+                
+                // 유연한 볼륨 매칭 (숫자만 일치)
+                let rowVolumeNumber = '';
+                if (rowVolume.includes('-')) {
+                    const parts = rowVolume.split('-');
+                    if (parts.length > 1) {
+                        rowVolumeNumber = parts[1];
+                    }
+                }
+                
+                const volumeMatch = rowVolumeNumber === volume;
+                
+                return categoryMatch && volumeMatch;
+            });
+            
+            if (looseFilteredRows.length > 0) {
+                console.log(`유연한 검색으로 ${looseFilteredRows.length}개 행 발견`);
+                return res.status(404).json({ 
+                    error: '정확한 교재 정보를 찾을 수 없습니다.',
+                    suggestion: '유사한 교재가 있습니다만 정확한 호수를 선택해 주세요.'
+                });
+            } else {
+                return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
+            }
+        }
+        
+        // 썸네일 URL 가져오기
         let thumbnailUrl = '';
         if (filteredRows.length > 0 && thumbnailIndex < filteredRows[0].length) {
             thumbnailUrl = filteredRows[0][thumbnailIndex] || '';
@@ -239,9 +256,6 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                 const ctElement = row[ctElementIndex];
                 const evalItem = row[evalItemIndex];
                 
-                // 디버깅: 각 행의 CT요소와 평가항목 확인
-                console.log(`행 데이터 - CT요소: "${ctElement}", 평가항목: "${evalItem}"`);
-                
                 if (ctElement && evalItem) {
                     const itemKey = `${ctElement}-${evalItem}`;
                     
@@ -252,6 +266,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                             principle: ctElement,
                             description: evalItem
                         });
+                        console.log(`평가항목 추가: ${ctElement} - ${evalItem}`);
                     }
                 }
             }
