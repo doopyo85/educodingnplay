@@ -180,6 +180,58 @@
     const contentsTitle = document.getElementById('contentsTitle');
     const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
   
+    // 폼 카드에 적용 버튼 추가
+    const formCard = document.querySelector('.card-body');
+    if (formCard) {
+      // 기존 버튼 그룹이 있는지 확인
+      let buttonRow = formCard.querySelector('.row.mt-3');
+      
+      // 없으면 새로 만들기
+      if (!buttonRow) {
+        buttonRow = document.createElement('div');
+        buttonRow.className = 'row mt-3';
+        formCard.appendChild(buttonRow);
+      }
+      
+      // 버튼 컬럼 추가
+      const buttonCol = document.createElement('div');
+      buttonCol.className = 'col-12 d-flex justify-content-end';
+      
+      // 적용 버튼 생성
+      const applyButton = document.createElement('button');
+      applyButton.type = 'button';
+      applyButton.className = 'btn btn-primary';
+      applyButton.id = 'applyFormBtn';
+      applyButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> 정보 적용';
+      
+      // 버튼 추가
+      buttonCol.appendChild(applyButton);
+      buttonRow.appendChild(buttonCol);
+      
+      // 적용 버튼 클릭 이벤트 리스너
+      applyButton.addEventListener('click', function() {
+        updateReportFromForm();
+        // 성공 메시지 표시
+        const alertContainer = document.createElement('div');
+        alertContainer.className = 'alert alert-success mt-2';
+        alertContainer.role = 'alert';
+        alertContainer.innerHTML = '정보가 보고서에 적용되었습니다!';
+        
+        // 이전 알림 제거
+        const oldAlert = buttonCol.querySelector('.alert');
+        if (oldAlert) {
+          buttonCol.removeChild(oldAlert);
+        }
+        
+        buttonCol.appendChild(alertContainer);
+        
+        // 3초 후 알림 사라짐
+        setTimeout(() => {
+          alertContainer.remove();
+        }, 3000);
+      });
+    }
+  
     // 날짜 기본값 설정 (오늘 및 1개월 전)
     const today = new Date();
     const oneMonthAgo = new Date();
@@ -286,7 +338,13 @@
       loadingElement.classList.add('d-none');
       reportContentElement.classList.remove('d-none');
       
-      // 폼 입력값 변경 이벤트 리스너 등록
+      // 센터명은 불러왔으면 바로 적용
+      if (savedCenterName) {
+        if (centerNameCell) centerNameCell.textContent = savedCenterName;
+        if (headerCenterName) headerCenterName.textContent = savedCenterName;
+      }
+      
+      // 사용자가 입력한 값 저장 로직
       setupFormListeners();
       
     } catch (error) {
@@ -299,58 +357,60 @@
       `;
     }
     
-    // 폼 입력값 변경시 리포트 업데이트
+    // 폼 입력값 변경시 리포트 업데이트를 위한 이벤트 리스너만 등록
     function setupFormListeners() {
-      // 초기 값 설정
-      updateReportFromForm();
+      // 센터명 변경 시 로컬 스토리지 저장
+      if (centerNameInput) {
+        centerNameInput.addEventListener('input', function() {
+          if (this.value) {
+            localStorage.setItem('centerName', this.value);
+          }
+        });
+      }
       
-      // 이벤트 리스너 등록
-      studentNameInput.addEventListener('input', updateReportFromForm);
-      teacherNameInput.addEventListener('input', updateReportFromForm);
-      centerNameInput.addEventListener('input', function() {
-        updateReportFromForm();
-        
-        // 센터명을 로컬 스토리지에 저장
-        if (this.value) {
-          localStorage.setItem('centerName', this.value);
-        }
-      });
-      startDateInput.addEventListener('change', updateReportFromForm);
-      endDateInput.addEventListener('change', updateReportFromForm);
-      teacherCommentInput.addEventListener('input', updateReportFromForm);
+      // 이전 방식의 자동 업데이트는 제거하고 적용 버튼으로만 업데이트하도록 변경
     }
     
     // 폼 입력값으로 리포트 업데이트
     function updateReportFromForm() {
       // 학생 및 강사 이름
-      studentNameCell.textContent = studentNameInput.value || '-';
-      teacherNameCell.textContent = teacherNameInput.value || '-';
+      if (studentNameCell) studentNameCell.textContent = studentNameInput.value || '-';
+      if (teacherNameCell) teacherNameCell.textContent = teacherNameInput.value || '-';
       
       // 센터명 업데이트
-      if (centerNameCell) {
+      if (centerNameCell && centerNameInput) {
         centerNameCell.textContent = centerNameInput.value || '-';
       }
       
       // 리포트 상단의 센터명 업데이트
-      if (headerCenterName) {
+      if (headerCenterName && centerNameInput) {
         headerCenterName.textContent = centerNameInput.value || '-';
       }
       
       // 학습 기간
-      if (startDateInput.value && endDateInput.value) {
-        studyPeriodCell.textContent = formatDateRange(startDateInput.value, endDateInput.value);
-      } else {
-        studyPeriodCell.textContent = '-';
+      if (studyPeriodCell && startDateInput && endDateInput) {
+        if (startDateInput.value && endDateInput.value) {
+          studyPeriodCell.textContent = formatDateRange(startDateInput.value, endDateInput.value);
+        } else {
+          studyPeriodCell.textContent = '-';
+        }
       }
       
       // 선생님 의견
-      teacherCommentCell.textContent = teacherCommentInput.value || '';
+      if (teacherCommentCell && teacherCommentInput) {
+        teacherCommentCell.textContent = teacherCommentInput.value || '';
+      }
+      
+      console.log('보고서 정보가 업데이트되었습니다.');
     }
     
     // 인쇄 버튼 이벤트
-    document.getElementById('printBtn').addEventListener('click', function() {
-      window.print();
-    });
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+      printBtn.addEventListener('click', function() {
+        window.print();
+      });
+    }
     
     // 날짜 포맷 함수 (YYYY-MM-DD)
     function formatDateForInput(date) {
