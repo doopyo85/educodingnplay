@@ -133,45 +133,85 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
-        // 헤더 확인
+        // 헤더 확인 (첫 번째 행)
         const headers = sheetData[0];
         console.log('시트 헤더:', headers);
         
-        // 카테고리 인덱스와 볼륨 인덱스 찾기
-        const categoryIndex = headers.indexOf('교재카테고리');
-        const volumeIndex = headers.indexOf('교재레벨-호');
-        const ctElementIndex = headers.indexOf('차시CT요소');
-        const evalItemIndex = headers.indexOf('평가항목');
-        const thumbnailIndex = headers.indexOf('thumbnail_url');
+        // 각 열의 인덱스 찾기
+        const noIndex = 0;  // 'NO' 열 (A열)
+        const categoryIndex = 1;  // '교재카테고리' 열 (B열)
+        const volumeIndex = 2;  // '교재레벨-호' 열 (C열)
+        const lessonNameIndex = 3;  // '차시명' 열 (D열)
+        const thumbnailIndex = 4;  // 'thumbnail_url' 열 (E열)
+        const ctElementIndex = 5;  // '차시CT요소' 열 (F열)
+        const evalItemIndex = 6;  // '평가항목' 열 (G열)
         
-        console.log('열 인덱스:', {
-            categoryIndex, 
-            volumeIndex, 
-            ctElementIndex, 
-            evalItemIndex, 
-            thumbnailIndex
+        console.log('사용할 열 인덱스:', {
+            categoryIndex,
+            volumeIndex,
+            ctElementIndex,
+            evalItemIndex
         });
         
-        // 필터링
+        // 구글 시트 데이터에서 해당 카테고리/볼륨 필터링
+        let targetCategory = '';
+        let targetVolumeNumber = '';
+        
+        // 카테고리 매핑
+        if (category.toLowerCase() === 'preschool') {
+            targetCategory = '프리스쿨 LV';
+        } else if (category.toLowerCase() === 'junior') {
+            targetCategory = '주니어 LV';
+        } else if (category.toLowerCase() === 'cps') {
+            targetCategory = 'CPS';
+        } else if (category.toLowerCase() === 'cpa') {
+            targetCategory = 'CPA';
+        } else if (category.toLowerCase() === 'ctr_appinventor') {
+            targetCategory = '앱인벤터';
+        } else if (category.toLowerCase() === 'ctr_python') {
+            targetCategory = '파이썬';
+        } else {
+            targetCategory = category;
+        }
+        
+        // 볼륨 번호 추출
+        targetVolumeNumber = volume;
+        
+        console.log(`목표 검색: 카테고리=${targetCategory}, 볼륨번호=${targetVolumeNumber}`);
+        
+        // 필터링 (여러 방식으로 시도)
         const filteredRows = sheetData.slice(1).filter(row => {
-            // 행의 길이 확인
             if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
             }
             
             const rowCategory = row[categoryIndex] || '';
-            let rowVolumeStr = row[volumeIndex] || '';
+            const rowVolumeStr = row[volumeIndex] || '';
             
-            // 볼륨 추출
-            let rowVolume = rowVolumeStr;
+            // 볼륨 번호 추출 (예: '프리스쿨1-1'에서 '1')
+            let rowVolumeNumber = '';
             if (rowVolumeStr.includes('-')) {
                 const parts = rowVolumeStr.split('-');
                 if (parts.length > 1) {
-                    rowVolume = parts[1];
+                    rowVolumeNumber = parts[1];
                 }
             }
             
-            const isMatch = rowCategory.includes(category) && rowVolume.includes(volume);
+            // 여러 방식으로 매칭 시도
+            const categoryMatch = 
+                rowCategory.includes(targetCategory) || 
+                (targetCategory.includes('프리스쿨') && rowCategory.includes('프리스쿨'));
+                
+            const volumeMatch = 
+                rowVolumeNumber === targetVolumeNumber || 
+                rowVolumeStr.includes(`-${targetVolumeNumber}`);
+            
+            const isMatch = categoryMatch && volumeMatch;
+            
+            if (isMatch) {
+                console.log(`매칭된 행: ${rowCategory} / ${rowVolumeStr} / ${row[ctElementIndex]} / ${row[evalItemIndex]}`);
+            }
+            
             return isMatch;
         });
         
@@ -182,9 +222,10 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
         }
         
-        // 일부 데이터 출력 (확인용)
-        if (filteredRows.length > 0) {
-            console.log('첫 번째 일치 행:', filteredRows[0]);
+        // 썸네일 URL 가져오기 (있다면)
+        let thumbnailUrl = '';
+        if (filteredRows.length > 0 && thumbnailIndex < filteredRows[0].length) {
+            thumbnailUrl = filteredRows[0][thumbnailIndex] || '';
         }
         
         // 평가 항목 추출
@@ -192,9 +233,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         const processedItems = new Set();
         
         filteredRows.forEach(row => {
-            if (ctElementIndex >= 0 && evalItemIndex >= 0 && 
-                row.length > Math.max(ctElementIndex, evalItemIndex)) {
-                
+            if (row.length > Math.max(ctElementIndex, evalItemIndex)) {
                 const ctElement = row[ctElementIndex];
                 const evalItem = row[evalItemIndex];
                 
@@ -214,12 +253,10 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         });
         
         console.log(`평가 항목 추출: ${evaluationItems.length}개`);
-        
-        // 평가 항목 확인
         if (evaluationItems.length > 0) {
-            console.log('첫 번째 평가 항목:', evaluationItems[0]);
-        } else {
-            console.error('평가 항목이 없습니다');
+            evaluationItems.forEach((item, idx) => {
+                console.log(`평가항목 ${idx+1}: ${item.principle} - ${item.description}`);
+            });
         }
         
         // 응답 데이터
@@ -228,8 +265,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                 category: category,
                 volume: volume,
                 title: `${category} ${volume}호`,
-                thumbnail: filteredRows.length > 0 && thumbnailIndex >= 0 ? 
-                    filteredRows[0][thumbnailIndex] || '' : ''
+                thumbnail: thumbnailUrl
             },
             evaluationItems: evaluationItems
         };
