@@ -118,33 +118,24 @@ router.get('/books', authenticateUser, async (req, res) => {
 });
 
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
-// API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
 router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
     try {
+        console.log(`교재 정보 요청: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
         const { category, volume } = req.params;
         
         // 원본 시트 데이터에서 직접 가져오기
+        console.log('구글 시트 데이터 요청 시작');
         const sheetData = await getSheetData('report!A1:H1000');
+        console.log(`구글 시트 데이터 수신: ${sheetData ? sheetData.length : 0}행`);
         
         if (!sheetData || !Array.isArray(sheetData) || sheetData.length <= 1) {
+            console.error('시트 데이터가 없거나 부적절합니다');
             return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
         // 헤더 행 추출
         const headers = sheetData[0];
-        
-        // 데이터 객체로 변환 (헤더를 키로 사용)
-        const parsedData = sheetData.slice(1).map(row => {
-            const item = {};
-            headers.forEach((header, index) => {
-                if (index < row.length) {
-                    item[header] = row[index] || '';
-                } else {
-                    item[header] = '';
-                }
-            });
-            return item;
-        });
+        console.log('시트 헤더:', headers);
         
         // 카테고리 인덱스와 볼륨 인덱스 찾기
         const categoryIndex = headers.findIndex(h => h === '교재카테고리');
@@ -153,12 +144,16 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         const ctElementIndex = headers.findIndex(h => h === '차시CT요소');
         const evalItemIndex = headers.findIndex(h => h === '평가항목');
         
+        console.log(`열 인덱스: 카테고리=${categoryIndex}, 볼륨=${volumeIndex}, 썸네일=${thumbnailIndex}, CT요소=${ctElementIndex}, 평가항목=${evalItemIndex}`);
+        
         // 인덱스가 적절하게 찾아졌는지 확인
         if (categoryIndex === -1 || volumeIndex === -1) {
+            console.error('필수 열을 찾을 수 없습니다');
             return res.status(500).json({ error: '시트 구조가 예상과 다릅니다.' });
         }
         
         // 해당 카테고리와 볼륨에 맞는 행만 필터링
+        console.log('필터링 시작');
         const filteredRows = sheetData.slice(1).filter(row => {
             if (row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
@@ -176,10 +171,19 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                 }
             }
             
-            return rowCategory === category && rowVolume === volume;
+            const match = rowCategory === category && rowVolume === volume;
+            // 디버깅을 위한 일부 행 출력
+            if (match) {
+                console.log(`매칭된 행: 카테고리=${rowCategory}, 볼륨=${rowVolume}, CT요소=${row[ctElementIndex]}, 평가항목=${row[evalItemIndex]}`);
+            }
+            
+            return match;
         });
         
+        console.log(`필터링 완료: ${filteredRows.length}개 행 일치`);
+        
         if (filteredRows.length === 0) {
+            console.error('일치하는 교재 정보가 없습니다');
             return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
         }
         
@@ -187,6 +191,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         const thumbnail = filteredRows[0][thumbnailIndex] || '';
         
         // 고유한 CT요소와 평가항목 추출
+        console.log('평가 항목 추출 시작');
         const evaluationItems = [];
         const processedItems = new Set();
         
@@ -207,14 +212,15 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                             principle: ctElement,
                             description: evalItem
                         });
+                        console.log(`평가 항목 추가: ${ctElement} - ${evalItem}`);
                     }
                 }
             }
         });
         
-        console.log(`Found ${evaluationItems.length} evaluation items for ${category} ${volume}`);
+        console.log(`평가 항목 추출 완료: ${evaluationItems.length}개`);
         
-        res.json({
+        const response = {
             book: {
                 category: category,
                 volume: volume,
@@ -222,9 +228,12 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                 thumbnail: thumbnail
             },
             evaluationItems: evaluationItems
-        });
+        };
+        
+        console.log('응답 데이터:', JSON.stringify(response, null, 2));
+        res.json(response);
     } catch (error) {
-        console.error('Error fetching book details:', error);
+        console.error('교재 정보 조회 오류:', error);
         res.status(500).json({ error: '교재 정보를 불러오는 중 오류가 발생했습니다.' });
     }
 });
