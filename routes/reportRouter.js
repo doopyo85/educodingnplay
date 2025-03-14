@@ -133,18 +133,18 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
-        // 헤더 확인 (첫 번째 행)
-        const headers = sheetData[0];
-        console.log('시트 헤더:', headers);
+        // 첫 번째 행이 헤더인지 확인
+        const firstRow = sheetData[0];
+        console.log('첫 번째 행:', firstRow);
         
-        // 각 열의 인덱스 찾기
+        // ** 수정된 부분: 실제 열 위치에 맞게 인덱스 조정 **
         const noIndex = 0;  // 'NO' 열 (A열)
         const categoryIndex = 1;  // '교재카테고리' 열 (B열)
         const volumeIndex = 2;  // '교재레벨-호' 열 (C열)
         const lessonNameIndex = 3;  // '차시명' 열 (D열)
         const thumbnailIndex = 4;  // 'thumbnail_url' 열 (E열)
-        const ctElementIndex = 5;  // '차시CT요소' 열 (F열)
-        const evalItemIndex = 6;  // '평가항목' 열 (G열)
+        const ctElementIndex = 6;  // '차시CT요소' 열 (G열) - 수정됨
+        const evalItemIndex = 7;  // '평가항목' 열 (H열) - 수정됨
         
         console.log('사용할 열 인덱스:', {
             categoryIndex,
@@ -209,7 +209,9 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             const isMatch = categoryMatch && volumeMatch;
             
             if (isMatch) {
-                console.log(`매칭된 행: ${rowCategory} / ${rowVolumeStr} / ${row[ctElementIndex]} / ${row[evalItemIndex]}`);
+                console.log(`매칭된 행: ${rowCategory} / ${rowVolumeStr}`);
+                // 디버깅용으로 모든 컬럼 출력
+                console.log(`전체 행 데이터: ${row.join(' | ')}`);
             }
             
             return isMatch;
@@ -237,6 +239,9 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                 const ctElement = row[ctElementIndex];
                 const evalItem = row[evalItemIndex];
                 
+                // 디버깅: 각 행의 CT요소와 평가항목 확인
+                console.log(`행 데이터 - CT요소: "${ctElement}", 평가항목: "${evalItem}"`);
+                
                 if (ctElement && evalItem) {
                     const itemKey = `${ctElement}-${evalItem}`;
                     
@@ -253,11 +258,6 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         });
         
         console.log(`평가 항목 추출: ${evaluationItems.length}개`);
-        if (evaluationItems.length > 0) {
-            evaluationItems.forEach((item, idx) => {
-                console.log(`평가항목 ${idx+1}: ${item.principle} - ${item.description}`);
-            });
-        }
         
         // 응답 데이터
         const responseData = {
