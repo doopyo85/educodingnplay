@@ -1,8 +1,7 @@
 // header.js
 document.addEventListener("DOMContentLoaded", function () {
     const userNameElement = document.getElementById("userName");
-    const logoutButtonElement = document.getElementById('logoutButton');
-
+    
     if (userNameElement) {
         fetch('/api/get-user-session', { 
             credentials: 'include',
@@ -30,28 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    if (logoutButtonElement) {
-        logoutButtonElement.addEventListener('click', function () {
-            fetch('/logout', {
-                method: 'GET',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Logout failed');
-                }
-                return response.text();
-            })
-            .then(() => {
-                window.location.href = '/auth/login';
-            })
-            .catch(error => {
-                console.error('Error during logout:', error);
-            });
-        });
-    } else {
-        console.error('Logout button not found');
-    }
 });
 
 // 로그인 폼 제출 이벤트 추가
