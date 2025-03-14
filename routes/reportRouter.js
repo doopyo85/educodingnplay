@@ -118,83 +118,108 @@ router.get('/books', authenticateUser, async (req, res) => {
 });
 
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
+// API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
 router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
     try {
         const { category, volume } = req.params;
-        const reportData = await getReportData();
         
-        // 해당 카테고리가 없는 경우
-        if (!reportData[category]) {
-            return res.status(404).json({ error: '해당 카테고리를 찾을 수 없습니다.' });
+        // 원본 시트 데이터에서 직접 가져오기
+        const sheetData = await getSheetData('report!A1:H1000');
+        
+        if (!sheetData || !Array.isArray(sheetData) || sheetData.length <= 1) {
+            return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
-        // 해당 볼륨 찾기
-        const bookVolume = reportData[category].find(item => 
-            item.volume && item.volume.toString() === volume.toString()
-        );
+        // 헤더 행 추출
+        const headers = sheetData[0];
         
-        if (!bookVolume) {
-            return res.status(404).json({ error: '해당 호수의 교재를 찾을 수 없습니다.' });
-        }
-        
-        // 해당 카테고리와 볼륨의 모든 차시 데이터 수집
-        // 원본 데이터에서 다시 검색
-        const allLessons = [];
-        const sheetData = await getSheetData('report!A1:Z1000');
-        
-        if (sheetData && Array.isArray(sheetData) && sheetData.length > 0) {
-            const headers = sheetData[0];
-            const lessons = sheetData.slice(1).map(row => {
-                const item = {};
-                headers.forEach((header, index) => {
+        // 데이터 객체로 변환 (헤더를 키로 사용)
+        const parsedData = sheetData.slice(1).map(row => {
+            const item = {};
+            headers.forEach((header, index) => {
+                if (index < row.length) {
                     item[header] = row[index] || '';
-                });
-                return item;
+                } else {
+                    item[header] = '';
+                }
             });
+            return item;
+        });
+        
+        // 카테고리 인덱스와 볼륨 인덱스 찾기
+        const categoryIndex = headers.findIndex(h => h === '교재카테고리');
+        const volumeIndex = headers.findIndex(h => h === '교재레벨-호');
+        const thumbnailIndex = headers.findIndex(h => h === 'thumbnail_url');
+        const ctElementIndex = headers.findIndex(h => h === '차시CT요소');
+        const evalItemIndex = headers.findIndex(h => h === '평가항목');
+        
+        // 인덱스가 적절하게 찾아졌는지 확인
+        if (categoryIndex === -1 || volumeIndex === -1) {
+            return res.status(500).json({ error: '시트 구조가 예상과 다릅니다.' });
+        }
+        
+        // 해당 카테고리와 볼륨에 맞는 행만 필터링
+        const filteredRows = sheetData.slice(1).filter(row => {
+            if (row.length <= Math.max(categoryIndex, volumeIndex)) {
+                return false;
+            }
             
-            // 해당 카테고리와 볼륨에 맞는 차시 찾기
-            lessons.forEach(lesson => {
-                const lessonCategory = lesson['교재카테고리'] || '';
-                const lessonLevelVolume = lesson['교재레벨-호'] || '';
+            const rowCategory = row[categoryIndex] || '';
+            const rowVolumeStr = row[volumeIndex] || '';
+            
+            // 볼륨 추출
+            let rowVolume = '';
+            if (rowVolumeStr) {
+                const parts = rowVolumeStr.split('-');
+                if (parts.length > 1) {
+                    rowVolume = parts[1];
+                }
+            }
+            
+            return rowCategory === category && rowVolume === volume;
+        });
+        
+        if (filteredRows.length === 0) {
+            return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
+        }
+        
+        // 교재 정보
+        const thumbnail = filteredRows[0][thumbnailIndex] || '';
+        
+        // 고유한 CT요소와 평가항목 추출
+        const evaluationItems = [];
+        const processedItems = new Set();
+        
+        filteredRows.forEach((row, idx) => {
+            if (ctElementIndex !== -1 && evalItemIndex !== -1 && 
+                row.length > Math.max(ctElementIndex, evalItemIndex)) {
                 
-                // 볼륨 추출
-                let lessonVolume = '1';
-                if (lessonLevelVolume) {
-                    const parts = lessonLevelVolume.split('-');
-                    if (parts.length > 1) {
-                        lessonVolume = parts[1];
+                const ctElement = row[ctElementIndex];
+                const evalItem = row[evalItemIndex];
+                
+                if (ctElement && evalItem) {
+                    const itemKey = `${ctElement}-${evalItem}`;
+                    
+                    if (!processedItems.has(itemKey)) {
+                        processedItems.add(itemKey);
+                        evaluationItems.push({
+                            id: evaluationItems.length + 1,
+                            principle: ctElement,
+                            description: evalItem
+                        });
                     }
                 }
-                
-                if (lessonCategory === category && lessonVolume === volume) {
-                    allLessons.push(lesson);
-                }
-            });
-        }
-        
-        // 해당 교재의 평가 항목 구성
-        const evaluationItems = [];
-        
-        // 각 차시별 CT요소와 평가항목을 추가
-        allLessons.forEach((lesson, index) => {
-            const ctPrinciple = lesson['차시CT요소'] || '';
-            const evaluation = lesson['평가항목'] || '';
-            
-            if (ctPrinciple && evaluation) {
-                evaluationItems.push({
-                    id: index + 1,
-                    principle: ctPrinciple,
-                    description: evaluation
-                });
             }
         });
+        
+        console.log(`Found ${evaluationItems.length} evaluation items for ${category} ${volume}`);
         
         res.json({
             book: {
                 category: category,
                 volume: volume,
                 title: `${category} ${volume}호`,
-                thumbnail: allLessons.length > 0 ? (allLessons[0]['thumbnail_url'] || '') : ''
+                thumbnail: thumbnail
             },
             evaluationItems: evaluationItems
         });
