@@ -181,40 +181,35 @@
     const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
   
     // 폼 카드에 적용 버튼 추가
-    // 수정된 코드 (폼 상단에 버튼 추가)
     const formCard = document.querySelector('.card');
     if (formCard) {
-      // 카드 헤더 찾기
-      const cardHeader = formCard.querySelector('.card-header');
+      const cardBody = formCard.querySelector('.card-body');
       
-      if (cardHeader) {
-        // 기존 헤더 내용을 보존
-        const headerTitle = cardHeader.innerHTML;
-        
-        // 헤더를 플렉스 컨테이너로 변경
-        cardHeader.innerHTML = '';
-        cardHeader.className = 'card-header d-flex justify-content-between align-items-center';
-        
-        // 제목 요소 생성
-        const titleDiv = document.createElement('div');
-        titleDiv.innerHTML = headerTitle;
+      if (cardBody) {
+        // 버튼 컨테이너 생성
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'px-3 py-2 d-flex justify-content-end';
         
         // 적용 버튼 생성
         const applyButton = document.createElement('button');
         applyButton.type = 'button';
-        applyButton.className = 'btn btn-primary btn-sm';
+        applyButton.className = 'btn btn-primary';
         applyButton.id = 'applyFormBtn';
         applyButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> 정보 적용';
+        // 확대 애니메이션 효과 제거
+        applyButton.style.transition = 'none';
         
-        // 헤더에 요소 추가
-        cardHeader.appendChild(titleDiv);
-        cardHeader.appendChild(applyButton);
-        
-        // 알림 컨테이너 생성 (헤더와 폼 본문 사이에 위치)
+        // 알림 컨테이너 생성
         const alertContainer = document.createElement('div');
-        alertContainer.className = 'mt-2 alert-container';
+        alertContainer.className = 'alert-container mt-2';
         alertContainer.style.display = 'none';
-        formCard.insertBefore(alertContainer, formCard.querySelector('.card-body'));
+        
+        // 버튼 컨테이너에 버튼 추가
+        buttonContainer.appendChild(applyButton);
+        
+        // 카드 헤더와 카드 본문 사이에 버튼 컨테이너 삽입
+        formCard.insertBefore(buttonContainer, cardBody);
+        formCard.insertBefore(alertContainer, cardBody);
         
         // 적용 버튼 클릭 이벤트 리스너
         applyButton.addEventListener('click', function() {
@@ -222,9 +217,8 @@
           
           // 성공 메시지 표시
           alertContainer.innerHTML = `
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="alert alert-success mx-3" role="alert">
               정보가 보고서에 적용되었습니다!
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           `;
           alertContainer.style.display = 'block';
@@ -236,6 +230,7 @@
         });
       }
     }
+    
     // 날짜 기본값 설정 (오늘 및 1개월 전)
     const today = new Date();
     const oneMonthAgo = new Date();
