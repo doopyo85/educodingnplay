@@ -157,11 +157,6 @@
 <!-- 스크립트 부분 -->
 <script defer src="/header.js"></script>
 <script>
-    // 메시지 화면으로 이동
-    document.getElementById('app-drawer-button').addEventListener('click', function() {
-        window.location.href = '/messages';  // 메시지 화면으로 이동
-    });
-
     // 알림 배지 표시 처리 (새 글이 있으면 표시)
     function checkForNewPosts() {
         fetch('/board/check-new-posts')  // 서버에서 새 글 여부 확인 API 호출
