@@ -1,6 +1,11 @@
 // books.js - 교재 선택 화면 구현
 document.addEventListener('DOMContentLoaded', function() {
+    // 메인 컨테이너 요소 확인
     const categoryContainer = document.getElementById('categoryContainer');
+    if (!categoryContainer) {
+      console.error('categoryContainer 요소를 찾을 수 없습니다.');
+      return; // 컨테이너가 없으면 실행 중단
+    }
     
     // 카테고리 이름 매핑 (영문 -> 한글)
     const categoryMapping = {
@@ -69,11 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
       })
       .then(data => {
+        console.log('받아온 교재 데이터:', data);
+        
         // 컨테이너 초기화
         categoryContainer.innerHTML = '';
         
         // 데이터가 없는 경우
-        if (Object.keys(data).length === 0) {
+        if (!data || Object.keys(data).length === 0) {
           categoryContainer.innerHTML = `
             <div class="alert alert-warning">
               <i class="bi bi-exclamation-triangle me-2"></i>
@@ -86,6 +93,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // 그룹별로 카테고리 렌더링
         Object.keys(categoryGroups).forEach(groupKey => {
           const group = categoryGroups[groupKey];
+          let hasContent = false;
+          
+          // 해당 그룹에 속한 카테고리가 데이터에 있는지 확인
+          group.categories.forEach(category => {
+            if (data[category] && data[category].length > 0) {
+              hasContent = true;
+            }
+          });
+          
+          // 콘텐츠가 없으면 이 그룹은 표시하지 않음
+          if (!hasContent) return;
           
           // 그룹 섹션 컨테이너 생성
           const groupSection = document.createElement('div');
@@ -108,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // 그룹 내 카테고리별 교재 추가
           group.categories.forEach(category => {
-            if (data[category]) {
+            if (data[category] && data[category].length > 0) {
               // 교재 아이템 생성
               const bookItem = document.createElement('div');
               bookItem.className = 'book-item';
@@ -197,14 +215,20 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+      }
         
-        // 모달 이벤트 리스너 추가
-        const volumeModal = document.getElementById('volumeModal');
+      // 모달 이벤트 리스너 추가
+      const volumeModal = document.getElementById('volumeModal');
+      if (volumeModal) {
         volumeModal.addEventListener('show.bs.modal', function(event) {
           const button = event.relatedTarget;
+          if (!button) return;
+          
           const category = button.getAttribute('data-category');
           const volumeButtonsContainer = volumeModal.querySelector('.volume-buttons');
           const modalTitle = volumeModal.querySelector('.modal-title');
+          
+          if (!volumeButtonsContainer || !modalTitle) return;
           
           // 모달 제목 업데이트
           modalTitle.textContent = `${categoryMapping[category] || category} 호수 선택`;
