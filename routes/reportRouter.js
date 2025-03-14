@@ -119,84 +119,80 @@ router.get('/books', authenticateUser, async (req, res) => {
 
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
 router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
+    console.log(`교재 정보 요청 받음: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
+    
     try {
-        console.log(`교재 정보 요청: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
         const { category, volume } = req.params;
         
-        // 원본 시트 데이터에서 직접 가져오기
-        console.log('구글 시트 데이터 요청 시작');
+        // 시트 데이터 가져오기
         const sheetData = await getSheetData('report!A1:H1000');
-        console.log(`구글 시트 데이터 수신: ${sheetData ? sheetData.length : 0}행`);
+        console.log(`시트 데이터 수신: ${sheetData ? sheetData.length : 0}행`);
         
         if (!sheetData || !Array.isArray(sheetData) || sheetData.length <= 1) {
-            console.error('시트 데이터가 없거나 부적절합니다');
+            console.error('시트 데이터가 없거나 불충분합니다');
             return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
         }
         
-        // 헤더 행 추출
+        // 헤더 확인
         const headers = sheetData[0];
         console.log('시트 헤더:', headers);
         
         // 카테고리 인덱스와 볼륨 인덱스 찾기
-        const categoryIndex = headers.findIndex(h => h === '교재카테고리');
-        const volumeIndex = headers.findIndex(h => h === '교재레벨-호');
-        const thumbnailIndex = headers.findIndex(h => h === 'thumbnail_url');
-        const ctElementIndex = headers.findIndex(h => h === '차시CT요소');
-        const evalItemIndex = headers.findIndex(h => h === '평가항목');
+        const categoryIndex = headers.indexOf('교재카테고리');
+        const volumeIndex = headers.indexOf('교재레벨-호');
+        const ctElementIndex = headers.indexOf('차시CT요소');
+        const evalItemIndex = headers.indexOf('평가항목');
+        const thumbnailIndex = headers.indexOf('thumbnail_url');
         
-        console.log(`열 인덱스: 카테고리=${categoryIndex}, 볼륨=${volumeIndex}, 썸네일=${thumbnailIndex}, CT요소=${ctElementIndex}, 평가항목=${evalItemIndex}`);
+        console.log('열 인덱스:', {
+            categoryIndex, 
+            volumeIndex, 
+            ctElementIndex, 
+            evalItemIndex, 
+            thumbnailIndex
+        });
         
-        // 인덱스가 적절하게 찾아졌는지 확인
-        if (categoryIndex === -1 || volumeIndex === -1) {
-            console.error('필수 열을 찾을 수 없습니다');
-            return res.status(500).json({ error: '시트 구조가 예상과 다릅니다.' });
-        }
-        
-        // 해당 카테고리와 볼륨에 맞는 행만 필터링
-        console.log('필터링 시작');
+        // 필터링
         const filteredRows = sheetData.slice(1).filter(row => {
-            if (row.length <= Math.max(categoryIndex, volumeIndex)) {
+            // 행의 길이 확인
+            if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
             }
             
             const rowCategory = row[categoryIndex] || '';
-            const rowVolumeStr = row[volumeIndex] || '';
+            let rowVolumeStr = row[volumeIndex] || '';
             
             // 볼륨 추출
-            let rowVolume = '';
-            if (rowVolumeStr) {
+            let rowVolume = rowVolumeStr;
+            if (rowVolumeStr.includes('-')) {
                 const parts = rowVolumeStr.split('-');
                 if (parts.length > 1) {
                     rowVolume = parts[1];
                 }
             }
             
-            const match = rowCategory === category && rowVolume === volume;
-            // 디버깅을 위한 일부 행 출력
-            if (match) {
-                console.log(`매칭된 행: 카테고리=${rowCategory}, 볼륨=${rowVolume}, CT요소=${row[ctElementIndex]}, 평가항목=${row[evalItemIndex]}`);
-            }
-            
-            return match;
+            const isMatch = rowCategory.includes(category) && rowVolume.includes(volume);
+            return isMatch;
         });
         
-        console.log(`필터링 완료: ${filteredRows.length}개 행 일치`);
+        console.log(`필터링 결과: ${filteredRows.length}개 행 일치`);
         
         if (filteredRows.length === 0) {
-            console.error('일치하는 교재 정보가 없습니다');
+            console.error('일치하는 행이 없습니다');
             return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
         }
         
-        // 교재 정보
-        const thumbnail = filteredRows[0][thumbnailIndex] || '';
+        // 일부 데이터 출력 (확인용)
+        if (filteredRows.length > 0) {
+            console.log('첫 번째 일치 행:', filteredRows[0]);
+        }
         
-        // 고유한 CT요소와 평가항목 추출
-        console.log('평가 항목 추출 시작');
+        // 평가 항목 추출
         const evaluationItems = [];
         const processedItems = new Set();
         
-        filteredRows.forEach((row, idx) => {
-            if (ctElementIndex !== -1 && evalItemIndex !== -1 && 
+        filteredRows.forEach(row => {
+            if (ctElementIndex >= 0 && evalItemIndex >= 0 && 
                 row.length > Math.max(ctElementIndex, evalItemIndex)) {
                 
                 const ctElement = row[ctElementIndex];
@@ -212,28 +208,36 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                             principle: ctElement,
                             description: evalItem
                         });
-                        console.log(`평가 항목 추가: ${ctElement} - ${evalItem}`);
                     }
                 }
             }
         });
         
-        console.log(`평가 항목 추출 완료: ${evaluationItems.length}개`);
+        console.log(`평가 항목 추출: ${evaluationItems.length}개`);
         
-        const response = {
+        // 평가 항목 확인
+        if (evaluationItems.length > 0) {
+            console.log('첫 번째 평가 항목:', evaluationItems[0]);
+        } else {
+            console.error('평가 항목이 없습니다');
+        }
+        
+        // 응답 데이터
+        const responseData = {
             book: {
                 category: category,
                 volume: volume,
                 title: `${category} ${volume}호`,
-                thumbnail: thumbnail
+                thumbnail: filteredRows.length > 0 && thumbnailIndex >= 0 ? 
+                    filteredRows[0][thumbnailIndex] || '' : ''
             },
             evaluationItems: evaluationItems
         };
         
-        console.log('응답 데이터:', JSON.stringify(response, null, 2));
-        res.json(response);
+        console.log('응답 데이터 준비 완료');
+        res.json(responseData);
     } catch (error) {
-        console.error('교재 정보 조회 오류:', error);
+        console.error('에러 발생:', error);
         res.status(500).json({ error: '교재 정보를 불러오는 중 오류가 발생했습니다.' });
     }
 });
