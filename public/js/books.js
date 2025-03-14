@@ -1,4 +1,4 @@
-// books.js - 교재 선택 화면 구현
+// books.js - 칸아카데미 스타일 교재 선택 구현
 document.addEventListener('DOMContentLoaded', function() {
     // 메인 컨테이너 요소 확인
     const categoryContainer = document.getElementById('categoryContainer');
@@ -107,80 +107,107 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // 그룹 섹션 컨테이너 생성
           const groupSection = document.createElement('div');
-          groupSection.className = 'course-category mb-4';
+          groupSection.className = 'khan-category';
           
           // 그룹 헤더 생성
           const groupHeader = document.createElement('div');
-          groupHeader.className = 'category-header';
+          groupHeader.className = 'khan-category-header';
           groupHeader.innerHTML = `
-            <div class="category-icon" style="background-color: ${group.iconColor}">
+            <div class="khan-icon">
               <i class="bi bi-${group.icon}"></i>
             </div>
-            <h2 class="category-title">${group.title}</h2>
-            <span class="category-description">${group.description}</span>
+            <h2 class="khan-category-title">${group.title}</h2>
           `;
           
-          // 교재 컨테이너 생성
+          // 교재 그리드 컨테이너 생성
           const booksContainer = document.createElement('div');
-          booksContainer.className = 'books-container';
+          booksContainer.className = 'khan-category-container';
+          
+          const booksGrid = document.createElement('div');
+          booksGrid.className = 'khan-book-grid';
           
           // 그룹 내 카테고리별 교재 추가
           group.categories.forEach(category => {
             if (data[category] && data[category].length > 0) {
-              // 교재 아이템 생성
-              const bookItem = document.createElement('div');
-              bookItem.className = 'book-item';
+              // 정렬된 교재 목록 (볼륨 숫자 기준)
+              const sortedVolumes = [...data[category]].sort((a, b) => {
+                return parseInt(a.volume) - parseInt(b.volume);
+              });
               
-              // 교재 볼륨 수 계산
-              const volumeCount = data[category].length;
+              // 교재 카드 생성
+              const bookCard = document.createElement('div');
+              bookCard.className = 'khan-book-card';
               
-              // 교재 아이콘
-              const bookIcon = document.createElement('div');
-              bookIcon.className = 'book-icon';
-              bookIcon.innerHTML = `<i class="bi bi-${group.icon}"></i>`;
-              
-              // 교재 내용
-              const bookContent = document.createElement('div');
-              bookContent.className = 'book-content';
-              bookContent.innerHTML = `
-                <h3 class="book-title">${categoryMapping[category] || category}</h3>
-                <p class="book-description">${bookDescriptions[category] || '교재 설명'}</p>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${Math.random() * 50 + 50}%"></div>
-                </div>
-                <div class="book-info">
-                  <span>${volumeCount}호 시리즈</span>
-                  <span>학습자료</span>
-                </div>
+              // 교재 헤더
+              const bookHeader = document.createElement('div');
+              bookHeader.className = 'khan-book-header';
+              bookHeader.innerHTML = `
+                <h3 class="khan-book-title">${categoryMapping[category] || category}</h3>
               `;
               
-              // 액션 버튼
-              const actionButton = document.createElement('a');
-              actionButton.href = '#';
-              actionButton.className = 'action-button';
-              actionButton.textContent = '호수 선택';
-              actionButton.setAttribute('data-bs-toggle', 'modal');
-              actionButton.setAttribute('data-bs-target', '#volumeModal');
-              actionButton.setAttribute('data-category', category);
+              // 교재 콘텐츠
+              const bookContent = document.createElement('div');
+              bookContent.className = 'khan-book-content';
+              
+              // 교재 설명
+              const bookDescription = document.createElement('p');
+              bookDescription.className = 'khan-book-description';
+              bookDescription.textContent = bookDescriptions[category] || '교재 설명';
+              
+              // 볼륨 선택 섹션
+              const volumesSection = document.createElement('div');
+              volumesSection.className = 'khan-volumes-section';
+              
+              const volumesHeading = document.createElement('div');
+              volumesHeading.className = 'small-heading';
+              volumesHeading.textContent = '호수 선택';
+              
+              const volumesContainer = document.createElement('div');
+              volumesContainer.className = 'khan-volumes-container';
+              
+              // 각 호수 버튼 생성
+              sortedVolumes.forEach(book => {
+                if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
+                
+                const volumeBtn = document.createElement('a');
+                volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+                volumeBtn.className = 'khan-volume-btn';
+                volumeBtn.textContent = `${book.volume}호`;
+                
+                volumesContainer.appendChild(volumeBtn);
+              });
+              
+              // 교재 푸터
+              const bookFooter = document.createElement('div');
+              bookFooter.className = 'khan-book-footer';
+              bookFooter.innerHTML = `
+                <span class="khan-volume-tag">${sortedVolumes.length} 호수</span>
+                <span class="khan-badge">교재 학습</span>
+              `;
               
               // 요소 결합
-              bookItem.appendChild(bookIcon);
-              bookItem.appendChild(bookContent);
-              bookItem.appendChild(actionButton);
-              booksContainer.appendChild(bookItem);
+              volumesSection.appendChild(volumesHeading);
+              volumesSection.appendChild(volumesContainer);
+              
+              bookContent.appendChild(bookDescription);
+              bookContent.appendChild(volumesSection);
+              
+              bookCard.appendChild(bookHeader);
+              bookCard.appendChild(bookContent);
+              bookCard.appendChild(bookFooter);
+              
+              booksGrid.appendChild(bookCard);
             }
           });
           
           // 그룹 섹션에 헤더와 콘텐츠 추가
+          booksContainer.appendChild(booksGrid);
           groupSection.appendChild(groupHeader);
           groupSection.appendChild(booksContainer);
           
           // 메인 컨테이너에 그룹 섹션 추가
           categoryContainer.appendChild(groupSection);
         });
-        
-        // 호수 선택 모달 생성
-        createVolumeModal();
       })
       .catch(error => {
         console.error('Error:', error);
@@ -191,83 +218,4 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         `;
       });
-    
-    // 호수 선택 모달 생성 함수
-    function createVolumeModal() {
-      // 모달이 없으면 생성
-      if (!document.getElementById('volumeModal')) {
-        const modalHTML = `
-          <div class="modal fade" id="volumeModal" tabindex="-1" aria-labelledby="volumeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="volumeModalLabel">호수 선택</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="volume-buttons d-flex flex-wrap gap-2">
-                    <!-- 여기에 호수 버튼이 동적으로 생성됩니다 -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-      }
-        
-      // 모달 이벤트 리스너 추가
-      const volumeModal = document.getElementById('volumeModal');
-      if (volumeModal) {
-        volumeModal.addEventListener('show.bs.modal', function(event) {
-          const button = event.relatedTarget;
-          if (!button) return;
-          
-          const category = button.getAttribute('data-category');
-          const volumeButtonsContainer = volumeModal.querySelector('.volume-buttons');
-          const modalTitle = volumeModal.querySelector('.modal-title');
-          
-          if (!volumeButtonsContainer || !modalTitle) return;
-          
-          // 모달 제목 업데이트
-          modalTitle.textContent = `${categoryMapping[category] || category} 호수 선택`;
-          
-          // 호수 버튼 컨테이너 초기화
-          volumeButtonsContainer.innerHTML = '';
-          
-          // 해당 카테고리의 교재 데이터 가져오기
-          fetch('/report/books')
-            .then(response => response.json())
-            .then(booksData => {
-              if (booksData[category]) {
-                // 정렬된 교재 목록 (볼륨 숫자 기준)
-                const sortedVolumes = [...booksData[category]].sort((a, b) => {
-                  return parseInt(a.volume) - parseInt(b.volume);
-                });
-                
-                // 각 교재 버튼 생성
-                sortedVolumes.forEach(book => {
-                  if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
-                  
-                  const volumeBtn = document.createElement('a');
-                  volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
-                  volumeBtn.className = 'btn btn-outline-primary';
-                  volumeBtn.textContent = `${book.volume}호`;
-                  
-                  volumeButtonsContainer.appendChild(volumeBtn);
-                });
-              }
-            })
-            .catch(error => {
-              console.error('Error fetching volumes:', error);
-              volumeButtonsContainer.innerHTML = `
-                <div class="alert alert-danger">
-                  교재 정보를 불러오는 중 오류가 발생했습니다.
-                </div>
-              `;
-            });
-        });
-      }
-    }
   });
