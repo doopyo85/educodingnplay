@@ -26,7 +26,7 @@
             },
             "/python": {
                 "name": "테스트",
-                "roles": ["admin", "manager", "teacher"]
+                "roles": ["admin", "manager", "teacher","student"]
             }
     },           
         
