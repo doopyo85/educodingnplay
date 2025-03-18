@@ -410,19 +410,6 @@ app.get('/entry_project',
   }
 );
 
-// Python 페이지
-app.get('/python', 
-  checkPageAccess('/python'),
-  (req, res) => {
-    res.render('python_project', {
-      userID: req.session.userID,
-      userRole: req.session.role,
-      is_logined: req.session.is_logined,
-      centerID: req.session.centerID
-    });
-  }
-);
-
 // 교사교육 사이트
 app.get('/teacher', (req, res) => {
   res.render('teacher');
