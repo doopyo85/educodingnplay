@@ -41,6 +41,23 @@
     width: 100%;
   }
   
+  /* 📌 답글 메시지 스타일 */
+  .message-container.reply {
+    margin-left: 35px; /* 들여쓰기 */
+    margin-top: -5px; /* 간격 줄이기 */
+    position: relative;
+  }
+  
+  /* 📌 답글 아이콘 표시 */
+  .message-container.reply::before {
+    content: "↳";
+    position: absolute;
+    left: -20px;
+    top: 15px;
+    color: #888;
+    font-size: 18px;
+  }
+  
   /* 📌 프로필 이미지 (왼쪽 정렬 유지) */
   .profile-wrapper {
     margin-right: 8px; /* 말풍선과 간격 조정 */
@@ -94,11 +111,17 @@
     margin-left: 10px; /* 🔥 아이디와 간격 */
   }
   
-  /* 📌 삭제 버튼 스타일 */
-  .delete-btn {
+  /* 📌 액션 버튼 컨테이너 */
+  .message-actions {
     position: absolute;
     right: 8px;
     top: 8px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* 📌 삭제 버튼 스타일 */
+  .delete-btn {
     color: inherit;
     text-decoration: none;
     opacity: 0.7;
@@ -107,6 +130,65 @@
   .delete-btn:hover {
     opacity: 1;
     color: darkred;
+  }
+  
+  /* 📌 답글 버튼 스타일 */
+  .reply-btn {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.7;
+    cursor: pointer;
+  }
+  
+  .reply-btn:hover {
+    opacity: 1;
+    color: #1565C0; /* 파란색 계열 */
+  }
+  
+  /* 📌 답글 정보 표시 영역 */
+  .reply-info {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .reply-to-label {
+    margin-right: 5px;
+    color: #555;
+    font-weight: bold;
+  }
+  
+  .reply-to-preview {
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  
+  .cancel-reply {
+    color: #888;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .cancel-reply:hover {
+    color: #d32f2f;
+  }
+  
+  /* 📌 원본 메시지 참조 스타일 (답글에 표시) */
+  .reply-reference {
+    font-size: 0.8rem;
+    color: #1565C0;
+    background-color: rgba(21, 101, 192, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
   }
   
   /* =============================================
@@ -118,8 +200,14 @@
     padding: 10px;
     border-top: 1px solid #ddd;
     display: flex;
-    align-items: center;
+    flex-direction: column; /* 수직 레이아웃 */
     border-radius: 8px;
+  }
+  
+  /* 📌 입력 영역 */
+  .input-area {
+    display: flex;
+    align-items: center;
   }
   
   /* 📌 입력 필드 */
@@ -146,7 +234,7 @@
   }
   
   /* =============================================
-     📌 업무 카드 스타일
+     📌 기타 스타일 (기존 스타일 유지)
      ============================================= */
   /* 📌 업무 카드 컨테이너 */
   .task-container {
@@ -198,43 +286,7 @@
     text-align: center;
   }
   
-  /* =============================================
-     📌 너구리 이미지 및 말풍선 스타일
-     ============================================= */
-  /* ✅ 너구리 이미지 크기 및 둥근 테두리 */
-  .naguri-img {
-    width: 250px;  /* 이미지 크기 조정 */
-    height: auto;
-    border-radius: 15px; /* 둥근 사각형 테두리 */
-    display: block;
-    margin: 0 auto;
-    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-  }
-  
-  /* ✅ 말풍선 스타일 */
-  .speech-bubble {
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* ✅ 말풍선 꼬리 추가 */
-  .speech-bubble::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 8px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.7) transparent transparent transparent;
+  /* 유틸리티 클래스 */
+  .d-none {
+    display: none !important;
   }

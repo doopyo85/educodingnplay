@@ -18,16 +18,28 @@ router.get('/', async (req, res) => {
     console.log('📢 게시글 목록 요청 시작');
     console.log('👤 세션 정보:', req.session);
     
-    const query = 'SELECT * FROM posts ORDER BY created_at DESC';
-
     try {
-        const results = await db.queryDatabase(query);
+        // 게시글 목록 가져오기
+        const posts = await db.queryDatabase('SELECT * FROM posts ORDER BY created_at DESC');
 
-        // 날짜 변환 적용
-        const formattedResults = results.map(post => ({
-            ...post,
-            created_at: formatDate(post.created_at)
-        }));
+        // 각 게시글에 대한 댓글과 답글 가져오기
+        for (const post of posts) {
+            // 모든 댓글 가져오기 (부모 댓글과 답글 모두)
+            const comments = await db.queryDatabase(`
+                SELECT id, post_id, author, content, created_at, parent_id
+                FROM comments 
+                WHERE post_id = ? 
+                ORDER BY created_at ASC
+            `, [post.id]);
+            
+            // 날짜 포맷팅
+            comments.forEach(comment => {
+                comment.created_at = formatDate(comment.created_at);
+            });
+            
+            post.comments = comments;
+            post.created_at = formatDate(post.created_at);
+        }
 
         console.log('✅ 게시글 불러오기 성공');
         
@@ -38,10 +50,11 @@ router.get('/', async (req, res) => {
         } : null;
         
         res.render('board', { 
-            posts: formattedResults, 
+            posts: posts, 
             user: user,
             userID: req.session.userID,
-            is_logined: req.session.is_logined
+            is_logined: req.session.is_logined,
+            role: req.session.role
         });
     } catch (err) {
         console.error('❌ DB 에러:', err);
@@ -150,24 +163,106 @@ async function deletePost(req, res) {
     }
 }
 
-// 관리자 댓글 추가
+// 댓글 추가 (일반 댓글)
 router.post('/comment', async (req, res) => {
     // 세션 구조에 맞게 수정
     if (!req.session.is_logined) {
-        return res.status(403).send('로그인이 필요합니다.');
+        return res.status(403).json({ error: '로그인이 필요합니다.' });
     }
     
-    const { postId, comment } = req.body;
-    const adminName = req.session.userID; // 현재 로그인한 관리자 이름
-    const query = 'INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)';
-
+    const { postId, content } = req.body;
+    const author = req.session.userID;
+    
     try {
-        await db.queryDatabase(query, [postId, adminName, comment]);
-        res.redirect('/board');
+        await db.queryDatabase('INSERT INTO comments (post_id, author, content) VALUES (?, ?, ?)', 
+            [postId, author, content]);
+        res.json({ success: true });
     } catch (err) {
         console.error('❌ DB 에러:', err);
-        res.status(500).send('DB 에러 발생');
+        res.status(500).json({ error: 'DB 에러 발생' });
     }
 });
+
+// 답글 추가 (댓글에 대한 답글)
+router.post('/reply', async (req, res) => {
+    if (!req.session.is_logined) {
+        return res.status(403).json({ error: '로그인이 필요합니다.' });
+    }
+    
+    const { postId, commentId, content } = req.body;
+    const author = req.session.userID;
+    
+    try {
+        // 상위 댓글이 존재하는지 확인
+        const parentComment = await db.queryDatabase('SELECT id FROM comments WHERE id = ?', [commentId]);
+        
+        if (parentComment.length === 0) {
+            return res.status(404).json({ error: '원본 댓글을 찾을 수 없습니다.' });
+        }
+        
+        // 답글 추가
+        await db.queryDatabase(
+            'INSERT INTO comments (post_id, author, content, parent_id) VALUES (?, ?, ?, ?)', 
+            [postId, author, content, commentId]
+        );
+        
+        res.json({ success: true });
+    } catch (err) {
+        console.error('❌ 답글 추가 에러:', err);
+        res.status(500).json({ error: 'DB 에러 발생' });
+    }
+});
+
+// 댓글 삭제
+router.delete('/comment/:id', deleteComment);
+router.get('/comment/delete/:id', deleteComment);
+
+async function deleteComment(req, res) {
+    if (!req.session.is_logined) {
+        return res.status(403).json({ error: '로그인이 필요합니다.' });
+    }
+
+    const commentId = req.params.id;
+    
+    try {
+        // 댓글 조회
+        const comment = await db.queryDatabase('SELECT * FROM comments WHERE id = ?', [commentId]);
+        
+        if (comment.length === 0) {
+            return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
+        }
+        
+        // 권한 체크
+        const isAuthor = req.session.userID === comment[0].author;
+        const isAdmin = req.session.role === 'admin';
+        
+        if (!isAuthor && !isAdmin) {
+            return res.status(403).json({ error: '삭제 권한이 없습니다.' });
+        }
+        
+        // 트랜잭션 시작
+        await db.queryDatabase('START TRANSACTION');
+        
+        try {
+            // 이 댓글에 대한 답글들의 parent_id를 NULL로 설정 (삭제된 댓글에 대한 답글임을 표시)
+            await db.queryDatabase('UPDATE comments SET parent_id = NULL WHERE parent_id = ?', [commentId]);
+            
+            // 댓글 삭제
+            await db.queryDatabase('DELETE FROM comments WHERE id = ?', [commentId]);
+            
+            // 트랜잭션 커밋
+            await db.queryDatabase('COMMIT');
+            
+            res.json({ success: true });
+        } catch (err) {
+            // 오류 발생 시 롤백
+            await db.queryDatabase('ROLLBACK');
+            throw err;
+        }
+    } catch (err) {
+        console.error('❌ 댓글 삭제 에러:', err);
+        res.status(500).json({ error: 'DB 에러 발생' });
+    }
+}
 
 module.exports = router;
