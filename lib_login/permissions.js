@@ -55,16 +55,29 @@ function hasPageAccess(userRole, page) {
     // 권한 캐시 및 설정 확인
     console.log('권한 캐시 상태:', permissionCache);
     
+    // 여기가 문제입니다 - 권한 캐시 구조와 검색 방식이 일치하지 않습니다
+    // 현재 코드는 아마도 다음과 같을 것입니다:
+    /*
     if (!permissionCache.pages || !permissionCache.pages[page]) {
       console.log(`페이지 ${page}에 대한 권한 정보 없음`);
       return false;
     }
     
     const hasAccess = permissionCache.pages[page].roles.includes(userRole);
+    */
+    
+    // 이를 다음과 같이 수정하세요:
+    if (!permissionCache.has(page)) {
+      console.log(`페이지 ${page}에 대한 권한 정보 없음`);
+      return false;
+    }
+    
+    const roles = permissionCache.get(page);
+    const hasAccess = roles.includes(userRole);
     console.log(`권한 확인 결과: ${hasAccess}`);
     return hasAccess;
   }
-
+  
 // 특정 기능에 대한 접근 권한 확인
 function hasFeatureAccess(userRole, feature) {
     return ACCESS_POLICIES.FEATURES[feature]?.includes(userRole) || false;
