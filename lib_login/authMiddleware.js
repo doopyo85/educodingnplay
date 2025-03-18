@@ -2,6 +2,12 @@
 const { hasPageAccess } = require('./permissions');
 const { queryDatabase } = require('./db');
 
+// permissions.json 파일 가져오기 추가
+const fs = require('fs');
+const path = require('path');
+const permissionsPath = path.join(__dirname, './permissions.json');
+const permissions = JSON.parse(fs.readFileSync(permissionsPath, 'utf8'));
+
 // 기본 사용자 인증 미들웨어
 const authenticateUser = (req, res, next) => {
   if (req.session && req.session.is_logined) {
@@ -60,6 +66,12 @@ function checkRole(allowedRoles) {
         }
 
         const userRole = req.session.role;
+        
+        // 디버깅 로그 추가
+        console.log('현재 사용자 역할:', userRole);
+        console.log('허용된 역할:', allowedRoles);
+        console.log('권한 확인 결과:', allowedRoles.includes(userRole));
+        
         if (!allowedRoles.includes(userRole)) {
             return res.status(403).json({ 
                 success: false, 
@@ -78,10 +90,26 @@ function checkPageAccess(requiredPage) {
         }
 
         const userRole = req.session.role;
+        
+        // 디버깅 로그 추가
+        console.log('현재 사용자 역할:', userRole);
+        console.log('요청한 페이지:', requiredPage);
+        
+        // permissions.json에서 해당 페이지에 필요한 역할 확인
+        const requiredRoles = permissions.pages[requiredPage]?.roles || [];
+        console.log('페이지에 필요한 역할:', requiredRoles);
+        console.log('권한 확인 결과:', requiredRoles.includes(userRole));
+        
         if (!hasPageAccess(userRole, requiredPage)) {
-            return res.status(403).render('403', {
-                message: '이 페이지에 대한 접근 권한이 없습니다.'
-            });
+            // 403.ejs 파일이 없는 경우 대비
+            try {
+                return res.status(403).render('403', {
+                    message: '이 페이지에 대한 접근 권한이 없습니다.'
+                });
+            } catch (error) {
+                console.error('Error rendering 403 page:', error);
+                return res.status(403).send('이 페이지에 대한 접근 권한이 없습니다.');
+            }
         }
 
         next();
