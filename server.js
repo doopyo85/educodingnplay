@@ -305,13 +305,13 @@ const routes = {
 // API 라우터 등록 (새로 분리된 API)
 app.use('/api', require('./routes/apiRouter'));
 
-// 페이지 라우터 등록 - 여기에서 인증 미들웨어를 적용하세요
+// 페이지 라우터 등록 - 여기에서 인증 미들웨어만 적용하고 권한 체크는 각 라우터에서 처리
 Object.entries(routes).forEach(([path, router]) => {
   if (path === 'auth') {
     // 인증 라우터는 인증 미들웨어 없이 등록
     app.use(`/${path}`, router);
   } else {
-    // 다른 모든 라우터에 인증 미들웨어 적용
+    // 다른 모든 라우터에 인증 미들웨어만 적용
     app.use(`/${path}`, authenticateUser, router);
   }
 });
