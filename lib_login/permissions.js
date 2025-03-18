@@ -50,9 +50,20 @@ function updatePermissionCache(newPermissions) {
 
 // 페이지 접근 권한 확인
 function hasPageAccess(userRole, page) {
-    const pageConfig = ACCESS_POLICIES.PAGES[page];
-    return pageConfig?.roles.includes(userRole) || false;
-}
+    console.log(`hasPageAccess 호출 - 역할: ${userRole}, 페이지: ${page}`);
+    
+    // 권한 캐시 및 설정 확인
+    console.log('권한 캐시 상태:', permissionCache);
+    
+    if (!permissionCache.pages || !permissionCache.pages[page]) {
+      console.log(`페이지 ${page}에 대한 권한 정보 없음`);
+      return false;
+    }
+    
+    const hasAccess = permissionCache.pages[page].roles.includes(userRole);
+    console.log(`권한 확인 결과: ${hasAccess}`);
+    return hasAccess;
+  }
 
 // 특정 기능에 대한 접근 권한 확인
 function hasFeatureAccess(userRole, feature) {
