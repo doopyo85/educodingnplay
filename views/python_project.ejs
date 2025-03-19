@@ -120,6 +120,7 @@
             position: relative !important;
             transition: all 0.3s ease;
             background-color: #1e1e1e;
+            overflow: hidden; /* 내용이 넘치지 않게 설정 */
         }
 
         /* 문제 컨테이너 스타일 */
@@ -140,6 +141,7 @@
             margin: 0 !important;
             border: none !important;
             flex: 0 !important;
+            overflow: hidden !important;
         }
 
         .collapsed-editor .content-container {
@@ -160,42 +162,55 @@
         }
         
         /* 전체화면 모드 스타일 */
-        .fullscreen-mode header,
-        .fullscreen-mode .nav-container {
+        body.fullscreen-mode header {
             display: none !important;
         }
         
-        .fullscreen-mode .main-container {
-            padding-top: 0 !important;
-            height: 100vh !important;
+        body.fullscreen-mode .nav-container {
+            display: none !important;
         }
         
-        .fullscreen-mode .content-container {
+        body.fullscreen-mode .main-container {
+            padding-top: 0 !important;
+            height: 100vh !important;
+            margin: 0 !important;
+        }
+        
+        body.fullscreen-mode .content-container {
             width: 100% !important;
             height: 100vh !important;
             flex: 1 !important;
-            padding: 0 !important;
         }
         
-        .fullscreen-mode.collapsed-editor .ide-container {
+        body.fullscreen-mode.collapsed-editor .ide-container {
             width: 0 !important;
         }
         
-        .fullscreen-mode.expanded-editor .content-container {
+        body.fullscreen-mode.expanded-editor .content-container {
             width: 55% !important;
         }
         
-        .fullscreen-mode.expanded-editor .ide-container {
+        body.fullscreen-mode.expanded-editor .ide-container {
             width: 45% !important;
         }
         
         /* 헤더 전환 관련 스타일 */
-        header, .main-container {
+        header {
             transition: all 0.3s ease;
         }
         
+        /* 헤더와 메인 컨테이너 간 간격 제거 */
         .main-container {
-            padding-top: 60px; /* 헤더 높이만큼 패딩 추가 */
+            padding-top: 0;
+            margin-top: 0;
+            overflow: hidden;
+        }
+        
+        /* 기본 마진/패딩 제거 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
         
         /* 아이프레임 스타일 */
@@ -343,8 +358,22 @@
                 window.learningTracker.startTracking();
             }
             
-            // IDE 토글 스위치 및 전체화면 버튼 초기화
-            initControls();
+            // IDE 즉시 숨김 처리
+            const ideContainer = document.querySelector('.ide-container');
+            const contentContainer = document.querySelector('.content-container');
+            const contentsDiv = document.querySelector('.contents');
+            
+            if (ideContainer && contentContainer && contentsDiv) {
+                ideContainer.style.width = '0';
+                ideContainer.style.minWidth = '0';
+                ideContainer.style.flex = '0';
+                contentContainer.style.width = 'calc(100% - 250px)';
+                contentContainer.style.flex = '1';
+                contentsDiv.classList.add('collapsed-editor');
+            }
+            
+            // 컨트롤 초기화 약간 지연
+            setTimeout(initControls, 300);
         });
 
         function initControls() {
@@ -392,10 +421,14 @@
                         }
                     }
                 }, 300);
+                
+                // 아이프레임 리사이징
+                setTimeout(resizeIframe, 300);
             });
             
             // 전체화면 토글 버튼 클릭 이벤트 리스너
             fullscreenToggle.addEventListener('click', function() {
+                console.log('Fullscreen toggle clicked');
                 isFullscreen = !isFullscreen;
                 
                 if (isFullscreen) {
@@ -403,15 +436,24 @@
                     body.classList.add('fullscreen-mode');
                     this.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
                     this.setAttribute('title', '전체화면 모드 종료');
+                    console.log('Fullscreen mode activated');
                 } else {
                     // 전체화면 모드 비활성화
                     body.classList.remove('fullscreen-mode');
                     this.innerHTML = '<i class="bi bi-arrows-fullscreen"></i>';
                     this.setAttribute('title', '전체화면 모드');
+                    console.log('Fullscreen mode deactivated');
                 }
                 
                 // 아이프레임 리사이징
                 setTimeout(resizeIframe, 300);
+                
+                // IDE 상태 업데이트
+                if (toggleCheckbox.checked) {
+                    setExpandedState();
+                } else {
+                    setCollapsedState();
+                }
             });
             
             function setExpandedState() {
@@ -472,7 +514,7 @@
                 ideContainer.style.padding = '0';
                 
                 // 체크박스 상태 업데이트
-                document.getElementById('ideToggleCheckbox').checked = false;
+                toggleCheckbox.checked = false;
             }
             
             // 아이프레임 리사이징 함수
@@ -483,8 +525,12 @@
                 if (iframe && container) {
                     const containerHeight = container.clientHeight;
                     iframe.style.height = containerHeight + 'px';
+                    console.log('Iframe resized to', containerHeight);
                 }
             }
+            
+            // 초기 아이프레임 크기 설정
+            resizeIframe();
             
             // 창 크기 변경 시 아이프레임 리사이징
             window.addEventListener('resize', resizeIframe);
