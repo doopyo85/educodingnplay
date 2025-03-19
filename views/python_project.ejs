@@ -102,17 +102,20 @@
             loadMenuData();
         });
 
+        
         function initEditorToggle() {
             const toggleBtn = document.getElementById('toggleEditor');
-            const contentsDiv = document.querySelector('.contents');
+            const ideContainer = document.querySelector('.ide-container');
+            const contentContainer = document.querySelector('.content-container');
 
-            if (!toggleBtn || !contentsDiv) return;
+            if (!toggleBtn || !ideContainer || !contentContainer) {
+                console.error("토글 버튼 또는 IDE 컨테이너를 찾을 수 없음");
+                return;
+            }
 
             let isExpanded = false;
             toggleBtn.addEventListener('click', function() {
                 isExpanded = !isExpanded;
-                const ideContainer = document.querySelector('.ide-container');
-                const contentContainer = document.querySelector('.content-container');
 
                 if (isExpanded) {
                     ideContainer.style.width = '45%';
@@ -124,6 +127,7 @@
                     toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
                 }
 
+                // ACE 에디터 리사이징
                 setTimeout(() => {
                     var editor = ace.edit("editor");
                     if (editor) editor.resize();
