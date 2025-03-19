@@ -9,7 +9,7 @@
 .content-container, .ide-container {
     flex: 1;
     overflow-y: auto;
-    transition: width 0.3s ease, flex 0.3s ease;
+    transition: all 0.3s ease; /* 모든 속성에 트랜지션 적용 */
 }
 
 .ide-container {
@@ -107,7 +107,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 10;
+    z-index: 100;
 }
 
 #toggleEditor {
@@ -120,6 +120,7 @@
     background-color: #3c3c3c;
     color: #d4d4d4;
     border: 1px solid #5a5a5a;
+    cursor: pointer;
 }
 
 #toggleEditor:hover {
@@ -128,28 +129,23 @@
 
 /* 에디터 확장/축소 상태 스타일 */
 .expanded-editor .ide-container {
-    width: 80%;
-    flex: 4;
+    width: 80% !important;
+    flex: 4 !important;
 }
 
 .expanded-editor .content-container {
-    width: 20%;
-    flex: 1;
+    width: 20% !important;
+    flex: 1 !important;
 }
 
 .collapsed-editor .ide-container {
-    width: 20%;
-    flex: 1;
+    width: 20% !important;
+    flex: 1 !important;
 }
 
 .collapsed-editor .content-container {
-    width: 80%;
-    flex: 4;
-}
-
-.collapsed-editor #editor {
-    opacity: 0.7;
-    pointer-events: none;
+    width: 80% !important;
+    flex: 4 !important;
 }
 
 /* 반응형 디자인을 위한 미디어 쿼리 */
@@ -159,14 +155,7 @@
     }
 
     .content-container, .ide-container {
-        width: 100%;
-    }
-    
-    .expanded-editor .ide-container,
-    .expanded-editor .content-container,
-    .collapsed-editor .ide-container,
-    .collapsed-editor .content-container {
-        width: 100%;
-        flex: auto;
+        width: 100% !important;
+        flex: auto !important;
     }
 }

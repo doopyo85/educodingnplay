@@ -139,93 +139,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 학습 트래커 초기화
             const pageTitle = document.title;
-            const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
+            const contentType = 'python'; // 컨텐츠 타입 수정
             
-            window.learningTracker = new LearningTracker(contentType, pageTitle);
-            window.learningTracker.startTracking();
-            
-            // 프로그레스 업데이트 예시 (실제 구현에 맞게 수정 필요)
-            function updateProgress(progress) {
-                if (window.learningTracker) {
-                    window.learningTracker.endTracking(progress);
-                }
+            if (window.learningTracker) {
+                window.learningTracker = new LearningTracker(contentType, pageTitle);
+                window.learningTracker.startTracking();
             }
         });
-        // 이 스크립트를 HTML 맨 아래에 추가하세요
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM fully loaded');
-            
-            // 모든 중요 요소 확인
-            console.log('Contents div exists:', !!document.querySelector('.contents'));
-            console.log('IDE container exists:', !!document.querySelector('.ide-container'));
-            console.log('Content container exists:', !!document.querySelector('.content-container'));
-            console.log('Editor exists:', !!document.getElementById('editor'));
-            
-            // 토글 버튼 강제 추가
-            setTimeout(function() {
-                const ideContainer = document.querySelector('.ide-container');
-                if (ideContainer && !document.querySelector('.editor-toggle-controls')) {
-                    console.log('직접 토글 버튼 추가');
-                    
-                    const toggleControl = document.createElement('div');
-                    toggleControl.className = 'editor-toggle-controls';
-                    toggleControl.style.position = 'absolute';
-                    toggleControl.style.top = '10px';
-                    toggleControl.style.right = '10px';
-                    toggleControl.style.zIndex = '100';
-                    
-                    toggleControl.innerHTML = `
-                        <button id="toggleEditor" class="btn btn-sm btn-outline-secondary" title="에디터 확장" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;">
-                            <i class="bi bi-arrows-angle-expand"></i>
-                        </button>
-                    `;
-                    
-                    ideContainer.appendChild(toggleControl);
-                    
-                    // 토글 기능 즉시 설정
-                    const toggleBtn = document.getElementById('toggleEditor');
-                    const contentsDiv = document.querySelector('.contents');
-                    
-                    if (toggleBtn && contentsDiv) {
-                        let isExpanded = false;
-                        
-                        // 인라인 스타일로 직접 적용
-                        toggleBtn.onclick = function() {
-                            console.log('토글 버튼 클릭됨!');
-                            isExpanded = !isExpanded;
-                            
-                            if (isExpanded) {
-                                // 에디터 확장
-                                document.querySelector('.ide-container').style.width = '80%';
-                                document.querySelector('.ide-container').style.flex = '4';
-                                document.querySelector('.content-container').style.width = '20%';
-                                document.querySelector('.content-container').style.flex = '1';
-                                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
-                                toggleBtn.setAttribute('title', '에디터 축소');
-                            } else {
-                                // 에디터 축소
-                                document.querySelector('.ide-container').style.width = '20%';
-                                document.querySelector('.ide-container').style.flex = '1';
-                                document.querySelector('.content-container').style.width = '80%';
-                                document.querySelector('.content-container').style.flex = '4';
-                                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
-                                toggleBtn.setAttribute('title', '에디터 확장');
-                            }
-                            
-                            // ACE 에디터 리사이징
-                            setTimeout(() => {
-                                var editor = ace.edit("editor");
-                                if (editor) {
-                                    editor.resize();
-                                }
-                            }, 300);
-                        };
-                    }
-                }
-            }, 1000); // 1초 후에 실행
-        });
-
     </script>
 </body>
-
 </html>
