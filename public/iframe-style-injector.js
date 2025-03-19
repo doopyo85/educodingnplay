@@ -12,24 +12,16 @@ function injectStyleAndFixImagesToIframe(iframe) {
         var style = document.createElement('style');
         style.textContent = `
             body {
-                font-family: 'Noto Sans KR', sans-serif; !important;
+                font-family: 'Noto Sans KR', sans-serif !important;
                 font-size: 16px !important;
                 line-height: 1.6 !important;
                 color: #333 !important;
-                padding: 5% 5% 240px 5% !important; /* 하단 패딩 240px로 대폭 증가 */
+                padding: 5% 5% 240px 5% !important; /* 하단 패딩 크게 증가 */
                 margin: 0 !important;
                 box-sizing: border-box !important;
             }
             
-            /* 콘텐츠 하단에 더 큰 빈 공간 생성 */
-            body::after {
-                content: '' !important;
-                display: block !important;
-                height: 300px !important; /* 빈 줄 공간 크게 증가 */
-                width: 100% !important;
-                clear: both !important;
-            }
-            
+            /* 스크롤바 스타일 */
             ::-webkit-scrollbar {
                 width: 10px !important;
             }
@@ -49,6 +41,15 @@ function injectStyleAndFixImagesToIframe(iframe) {
         `;
         
         iframeDoc.head.appendChild(style);
+        
+        // 실제 DOM 요소를 추가하여 확실하게 스크롤 공간 확보
+        var spacerDiv = iframeDoc.createElement('div');
+        spacerDiv.style.height = '400px'; // 매우 큰 여백
+        spacerDiv.style.width = '100%';
+        spacerDiv.style.clear = 'both';
+        
+        // 문서 맨 끝에 여백 div 추가
+        iframeDoc.body.appendChild(spacerDiv);
         
         // 기존 스타일 시트 비활성화
         var existingStyles = iframeDoc.getElementsByTagName('style');
