@@ -171,111 +171,22 @@ async function loadMenuData() {
     }
 }
 
-
-function loadProblem(problemNumber) {
-    console.log('Loading problem:', currentExamName, problemNumber);
-    
-    if (!problemData || problemData.length === 0) {
-        console.error('Problem data is not loaded yet');
-        return;
-    }
-
-    const problemInfo = problemData.find(problem => 
-        problem[1].toLowerCase() === currentExamName.toLowerCase() && 
-        problem[2].toLowerCase() === `p${problemNumber.toString().padStart(2, '0')}`
-    );
-
-    if (problemInfo) {
-        const [problemFileName, , ] = problemInfo;
-        const problemUrl = `https://educodingnplaycontents.s3.amazonaws.com/${problemFileName}`;
-        console.log('Problem URL:', problemUrl);
-
-        const iframe = document.getElementById('iframeContent');
-        if (iframe) {
-            fetch(problemUrl)
-                .then(response => response.text())
-                .then(html => {
-                    // 콘텐츠에 하단 여백 추가
-                    const modifiedHtml = `
-                        <html>
-                            <head>
-                                <base target="_parent">
-                                <link rel="stylesheet" href="/resource/contents.css">
-                                <style>
-                                    body { 
-                                        font-family: Arial, sans-serif;
-                                        padding-bottom: 240px !important; /* 하단 여백 대폭 증가 */
-                                    }
-                                    
-                                    /* 콘텐츠 하단에 큰 빈 공간 생성 */
-                                    body::after {
-                                        content: '';
-                                        display: block;
-                                        height: 300px; /* 빈 줄 공간 크게 증가 */
-                                        width: 100%;
-                                    }
-                                    
-                                    /* 스크롤바 스타일 */
-                                    ::-webkit-scrollbar {
-                                        width: 10px;
-                                    }
-                                    
-                                    ::-webkit-scrollbar-track {
-                                        background: #f1f1f1;
-                                    }
-                                    
-                                    ::-webkit-scrollbar-thumb {
-                                        background: #888;
-                                        border-radius: 5px;
-                                    }
-                                    
-                                    ::-webkit-scrollbar-thumb:hover {
-                                        background: #555;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                ${html}
-                            </body>
-                        </html>
-                    `;
-                    iframe.srcdoc = modifiedHtml;
-                })
-                .catch(error => {
-                    console.error('Error loading problem:', error);
-                    iframe.srcdoc = '<p>Error loading problem content.</p>';
-                });
-
-            iframe.onload = function() {
-                resizeIframe(iframe);
-            };
+// 서버에서 문제 데이터 가져오기
+async function loadProblemData() {
+    try {
+        const response = await fetch('/api/get-problem-data'); // 서버의 API 호출
+        const problemData = await response.json();
+        if (problemData && problemData.length > 0) {
+            // 문제 데이터를 전역 변수에 저장
+            window.problemData = problemData;
         } else {
-            console.error('iframe element not found');
+            throw new Error('No problem data loaded');
         }
-        
-        // 앞의 세 글자만 대문자로 변환
-        const examNameModified = currentExamName.substring(0, 3).toUpperCase() + currentExamName.substring(3);
-        const problemTitle = `${examNameModified} - 문제 ${problemNumber}`;
-        const problemTitleElement = document.getElementById('problem-title');
-        if (problemTitleElement) {
-            problemTitleElement.textContent = problemTitle;
-        } else {
-            console.error('problem-title element not found');
-        }
-
-        // Update the Vue component with the new problem
-        if (typeof window.updateEditorProblem === 'function') {
-            window.updateEditorProblem({
-                title: problemTitle,
-                url: problemUrl,
-                // Add any other relevant problem data here
-            });
-        }
-    } else {
-        console.error('문제 정보를 찾을 수 없습니다:', currentExamName, problemNumber);
-        console.log('Available problems:', problemData.map(p => `${p[1]} ${p[2]}`));
+    } catch (error) {
+        console.error('Error loading problem data:', error);
     }
 }
+
 
 
 function renderMenu(data) {
