@@ -16,6 +16,84 @@
     <link rel="stylesheet" href="/css/test_frame.css">   <!-- 왼쪽 네비게이션 영역 -->
     <link rel="stylesheet" href="/css/test_problem.css"> <!-- 문제 영역 -->
     <link rel="stylesheet" href="/css/test_ide.css">    <!-- IDE 영역 -->
+    
+    <!-- 토글 버튼을 위한 추가 스타일 -->
+    <style>
+        /* 경계선에 위치한 토글 버튼 스타일 */
+        .editor-toggle-controls {
+            position: absolute;
+            top: 20px; /* 상단에서 20px 떨어진 위치 */
+            left: -15px; /* 왼쪽으로 15px 이동하여 경계선에 위치 */
+            z-index: 1000; /* 다른 요소 위에 표시 */
+        }
+
+        /* 토글 버튼 스타일 */
+        #toggleEditor {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%; /* 원형 버튼 */
+            background-color: #fff; /* 흰색 배경 */
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        #toggleEditor:hover {
+            background-color: #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 접힌 상태(IDE 숨겨짐)에서 컨텐츠 숨기기 */
+        .collapsed-editor .ide-container > *:not(.editor-toggle-controls) {
+            display: none !important;
+        }
+
+        .collapsed-editor .ide-container {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            overflow: hidden !important;
+            flex: 0 !important;
+        }
+
+        .collapsed-editor .content-container {
+            width: calc(100% - 250px) !important; /* 왼쪽 네비게이션(250px) 고려 */
+            flex: 1 !important;
+        }
+
+        /* 확장된 상태 스타일 */
+        .expanded-editor .ide-container {
+            width: 45% !important;
+            flex: 0.9 !important;
+            padding: 15px !important;
+        }
+
+        .expanded-editor .content-container {
+            width: calc(55% - 250px) !important; /* IDE(45%)와 왼쪽 네비게이션(250px) 고려 */
+            flex: 1.1 !important;
+        }
+
+        /* 네비게이션 메뉴 너비 고정 */
+        .nav-container {
+            width: 250px !important;
+            min-width: 250px !important;
+            max-width: 250px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* IDE 컨테이너의 위치를 상대적으로 설정 */
+        .ide-container {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+    </style>
 
     <!-- Ace Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -48,12 +126,7 @@
 
             <!-- IDE Area -->
             <div class="ide-container">
-
-                <div class="editor-toggle-controls">
-                    <button id="toggleEditor" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-arrows-angle-expand"></i>
-                    </button>
-                </div>
+                <!-- 토글 버튼은 JavaScript에서 동적으로 추가됩니다 -->
 
                 <!-- Theme Change Button -->
                 <div class="theme-buttons mb-3 d-flex justify-content-center">
@@ -139,92 +212,174 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 학습 트래커 초기화
             const pageTitle = document.title;
-            const contentType = 'scratch'; // 또는 'entry', 'computer' 등 페이지에 맞게 설정
+            const contentType = 'python'; // 'entry', 'computer' 등 페이지에 맞게 설정
             
-            window.learningTracker = new LearningTracker(contentType, pageTitle);
-            window.learningTracker.startTracking();
+            if (window.learningTracker) {
+                window.learningTracker = new LearningTracker(contentType, pageTitle);
+                window.learningTracker.startTracking();
+            }
             
-            // 프로그레스 업데이트 예시 (실제 구현에 맞게 수정 필요)
-            function updateProgress(progress) {
-                if (window.learningTracker) {
-                    window.learningTracker.endTracking(progress);
+            // 에디터 토글 기능 초기화
+            initEditorToggle();
+        });
+        
+        // 에디터 토글 기능 초기화 함수
+        function initEditorToggle() {
+            // 이미 초기화되었으면 실행하지 않음
+            if (window.editorToggleInitialized) {
+                return;
+            }
+            
+            console.log('Initializing editor toggle functionality');
+            
+            // IDE 컨테이너 찾기
+            const ideContainer = document.querySelector('.ide-container');
+            const contentContainer = document.querySelector('.content-container');
+            const contentsDiv = document.querySelector('.contents');
+            
+            if (!ideContainer || !contentContainer || !contentsDiv) {
+                console.error('Required containers not found');
+                return;
+            }
+            
+            // 토글 컨트롤 엘리먼트 생성
+            const toggleControl = document.createElement('div');
+            toggleControl.className = 'editor-toggle-controls';
+            toggleControl.innerHTML = `
+                <button id="toggleEditor" class="btn btn-sm" title="IDE 열기">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            `;
+            
+            // IDE 컨테이너에 토글 컨트롤 추가
+            ideContainer.appendChild(toggleControl);
+            
+            // 토글 버튼 요소 찾기
+            const toggleBtn = document.getElementById('toggleEditor');
+            
+            if (!toggleBtn) {
+                console.error('Toggle button not found after creation');
+                return;
+            }
+            
+            console.log('Toggle button created, setting up click event');
+            
+            // 토글 상태 변수 (기본값: 접힌 상태)
+            let isExpanded = false;
+            
+            // 새로운 이벤트 리스너 추가
+            toggleBtn.addEventListener('click', function() {
+                console.log('Toggle button clicked, current state:', isExpanded);
+                isExpanded = !isExpanded;
+                
+                if (isExpanded) {
+                    // IDE 열기
+                    console.log('Opening IDE');
+                    ideContainer.style.width = '45%';
+                    ideContainer.style.minWidth = '45%';
+                    ideContainer.style.flex = '0.9';
+                    contentContainer.style.width = 'calc(55% - 250px)';
+                    contentContainer.style.flex = '1.1';
+                    toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+                    toggleBtn.setAttribute('title', 'IDE 닫기');
+                    contentsDiv.classList.add('expanded-editor');
+                    contentsDiv.classList.remove('collapsed-editor');
+                    
+                    // IDE 내용 보이기
+                    setTimeout(() => {
+                        ideContainer.querySelectorAll('*').forEach(el => {
+                            if (!el.closest('.editor-toggle-controls')) {
+                                el.style.display = '';
+                            }
+                        });
+                        
+                        // 패딩 복원
+                        ideContainer.style.padding = '15px';
+                    }, 100);
+                    
+                } else {
+                    // IDE 닫기
+                    console.log('Closing IDE');
+                    ideContainer.style.width = '0';
+                    ideContainer.style.minWidth = '0';
+                    ideContainer.style.flex = '0';
+                    contentContainer.style.width = 'calc(100% - 250px)';
+                    contentContainer.style.flex = '1';
+                    toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+                    toggleBtn.setAttribute('title', 'IDE 열기');
+                    contentsDiv.classList.remove('expanded-editor');
+                    contentsDiv.classList.add('collapsed-editor');
+                    
+                    // IDE 내용 숨기기
+                    ideContainer.querySelectorAll('*').forEach(el => {
+                        if (!el.closest('.editor-toggle-controls')) {
+                            el.style.display = 'none';
+                        }
+                    });
+                    
+                    // 패딩 제거
+                    ideContainer.style.padding = '0';
+                }
+                
+                // ACE 에디터 리사이징
+                setTimeout(() => {
+                    if (isExpanded) {
+                        try {
+                            const editor = ace.edit("editor");
+                            if (editor) {
+                                editor.resize();
+                                console.log('Ace editor resized');
+                            }
+                        } catch (e) {
+                            console.error('Error resizing editor:', e);
+                        }
+                    }
+                }, 300);
+            });
+            
+            // 초기 상태를 접힌 상태로 설정
+            console.log('Setting initial collapsed state');
+            ideContainer.style.width = '0';
+            ideContainer.style.minWidth = '0';
+            ideContainer.style.flex = '0';
+            contentContainer.style.width = 'calc(100% - 250px)';
+            contentContainer.style.flex = '1';
+            toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            toggleBtn.setAttribute('title', 'IDE 열기');
+            contentsDiv.classList.add('collapsed-editor');
+            
+            // IDE 내용 숨기기
+            ideContainer.querySelectorAll('*').forEach(el => {
+                if (!el.closest('.editor-toggle-controls')) {
+                    el.style.display = 'none';
+                }
+            });
+            
+            // 패딩 제거
+            ideContainer.style.padding = '0';
+            
+            window.editorToggleInitialized = true;
+            console.log('Editor toggle initialization complete');
+        }
+
+        // 창 크기 조정 시 에디터 토글 상태 유지
+        window.addEventListener('resize', function() {
+            const contentsDiv = document.querySelector('.contents');
+            const ideContainer = document.querySelector('.ide-container');
+            const contentContainer = document.querySelector('.content-container');
+            
+            if (contentsDiv && ideContainer && contentContainer) {
+                if (contentsDiv.classList.contains('expanded-editor')) {
+                    ideContainer.style.width = '45%';
+                    ideContainer.style.minWidth = '45%';
+                    contentContainer.style.width = 'calc(55% - 250px)';
+                } else if (contentsDiv.classList.contains('collapsed-editor')) {
+                    ideContainer.style.width = '0';
+                    ideContainer.style.minWidth = '0';
+                    contentContainer.style.width = 'calc(100% - 250px)';
                 }
             }
         });
-        // 이 스크립트를 HTML 맨 아래에 추가하세요
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM fully loaded');
-            
-            // 모든 중요 요소 확인
-            console.log('Contents div exists:', !!document.querySelector('.contents'));
-            console.log('IDE container exists:', !!document.querySelector('.ide-container'));
-            console.log('Content container exists:', !!document.querySelector('.content-container'));
-            console.log('Editor exists:', !!document.getElementById('editor'));
-            
-            // 토글 버튼 강제 추가
-            setTimeout(function() {
-                const ideContainer = document.querySelector('.ide-container');
-                if (ideContainer && !document.querySelector('.editor-toggle-controls')) {
-                    console.log('직접 토글 버튼 추가');
-                    
-                    const toggleControl = document.createElement('div');
-                    toggleControl.className = 'editor-toggle-controls';
-                    toggleControl.style.position = 'absolute';
-                    toggleControl.style.top = '10px';
-                    toggleControl.style.right = '10px';
-                    toggleControl.style.zIndex = '100';
-                    
-                    toggleControl.innerHTML = `
-                        <button id="toggleEditor" class="btn btn-sm btn-outline-secondary" title="에디터 확장" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;">
-                            <i class="bi bi-arrows-angle-expand"></i>
-                        </button>
-                    `;
-                    
-                    ideContainer.appendChild(toggleControl);
-                    
-                    // 토글 기능 즉시 설정
-                    const toggleBtn = document.getElementById('toggleEditor');
-                    const contentsDiv = document.querySelector('.contents');
-                    
-                    if (toggleBtn && contentsDiv) {
-                        let isExpanded = false;
-                        
-                        // 인라인 스타일로 직접 적용
-                        toggleBtn.onclick = function() {
-                            console.log('토글 버튼 클릭됨!');
-                            isExpanded = !isExpanded;
-                            
-                            if (isExpanded) {
-                                // 에디터 확장
-                                document.querySelector('.ide-container').style.width = '80%';
-                                document.querySelector('.ide-container').style.flex = '4';
-                                document.querySelector('.content-container').style.width = '20%';
-                                document.querySelector('.content-container').style.flex = '1';
-                                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
-                                toggleBtn.setAttribute('title', '에디터 축소');
-                            } else {
-                                // 에디터 축소
-                                document.querySelector('.ide-container').style.width = '20%';
-                                document.querySelector('.ide-container').style.flex = '1';
-                                document.querySelector('.content-container').style.width = '80%';
-                                document.querySelector('.content-container').style.flex = '4';
-                                toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
-                                toggleBtn.setAttribute('title', '에디터 확장');
-                            }
-                            
-                            // ACE 에디터 리사이징
-                            setTimeout(() => {
-                                var editor = ace.edit("editor");
-                                if (editor) {
-                                    editor.resize();
-                                }
-                            }, 300);
-                        };
-                    }
-                }
-            }, 1000); // 1초 후에 실행
-        });
-
     </script>
 </body>
 
