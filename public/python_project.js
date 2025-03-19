@@ -116,7 +116,7 @@ function waitForDataLoading() {
     });
 }
 
-// initClient 함수 수정
+// initClient 함수
 function initClient() {
     const apiKey = document.getElementById('googleApiKey').value;
     const spreadsheetId = document.getElementById('spreadsheetId').value;
@@ -132,25 +132,109 @@ function initClient() {
     }).then(() => {
         console.log('Google API client initialized');
         return loadMenuData(spreadsheetId);
-    }).then((menuData) => {
-        if (menuData && menuData.length > 0) {
-            renderMenu(menuData);
-            return loadProblemData(spreadsheetId);
-        } else {
-            throw new Error('No menu data loaded');
-        }
-    }).then((loadedProblemData) => {
-        if (loadedProblemData && loadedProblemData.length > 0) {
-            console.log('Problem data loaded successfully');
-            problemData = loadedProblemData; // 전역 변수에 할당
-        } else {
-            throw new Error('No problem data loaded');
-        }
+    }).then(() => {
+        return loadProblemData();
     }).catch(error => {
         console.error('Error in initialization process:', error);
     });
 }
 
+// 구글 시트에서 메뉴 데이터 가져오기 - 수정된 버전
+async function loadMenuData(spreadsheetId) {
+    console.log('Loading menu data from spreadsheet ID:', spreadsheetId);
+    
+    try {
+        // API를 통해 데이터 가져오기
+        const response = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'menulist!A2:C', // 메뉴 데이터가 있는 범위
+        });
+        
+        console.log('Raw menu data response:', response);
+        
+        const menuData = response.result.values;
+        if (menuData && menuData.length > 0) {
+            console.log('Menu data loaded successfully:', menuData);
+            renderMenu(menuData);
+            return menuData;
+        } else {
+            console.error('No menu data found in the spreadsheet');
+            // 서버 API를 대안으로 시도
+            return loadMenuDataFromServer();
+        }
+    } catch (error) {
+        console.error('Error loading menu data from Google Sheets:', error);
+        // 구글 시트 API 호출 실패 시 서버 API 호출 시도
+        return loadMenuDataFromServer();
+    }
+}
+
+
+// 서버 API에서 메뉴 데이터 가져오기
+async function loadMenuDataFromServer() {
+    console.log('Attempting to load menu data from server API');
+    try {
+        const response = await fetch('/api/get-menu-data');
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+        
+        const menuData = await response.json();
+        if (menuData && menuData.length > 0) {
+            console.log('Menu data loaded from server API:', menuData);
+            renderMenu(menuData);
+            return menuData;
+        } else {
+            throw new Error('No menu data received from server API');
+        }
+    } catch (error) {
+        console.error('Error loading menu data from server API:', error);
+        // 빈 메뉴로 렌더링
+        renderMenu([]);
+        return [];
+    }
+}
+// 서버에서 문제 데이터 가져오기 - 수정된 버전
+async function loadProblemData() {
+    console.log('Loading problem data');
+    try {
+        // 구글 시트에서 데이터 가져오기 시도
+        try {
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: document.getElementById('spreadsheetId').value,
+                range: '문항정보!A:C', // 문제 데이터가 있는 범위
+            });
+            
+            console.log('Problem data response from Google Sheets:', response);
+            
+            if (response.result.values && response.result.values.length > 0) {
+                problemData = response.result.values;
+                console.log('Problem data loaded from Google Sheets:', problemData);
+                return problemData;
+            }
+        } catch (error) {
+            console.error('Error loading problem data from Google Sheets:', error);
+        }
+        
+        // 구글 시트에서 가져오기 실패한 경우 서버 API 사용
+        const response = await fetch('/api/get-problem-data');
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (data && data.length > 0) {
+            problemData = data;
+            console.log('Problem data loaded from server API:', problemData);
+            return problemData;
+        } else {
+            throw new Error('No problem data found');
+        }
+    } catch (error) {
+        console.error('Error loading problem data:', error);
+        return [];
+    }
+}
 
 function setupEventListeners() {
     const runCodeBtn = document.getElementById('runCodeBtn');
