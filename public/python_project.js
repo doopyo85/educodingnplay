@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
         window.menuLoaded = true;
     }
     setupEventListeners(); // 이벤트 리스너 설정
+
+    loadFontControlScript(); // 폰트 조절 스크립트와 스타일 로드
+
 });
 
 
@@ -476,8 +479,22 @@ function resizeIframe(iframe) {
     };
 }
 
+// 폰트 조절 스크립트 및 스타일 로드
+function loadFontControlScript() {
+    // CSS 파일 로드
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = '/css/content-font-control.css'; // 적절한 경로로 수정
+    document.head.appendChild(cssLink);
+    
+    // JavaScript 파일 로드
+    const script = document.createElement('script');
+    script.src = '/js/content-font-control.js'; // 적절한 경로로 수정
+    script.async = true;
+    document.body.appendChild(script);
+}
 
-// python_project.js의 loadProblem 함수 수정
+// python_project.js의 loadProblem 
 
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
