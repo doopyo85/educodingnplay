@@ -477,9 +477,10 @@ function resizeIframe(iframe) {
 }
 
 
+// python_project.js의 loadProblem 함수 수정
+
 function loadProblem(problemNumber) {
     console.log('Loading problem:', currentExamName, problemNumber);
-    console.log('Problem data:', problemData);
     
     if (!problemData || problemData.length === 0) {
         console.error('Problem data is not loaded yet');
@@ -501,13 +502,43 @@ function loadProblem(problemNumber) {
             fetch(problemUrl)
                 .then(response => response.text())
                 .then(html => {
+                    // 콘텐츠에 하단 여백 추가
                     const modifiedHtml = `
                         <html>
                             <head>
                                 <base target="_parent">
                                 <link rel="stylesheet" href="/resource/contents.css">
                                 <style>
-                                    body { font-family: Arial, sans-serif; }
+                                    body { 
+                                        font-family: Arial, sans-serif;
+                                        padding-bottom: 120px !important; /* 하단 여백 추가 */
+                                    }
+                                    
+                                    /* 콘텐츠 하단에 빈 공간 생성 */
+                                    body::after {
+                                        content: '';
+                                        display: block;
+                                        height: 150px; /* 빈 줄 공간 */
+                                        width: 100%;
+                                    }
+                                    
+                                    /* 스크롤바 스타일 */
+                                    ::-webkit-scrollbar {
+                                        width: 10px;
+                                    }
+                                    
+                                    ::-webkit-scrollbar-track {
+                                        background: #f1f1f1;
+                                    }
+                                    
+                                    ::-webkit-scrollbar-thumb {
+                                        background: #888;
+                                        border-radius: 5px;
+                                    }
+                                    
+                                    ::-webkit-scrollbar-thumb:hover {
+                                        background: #555;
+                                    }
                                 </style>
                             </head>
                             <body>
@@ -528,6 +559,7 @@ function loadProblem(problemNumber) {
         } else {
             console.error('iframe element not found');
         }
+        
         // 앞의 세 글자만 대문자로 변환
         const examNameModified = currentExamName.substring(0, 3).toUpperCase() + currentExamName.substring(3);
         const problemTitle = `${examNameModified} - 문제 ${problemNumber}`;
