@@ -1,68 +1,63 @@
-/* 경계선에 위치한 토글 버튼 스타일 */
+/* 개선된 토글 버튼 스타일 */
 .editor-toggle-controls {
     position: absolute;
-    top: 20px; /* 상단에서 20px 떨어진 위치 */
-    left: -15px; /* 왼쪽으로 15px 이동하여 경계선에 위치 */
-    z-index: 1000; /* 다른 요소 위에 표시 */
+    top: 20px;
+    left: -20px; /* 더 왼쪽으로 이동 */
+    z-index: 2000; /* 다른 요소보다 더 위에 표시 */
 }
 
-/* 토글 버튼 스타일 */
+/* 버튼 크기 및 가시성 향상 */
 #toggleEditor {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%; /* 원형 버튼 */
-    background-color: #fff; /* 흰색 배경 */
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #007bff; /* 더 눈에 띄는 색상 */
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
+    font-size: 18px; /* 아이콘 크기 증가 */
     transition: all 0.3s ease;
 }
 
 #toggleEditor:hover {
-    background-color: #f0f0f0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background-color: #0056b3;
+    transform: scale(1.1);
 }
 
-/* 접힌 상태(IDE 숨겨짐)에서 컨텐츠 숨기기 */
-.collapsed-editor .ide-container > *:not(.editor-toggle-controls) {
-    display: none !important;
+/* 접힌 상태에서 버튼 위치 조정 */
+.collapsed-editor .editor-toggle-controls {
+    left: -20px; /* 버튼이 경계선 밖으로 나오도록 */
 }
 
+/* 확장된 상태에서 버튼 위치 조정 */
+.expanded-editor .editor-toggle-controls {
+    left: -20px;
+}
+
+/* IDE 컨테이너 스타일 조정 */
+.ide-container {
+    position: relative !important;
+    box-sizing: border-box;
+    border-left: 1px solid #ccc;
+    transition: all 0.3s ease;
+    background-color: #1e1e1e;
+}
+
+/* 문제 컨테이너 스타일 조정 */
+.content-container {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* 접힌 상태에서도 버튼 잘 보이게 */
 .collapsed-editor .ide-container {
-    width: 0 !important;
     min-width: 0 !important;
+    width: 0 !important;
     padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-    flex: 0 !important;
-}
-
-.collapsed-editor .content-container {
-    width: calc(100% - 250px) !important; /* 왼쪽 네비게이션(250px) 고려 */
-    flex: 1 !important;
-}
-
-/* 확장된 상태 스타일 */
-.expanded-editor .ide-container {
-    width: 45% !important;
-    flex: 0.9 !important;
-    padding: 15px !important;
-}
-
-.expanded-editor .content-container {
-    width: calc(55% - 250px) !important; /* IDE(45%)와 왼쪽 네비게이션(250px) 고려 */
-    flex: 1.1 !important;
-}
-
-/* 네비게이션 메뉴 너비 고정 */
-.nav-container {
-    width: 250px !important;
-    min-width: 250px !important;
-    max-width: 250px !important;
-    flex-shrink: 0 !important;
+    overflow: visible !important; /* 버튼이 보이도록 overflow 변경 */
 }
