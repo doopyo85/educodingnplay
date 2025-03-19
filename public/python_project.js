@@ -66,18 +66,19 @@ function initEditorToggle() {
         if (isExpanded) {
             // 에디터 확장
             console.log('Expanding editor');
-            ideContainer.style.width = '80%';
-            ideContainer.style.flex = '4';
-            contentContainer.style.width = '20%';
-            contentContainer.style.flex = '1';
+            ideContainer.style.width = '45%';
+            ideContainer.style.flex = '0.9';
+            contentContainer.style.width = '45%';
+            contentContainer.style.flex = '0.9';
             toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
             toggleBtn.setAttribute('title', '에디터 축소');
         } else {
             // 에디터 축소
             console.log('Collapsing editor');
-            ideContainer.style.width = '';
-            ideContainer.style.flex = '1';
-            contentContainer.style.width = '';
+            ideContainer.style.width = '40px';
+            ideContainer.style.minWidth = '40px';
+            ideContainer.style.flex = '0';
+            contentContainer.style.width = '90%';
             contentContainer.style.flex = '1';
             toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
             toggleBtn.setAttribute('title', '에디터 확장');

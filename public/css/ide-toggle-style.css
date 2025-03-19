@@ -1,0 +1,57 @@
+/* IDE가 접힌 상태일 때 내부 컨텐츠 숨기기 */
+.collapsed-editor .ide-container > *:not(.editor-toggle-controls) {
+    display: none !important;
+}
+
+.collapsed-editor .ide-container {
+    background-color: #2d2d2d !important;
+    border-left: 1px solid #444;
+    position: relative;
+}
+
+/* 확장 버튼 위치 조정 - 접힌 상태 */
+.collapsed-editor .editor-toggle-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 확장 버튼 위치 조정 - 펼친 상태 */
+.expanded-editor .editor-toggle-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+}
+
+/* 전체 컨테이너 조정 */
+.nav-container {
+    width: 10% !important;
+    min-width: 200px;
+}
+
+/* 토글 아이콘 스타일 */
+#toggleEditor {
+    cursor: pointer;
+    background-color: #444;
+    border: none;
+    border-radius: 4px;
+    padding: 5px;
+    color: white;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#toggleEditor:hover {
+    background-color: #555;
+}
+
+/* 접힌 상태에서 에디터 내용 가리기 */
+.collapsed-editor #editor {
+    opacity: 0 !important;
+}
