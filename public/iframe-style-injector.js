@@ -1,6 +1,7 @@
 const config = require('./config');
 
 // iframe-style-injector.js
+
 // iframe-style-injector.js 개선
 
 function injectStyleAndFixImagesToIframe(iframe) {
@@ -15,16 +16,16 @@ function injectStyleAndFixImagesToIframe(iframe) {
                 font-size: 16px !important;
                 line-height: 1.6 !important;
                 color: #333 !important;
-                padding: 5% 5% 120px 5% !important; /* 하단 패딩 120px로 증가 */
+                padding: 5% 5% 240px 5% !important; /* 하단 패딩 240px로 대폭 증가 */
                 margin: 0 !important;
                 box-sizing: border-box !important;
             }
             
-            /* 콘텐츠 하단에 빈 공간 생성 */
+            /* 콘텐츠 하단에 더 큰 빈 공간 생성 */
             body::after {
                 content: '' !important;
                 display: block !important;
-                height: 150px !important; /* 빈 줄 공간 */
+                height: 300px !important; /* 빈 줄 공간 크게 증가 */
                 width: 100% !important;
                 clear: both !important;
             }

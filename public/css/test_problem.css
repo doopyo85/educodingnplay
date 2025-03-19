@@ -92,3 +92,56 @@
 #problem-container::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+
+/* 메인 컨테이너 높이 조정 - 작업표시줄 공간 고려 */
+.main-container {
+    height: calc(100vh - 40px) !important; /* 작업표시줄 높이(약 40px) 고려 */
+    max-height: calc(100vh - 40px) !important;
+}
+
+.content-wrapper {
+    height: calc(100vh - 100px) !important; /* 헤더(60px) + 작업표시줄(40px) 고려 */
+    max-height: calc(100vh - 100px) !important;
+}
+
+/* 문제 컨테이너 스크롤 설정 최적화 */
+#problem-container {
+    overflow-y: auto;
+    padding-bottom: 50px; /* 하단 패딩 추가 */
+    /* 스크롤 영역 최적화 - 작업표시줄 고려 */
+    max-height: calc(100vh - 160px) !important; /* 헤더(60px) + 타이틀(50px) + 작업표시줄(40px) + 여백(10px) */
+}
+
+/* iframe에 하단 여백 강제 적용 */
+#iframeContent {
+    padding-bottom: 200px !important;
+    min-height: calc(100% + 200px) !important;
+}
+
+/* 모바일 장치에 대한 추가 설정 */
+@media (max-height: 600px) {
+    .main-container, .content-wrapper {
+        height: calc(100vh - 20px) !important;
+    }
+    
+    #problem-container {
+        max-height: calc(100vh - 120px) !important;
+    }
+}
+
+/* 높은 해상도 화면에 대한 설정 */
+@media (min-height: 1000px) {
+    /* 대형 화면에서는 작업표시줄이 차지하는 비율이 작아짐 */
+    .main-container {
+        height: calc(100vh - 60px) !important;
+    }
+    
+    .content-wrapper {
+        height: calc(100vh - 120px) !important;
+    }
+    
+    #problem-container {
+        max-height: calc(100vh - 180px) !important;
+    }
+}
