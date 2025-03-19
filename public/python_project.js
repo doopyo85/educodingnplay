@@ -27,26 +27,48 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // 에디터 토글 기능 초기화 함수
+// 에디터 토글 기능 초기화 함수
 function initEditorToggle() {
     // 이미 초기화되었으면 실행하지 않음
-    if (editorToggleInitialized) {
+    if (window.editorToggleInitialized) {
         return;
     }
     
     console.log('Initializing editor toggle functionality');
     
-    // 토글 버튼 요소 찾기
-    const toggleBtn = document.getElementById('toggleEditor');
+    // IDE 컨테이너 찾기
+    const ideContainer = document.querySelector('.ide-container');
+    const contentContainer = document.querySelector('.content-container');
     const contentsDiv = document.querySelector('.contents');
     
-    if (!toggleBtn || !contentsDiv) {
-        console.error('Toggle button or contents div not found');
+    if (!ideContainer || !contentContainer || !contentsDiv) {
+        console.error('Required containers not found');
         return;
     }
     
-    console.log('Toggle button found, setting up click event');
+    // 토글 컨트롤 엘리먼트 생성
+    const toggleControl = document.createElement('div');
+    toggleControl.className = 'editor-toggle-controls';
+    toggleControl.innerHTML = `
+        <button id="toggleEditor" class="btn btn-sm" title="IDE 열기">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+    `;
     
-    // 토글 상태 변수
+    // IDE 컨테이너에 토글 컨트롤 추가
+    ideContainer.appendChild(toggleControl);
+    
+    // 토글 버튼 요소 찾기
+    const toggleBtn = document.getElementById('toggleEditor');
+    
+    if (!toggleBtn) {
+        console.error('Toggle button not found after creation');
+        return;
+    }
+    
+    console.log('Toggle button created, setting up click event');
+    
+    // 토글 상태 변수 (기본값: 접힌 상태)
     let isExpanded = false;
     
     // 기존 이벤트 리스너 제거 (중복 방지)
@@ -60,41 +82,100 @@ function initEditorToggle() {
         console.log('Toggle button clicked, current state:', isExpanded);
         isExpanded = !isExpanded;
         
-        const ideContainer = document.querySelector('.ide-container');
-        const contentContainer = document.querySelector('.content-container');
-        
         if (isExpanded) {
-            // 에디터 확장
-            console.log('Expanding editor');
+            // IDE 열기
+            console.log('Opening IDE');
             ideContainer.style.width = '45%';
+            ideContainer.style.minWidth = '45%';
             ideContainer.style.flex = '0.9';
-            contentContainer.style.width = '45%';
-            contentContainer.style.flex = '0.9';
-            toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
-            toggleBtn.setAttribute('title', '에디터 축소');
+            contentContainer.style.width = 'calc(55% - 250px)';
+            contentContainer.style.flex = '1.1';
+            toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+            toggleBtn.setAttribute('title', 'IDE 닫기');
+            contentsDiv.classList.add('expanded-editor');
+            contentsDiv.classList.remove('collapsed-editor');
+            
+            // IDE 내용 보이기
+            const editorElements = ideContainer.querySelectorAll('*');
+            setTimeout(() => {
+                editorElements.forEach(el => {
+                    if (!el.classList.contains('editor-toggle-controls')) {
+                        el.style.display = '';
+                    }
+                });
+            }, 100);
+            
+            // 패딩 복원
+            ideContainer.style.padding = '15px';
+            
         } else {
-            // 에디터 축소
-            console.log('Collapsing editor');
-            ideContainer.style.width = '40px';
-            ideContainer.style.minWidth = '40px';
+            // IDE 닫기
+            console.log('Closing IDE');
+            ideContainer.style.width = '0';
+            ideContainer.style.minWidth = '0';
             ideContainer.style.flex = '0';
-            contentContainer.style.width = '90%';
+            contentContainer.style.width = 'calc(100% - 250px)';
             contentContainer.style.flex = '1';
-            toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
-            toggleBtn.setAttribute('title', '에디터 확장');
+            toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+            toggleBtn.setAttribute('title', 'IDE 열기');
+            contentsDiv.classList.remove('expanded-editor');
+            contentsDiv.classList.add('collapsed-editor');
+            
+            // IDE 내용 숨기기
+            const editorElements = ideContainer.querySelectorAll('*');
+            editorElements.forEach(el => {
+                if (!el.classList.contains('editor-toggle-controls') && 
+                    !el.classList.contains('editor-toggle-controls') && 
+                    el !== toggleBtn) {
+                    el.style.display = 'none';
+                }
+            });
+            
+            // 패딩 제거
+            ideContainer.style.padding = '0';
         }
         
         // ACE 에디터 리사이징
         setTimeout(() => {
-            var editor = ace.edit("editor");
-            if (editor) {
-                editor.resize();
-                console.log('Ace editor resized');
+            if (isExpanded) {
+                try {
+                    const editor = ace.edit("editor");
+                    if (editor) {
+                        editor.resize();
+                        console.log('Ace editor resized');
+                    }
+                } catch (e) {
+                    console.error('Error resizing editor:', e);
+                }
             }
         }, 300);
     }
     
-    editorToggleInitialized = true;
+    // 초기 상태를 접힌 상태로 설정
+    console.log('Setting initial collapsed state');
+    ideContainer.style.width = '0';
+    ideContainer.style.minWidth = '0';
+    ideContainer.style.flex = '0';
+    contentContainer.style.width = 'calc(100% - 250px)';
+    contentContainer.style.flex = '1';
+    toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+    toggleBtn.setAttribute('title', 'IDE 열기');
+    contentsDiv.classList.add('collapsed-editor');
+    
+    // IDE 내용 숨기기
+    const editorElements = ideContainer.querySelectorAll('*');
+    editorElements.forEach(el => {
+        if (!el.classList.contains('editor-toggle-controls') && 
+            !el.parentElement.classList.contains('editor-toggle-controls') && 
+            el !== toggleBtn) {
+            el.style.display = 'none';
+        }
+    });
+    
+    // 패딩 제거
+    ideContainer.style.padding = '0';
+    
+    window.editorToggleInitialized = true;
     console.log('Editor toggle initialization complete');
 }
 
