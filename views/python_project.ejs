@@ -17,45 +17,78 @@
     <link rel="stylesheet" href="/css/test_problem.css"> <!-- 문제 영역 -->
     <link rel="stylesheet" href="/css/test_ide.css">    <!-- IDE 영역 -->
     
-    <!-- 토글 버튼을 위한 추가 스타일 -->
+    <!-- 토글 스위치 스타일 -->
     <style>
-        /* 토글 버튼 컨테이너 스타일 */
-        #toggle-button-container {
-            position: fixed;
+        /* 토글 스위치 컨테이너 스타일 */
+        #ide-toggle-switch {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             z-index: 5000;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            background-color: rgba(40, 40, 40, 0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-
-        /* 새로운 토글 버튼 스타일 - 네모박스에 회색 화살표 */
-        #toggleEditor {
-            width: 36px;
-            height: 36px;
-            border-radius: 4px;
-            background-color: #1a237e; /* 짙은 남색 배경 */
-            border: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        /* "IDE" 텍스트 스타일 */
+        #ide-toggle-switch .toggle-label {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* 토글 스위치 스타일 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        /* 실제 체크박스 숨기기 */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        /* 스위치 슬라이더 스타일 */
+        .slider {
+            position: absolute;
             cursor: pointer;
-            padding: 0;
-            transition: all 0.3s ease;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
         }
-
-        /* 화살표 아이콘 색상 */
-        #toggleEditor i {
-            color: #d0d0d0; /* 회색 화살표 */
-            font-size: 18px;
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
-
-        #toggleEditor:hover {
-            background-color: #0d1259; /* 호버 시 약간 어두운 색상 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        
+        input:checked + .slider {
+            background-color: #1a73e8;
         }
-
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
         /* 네비게이션 메뉴 너비 고정 */
         .nav-container {
             width: 250px !important;
@@ -69,7 +102,7 @@
             position: relative !important;
             transition: all 0.3s ease;
             background-color: #1e1e1e;
-            overflow: visible !important; /* 버튼이 보이도록 설정 */
+            overflow: visible !important;
         }
 
         /* 문제 컨테이너 스타일 */
@@ -79,7 +112,7 @@
         }
         
         /* 접힌 상태에서 컨텐츠 숨기기 */
-        .collapsed-editor .ide-container > *:not(#toggle-button-container) {
+        .collapsed-editor .ide-container > *:not(#ide-toggle-switch) {
             display: none !important;
         }
 
@@ -116,13 +149,6 @@
 <body>
     <%- include('partials/header') %>
     
-    <!-- 토글 버튼 고정 위치에 배치 -->
-    <div id="toggle-button-container">
-        <button id="toggleEditor" class="btn" title="IDE 열기">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-    </div>
-    
     <div class="main-container">
         <!-- Navigation Menu -->
         <nav class="nav-container">
@@ -135,6 +161,15 @@
         <div class="contents">
             <!-- Problem Area -->
             <div class="content-container">
+                <!-- IDE 토글 스위치 (문제 영역 우측 상단에 배치) -->
+                <div id="ide-toggle-switch">
+                    <span class="toggle-label">IDE</span>
+                    <label class="switch">
+                        <input type="checkbox" id="ideToggleCheckbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
                 <div id="problem-navigation-container"> 
                     <i class="bi bi-chevron-left" id="prev-problem"></i>
                     <div id="problem-navigation"></div>
@@ -229,7 +264,7 @@
         });
     </script>
     
-    <!-- 토글 기능 스크립트 -->
+    <!-- IDE 토글 스위치 스크립트 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 학습 트래커 초기화
@@ -241,60 +276,44 @@
                 window.learningTracker.startTracking();
             }
             
-            // 토글 버튼 초기화 지연 (페이지 요소 모두 로드 후)
-            setTimeout(initToggleButton, 300);
+            // IDE 토글 스위치 초기화
+            initIdeToggleSwitch();
         });
 
-        function initToggleButton() {
-            const toggleBtn = document.getElementById('toggleEditor');
+        function initIdeToggleSwitch() {
+            const toggleCheckbox = document.getElementById('ideToggleCheckbox');
             const ideContainer = document.querySelector('.ide-container');
             const contentContainer = document.querySelector('.content-container');
             const contentsDiv = document.querySelector('.contents');
-            const buttonContainer = document.getElementById('toggle-button-container');
             
-            if (!toggleBtn || !ideContainer || !contentContainer || !contentsDiv || !buttonContainer) {
-                console.error('Required elements not found for toggle button');
+            if (!toggleCheckbox || !ideContainer || !contentContainer || !contentsDiv) {
+                console.error('Required elements not found for IDE toggle');
                 return;
             }
             
-            console.log('Initializing toggle button');
+            console.log('Initializing IDE toggle switch');
             
-            // 토글 상태 설정
-            let isExpanded = false;
-            contentsDiv.classList.add('collapsed-editor');
-            
-            // 초기 IDE 상태 설정
+            // 초기 상태 설정 (기본 OFF)
             setCollapsedState();
             
-            // 초기 버튼 위치 설정 - 처음에는 문제 영역의 오른쪽 경계에 위치
-            setTimeout(function() {
-                updateButtonPosition();
-            }, 100);
-            
-            // 창 크기 변경 시 버튼 위치 업데이트
-            window.addEventListener('resize', updateButtonPosition);
-            
-            // 클릭 이벤트 설정
-            toggleBtn.addEventListener('click', function() {
-                console.log('Toggle button clicked');
-                isExpanded = !isExpanded;
-                
-                if (isExpanded) {
+            // 체크박스 변경 이벤트 리스너
+            toggleCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // IDE 켜기 (ON)
                     setExpandedState();
                 } else {
+                    // IDE 끄기 (OFF)
                     setCollapsedState();
                 }
                 
-                // 버튼 위치 업데이트
-                setTimeout(updateButtonPosition, 50);
-                
                 // ACE 에디터 리사이징
                 setTimeout(() => {
-                    if (isExpanded) {
+                    if (this.checked) {
                         try {
                             const editor = ace.edit("editor");
                             if (editor) {
                                 editor.resize();
+                                console.log('Ace editor resized');
                             }
                         } catch (e) {
                             console.error('Error resizing editor:', e);
@@ -303,36 +322,13 @@
                 }, 300);
             });
             
-            function updateButtonPosition() {
-                const headerHeight = document.querySelector('header') ? document.querySelector('header').offsetHeight : 0;
-                const contentRect = contentContainer.getBoundingClientRect();
-                
-                // 상단 위치는 항상 콘텐츠 영역 상단에서 20px 아래로
-                buttonContainer.style.top = (contentRect.top + 20) + 'px';
-                
-                if (isExpanded) {
-                    // IDE가 열려있을 때 - IDE의 왼쪽 경계선 위에 위치
-                    const ideRect = ideContainer.getBoundingClientRect();
-                    buttonContainer.style.left = (ideRect.left - 18) + 'px'; // 더 왼쪽으로 위치
-                } else {
-                    // IDE가 닫혀있을 때 - 문제 영역 오른쪽 경계선에서 왼쪽으로 위치
-                    buttonContainer.style.left = (contentRect.right - 18) + 'px'; // 더 왼쪽으로 위치
-                }
-                
-                console.log('Button positioned at:', buttonContainer.style.left, buttonContainer.style.top);
-            }
-            
             function setExpandedState() {
-                console.log('Setting expanded state');
+                console.log('Setting expanded state (ON)');
                 ideContainer.style.width = '45%';
                 ideContainer.style.minWidth = '45%';
                 ideContainer.style.flex = '0.9';
                 contentContainer.style.width = 'calc(55% - 250px)';
                 contentContainer.style.flex = '1.1';
-                
-                // 아이콘 변경
-                toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
-                toggleBtn.setAttribute('title', 'IDE 닫기');
                 
                 contentsDiv.classList.add('expanded-editor');
                 contentsDiv.classList.remove('collapsed-editor');
@@ -340,7 +336,7 @@
                 // IDE 내용 보이기
                 setTimeout(() => {
                     ideContainer.querySelectorAll('*').forEach(el => {
-                        if (!el.closest('#toggle-button-container')) {
+                        if (!el.closest('#ide-toggle-switch')) {
                             el.style.display = '';
                         }
                     });
@@ -351,29 +347,28 @@
             }
             
             function setCollapsedState() {
-                console.log('Setting collapsed state');
+                console.log('Setting collapsed state (OFF)');
                 ideContainer.style.width = '0';
                 ideContainer.style.minWidth = '0';
                 ideContainer.style.flex = '0';
                 contentContainer.style.width = 'calc(100% - 250px)';
                 contentContainer.style.flex = '1';
                 
-                // 아이콘 변경
-                toggleBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
-                toggleBtn.setAttribute('title', 'IDE 열기');
-                
                 contentsDiv.classList.remove('expanded-editor');
                 contentsDiv.classList.add('collapsed-editor');
                 
                 // IDE 내용 숨기기
                 ideContainer.querySelectorAll('*').forEach(el => {
-                    if (!el.closest('#toggle-button-container')) {
+                    if (!el.closest('#ide-toggle-switch')) {
                         el.style.display = 'none';
                     }
                 });
                 
                 // 패딩 제거
                 ideContainer.style.padding = '0';
+                
+                // 체크박스 상태 업데이트
+                document.getElementById('ideToggleCheckbox').checked = false;
             }
         }
     </script>
