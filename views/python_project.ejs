@@ -9,95 +9,29 @@
     <script src="https://apis.google.com/js/api.js"></script>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
-    <!-- Custom CSS (분리된 파일 적용) -->
-    <link rel="stylesheet" href="/css/test_frame.css">   <!-- 왼쪽 네비게이션 영역 -->
-    <link rel="stylesheet" href="/css/test_problem.css"> <!-- 문제 영역 -->
-    <link rel="stylesheet" href="/css/test_ide.css">    <!-- IDE 영역 -->
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/test_frame.css">
+    <link rel="stylesheet" href="/css/test_problem.css">
+    <link rel="stylesheet" href="/css/test_ide.css">
     <link rel="stylesheet" href="/css/ide-toggle-style.css">
-    
-    <!-- 추가 IDE 토글 스타일 -->
-    <style>
-        /* IDE가 접힌 상태일 때 내부 컨텐츠 숨기기 */
-        .collapsed-editor .ide-container > *:not(.editor-toggle-controls) {
-            display: none !important;
-        }
-        
-        .collapsed-editor .ide-container {
-            background-color: #2d2d2d !important;
-            border-left: 1px solid #444;
-            position: relative;
-        }
-        
-        /* 확장 버튼 위치 조정 - 접힌 상태 */
-        .collapsed-editor .editor-toggle-controls {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        /* 확장 버튼 위치 조정 - 펼친 상태 */
-        .expanded-editor .editor-toggle-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-        }
-        
-        /* 전체 컨테이너 조정 */
-        .nav-container {
-            width: 10% !important;
-            min-width: 200px;
-        }
-        
-        /* 토글 아이콘 스타일 */
-        #toggleEditor {
-            cursor: pointer;
-            background-color: #444;
-            border: none;
-            border-radius: 4px;
-            padding: 5px;
-            color: white;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        #toggleEditor:hover {
-            background-color: #555;
-        }
-        
-        /* 접힌 상태에서 에디터 내용 가리기 */
-        .collapsed-editor #editor {
-            opacity: 0 !important;
-        }
-    </style>
 
     <!-- Ace Editor -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js"></script>
 </head>
 <body>
     <%- include('partials/header') %>
-    
+
     <div class="main-container">
-        <!-- Navigation Menu -->
         <nav class="nav-container">
-            <ul id="navList" class="list-unstyled">
-                <!-- Google Sheets에서 동적으로 메뉴 추가 -->
-            </ul>
+            <ul id="navList" class="list-unstyled"></ul>
         </nav>
 
-        <!-- Content Area -->
         <div class="contents">
-            <!-- Problem Area -->
             <div class="content-container">
-                <div id="problem-navigation-container"> 
+                <div id="problem-navigation-container">
                     <i class="bi bi-chevron-left" id="prev-problem"></i>
                     <div id="problem-navigation"></div>
                     <i class="bi bi-chevron-right" id="next-problem"></i>
@@ -108,85 +42,51 @@
                 </div>
             </div>
 
-            <!-- IDE Area -->
             <div class="ide-container">
-
                 <div class="editor-toggle-controls">
                     <button id="toggleEditor" class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-arrows-angle-expand"></i>
                     </button>
                 </div>
-
-                <!-- Theme Change Button -->
-                <div class="theme-buttons mb-3 d-flex justify-content-center">
-                    <button class="btn btn-outline-light me-2" onclick="changeTheme('monokai')">Monokai</button>
-                    <button class="btn btn-outline-light me-2" onclick="changeTheme('github')">GitHub</button>
-                    <button class="btn btn-outline-light" onclick="changeTheme('tomorrow_night')">Tomorrow Night</button>
+                <div class="theme-buttons">
+                    <button onclick="changeTheme('monokai')">Monokai</button>
+                    <button onclick="changeTheme('github')">GitHub</button>
+                    <button onclick="changeTheme('tomorrow_night')">Tomorrow Night</button>
                 </div>
-                <div class="font-size-controls">
-                    <button id="decreaseFontSize">-</button>
-                    <button id="increaseFontSize">+</button>
-                </div>
-                <!-- Ace Editor -->
-                <div id="editor" class="code-editor" style="height: 400px; width: 100%;"># 여기에 코드를 입력하세요...</div>
-
-                <!-- Run Button and Output -->
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <button id="runCodeBtn" class="btn btn-success">실행</button>
-                    <button id="saveCodeBtn" class="btn btn-warning">저장</button>
-                    <button id="resetCodeBtn" class="btn btn-danger">초기화</button>
-                </div>
-
-                <div id="output-terminal" class="mt-3 p-3">
-                    <h5>실행 결과:</h5>
+                <div id="editor" class="code-editor"></div>
+                <button id="runCodeBtn">실행</button>
+                <button id="saveCodeBtn">저장</button>
+                <button id="resetCodeBtn">초기화</button>
+                <div id="output-terminal">
                     <pre id="output-content"></pre>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom Scripts -->
     <script src="python_project.js"></script>
-    <script src="iframe-style-injector.js"></script>
-    <script src="ide-font-control.js"></script> 
-    
-    <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
-    <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
 
-    <!-- Ace Editor Script -->
     <script>
         var editor = ace.edit("editor");
         editor.session.setMode("ace/mode/python");
         editor.setTheme("ace/theme/tomorrow_night_bright");
 
-        // 테마 변경 함수
         function changeTheme(themeName) {
             editor.setTheme("ace/theme/" + themeName);
         }
 
         document.getElementById("runCodeBtn").addEventListener("click", function() {
             var code = editor.getValue();
-            document.getElementById("output-content").textContent = "실행 중...";
-
             fetch('/run-python', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: code }),
             })
             .then(response => response.json())
-            .then(data => {
-                document.getElementById("output-content").textContent = data.output;
-            })
-            .catch(error => {
-                document.getElementById("output-content").textContent = "코드 실행 중 오류 발생: " + error;
-            });
+            .then(data => { document.getElementById("output-content").textContent = data.output; })
+            .catch(error => { document.getElementById("output-content").textContent = "오류 발생: " + error; });
         });
 
         document.getElementById("resetCodeBtn").addEventListener("click", function() {
@@ -196,18 +96,79 @@
         document.getElementById("saveCodeBtn").addEventListener("click", function() {
             alert("코드가 저장되었습니다.");
         });
-    </script>
-    <script>
+
         document.addEventListener('DOMContentLoaded', function() {
-            // 학습 트래커 초기화
-            const pageTitle = document.title;
-            const contentType = 'python'; // 컨텐츠 타입 수정
-            
-            if (window.learningTracker) {
-                window.learningTracker = new LearningTracker(contentType, pageTitle);
-                window.learningTracker.startTracking();
-            }
+            initEditorToggle();
+            loadMenuData();
         });
+
+        function initEditorToggle() {
+            const toggleBtn = document.getElementById('toggleEditor');
+            const contentsDiv = document.querySelector('.contents');
+
+            if (!toggleBtn || !contentsDiv) return;
+
+            let isExpanded = false;
+            toggleBtn.addEventListener('click', function() {
+                isExpanded = !isExpanded;
+                const ideContainer = document.querySelector('.ide-container');
+                const contentContainer = document.querySelector('.content-container');
+
+                if (isExpanded) {
+                    ideContainer.style.width = '45%';
+                    contentContainer.style.width = '45%';
+                    toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
+                } else {
+                    ideContainer.style.width = '40px';
+                    contentContainer.style.width = '90%';
+                    toggleBtn.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
+                }
+
+                setTimeout(() => {
+                    var editor = ace.edit("editor");
+                    if (editor) editor.resize();
+                }, 300);
+            });
+        }
+
+        async function loadMenuData() {
+            try {
+                const response = await fetch('/api/get-menu-data');
+                const menuData = await response.json();
+                if (menuData && menuData.length > 0) {
+                    renderMenu(menuData);
+                } else {
+                    throw new Error('No menu data loaded');
+                }
+            } catch (error) {
+                console.error('Error loading menu data:', error);
+            }
+        }
+
+        function renderMenu(data) {
+            const navList = document.getElementById('navList');
+            if (!navList) return;
+
+            navList.innerHTML = '';
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                console.error('Invalid menu data');
+                return;
+            }
+
+            data.forEach(row => {
+                if (row.length >= 3) {
+                    const [topLevelMenu, subMenu, examName] = row;
+                    const menuItem = document.createElement('li');
+                    menuItem.textContent = `${topLevelMenu} - ${subMenu}`;
+                    menuItem.addEventListener('click', () => onMenuSelect(examName));
+                    navList.appendChild(menuItem);
+                }
+            });
+        }
+
+        function onMenuSelect(examName) {
+            console.log('Selected exam:', examName);
+        }
     </script>
 </body>
 </html>
