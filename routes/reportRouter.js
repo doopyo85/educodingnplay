@@ -172,12 +172,9 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             targetCategory = category;
         }
         
-        // 볼륨에 해당하는 교재레벨-호 형식 (예: "프리스쿨1-1") 찾기
-        const targetVolume = `${category.toLowerCase().includes('preschool') ? '프리스쿨' : category}${volume.includes('-') ? volume : `1-${volume}`}`;
+        console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${volume}"`);
         
-        console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${targetVolume}"`);
-        
-        // 필터링 - 정확한 교재레벨-호 매칭으로 변경
+        // 필터링 - 정확한 호수 매칭으로 변경
         const filteredRows = sheetData.slice(1).filter(row => {
             if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
@@ -186,22 +183,27 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             const rowCategory = row[categoryIndex] || '';
             const rowVolume = row[volumeIndex] || '';
             
-            // 카테고리와 볼륨 모두 정확히 일치해야 함
+            // 카테고리 매칭
             const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 정확한 볼륨 매칭 (예: "프리스쿨1-1")
-            const volumeMatch = rowVolume === targetVolume;
-            
-            // 대체 볼륨 매칭 시도 (URL에서 '1' 입력 시 '프리스쿨1-1'과 매칭)
-            const altVolumeMatch = rowVolume.endsWith(`-${volume}`);
-            
-            const isMatch = categoryMatch && (volumeMatch || altVolumeMatch);
-            
-            if (isMatch) {
-                console.log(`매칭된 행: ${rowCategory} / ${rowVolume}`);
+            // 볼륨 매칭 - 정확한 호수만 추출
+            let volumeMatch = false;
+            if (rowVolume && rowVolume.includes('-')) {
+                // 예: "CPScps1-1"에서 "1"만 추출
+                const parts = rowVolume.split('-');
+                if (parts.length > 1) {
+                    // 레벨-호 형식에서 호수 부분만 비교
+                    const rowVolumeNumber = parts[1];
+                    volumeMatch = rowVolumeNumber === volume;
+                    
+                    // 추가 로깅
+                    if (categoryMatch && volumeMatch) {
+                        console.log(`볼륨 매칭: ${rowVolume} -> 호수=${rowVolumeNumber}, 타겟=${volume}`);
+                    }
+                }
             }
             
-            return isMatch;
+            return categoryMatch && volumeMatch;
         });
         
         console.log(`필터링 결과: ${filteredRows.length}개 행 일치`);
