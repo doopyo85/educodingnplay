@@ -106,6 +106,16 @@ setInterval(async () => {
     }
 }, 60000); // 1분마다 확인
 
+// 웹 페이지: 교재 목록 페이지 (중복 라우트 제거, 아래 하나만 남기기)
+router.get('/books-page', authenticateUser, (req, res) => {
+    console.log('books-page 라우트 처리');
+    res.render('report/report_bookslist', { 
+      userID: req.session?.userID || null,
+      is_logined: req.session?.is_logined || false,
+      role: req.session?.role || 'guest'
+    });
+});
+
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
 router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
     console.log(`교재 정보 요청 받음: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
@@ -280,15 +290,6 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         console.error('에러 발생:', error);
         res.status(500).json({ error: '교재 정보를 불러오는 중 오류가 발생했습니다.' });
     }
-});
-
-// 웹 페이지: 교재 목록 페이지
-router.get('/books-page', authenticateUser, (req, res) => {
-    res.render('report/books', {
-        userID: req.session?.userID || null,
-        is_logined: req.session?.is_logined || false,
-        role: req.session?.role || 'guest'
-    });
 });
 
 // 웹 페이지: 학습 리포트 생성 페이지
