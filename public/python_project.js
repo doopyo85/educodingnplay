@@ -484,7 +484,7 @@ function loadFontControlScript() {
     // CSS 파일 로드
     const cssLink = document.createElement('link');
     cssLink.rel = 'stylesheet';
-    cssLink.href = '/css/content-font-control.css'; // 적절한 경로로 수정
+    cssLink.href = '/css/test_content-font-control.css'; // 적절한 경로로 수정
     document.head.appendChild(cssLink);
     
     // JavaScript 파일 로드
