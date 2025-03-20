@@ -305,7 +305,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
 
 // 웹 페이지: 학습 리포트 생성 페이지
 router.get('/generate/:category/:volume', authenticateUser, (req, res) => {
-    res.render('report/generate', {
+    res.render('report/report_generate', { // 파일명을 report_generate.ejs에 맞게 수정
         userID: req.session?.userID || null,
         is_logined: req.session?.is_logined || false,
         role: req.session?.role || 'guest',
