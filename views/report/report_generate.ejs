@@ -28,7 +28,7 @@
           <form id="reportForm">
             <div class="mb-3">
               <label for="centerName" class="form-label">센터 이름</label>
-              <input type="text" class="form-control" id="studentName" required>
+              <input type="text" class="form-control" id="centerName" required>
             </div>
             
             <div class="mb-3">
@@ -75,7 +75,7 @@
           
           <div id="reportContent" class="d-none">
             <!-- 리포트 컨텐츠 시작 -->
-            <div id="printableReport">
+            <div id="printableReport" class="a4-page">
               <div class="text-center mb-4">
                 <h1 class="display-6 fw-bold">Monthly Assessment</h1>
                 <div class="text-end">
@@ -83,7 +83,7 @@
                 </div>
               </div>
               
-              <table class="table table-bordered">
+              <table class="table table-bordered fixed-width">
                 <tr>
                   <th style="width: 15%;" class="text-center bg-light">학습 기간</th>
                   <td style="width: 35%;" id="studyPeriodCell"></td>
@@ -98,24 +98,26 @@
                 </tr>
               </table>
               
-              <table class="table table-bordered mt-4">
-                <thead>
-                  <tr>
-                    <th style="width: 5%;" class="text-center bg-light">항목</th>
-                    <th style="width: 20%;" class="text-center bg-light">
-                      CT<br>
-                      <small>(컴퓨팅 사고력)</small>
-                    </th>
-                    <th style="width: 60%;" class="text-center bg-light">평가 내용</th>
-                    <th style="width: 5%;" class="text-center bg-light">상</th>
-                    <th style="width: 5%;" class="text-center bg-light">중</th>
-                    <th style="width: 5%;" class="text-center bg-light">하</th>
-                  </tr>
-                </thead>
-                <tbody id="evaluationTableBody">
-                  <!-- 평가 항목이 여기에 동적으로 삽입됩니다 -->
-                </tbody>
-              </table>
+              <div class="evaluation-container">
+                <table class="table table-bordered mt-4 fixed-width">
+                  <thead>
+                    <tr>
+                      <th style="width: 5%;" class="text-center bg-light">항목</th>
+                      <th style="width: 20%;" class="text-center bg-light">
+                        CT<br>
+                        <small>(컴퓨팅 사고력)</small>
+                      </th>
+                      <th style="width: 60%;" class="text-center bg-light">평가 내용</th>
+                      <th style="width: 5%;" class="text-center bg-light">상</th>
+                      <th style="width: 5%;" class="text-center bg-light">중</th>
+                      <th style="width: 5%;" class="text-center bg-light">하</th>
+                    </tr>
+                  </thead>
+                  <tbody id="evaluationTableBody">
+                    <!-- 평가 항목이 여기에 동적으로 삽입됩니다 -->
+                  </tbody>
+                </table>
+              </div>
               
               <div class="mt-4">
                 <h5 class="mb-3">선생님 의견</h5>
@@ -125,7 +127,7 @@
               <div class="mt-4 mb-4">
                 <h5 class="mb-3 text-center" id="contentsTitle"></h5>
                 
-                <table class="table table-bordered">
+                <table class="table table-bordered fixed-width">
                   <tr>
                     <th class="text-center bg-light" style="width: 15%;">교재</th>
                     <td id="bookThumbnailsCell" class="text-center">
@@ -135,7 +137,7 @@
                 </table>
               </div>
               
-              <div class="text-center mt-4">
+              <div class="text-center mt-4 page-footer">
                 <img src="/resource/images/logo.png" alt="코딩엔플레이" style="max-width: 80px;" />
               </div>
             </div>
@@ -147,6 +149,111 @@
   </div>
 </div>
 <%- include('../partials/footer') %>
+
+<style>
+  /* A4 용지 크기에 맞는 스타일 */
+  @media screen {
+    .a4-page {
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .fixed-width {
+      width: 100% !important;
+      table-layout: fixed;
+    }
+    
+    .evaluation-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+  }
+  
+  /* 인쇄 시 적용되는 스타일 */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0.5cm;
+    }
+    
+    body * {
+      visibility: hidden;
+    }
+    
+    .a4-page, .a4-page * {
+      visibility: visible;
+    }
+    
+    .a4-page {
+      width: 21cm;
+      min-height: 29.7cm;
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 1cm;
+      box-sizing: border-box;
+      page-break-after: always;
+    }
+    
+    .fixed-width {
+      width: 100% !important;
+      table-layout: fixed;
+    }
+    
+    /* 내용이 많아질 경우 자동으로 페이지 나누기 */
+    .evaluation-container {
+      page-break-inside: auto;
+    }
+    
+    tr {
+      page-break-inside: avoid;
+    }
+    
+    .page-footer {
+      position: fixed;
+      bottom: 0.5cm;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+    
+    .card, .card-header, .card-body, 
+    .container, .row, .col-md-8, .btn, 
+    header, footer, .card-footer {
+      display: none !important;
+    }
+    
+    #printableReport {
+      display: block !important;
+    }
+  }
+  
+  /* 테이블 열 너비 고정 */
+  th, td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* 선생님 의견 영역 스타일 */
+  .teacher-comment-area {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    min-height: 100px;
+  }
+  
+  /* 도서 썸네일 이미지 스타일 */
+  .book-thumbnail {
+    max-height: 150px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', async function() {
@@ -322,6 +429,9 @@
         
         // 평가 항목이 불러와졌음을 보여주는 로그
         console.log(`${data.evaluationItems.length}개의 평가 항목이 표시됨`);
+        
+        // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
+        handlePageBreaks(data.evaluationItems.length);
       } else {
         evaluationTableBody.innerHTML = `
           <tr>
@@ -403,12 +513,30 @@
       console.log('보고서 정보가 업데이트되었습니다.');
     }
     
+    // 평가 항목 수에 따른 페이지 나누기 처리
+    function handlePageBreaks(itemCount) {
+      // 항목이 많을 경우(예: 7개 이상) 자동으로 페이지 나누기 설정
+      if (itemCount > 7) {
+        console.log('평가 항목이 많아 페이지 나누기 처리가 필요합니다.');
+        // 클래스 추가로 인쇄 시 페이지 나누기 힌트 제공
+        document.querySelector('.evaluation-container').classList.add('multi-page');
+      }
+    }
+    
     // 인쇄 버튼 이벤트
     const printBtn = document.getElementById('printBtn');
     if (printBtn) {
       printBtn.addEventListener('click', function() {
+        // 인쇄 전 레이아웃 최적화
+        optimizeForPrinting();
         window.print();
       });
+    }
+    
+    // 인쇄를 위한 최적화 함수
+    function optimizeForPrinting() {
+      // 필요한 경우 여기에 인쇄 전 추가 최적화 로직 구현
+      console.log('인쇄를 위한 레이아웃을 최적화합니다...');
     }
     
     // 날짜 포맷 함수 (YYYY-MM-DD)
