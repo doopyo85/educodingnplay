@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
       thead.className = 'bg-light';
       thead.innerHTML = `
         <tr>
-          <th width="13%">대구분</th>
-          <th width="17%">중구분</th>
+          <th width="15%">대구분</th>
+          <th width="15%">중구분</th>
           <th width="70%">소구분 (호수)</th>
         </tr>
       `;
