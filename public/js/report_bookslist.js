@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 
   // 하단 여백 추가 - 컨테이너에 패딩 적용
-  categoryContainer.style.paddingBottom = '100px';
+  categoryContainer.style.paddingBottom = '500px';
 
   // 카테고리 그룹화 설정
   const categoryGroups = {
