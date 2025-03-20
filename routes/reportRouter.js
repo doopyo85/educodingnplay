@@ -32,8 +32,37 @@ async function updateReportCache() {
             return item;
         });
         
+        // 고정된 교재 정보 설정 (구글 시트에서 누락된 경우를 대비)
+        const fixedBooks = {
+            'CPS': 6,  // CPS는 6개 호
+            'CPA': 3,  // CPA는 3개 호
+            '앱인벤터': 6,  // 앱인벤터는 6개 호
+            '파이썬': 3,  // 파이썬은 3개 호
+            '프리스쿨 LV1': 12,  // 프리스쿨 LV1은 12개 호
+            '프리스쿨 LV2': 12,  // 프리스쿨 LV2는 12개 호
+            '프리스쿨 LV3': 12,  // 프리스쿨 LV3는 12개 호
+            '주니어 LV1': 12,  // 주니어 LV1은 12개 호
+            '주니어 LV2': 12   // 주니어 LV2는 12개 호
+        };
+        
         // 데이터를 카테고리별로 정리
         const categorizedData = {};
+        
+        // 먼저 고정된 교재 카테고리 생성
+        Object.keys(fixedBooks).forEach(category => {
+            categorizedData[category] = [];
+            // 각 카테고리별 호수 생성
+            for (let i = 1; i <= fixedBooks[category]; i++) {
+                categorizedData[category].push({
+                    category: category,
+                    volume: i.toString(),
+                    title: `${category} ${i}호`,
+                    thumbnail_url: ''
+                });
+            }
+        });
+        
+        // 구글 시트 데이터로 추가 정보 업데이트 (썸네일 URL 등)
         parsedData.forEach(item => {
             // 구글 시트의 컬럼명을 확인
             const category = item['교재카테고리'] || '기타';
@@ -47,31 +76,22 @@ async function updateReportCache() {
                 }
             }
             
-            // 카테고리가 없는 경우 생성
-            if (!categorizedData[category]) {
-                categorizedData[category] = [];
-            }
-            
-            // 이미 추가된 볼륨인지 확인
-            const existingVolume = categorizedData[category].find(book => 
-                book.volume === volume
-            );
-            
-            // 중복된 볼륨이 없을 경우에만 추가
-            if (!existingVolume) {
-                categorizedData[category].push({
-                    category: category,
-                    volume: volume,
-                    title: `${category} ${volume}호`,
-                    thumbnail_url: item['thumbnail_url'] || ''
-                });
+            // 썸네일 URL 업데이트
+            if (categorizedData[category]) {
+                const existingVolume = categorizedData[category].find(book => 
+                    book.volume === volume
+                );
+                
+                if (existingVolume && item['thumbnail_url']) {
+                    existingVolume.thumbnail_url = item['thumbnail_url'];
+                }
             }
         });
         
         // 캐시 저장 및 타임스탬프 업데이트
         reportDataCache = categorizedData;
         lastCacheUpdate = Date.now();
-        console.log(`Report data cache updated with ${parsedData.length} items`);
+        console.log(`Report data cache updated with fixed book counts`);
         return true;
     } catch (error) {
         console.error('Error updating report cache:', error);
@@ -174,7 +194,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         
         console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${volume}"`);
         
-        // 필터링 - 정확한 호수 매칭으로 변경
+        // 필터링 - 정확한 호수 패턴 매칭으로 변경
         const filteredRows = sheetData.slice(1).filter(row => {
             if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
@@ -186,20 +206,18 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             // 카테고리 매칭
             const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 볼륨 매칭 - 정확한 호수만 추출
+            // 볼륨 패턴 매칭
+            // 수정된 부분: rowVolume에서 "x-y" 패턴을 찾아서 y만 추출
             let volumeMatch = false;
-            if (rowVolume && rowVolume.includes('-')) {
-                // 예: "CPScps1-1"에서 "1"만 추출
-                const parts = rowVolume.split('-');
-                if (parts.length > 1) {
-                    // 레벨-호 형식에서 호수 부분만 비교
-                    const rowVolumeNumber = parts[1];
-                    volumeMatch = rowVolumeNumber === volume;
-                    
-                    // 추가 로깅
-                    if (categoryMatch && volumeMatch) {
-                        console.log(`볼륨 매칭: ${rowVolume} -> 호수=${rowVolumeNumber}, 타겟=${volume}`);
-                    }
+            
+            if (categoryMatch && rowVolume) {
+                // 예: "CPScps1-1" 또는 "1-1" 형식에서 볼륨 번호 추출
+                const regex = new RegExp(`(\\d+)-(${volume})\\b`);
+                const match = rowVolume.match(regex);
+                
+                if (match) {
+                    console.log(`패턴 매칭 성공: ${rowVolume}, 호수=${match[2]}`);
+                    volumeMatch = true;
                 }
             }
             
@@ -214,43 +232,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         }
         
         if (filteredRows.length === 0) {
-            // 보다 완화된 검색 시도
-            console.log('정확한 매칭 실패, 더 유연한 검색 시도...');
-            
-            const looseFilteredRows = sheetData.slice(1).filter(row => {
-                if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
-                    return false;
-                }
-                
-                const rowCategory = row[categoryIndex] || '';
-                const rowVolume = row[volumeIndex] || '';
-                
-                // 카테고리 매칭
-                const categoryMatch = rowCategory.includes(targetCategory);
-                
-                // 유연한 볼륨 매칭 (숫자만 일치)
-                let rowVolumeNumber = '';
-                if (rowVolume.includes('-')) {
-                    const parts = rowVolume.split('-');
-                    if (parts.length > 1) {
-                        rowVolumeNumber = parts[1];
-                    }
-                }
-                
-                const volumeMatch = rowVolumeNumber === volume;
-                
-                return categoryMatch && volumeMatch;
-            });
-            
-            if (looseFilteredRows.length > 0) {
-                console.log(`유연한 검색으로 ${looseFilteredRows.length}개 행 발견`);
-                return res.status(404).json({ 
-                    error: '정확한 교재 정보를 찾을 수 없습니다.',
-                    suggestion: '유사한 교재가 있습니다만 정확한 호수를 선택해 주세요.'
-                });
-            } else {
-                return res.status(404).json({ error: '해당 교재 정보를 찾을 수 없습니다.' });
-            }
+            return res.status(404).json({ error: '해당 교재의 CT요소 정보를 찾을 수 없습니다.' });
         }
         
         // 썸네일 URL 가져오기
