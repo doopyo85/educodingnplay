@@ -194,7 +194,7 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         
         console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${volume}"`);
         
-        // 필터링 - 정확한 호수 패턴 매칭으로 변경
+        // 필터링 - 다양한 패턴 지원
         const filteredRows = sheetData.slice(1).filter(row => {
             if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
                 return false;
@@ -206,22 +206,30 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             // 카테고리 매칭
             const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 볼륨 패턴 매칭 - 정확히 해당 호수만 추출
+            // 다양한 볼륨 패턴 매칭 시도
             let volumeMatch = false;
             
             if (categoryMatch && rowVolume) {
-                // 볼륨 문자열에서 정확한 호수 패턴 찾기
-                // 예: "CPScps1-1" -> 교재번호-호수 패턴에서 호수만 추출
-                // 문제: "CPScps1-1"과 "CPScps1-11"이 모두 매칭되는 문제 해결
+                console.log(`검사 중: 카테고리=${rowCategory}, 볼륨=${rowVolume}`);
                 
-                // 개선된 정규식: 교재번호는 무시하고 "-숫자" 패턴을 찾되,
-                // 숫자 뒤에 다른 숫자가 오지 않는 경우만 매칭
-                const volumeRegex = new RegExp(`-(${volume})(?!\\d)`);
-                const match = rowVolume.match(volumeRegex);
-                
-                if (match) {
-                    console.log(`정확한 호수 매칭: ${rowVolume} -> 호수=${match[1]}`);
+                // 패턴 1: "카테고리-숫자" (예: "cps-5")
+                if (rowVolume.includes(`-${volume}`)) {
                     volumeMatch = true;
+                    console.log(`패턴1 매칭: ${rowVolume}`);
+                }
+                // 패턴 2: "카테고리이름숫자" (예: "CPScps5")
+                else if (rowVolume.includes(`${targetCategory.toLowerCase()}${volume}`)) {
+                    volumeMatch = true;
+                    console.log(`패턴2 매칭: ${rowVolume}`);
+                }
+                // 패턴 3: 직접 숫자 추출 시도
+                else {
+                    // 모든 숫자를 추출하여 일치하는지 확인
+                    const numbers = rowVolume.match(/\d+/g);
+                    if (numbers && numbers.includes(volume)) {
+                        volumeMatch = true;
+                        console.log(`패턴3 매칭: ${rowVolume}, 추출된 숫자=${numbers.join(',')}`);
+                    }
                 }
             }
             
