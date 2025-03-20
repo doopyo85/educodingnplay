@@ -100,17 +100,25 @@
               
               <div class="evaluation-container">
                 <table class="table table-bordered mt-4 fixed-width">
+                  <colgroup>
+                    <col style="width: 5%;">
+                    <col style="width: 20%;">
+                    <col style="width: 55%;">
+                    <col style="width: 6%;">
+                    <col style="width: 7%;">
+                    <col style="width: 7%;">
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th style="width: 5%;" class="text-center bg-light">항목</th>
-                      <th style="width: 20%;" class="text-center bg-light">
+                      <th class="text-center bg-light">항목</th>
+                      <th class="text-center bg-light">
                         CT<br>
                         <small>(컴퓨팅 사고력)</small>
                       </th>
-                      <th style="width: 60%;" class="text-center bg-light">평가 내용</th>
-                      <th style="width: 5%;" class="text-center bg-light">상</th>
-                      <th style="width: 5%;" class="text-center bg-light">중</th>
-                      <th style="width: 5%;" class="text-center bg-light">하</th>
+                      <th class="text-center bg-light">평가 내용</th>
+                      <th class="text-center bg-light">상</th>
+                      <th class="text-center bg-light">중</th>
+                      <th class="text-center bg-light">하</th>
                     </tr>
                   </thead>
                   <tbody id="evaluationTableBody">
@@ -167,9 +175,10 @@
       table-layout: fixed;
     }
     
+    /* 스크롤 제거 */
     .evaluation-container {
       width: 100%;
-      overflow-x: auto;
+      overflow-x: visible;
     }
   }
   
@@ -180,15 +189,14 @@
       margin: 0.5cm;
     }
     
-    body * {
-      visibility: hidden;
+    /* 인쇄 시 요소 숨김 방식 변경 */
+    body > *:not(#printableReport) {
+      display: none !important;
     }
     
-    .a4-page, .a4-page * {
-      visibility: visible;
-    }
-    
-    .a4-page {
+    #printableReport {
+      display: block !important;
+      visibility: visible !important;
       width: 21cm;
       min-height: 29.7cm;
       position: absolute;
@@ -198,6 +206,11 @@
       padding: 1cm;
       box-sizing: border-box;
       page-break-after: always;
+      background: white;
+    }
+    
+    #printableReport * {
+      visibility: visible !important;
     }
     
     .fixed-width {
@@ -208,6 +221,7 @@
     /* 내용이 많아질 경우 자동으로 페이지 나누기 */
     .evaluation-container {
       page-break-inside: auto;
+      overflow: visible !important;
     }
     
     tr {
@@ -222,14 +236,13 @@
       text-align: center;
     }
     
-    .card, .card-header, .card-body, 
-    .container, .row, .col-md-8, .btn, 
-    header, footer, .card-footer {
+    /* 다음 요소들은 명시적으로 숨김 */
+    header, footer, 
+    .navbar, .btn, 
+    .card:not(#printableReport),
+    .container > .row,
+    .col-md-4, .col-md-8:not(:has(#printableReport)) {
       display: none !important;
-    }
-    
-    #printableReport {
-      display: block !important;
     }
   }
   
@@ -529,14 +542,104 @@
       printBtn.addEventListener('click', function() {
         // 인쇄 전 레이아웃 최적화
         optimizeForPrinting();
-        window.print();
+        
+        // 인쇄 가능한 상태로 보고서 복제
+        const printContent = document.getElementById('printableReport');
+        const printWindow = window.open('', '_blank');
+        
+        if (printWindow) {
+          printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>학습 리포트</title>
+              <style>
+                @page {
+                  size: A4 portrait;
+                  margin: 1cm;
+                }
+                body {
+                  font-family: 'Noto Sans KR', sans-serif;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 0;
+                }
+                .a4-page {
+                  width: 21cm;
+                  min-height: 29.7cm;
+                  padding: 1cm;
+                  margin: 0 auto;
+                  background: white;
+                  box-sizing: border-box;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  table-layout: fixed;
+                }
+                th, td {
+                  border: 1px solid #dee2e6;
+                  padding: 8px;
+                  word-wrap: break-word;
+                }
+                .bg-light {
+                  background-color: #f8f9fa;
+                }
+                .text-center {
+                  text-align: center;
+                }
+                .teacher-comment-area {
+                  border: 1px solid #dee2e6;
+                  border-radius: 4px;
+                  padding: 1rem;
+                  min-height: 100px;
+                }
+                .book-thumbnail {
+                  max-height: 150px;
+                  max-width: 100%;
+                  object-fit: contain;
+                }
+                .page-footer {
+                  margin-top: 20px;
+                  text-align: center;
+                }
+              </style>
+            </head>
+            <body>
+              ${printContent.outerHTML}
+            </body>
+            </html>
+          `);
+          
+          printWindow.document.close();
+          // 리소스 로딩이 완료된 후 인쇄 실행
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 500);
+        } else {
+          // 팝업 차단된 경우 기존 방식으로 인쇄
+          console.warn('팝업이 차단되었습니다. 기존 방식으로 인쇄를 시도합니다.');
+          window.print();
+        }
       });
     }
     
     // 인쇄를 위한 최적화 함수
     function optimizeForPrinting() {
-      // 필요한 경우 여기에 인쇄 전 추가 최적화 로직 구현
-      console.log('인쇄를 위한 레이아웃을 최적화합니다...');
+      // 테이블 너비 확인 및 조정
+      const tables = document.querySelectorAll('.fixed-width');
+      tables.forEach(table => {
+        console.log(`테이블 너비: ${table.offsetWidth}px`);
+      });
+      
+      // 선생님 의견이 비어있는지 확인하고 최소 높이 설정
+      const teacherComment = document.getElementById('teacherCommentCell');
+      if (teacherComment && !teacherComment.textContent.trim()) {
+        teacherComment.innerHTML = '&nbsp;'; // 비어있을 경우 공백 추가
+      }
+      
+      console.log('인쇄를 위한 레이아웃을 최적화했습니다.');
     }
     
     // 날짜 포맷 함수 (YYYY-MM-DD)
