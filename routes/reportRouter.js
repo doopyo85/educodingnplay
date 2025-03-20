@@ -107,14 +107,12 @@ setInterval(async () => {
 }, 60000); // 1분마다 확인
 
 // API 엔드포인트: 교재 카테고리 및 목록 가져오기
-router.get('/books', authenticateUser, async (req, res) => {
-    try {
-        const reportData = await getReportData();
-        res.json(reportData);
-    } catch (error) {
-        console.error('Error fetching book list:', error);
-        res.status(500).json({ error: '교재 목록을 불러오는 중 오류가 발생했습니다.' });
-    }
+router.get('/books-page', authenticateUser, (req, res) => {
+    res.render('report/report_books', {  // 'report/books'에서 'report/report_books'로 변경
+        userID: req.session?.userID || null,
+        is_logined: req.session?.is_logined || false,
+        role: req.session?.role || 'guest'
+    });
 });
 
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
