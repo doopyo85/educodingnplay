@@ -1,221 +1,148 @@
-// books.js - 칸아카데미 스타일 교재 선택 구현
 document.addEventListener('DOMContentLoaded', function() {
-    // 메인 컨테이너 요소 확인
-    const categoryContainer = document.getElementById('categoryContainer');
-    if (!categoryContainer) {
-      console.error('categoryContainer 요소를 찾을 수 없습니다.');
-      return; // 컨테이너가 없으면 실행 중단
+  // 메인 컨테이너 요소 확인
+  const categoryContainer = document.getElementById('categoryContainer');
+  if (!categoryContainer) {
+    console.error('categoryContainer 요소를 찾을 수 없습니다.');
+    return; // 컨테이너가 없으면 실행 중단
+  }
+  
+  // 카테고리 그룹화 설정
+  const categoryGroups = {
+    'preschool': {
+      title: '프리스쿨',
+      categories: ['프리스쿨 LV1', '프리스쿨 LV2', '프리스쿨 LV3']
+    },
+    'junior': {
+      title: '주니어',
+      categories: ['주니어 LV1', '주니어 LV2']
+    },
+    'epl': {
+      title: 'EPL 프로젝트',
+      categories: ['CPS', 'CPA']
+    },
+    'advanced': {
+      title: '텍스트프로그래밍',
+      categories: ['앱인벤터', '파이썬']
     }
-    
-    // 카테고리 이름 매핑 수정
-    const categoryMapping = {
-      '프리스쿨 LV1': '프리스쿨 LV1',
-      '프리스쿨 LV2': '프리스쿨 LV2',
-      '프리스쿨 LV3': '프리스쿨 LV3',
-      '주니어 LV1': '주니어 LV1',
-      '주니어 LV2': '주니어 LV2',
-      'CPS': 'CPS',
-      'CPA': 'CPA',
-      '앱인벤터': '앱인벤터',
-      '파이썬': '파이썬'
-    };
-
-    // 카테고리 그룹화 설정 수정
-    const categoryGroups = {
-      'preschool': {
-        title: '프리스쿨',
-        description: '유아 코딩 교육 (5-7세)',
-        icon: 'book',
-        iconColor: '#3b82f6',
-        categories: ['프리스쿨 LV1', '프리스쿨 LV2', '프리스쿨 LV3']
-      },
-      'junior': {
-        title: '주니어',
-        description: '초등학생 코딩 교육 (8-12세)',
-        icon: 'journal-code',
-        iconColor: '#8b5cf6',
-        categories: ['주니어 LV1', '주니어 LV2']
-      },
-      'epl': {
-        title: 'EPL 프로젝트',
-        description: '교육용 프로그래밍 언어',
-        icon: 'code-square',
-        iconColor: '#ec4899',
-        categories: ['CPS', 'CPA']
-      },
-      'advanced': {
-        title: '고급 프로그래밍',
-        description: '실전 프로그래밍 언어',
-        icon: 'laptop-code',
-        iconColor: '#10b981',
-        categories: ['앱인벤터', '파이썬']
+  };
+  
+  // 교재 목록 가져오기
+  fetch('/report/books')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('교재 목록을 불러오는데 실패했습니다.');
       }
-    };
-
-    // 교재별 설명 추가 수정
-    const bookDescriptions = {
-      '프리스쿨 LV1': '기초 코딩 개념 이해하기',
-      '프리스쿨 LV2': '논리적 사고력 발달',
-      '프리스쿨 LV3': '창의적 문제 해결력',
-      '주니어 LV1': '기본 알고리즘 이해하기',
-      '주니어 LV2': '프로그래밍 심화',
-      'CPS': '스크래치 프로그래밍',
-      'CPA': '앱 인벤터 기초',
-      '앱인벤터': '모바일 앱 개발',
-      '파이썬': '텍스트 기반 프로그래밍'
-    };
-    
-    // 교재 목록 가져오기
-    fetch('/report/books')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('교재 목록을 불러오는데 실패했습니다.');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('받아온 교재 데이터:', data);
-        
-        // 컨테이너 초기화
-        categoryContainer.innerHTML = '';
-        
-        // 데이터가 없는 경우
-        if (!data || Object.keys(data).length === 0) {
-          categoryContainer.innerHTML = `
-            <div class="alert alert-warning">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              사용 가능한 교재 정보가 없습니다.
-            </div>
-          `;
-          return;
-        }
-        
-        // 그룹별로 카테고리 렌더링
-        Object.keys(categoryGroups).forEach(groupKey => {
-          const group = categoryGroups[groupKey];
-          let hasContent = false;
-          
-          // 해당 그룹에 속한 카테고리가 데이터에 있는지 확인
-          group.categories.forEach(category => {
-            if (data[category] && data[category].length > 0) {
-              hasContent = true;
-            }
-          });
-          
-          // 콘텐츠가 없으면 이 그룹은 표시하지 않음
-          if (!hasContent) return;
-          
-          // 그룹 섹션 컨테이너 생성
-          const groupSection = document.createElement('div');
-          groupSection.className = 'khan-category';
-          
-          // 그룹 헤더 생성
-          const groupHeader = document.createElement('div');
-          groupHeader.className = 'khan-category-header';
-          groupHeader.innerHTML = `
-            <div class="khan-icon">
-              <i class="bi bi-${group.icon}"></i>
-            </div>
-            <h2 class="khan-category-title">${group.title}</h2>
-          `;
-          
-          // 교재 그리드 컨테이너 생성
-          const booksContainer = document.createElement('div');
-          booksContainer.className = 'khan-category-container';
-          
-          const booksGrid = document.createElement('div');
-          booksGrid.className = 'khan-book-grid';
-          
-          // 그룹 내 카테고리별 교재 추가
-          group.categories.forEach(category => {
-            if (data[category] && data[category].length > 0) {
-              // 정렬된 교재 목록 (볼륨 숫자 기준)
-              const sortedVolumes = [...data[category]].sort((a, b) => {
-                return parseInt(a.volume) - parseInt(b.volume);
-              });
-              
-              // 교재 카드 생성
-              const bookCard = document.createElement('div');
-              bookCard.className = 'khan-book-card';
-              
-              // 교재 헤더
-              const bookHeader = document.createElement('div');
-              bookHeader.className = 'khan-book-header';
-              bookHeader.innerHTML = `
-                <h3 class="khan-book-title">${categoryMapping[category] || category}</h3>
-              `;
-              
-              // 교재 콘텐츠
-              const bookContent = document.createElement('div');
-              bookContent.className = 'khan-book-content';
-              
-              // 교재 설명
-              const bookDescription = document.createElement('p');
-              bookDescription.className = 'khan-book-description';
-              bookDescription.textContent = bookDescriptions[category] || '교재 설명';
-              
-              // 볼륨 선택 섹션
-              const volumesSection = document.createElement('div');
-              volumesSection.className = 'khan-volumes-section';
-              
-              const volumesHeading = document.createElement('div');
-              volumesHeading.className = 'small-heading';
-              volumesHeading.textContent = '호수 선택';
-              
-              const volumesContainer = document.createElement('div');
-              volumesContainer.className = 'khan-volumes-container';
-              
-              // 각 호수 버튼 생성
-              sortedVolumes.forEach(book => {
-                if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
-                
-                const volumeBtn = document.createElement('a');
-                volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
-                volumeBtn.className = 'khan-volume-btn';
-                volumeBtn.textContent = `${book.volume}호`;
-                
-                volumesContainer.appendChild(volumeBtn);
-              });
-              
-              // 교재 푸터
-              const bookFooter = document.createElement('div');
-              bookFooter.className = 'khan-book-footer';
-              bookFooter.innerHTML = `
-                <span class="khan-volume-tag">${sortedVolumes.length} 호수</span>
-                <span class="khan-badge">교재 학습</span>
-              `;
-              
-              // 요소 결합
-              volumesSection.appendChild(volumesHeading);
-              volumesSection.appendChild(volumesContainer);
-              
-              bookContent.appendChild(bookDescription);
-              bookContent.appendChild(volumesSection);
-              
-              bookCard.appendChild(bookHeader);
-              bookCard.appendChild(bookContent);
-              bookCard.appendChild(bookFooter);
-              
-              booksGrid.appendChild(bookCard);
-            }
-          });
-          
-          // 그룹 섹션에 헤더와 콘텐츠 추가
-          booksContainer.appendChild(booksGrid);
-          groupSection.appendChild(groupHeader);
-          groupSection.appendChild(booksContainer);
-          
-          // 메인 컨테이너에 그룹 섹션 추가
-          categoryContainer.appendChild(groupSection);
-        });
-      })
-      .catch(error => {
-        console.error('Error:', error);
+      return response.json();
+    })
+    .then(data => {
+      console.log('받아온 교재 데이터:', data);
+      
+      // 컨테이너 초기화
+      categoryContainer.innerHTML = '';
+      
+      // 데이터가 없는 경우
+      if (!data || Object.keys(data).length === 0) {
         categoryContainer.innerHTML = `
-          <div class="alert alert-danger">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            사용 가능한 교재 정보가 없습니다.
           </div>
         `;
+        return;
+      }
+      
+      // 테이블 생성
+      const table = document.createElement('table');
+      table.className = 'table table-hover table-bordered';
+      
+      // 테이블 헤더
+      const thead = document.createElement('thead');
+      thead.className = 'bg-light';
+      thead.innerHTML = `
+        <tr>
+          <th width="20%">대구분</th>
+          <th width="20%">중구분</th>
+          <th width="60%">소구분 (호수)</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+      
+      // 테이블 본문
+      const tbody = document.createElement('tbody');
+      
+      // 각 그룹 및 카테고리별 행 추가
+      Object.keys(categoryGroups).forEach(groupKey => {
+        const group = categoryGroups[groupKey];
+        let isFirstCategoryInGroup = true;
+        
+        group.categories.forEach(category => {
+          if (data[category] && data[category].length > 0) {
+            // 정렬된 교재 목록 (볼륨 숫자 기준)
+            const sortedVolumes = [...data[category]].sort((a, b) => {
+              return parseInt(a.volume) - parseInt(b.volume);
+            });
+            
+            // 행 생성
+            const row = document.createElement('tr');
+            
+            // 대구분 (첫 번째 카테고리만 표시)
+            const groupCell = document.createElement('td');
+            if (isFirstCategoryInGroup) {
+              groupCell.textContent = group.title;
+              groupCell.rowSpan = group.categories.filter(c => data[c] && data[c].length > 0).length;
+            } else {
+              groupCell.style.display = 'none'; // 두 번째 이후 카테고리는 표시하지 않음
+            }
+            
+            // 중구분 (카테고리 이름)
+            const categoryCell = document.createElement('td');
+            categoryCell.textContent = category;
+            
+            // 소구분 (호수 버튼들)
+            const volumesCell = document.createElement('td');
+            const volumesContainer = document.createElement('div');
+            volumesContainer.className = 'd-flex flex-wrap gap-2';
+            
+            // 각 호수 버튼 생성
+            sortedVolumes.forEach(book => {
+              if (!book.volume) return; // 볼륨 정보가 없는 경우 스킵
+              
+              const volumeBtn = document.createElement('a');
+              volumeBtn.href = `/report/generate/${encodeURIComponent(category)}/${encodeURIComponent(book.volume)}`;
+              volumeBtn.className = 'btn btn-sm btn-outline-primary';
+              volumeBtn.textContent = `${book.volume}호`;
+              volumeBtn.style.minWidth = '50px';
+              
+              volumesContainer.appendChild(volumeBtn);
+            });
+            
+            volumesCell.appendChild(volumesContainer);
+            
+            // 셀을 행에 추가
+            if (isFirstCategoryInGroup) {
+              row.appendChild(groupCell);
+            }
+            row.appendChild(categoryCell);
+            row.appendChild(volumesCell);
+            
+            // 행을 테이블에 추가
+            tbody.appendChild(row);
+            
+            isFirstCategoryInGroup = false;
+          }
+        });
       });
-  });
+      
+      table.appendChild(tbody);
+      categoryContainer.appendChild(table);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      categoryContainer.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+        </div>
+      `;
+    });
+});
