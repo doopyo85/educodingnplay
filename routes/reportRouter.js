@@ -116,6 +116,17 @@ router.get('/books-page', authenticateUser, (req, res) => {
     });
 });
 
+// API 엔드포인트: 교재 카테고리 및 목록 가져오기
+router.get('/books', authenticateUser, async (req, res) => {
+    try {
+        const reportData = await getReportData();
+        res.json(reportData);
+    } catch (error) {
+        console.error('Error fetching book list:', error);
+        res.status(500).json({ error: '교재 목록을 불러오는 중 오류가 발생했습니다.' });
+    }
+});
+
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
 router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
     console.log(`교재 정보 요청 받음: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
