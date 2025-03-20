@@ -36,7 +36,7 @@ async function updateReportCache() {
         const fixedBooks = {
             'CPS': 6,  // CPS는 6개 호
             'CPA': 3,  // CPA는 3개 호
-            '앱인벤터': 6,  // 앱인벤터는 6개 호
+            '앱인벤터': 5,  // 앱인벤터는 5개 호 (6에서 5로 수정)
             '파이썬': 3,  // 파이썬은 3개 호
             '프리스쿨 LV1': 12,  // 프리스쿨 LV1은 12개 호
             '프리스쿨 LV2': 12,  // 프리스쿨 LV2는 12개 호
@@ -206,17 +206,21 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             // 카테고리 매칭
             const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 볼륨 패턴 매칭
-            // 수정된 부분: rowVolume에서 "x-y" 패턴을 찾아서 y만 추출
+            // 볼륨 패턴 매칭 - 정확히 해당 호수만 추출
             let volumeMatch = false;
             
             if (categoryMatch && rowVolume) {
-                // 예: "CPScps1-1" 또는 "1-1" 형식에서 볼륨 번호 추출
-                const regex = new RegExp(`(\\d+)-(${volume})\\b`);
-                const match = rowVolume.match(regex);
+                // 볼륨 문자열에서 정확한 호수 패턴 찾기
+                // 예: "CPScps1-1" -> 교재번호-호수 패턴에서 호수만 추출
+                // 문제: "CPScps1-1"과 "CPScps1-11"이 모두 매칭되는 문제 해결
+                
+                // 개선된 정규식: 교재번호는 무시하고 "-숫자" 패턴을 찾되,
+                // 숫자 뒤에 다른 숫자가 오지 않는 경우만 매칭
+                const volumeRegex = new RegExp(`-(${volume})(?!\\d)`);
+                const match = rowVolume.match(volumeRegex);
                 
                 if (match) {
-                    console.log(`패턴 매칭 성공: ${rowVolume}, 호수=${match[2]}`);
+                    console.log(`정확한 호수 매칭: ${rowVolume} -> 호수=${match[1]}`);
                     volumeMatch = true;
                 }
             }
