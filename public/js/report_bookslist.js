@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
     return; // 컨테이너가 없으면 실행 중단
   }
   
+
+  // 하단 여백 추가 - 컨테이너에 패딩 적용
+  categoryContainer.style.paddingBottom = '100px';
+
   // 카테고리 그룹화 설정
   const categoryGroups = {
     'preschool': {
