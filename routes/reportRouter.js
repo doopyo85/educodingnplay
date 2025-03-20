@@ -106,26 +106,14 @@ setInterval(async () => {
     }
 }, 60000); // 1분마다 확인
 
-// 웹 페이지: 교재 목록 페이지
-// 웹 페이지: 교재 목록 페이지에서 경로 확인
+// 웹 페이지: 교재 목록 페이지 (중복 라우트 제거, 아래 하나만 남기기)
 router.get('/books-page', authenticateUser, (req, res) => {
     console.log('books-page 라우트 처리');
-    res.render('report/report_bookslist', { // 파일 이름이 맞는지 확인
+    res.render('report/report_bookslist', { // 파일 이름을 report_bookslist로 통일
       userID: req.session?.userID || null,
       is_logined: req.session?.is_logined || false,
       role: req.session?.role || 'guest'
     });
-  });
-
-// API 엔드포인트: 교재 카테고리 및 목록 가져오기
-router.get('/books', authenticateUser, async (req, res) => {
-    try {
-        const reportData = await getReportData();
-        res.json(reportData);
-    } catch (error) {
-        console.error('Error fetching book list:', error);
-        res.status(500).json({ error: '교재 목록을 불러오는 중 오류가 발생했습니다.' });
-    }
 });
 
 // API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
