@@ -109,7 +109,7 @@ setInterval(async () => {
 // 웹 페이지: 교재 목록 페이지 (중복 라우트 제거, 아래 하나만 남기기)
 router.get('/books-page', authenticateUser, (req, res) => {
     console.log('books-page 라우트 처리');
-    res.render('/report_bookslist', { // 파일 이름을 report_bookslist로 통일
+    res.render('report/report_bookslist', { // 파일 이름을 report_bookslist로 통일
       userID: req.session?.userID || null,
       is_logined: req.session?.is_logined || false,
       role: req.session?.role || 'guest'
