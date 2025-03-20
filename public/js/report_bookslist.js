@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return; // 컨테이너가 없으면 실행 중단
     }
     
-    // 카테고리 이름 매핑 (영문 -> 한글)을 수정
+    // 카테고리 이름 매핑 수정
     const categoryMapping = {
       '프리스쿨 LV1': '프리스쿨 LV1',
       '프리스쿨 LV2': '프리스쿨 LV2',
