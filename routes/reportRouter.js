@@ -107,13 +107,15 @@ setInterval(async () => {
 }, 60000); // 1분마다 확인
 
 // 웹 페이지: 교재 목록 페이지
+// 웹 페이지: 교재 목록 페이지에서 경로 확인
 router.get('/books-page', authenticateUser, (req, res) => {
-    res.render('report/report_books', {  // 'report/books'에서 'report/report_books'로 변경
-        userID: req.session?.userID || null,
-        is_logined: req.session?.is_logined || false,
-        role: req.session?.role || 'guest'
+    console.log('books-page 라우트 처리');
+    res.render('report/report_bookslist', { // 파일 이름이 맞는지 확인
+      userID: req.session?.userID || null,
+      is_logined: req.session?.is_logined || false,
+      role: req.session?.role || 'guest'
     });
-});
+  });
 
 // API 엔드포인트: 교재 카테고리 및 목록 가져오기
 router.get('/books', authenticateUser, async (req, res) => {

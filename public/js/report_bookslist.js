@@ -7,62 +7,62 @@ document.addEventListener('DOMContentLoaded', function() {
       return; // 컨테이너가 없으면 실행 중단
     }
     
-    // 카테고리 이름 매핑 (영문 -> 한글)
+    // 카테고리 이름 매핑 (영문 -> 한글)을 수정
     const categoryMapping = {
-      'preschool_lv1': '프리스쿨 LV1',
-      'preschool_lv2': '프리스쿨 LV2',
-      'preschool_lv3': '프리스쿨 LV3',
-      'junior_lv1': '주니어 LV1',
-      'junior_lv2': '주니어 LV2',
-      'cps': 'CPS',
-      'cpa': 'CPA',
-      'appinventor': '앱인벤터',
-      'python': '파이썬'
+      '프리스쿨 LV1': '프리스쿨 LV1',
+      '프리스쿨 LV2': '프리스쿨 LV2',
+      '프리스쿨 LV3': '프리스쿨 LV3',
+      '주니어 LV1': '주니어 LV1',
+      '주니어 LV2': '주니어 LV2',
+      'CPS': 'CPS',
+      'CPA': 'CPA',
+      '앱인벤터': '앱인벤터',
+      '파이썬': '파이썬'
     };
-    
-    // 카테고리 그룹화 설정
+
+    // 카테고리 그룹화 설정 수정
     const categoryGroups = {
       'preschool': {
         title: '프리스쿨',
         description: '유아 코딩 교육 (5-7세)',
         icon: 'book',
         iconColor: '#3b82f6',
-        categories: ['preschool_lv1', 'preschool_lv2', 'preschool_lv3']
+        categories: ['프리스쿨 LV1', '프리스쿨 LV2', '프리스쿨 LV3']
       },
       'junior': {
         title: '주니어',
         description: '초등학생 코딩 교육 (8-12세)',
         icon: 'journal-code',
         iconColor: '#8b5cf6',
-        categories: ['junior_lv1', 'junior_lv2']
+        categories: ['주니어 LV1', '주니어 LV2']
       },
       'epl': {
         title: 'EPL 프로젝트',
         description: '교육용 프로그래밍 언어',
         icon: 'code-square',
         iconColor: '#ec4899',
-        categories: ['cps', 'cpa']
+        categories: ['CPS', 'CPA']
       },
       'advanced': {
         title: '고급 프로그래밍',
         description: '실전 프로그래밍 언어',
         icon: 'laptop-code',
         iconColor: '#10b981',
-        categories: ['appinventor', 'python']
+        categories: ['앱인벤터', '파이썬']
       }
     };
-    
-    // 교재별 설명 추가
+
+    // 교재별 설명 추가 수정
     const bookDescriptions = {
-      'preschool_lv1': '기초 코딩 개념 이해하기',
-      'preschool_lv2': '논리적 사고력 발달',
-      'preschool_lv3': '창의적 문제 해결력',
-      'junior_lv1': '기본 알고리즘 이해하기',
-      'junior_lv2': '프로그래밍 심화',
-      'cps': '스크래치 프로그래밍',
-      'cpa': '앱 인벤터 기초',
-      'appinventor': '모바일 앱 개발',
-      'python': '텍스트 기반 프로그래밍'
+      '프리스쿨 LV1': '기초 코딩 개념 이해하기',
+      '프리스쿨 LV2': '논리적 사고력 발달',
+      '프리스쿨 LV3': '창의적 문제 해결력',
+      '주니어 LV1': '기본 알고리즘 이해하기',
+      '주니어 LV2': '프로그래밍 심화',
+      'CPS': '스크래치 프로그래밍',
+      'CPA': '앱 인벤터 기초',
+      '앱인벤터': '모바일 앱 개발',
+      '파이썬': '텍스트 기반 프로그래밍'
     };
     
     // 교재 목록 가져오기
