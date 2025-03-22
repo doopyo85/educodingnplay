@@ -410,18 +410,24 @@ app.get('/entry_project',
   }
 );
 
-// /certification 라우트
-app.get('/certification', 
-  checkPageAccess('/certification'),
-  (req, res) => {
-    res.render('certification', {
-      userID: req.session.userID,
-      userRole: req.session.role,
-      is_logined: req.session.is_logined,
-      centerID: req.session.centerID
-    });
+// Google Sheet API endpoint for certification data
+app.get('/api/get-certification-data', async (req, res) => {
+  try {
+    const data = await getSheetData('certification!A2:E'); // 'certification' 시트에서 A2:E 범위의 데이터를 가져옴
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '자격증 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
-);
+});
+
+// Certification page route
+app.get('/certification', authenticateUser, (req, res) => {
+  console.log('User session:', req.session);  // 세션 정보 로깅
+  res.render('certification', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false
+  });
+});
 
 
 // 앱인벤터 페이지 라우트

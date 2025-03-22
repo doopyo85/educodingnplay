@@ -24,10 +24,27 @@
                 "name": "엔트리",
                 "roles": ["admin", "manager", "teacher", "student"]
             },
-            "/python": {
-                "name": "테스트",
+            "/certification": {
+                "name": "자격증 취득",
+                "roles": ["admin", "manager", "teacher", "student"]
+            },
+            "/appinventor_project": {
+                "name": "파이썬",
+                "roles": ["admin", "manager", "teacher","student"]
+            },
+            "/python_project": {
+                "name": "파이썬",
+                "roles": ["admin", "manager", "teacher","student"]
+            },
+            "/machinelearning": {
+                "name": "인공지능",
+                "roles": ["admin", "manager", "teacher","student"]
+            },
+            "/algorithm": {
+                "name": "알고리즘",
                 "roles": ["admin", "manager", "teacher","student"]
             }
+            
     },           
         
     "features": {
