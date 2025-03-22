@@ -320,7 +320,16 @@ p {
     top: 50%;
     transform: translateY(-50%);
     opacity: 0.8;
-    margin: 0 15px;
+    position: absolute;
+    z-index: 20;
+}
+
+.carousel-control-prev {
+    left: 5%;
+}
+
+.carousel-control-next {
+    right: 5%;
 }
 
 .carousel-control-prev:hover, .carousel-control-next:hover {
@@ -358,15 +367,17 @@ p {
 }
 
 /* 교육 단계 표시 */
-.education-level {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #007bff;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-weight: bold;
-    z-index: 10;
-    font-size: 1.1rem;
+#educationLevel, .education-level {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background-color: #007bff !important;
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 25px !important;
+    font-weight: bold !important;
+    z-index: 100 !important;
+    font-size: 1.1rem !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    display: block !important;
 }

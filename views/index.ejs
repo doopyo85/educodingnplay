@@ -180,6 +180,22 @@
             // 교육 단계 표시 업데이트
             const educationLevelEl = document.getElementById('educationLevel');
             
+            // 교육 단계 표시기 스타일 강제 적용
+            if (educationLevelEl) {
+                educationLevelEl.style.position = 'absolute';
+                educationLevelEl.style.top = '15px';
+                educationLevelEl.style.right = '15px';
+                educationLevelEl.style.backgroundColor = '#007bff';
+                educationLevelEl.style.color = 'white';
+                educationLevelEl.style.padding = '8px 20px';
+                educationLevelEl.style.borderRadius = '25px';
+                educationLevelEl.style.fontWeight = 'bold';
+                educationLevelEl.style.zIndex = '100';
+                educationLevelEl.style.fontSize = '1.1rem';
+                educationLevelEl.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+                educationLevelEl.style.display = 'block';
+            }
+            
             // 캐러셀 슬라이드 이벤트 처리
             document.getElementById('categoriesCarousel').addEventListener('slide.bs.carousel', function(event) {
                 // 다음 슬라이드 인덱스 확인
@@ -194,13 +210,32 @@
             });
             
             // 다음 버튼 클릭 이벤트 처리
-            document.querySelector('.carousel-control-next').addEventListener('click', function() {
+            document.querySelector('.carousel-control-next').addEventListener('click', function(e) {
+                e.stopPropagation(); // 이벤트 버블링 방지
                 carousel.next();
             });
             
             // 이전 버튼 클릭 이벤트 처리
-            document.querySelector('.carousel-control-prev').addEventListener('click', function() {
+            document.querySelector('.carousel-control-prev').addEventListener('click', function(e) {
+                e.stopPropagation(); // 이벤트 버블링 방지
                 carousel.prev();
+            });
+            
+            // 카드에 직접 이벤트 리스너 추가
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // 화살표 버튼 내부 클릭은 무시
+                    if (e.target.closest('.carousel-control-prev, .carousel-control-next')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    
+                    // 카드 클릭 처리
+                    const href = this.getAttribute('onclick').match(/location\.href='([^']+)'/)[1];
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
             });
             
             // 키보드 좌우 화살표 이벤트도 유지 (접근성을 위해)
