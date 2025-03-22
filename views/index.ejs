@@ -25,9 +25,22 @@
         <h1 class="text-center multicolor-text">나에게 맞는 학습 기회를 찾아보세요!</h1>
         <p class="text-center">논리적 사고를 자극하는 비디오, 자기 주도형 튜토리얼, 프로그래밍 활동 등을 통해 컴퓨터 과학의 세계를 탐구해보세요!</p>
         
+        <!-- 교육 단계 표시 영역 -->
+        <div class="row mb-4">
+            <div class="col-12 text-end">
+                <div id="educationLevel" class="education-level">초등학생 과정</div>
+            </div>
+        </div>
         <div id="categoriesCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
-            <!-- 교육 단계 표시 -->
-            <div id="educationLevel" class="education-level">초등학생 과정</div>
+            <!-- 캐러셀 컨트롤 버튼 - 카드 영역 외부에 배치 -->
+            <button class="carousel-control-prev carousel-btn-outer" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">이전</span>
+            </button>
+            <button class="carousel-control-next carousel-btn-outer" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">다음</span>
+            </button>
             
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="초등"></button>
@@ -180,62 +193,30 @@
             // 교육 단계 표시 업데이트
             const educationLevelEl = document.getElementById('educationLevel');
             
-            // 교육 단계 표시기 스타일 강제 적용
-            if (educationLevelEl) {
-                educationLevelEl.style.position = 'absolute';
-                educationLevelEl.style.top = '15px';
-                educationLevelEl.style.right = '15px';
-                educationLevelEl.style.backgroundColor = '#007bff';
-                educationLevelEl.style.color = 'white';
-                educationLevelEl.style.padding = '8px 20px';
-                educationLevelEl.style.borderRadius = '25px';
-                educationLevelEl.style.fontWeight = 'bold';
-                educationLevelEl.style.zIndex = '100';
-                educationLevelEl.style.fontSize = '1.1rem';
-                educationLevelEl.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-                educationLevelEl.style.display = 'block';
+            // 교육 단계 표시기 스타일 업데이트 함수
+            function updateEducationLevel(index) {
+                if (index === 0) {
+                    educationLevelEl.textContent = '초등학생 과정';
+                } else if (index === 1) {
+                    educationLevelEl.textContent = '중·고등학생 과정';
+                }
             }
             
             // 캐러셀 슬라이드 이벤트 처리
             document.getElementById('categoriesCarousel').addEventListener('slide.bs.carousel', function(event) {
                 // 다음 슬라이드 인덱스 확인
                 const nextIndex = event.to;
-                
-                // 교육 단계 텍스트 업데이트
-                if (nextIndex === 0) {
-                    educationLevelEl.textContent = '초등학생 과정';
-                } else if (nextIndex === 1) {
-                    educationLevelEl.textContent = '중·고등학생 과정';
-                }
+                updateEducationLevel(nextIndex);
             });
             
             // 다음 버튼 클릭 이벤트 처리
             document.querySelector('.carousel-control-next').addEventListener('click', function(e) {
                 e.stopPropagation(); // 이벤트 버블링 방지
-                carousel.next();
             });
             
             // 이전 버튼 클릭 이벤트 처리
             document.querySelector('.carousel-control-prev').addEventListener('click', function(e) {
                 e.stopPropagation(); // 이벤트 버블링 방지
-                carousel.prev();
-            });
-            
-            // 카드에 직접 이벤트 리스너 추가
-            document.querySelectorAll('.card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    // 화살표 버튼 내부 클릭은 무시
-                    if (e.target.closest('.carousel-control-prev, .carousel-control-next')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    
-                    // 카드 클릭 처리
-                    const href = this.getAttribute('onclick').match(/location\.href='([^']+)'/)[1];
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
             });
             
             // 키보드 좌우 화살표 이벤트도 유지 (접근성을 위해)
