@@ -294,11 +294,10 @@ const routes = {
   'board': require('./routes/boardRouter'),
   'kinder': require('./routes/kinderRouter'),
   'learning': require('./routes/learningRouter'),
-  'machinelearning': require('./routes/machinelearningRouter'),
-  'metaverse': require('./routes/metaverseRouter'),
-  'onlineclass': require('./routes/onlineclassRouter'),
   'report': require('./routes/reportRouter'),
+  'onlineclass': require('./routes/onlineclassRouter'),
   'entry': require('./routes/entryRouter'),
+  'machinelearning': require('./routes/machinelearningRouter'),
   'python': require('./routes/pythonRouter')
 };
 
@@ -409,6 +408,24 @@ app.get('/entry_project',
     });
   }
 );
+
+// 앱인벤터 페이지 라우트
+app.get('/appinventor', authenticateUser, (req, res) => {
+  res.render('appinventor', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false,
+    role: req.session.role || 'guest'
+  });
+});
+
+// 알고리즘 페이지 라우트
+app.get('/algorithm', authenticateUser, (req, res) => {
+  res.render('algorithm', {
+    userID: req.session.userID || null,
+    is_logined: req.session.is_logined || false,
+    role: req.session.role || 'guest'
+  });
+});
 
 // 교사교육 사이트
 app.get('/teacher', (req, res) => {

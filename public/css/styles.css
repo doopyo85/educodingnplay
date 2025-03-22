@@ -236,6 +236,24 @@ p {
     flex-grow: 1;
 }
 
+/* 메인 페이지 카드 수정 */
+.card-img-box {
+    flex: 0 0 60%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px; /* 이미지 사방에 패딩 추가 */
+}
+
+.card-text-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
+}
+
 /* =============================================
    📌 버튼 스타일
    ============================================= */
@@ -288,4 +306,67 @@ p {
 .nav-tabs {
     justify-content: center;
     margin-bottom: 20px;
+}
+
+/* =============================================
+   📌 캐러셀 스타일
+   ============================================= */
+/* 캐러셀 컨트롤 스타일 */
+.carousel-control-prev, .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    background-color: #007bff;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.8;
+    margin: 0 15px;
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+    opacity: 1;
+    background-color: #0056b3;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.category-title {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+.carousel-indicators {
+    bottom: -50px;
+}
+
+.carousel-indicators button {
+    background-color: #999;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+.carousel-indicators .active {
+    background-color: #007bff;
+}
+
+/* 교육 단계 표시 */
+.education-level {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    z-index: 10;
+    font-size: 1.1rem;
 }

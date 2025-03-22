@@ -9,82 +9,12 @@
     <link rel="stylesheet" href="/css/styles.css">
     <script src="https://apis.google.com/js/api.js"></script>
     <style>
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .card-img-box {
-            flex: 0 0 60%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px; /* 이미지 사방에 패딩 추가 */
-        }
-        .card-text-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
-        }
         .card-img-top {
             max-height: 80%; /* 이미지 크기 80%로 축소 */
             max-width: 80%;  /* 이미지 크기 80%로 축소 */
             object-fit: contain; /* 이미지 비율 유지하며 맞춤 */
         }
-        /* 캐러셀 컨트롤 스타일 개선 */
-        .carousel-control-prev, .carousel-control-next {
-            width: 50px;
-            height: 50px;
-            background-color: #007bff;
-            border-radius: 50%;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0.8;
-            margin: 0 15px;
-        }
-        .carousel-control-prev:hover, .carousel-control-next:hover {
-            opacity: 1;
-            background-color: #0056b3;
-        }
-        .carousel-control-prev-icon, .carousel-control-next-icon {
-            width: 24px;
-            height: 24px;
-        }
-        .category-title {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-        }
-        .carousel-indicators {
-            bottom: -50px;
-        }
-        .carousel-indicators button {
-            background-color: #999;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin: 0 5px;
-        }
-        .carousel-indicators .active {
-            background-color: #007bff;
-        }
-        /* 교육 단계 표시 */
-        .education-level {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #007bff;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            z-index: 10;
-        }
+    </style>
     </style>
 </head>
 <body>
@@ -107,7 +37,6 @@
             <div class="carousel-inner">
                 <!-- 초등 카테고리 -->
                 <div class="carousel-item active">
-                    <h2 class="category-title">초등학생 과정</h2>
                     <div class="row">
                         <!-- 카드 1: 컴퓨터 기초활용 -->
                         <div class="col-md-3 mb-4">
@@ -150,14 +79,14 @@
                         </div>
                         <!-- 카드 4: 자격증과정 -->
                         <div class="col-md-3 mb-4">
-                            <div class="card h-100" onclick="location.href='/certification'">
+                            <div class="card h-100" onclick="location.href='/test'">
                                 <div class="card-img-box">
                                     <img src="/resource/certification.png" class="card-img-top" alt="자격증과정">
                                 </div>
                                 <div class="card-text-box">
                                     <h5 class="card-title">자격증과정</h5>
                                     <p class="card-text">컴퓨터 관련 자격증을 준비하고 실력을 인증받을 수 있는 과정입니다.</p>
-                                    <a href="/certification" class="btn btn-primary">자격증 학습하기</a>
+                                    <a href="/test" class="btn btn-primary">자격증 학습하기</a>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +95,6 @@
                 
                 <!-- 중/고등 카테고리 -->
                 <div class="carousel-item">
-                    <h2 class="category-title">중·고등학생 과정</h2>
                     <div class="row">
                         <!-- 카드 1: 앱인벤터 -->
                         <div class="col-md-3 mb-4">
@@ -183,27 +111,27 @@
                         </div>
                         <!-- 카드 2: 파이썬 -->
                         <div class="col-md-3 mb-4">
-                            <div class="card h-100" onclick="location.href='/python'">
+                            <div class="card h-100" onclick="location.href='/python_project'">
                                 <div class="card-img-box">
                                     <img src="/resource/python.png" class="card-img-top" alt="파이썬">
                                 </div>
                                 <div class="card-text-box">
                                     <h5 class="card-title">파이썬</h5>
                                     <p class="card-text">파이썬 프로그래밍 기초부터 응용까지 체계적으로 학습해보세요.</p>
-                                    <a href="/python" class="btn btn-primary">파이썬 학습하기</a>
+                                    <a href="/python_project" class="btn btn-primary">파이썬 학습하기</a>
                                 </div>
                             </div>
                         </div>
                         <!-- 카드 3: 인공지능 -->
                         <div class="col-md-3 mb-4">
-                            <div class="card h-100" onclick="location.href='/ai'">
+                            <div class="card h-100" onclick="location.href='/machinelearning'">
                                 <div class="card-img-box">
                                     <img src="/resource/ai.png" class="card-img-top" alt="인공지능">
                                 </div>
                                 <div class="card-text-box">
                                     <h5 class="card-title">인공지능</h5>
                                     <p class="card-text">인공지능의 기본 개념을 이해하고 간단한 AI 프로젝트를 만들어보세요.</p>
-                                    <a href="/ai" class="btn btn-primary">인공지능 학습하기</a>
+                                    <a href="/machinelearning" class="btn btn-primary">인공지능 학습하기</a>
                                 </div>
                             </div>
                         </div>
