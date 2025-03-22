@@ -298,6 +298,7 @@ const routes = {
   'onlineclass': require('./routes/onlineclassRouter'),
   'entry': require('./routes/entryRouter'),
   'machinelearning': require('./routes/machinelearningRouter'),
+  'test': require('./routes/testRouter'),
   'python': require('./routes/pythonRouter')
 };
 
@@ -408,6 +409,20 @@ app.get('/entry_project',
     });
   }
 );
+
+// /computer 라우트
+app.get('/test', 
+  checkPageAccess('/test'),
+  (req, res) => {
+    res.render('test', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
+
 
 // 앱인벤터 페이지 라우트
 app.get('/appinventor', authenticateUser, (req, res) => {

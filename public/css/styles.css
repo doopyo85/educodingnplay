@@ -326,17 +326,16 @@ p {
 
 /* 외부에 배치된 화살표 버튼 */
 .carousel-btn-outer.carousel-control-prev {
-    left: -60px;
+    left: 0;
 }
 
 .carousel-btn-outer.carousel-control-next {
-    right: -60px;
+    right: 0;
 }
 
 /* 캐러셀 컨테이너 상대 위치 설정 및 여백 */
 #categoriesCarousel {
     position: relative;
-    margin: 0 60px;
     overflow: visible;
 }
 
@@ -378,13 +377,21 @@ p {
 #educationLevel, .education-level {
     background-color: #007bff !important;
     color: white !important;
-    padding: 8px 20px !important;
+    padding: 10px 25px !important;
     border-radius: 25px !important;
     font-weight: bold !important;
-    font-size: 1.1rem !important;
+    font-size: 1.2rem !important;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
     display: inline-block !important;
     margin-right: 15px !important;
     text-align: center !important;
-    min-width: 150px !important;
+    min-width: 180px !important;
+}
+
+/* 캐러셀 컨테이너 설정 */
+.carousel-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 80px; /* 좌우 화살표 버튼을 위한 공간 */
 }
