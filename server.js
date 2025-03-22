@@ -299,7 +299,9 @@ const routes = {
   'entry': require('./routes/entryRouter'),
   'machinelearning': require('./routes/machinelearningRouter'),
   'certification': require('./routes/certificationRouter'),
-  'python': require('./routes/pythonRouter')
+  'python': require('./routes/pythonRouter'),
+  'algorithm': require('./routes/algorithmRouter'),
+  'appinventor': require('./routes/appinventorRouter')
 };
 
 // API 라우터 등록 (새로 분리된 API)
