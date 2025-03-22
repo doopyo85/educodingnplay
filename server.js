@@ -298,7 +298,7 @@ const routes = {
   'onlineclass': require('./routes/onlineclassRouter'),
   'entry': require('./routes/entryRouter'),
   'machinelearning': require('./routes/machinelearningRouter'),
-  'test': require('./routes/testRouter'),
+  'certification': require('./routes/certificationRouter'),
   'python': require('./routes/pythonRouter')
 };
 
@@ -410,11 +410,11 @@ app.get('/entry_project',
   }
 );
 
-// /computer 라우트
-app.get('/test', 
-  checkPageAccess('/test'),
+// /certification 라우트
+app.get('/certification', 
+  checkPageAccess('/certification'),
   (req, res) => {
-    res.render('test', {
+    res.render('certification', {
       userID: req.session.userID,
       userRole: req.session.role,
       is_logined: req.session.is_logined,
