@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { checkPageAccess } = require('../lib_login/authMiddleware');
-const { getSheetData } = require('../server');
+// 서버에서 직접 getSheetData 함수를 가져오지 않고 req.app.get()을 사용
 
 // 자격증 취득 페이지 (메인 페이지)
 router.get('/', 
