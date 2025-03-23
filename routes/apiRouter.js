@@ -103,6 +103,48 @@ router.get('/get-ent-data',
   }
 );
 
+// 파이썬 프로젝트 데이터 API - 새로 추가
+router.get('/get-python-data', 
+  checkRole(['admin', 'teacher', 'manager', 'student']),
+  async (req, res) => {
+    try {
+      const data = await getSheetData('python!A2:F');
+      res.json(data);
+    } catch (error) {
+      console.error('파이썬 데이터 불러오기 오류:', error);
+      res.status(500).json({ error: '파이썬 데이터를 불러오는 중 오류가 발생했습니다.' });
+    }
+  }
+);
+
+// 알고리즘 데이터 API - 새로 추가
+router.get('/get-algorithm-data', 
+  checkRole(['admin', 'teacher', 'manager', 'student']),
+  async (req, res) => {
+    try {
+      const data = await getSheetData('algorithm!A2:F');
+      res.json(data);
+    } catch (error) {
+      console.error('알고리즘 데이터 불러오기 오류:', error);
+      res.status(500).json({ error: '알고리즘 데이터를 불러오는 중 오류가 발생했습니다.' });
+    }
+  }
+);
+
+// 자격증 데이터 API - 새로 추가
+router.get('/get-certification-data', 
+  checkRole(['admin', 'teacher', 'manager', 'student']),
+  async (req, res) => {
+    try {
+      const data = await getSheetData('certification!A2:F');
+      res.json(data);
+    } catch (error) {
+      console.error('자격증 데이터 불러오기 오류:', error);
+      res.status(500).json({ error: '자격증 데이터를 불러오는 중 오류가 발생했습니다.' });
+    }
+  }
+);
+
 router.get('/get-menu-data', async (req, res) => {
   try {
     const data = await getSheetData('menulist!A2:C');
@@ -123,19 +165,10 @@ router.get('/get-teachermenu-data', async (req, res) => {
 
 router.get('/get-problem-data', async (req, res) => {
   try {
-    const data = await getSheetData('문항정보!A:C');
+    const data = await getSheetData('problems!A:C');
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '문제 데이터를 불러오는 중 오류가 발생했습니다.' });
-  }
-});
-
-router.get('/get-books-data', async (req, res) => {
-  try {
-    const data = await getSheetData('books!A2:e');
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: '책 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 
