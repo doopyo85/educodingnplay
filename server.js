@@ -373,6 +373,7 @@ app.get('/logout', (req, res) => {
 const pagesUnderConstruction = [
   '/algorithm',
   '/appinventor',
+  '/machinelearning',
   // 필요한 다른 개발 중인 페이지 추가
 ];
 
