@@ -46,69 +46,200 @@ function loadCertificationData(spreadsheetId) {
     });
 }
 
-// 네비게이션 메뉴 렌더링
+// 네비게이션 메뉴 렌더링 (python_project.js 스타일로 변경)
 function renderNavigationMenu(data) {
     const navList = document.getElementById('navList');
-    navList.innerHTML = '';
-    
-    // 메뉴 그룹화를 위한 객체
-    const menuGroups = {};
-    
+    if (!navList) {
+        console.error('Navigation list element not found');
+        return;
+    }
+
+    navList.innerHTML = ''; // 기존 메뉴 아이템 삭제
+
     // 데이터 그룹화
-    data.forEach((row, index) => {
-        if (row.length >= 2) {
+    const topLevelMenus = new Map();
+    data.forEach(function(row, index) {
+        if (row && row.length >= 3) {
             const category = row[0] || 'Uncategorized';
-            if (!menuGroups[category]) {
-                menuGroups[category] = [];
+            const title = row[1] || '';
+            const url = row[2] || '';
+            
+            if (!topLevelMenus.has(category)) {
+                topLevelMenus.set(category, []);
             }
-            menuGroups[category].push({ index, title: row[1], url: row[2] });
+            topLevelMenus.get(category).push({ index, title, url });
         }
     });
+
+    let index = 0;
+    let firstSubmenu = null;
     
-    // 그룹화된 메뉴 렌더링
-    Object.keys(menuGroups).forEach(category => {
-        const groupContainer = document.createElement('li');
-        groupContainer.className = 'nav-group';
-        
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'nav-group-header';
-        groupHeader.textContent = category;
-        groupContainer.appendChild(groupHeader);
-        
-        const groupItems = document.createElement('ul');
-        groupItems.className = 'nav-group-items';
-        
-        menuGroups[category].forEach(item => {
-            const menuItem = document.createElement('li');
-            menuItem.className = 'nav-item';
-            menuItem.textContent = item.title;
-            menuItem.dataset.index = item.index;
-            menuItem.dataset.url = item.url;
-            
-            menuItem.addEventListener('click', function() {
-                // 모든 메뉴 아이템에서 active 클래스 제거
-                document.querySelectorAll('.nav-item').forEach(el => {
-                    el.classList.remove('active');
-                });
-                
-                // 클릭한 메뉴 아이템에 active 클래스 추가
-                this.classList.add('active');
-                
-                // 문제 로드
-                loadProblem(item.url, item.index, data);
-            });
-            
-            groupItems.appendChild(menuItem);
-        });
-        
-        groupContainer.appendChild(groupItems);
-        navList.appendChild(groupContainer);
+    // 각 상위 메뉴 생성
+    topLevelMenus.forEach(function(subMenus, topLevelMenu) {
+        const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
+        const subMenuItems = createSubMenuItems(subMenus, index, data);
+        navList.appendChild(topLevelMenuItem);
+        navList.appendChild(subMenuItems);
+
+        // 첫 번째 하위 메뉴 저장
+        if (index === 0 && subMenus.length > 0) {
+            firstSubmenu = subMenus[0];
+        }        
+
+        index++;
     });
+
+    // Bootstrap의 collapse 기능 초기화 및 이벤트 리스너 추가
+    if (typeof bootstrap !== 'undefined') {
+        var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'));
+        collapseElementList.forEach(function(collapseEl) {
+            var collapse = new bootstrap.Collapse(collapseEl, {
+                toggle: false
+            });
+
+            collapseEl.addEventListener('show.bs.collapse', function() {
+                // 다른 모든 열린 메뉴 닫기
+                collapseElementList.forEach(function(el) {
+                    if (el !== collapseEl && el.classList.contains('show')) {
+                        bootstrap.Collapse.getInstance(el).hide();
+                    }
+                });
+            });
+        });
+
+        // 동일한 대메뉴를 클릭할 때 하위 메뉴 토글
+        document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
+            el.addEventListener('click', function(event) {
+                event.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                const bsCollapse = bootstrap.Collapse.getInstance(target);
+                if (bsCollapse) {
+                    if (target.classList.contains('show')) {
+                        bsCollapse.hide();
+                    } else {
+                        // 다른 열린 메뉴 닫기
+                        document.querySelectorAll('.collapse.show').forEach(function(openMenu) {
+                            if (openMenu !== target) {
+                                bootstrap.Collapse.getInstance(openMenu).hide();
+                            }
+                        });
+                        bsCollapse.show();
+                    }
+                }
+                updateToggleIcon(this);
+            });
+        });
+    } else {
+        console.warn('Bootstrap not loaded, collapse functionality will not work');
+    }
+
+    // 첫 번째 하위 메뉴 자동 선택
+    if (firstSubmenu) {
+        onMenuSelect(firstSubmenu, data);
+    }
+}
+
+// 상위 메뉴 아이템 생성
+function createTopLevelMenuItem(topLevelMenu, index) {
+    const topLevelMenuItem = document.createElement('li');
+    topLevelMenuItem.classList.add('menu-item');
+
+    const link = document.createElement('a');
+    link.href = `#collapse${index}`;
+    link.setAttribute('data-bs-toggle', 'collapse');
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-expanded', 'false');
+    link.setAttribute('aria-controls', `collapse${index}`);
+    link.textContent = topLevelMenu;
+    link.classList.add('d-flex', 'justify-content-between', 'align-items-center');
+
+    const arrow = document.createElement('i');
+    arrow.classList.add('bi', 'bi-chevron-down');
+    link.appendChild(arrow);
+
+    topLevelMenuItem.appendChild(link);
+
+    // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
+    link.addEventListener('click', function() {
+        arrow.classList.toggle('rotate');
+    });
+
+    return topLevelMenuItem;
+}
+
+// 하위 메뉴 아이템 생성
+function createSubMenuItems(subMenus, index, allData) {
+    const subMenuContainer = document.createElement('div');
+    subMenuContainer.id = `collapse${index}`;
+    subMenuContainer.classList.add('collapse');
+
+    const subMenuList = document.createElement('ul');
+    subMenuList.classList.add('list-unstyled', 'pl-3');
+
+    subMenus.forEach(function(item) {
+        const subMenuItem = document.createElement('li');
+        subMenuItem.classList.add('menu-item');
+
+        const icon = document.createElement('i');
+        icon.classList.add('bi', 'bi-file-text', 'me-2');
+        subMenuItem.appendChild(icon);
+
+        const text = document.createTextNode(item.title);
+        subMenuItem.appendChild(text);
+
+        subMenuItem.addEventListener('click', function(event) {
+            event.stopPropagation();
+            onMenuSelect(item, allData);
+            applySubMenuHighlight(subMenuItem);
+        });
+
+        subMenuList.appendChild(subMenuItem);
+    });
+
+    subMenuContainer.appendChild(subMenuList);
+    return subMenuContainer;
+}
+
+// 하위 메뉴 선택 시 처리
+function onMenuSelect(item, allData) {
+    const url = item.url;
+    const index = item.index;
     
-    // 첫 번째 메뉴 아이템 활성화
-    const firstMenuItem = document.querySelector('.nav-item');
-    if (firstMenuItem) {
-        firstMenuItem.classList.add('active');
+    // 현재 선택된 메뉴 정보 저장
+    currentExamName = item.title;
+    currentProblemNumber = parseInt(index) + 1;
+    
+    // 문제 로드
+    loadProblem(url, index, allData);
+}
+
+// 아이콘을 변경하는 함수
+function updateToggleIcon(element) {
+    const icon = element.querySelector('.bi');
+    if (icon) {
+        if (element.getAttribute('aria-expanded') === 'true') {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-up');
+        } else {
+            icon.classList.remove('bi-chevron-up');
+            icon.classList.add('bi-chevron-down');
+        }
+    }
+}
+
+// 하위 메뉴 클릭 시 상위 메뉴에 active 클래스 제거, 클릭된 메뉴에 active 클래스 추가
+function applySubMenuHighlight(selectedItem) {
+    // 모든 메뉴 아이템에서 active 클래스 제거
+    document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item').forEach(item => item.classList.remove('active'));
+    
+    // 선택된 하위 메뉴 아이템에 active 클래스 추가
+    selectedItem.classList.add('active');
+    
+    // 상위 메뉴 아이템에 active 클래스 제거
+    let parentCollapse = selectedItem.closest('.collapse');
+    if (parentCollapse) {
+        let parentMenuItem = document.querySelector(`[href="#${parentCollapse.id}"]`).closest('.menu-item');
+        parentMenuItem.classList.remove('active');
     }
 }
 
@@ -200,9 +331,12 @@ function renderProblemNavigation() {
 
 // 특정 문제로 이동
 function navigateToProblem(index) {
-    const item = document.querySelector(`.nav-item[data-index="${index}"]`);
-    if (item) {
-        item.click();
+    const items = document.querySelectorAll('.menu-item');
+    for (let i = 0; i < items.length; i++) {
+        if (i === index) {
+            items[i].click();
+            break;
+        }
     }
 }
 
@@ -233,26 +367,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 이전/다음 버튼 이벤트 처리
     document.getElementById('prev-problem').addEventListener('click', function() {
-        const activeItem = document.querySelector('.nav-item.active');
-        if (activeItem) {
-            const currentIndex = parseInt(activeItem.dataset.index);
-            if (currentIndex > 0) {
-                const prevItem = document.querySelector(`.nav-item[data-index="${currentIndex - 1}"]`);
-                if (prevItem) {
-                    prevItem.click();
-                }
-            }
+        if (currentProblemNumber > 1) {
+            navigateToProblem(currentProblemNumber - 2);
         }
     });
     
     document.getElementById('next-problem').addEventListener('click', function() {
-        const activeItem = document.querySelector('.nav-item.active');
-        if (activeItem) {
-            const currentIndex = parseInt(activeItem.dataset.index);
-            const nextItem = document.querySelector(`.nav-item[data-index="${currentIndex + 1}"]`);
-            if (nextItem) {
-                nextItem.click();
-            }
+        if (currentProblemNumber < totalProblems) {
+            navigateToProblem(currentProblemNumber);
         }
     });
     
@@ -275,6 +397,26 @@ document.addEventListener('DOMContentLoaded', function() {
         
         .problem-icon:hover {
             opacity: 0.8;
+        }
+        
+        .menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .menu-item.active {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        
+        .rotate {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
         }
     `;
     document.head.appendChild(style);
