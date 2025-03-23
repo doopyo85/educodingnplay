@@ -161,7 +161,7 @@ function fetchUserData() {
 // 서버에서 메뉴 데이터 가져오기
 async function loadMenuData() {
     try {
-        const response = await fetch('/api/get-menu-data'); // 서버의 API 호출
+        const response = await fetch('/api/get-algorithm-data'); // 서버의 API 호출
         const menuData = await response.json();
         if (menuData && menuData.length > 0) {
             renderMenu(menuData); // 메뉴 렌더링
