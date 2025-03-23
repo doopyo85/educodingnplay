@@ -461,8 +461,8 @@ app.get('/certification',
 );
 
 // 앱인벤터 페이지 라우트
-app.get('/appinventor', 
-  checkPageAccess('/appinventor'),
+app.get('/appinventor_project', 
+  checkPageAccess('/appinventor_project'),
   (req, res) => {
     res.render('appinventor_project', {
       userID: req.session.userID,
@@ -475,7 +475,7 @@ app.get('/appinventor',
 
 // 파이썬 페이지 라우트
 app.get('/python_project', 
-  checkPageAccess('/python'),
+  checkPageAccess('/python_project'),
   (req, res) => {
     res.render('python_project', {
       userID: req.session.userID,
