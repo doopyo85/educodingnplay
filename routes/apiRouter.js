@@ -10,7 +10,6 @@ const fs = require('fs');
 // Google Sheets 함수는 server.js에서 가져옵니다
 const { getSheetData } = require('../server');
 
-
 // 사용자 관련 API
 router.get('/get-user', (req, res) => {
   if (req.session && req.session.userID) {
@@ -65,89 +64,40 @@ router.get('/get-onlineclass-data', async (req, res) => {
   }
 });
 
-
-router.get('/get-sb2-data', 
-  checkRole(['admin', 'teacher', 'manager']),
-  async (req, res) => {
-    try {
-      const data = await getSheetData('sb2!A2:F');
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
-    }
+// Scratch 관련 API
+router.get('/get-sb2-data', async (req, res) => {
+  try {
+    const data = await getSheetData('sb2!A2:F');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
   }
-);
+});
 
-router.get('/get-sb3-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']),
-  async (req, res) => {
-    try {
-      const data = await getSheetData('sb3!A2:F');
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
-    }
+router.get('/get-sb3-data', async (req, res) => {
+  try {
+    const data = await getSheetData('sb3!A2:F');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
   }
-);
+});
 
-router.get('/get-ent-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']), 
-  async (req, res) => {
-    try {
-      const data = await getSheetData('ent!A2:F');  
-      res.json(data);
-    } catch (error) {
-      console.error('구글 시트 데이터 불러오기 오류:', error);
-      res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
-    }
+// Entry 관련 API
+router.get('/get-ent-data', async (req, res) => {
+  try {
+    const data = await getSheetData('ent!A2:F');  
+    res.json(data);
+  } catch (error) {
+    console.error('구글 시트 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '엔트리 프로젝트 데이터를 불러오는 중 오류 발생' });
   }
-);
+});
 
-// 파이썬 프로젝트 데이터 API - 새로 추가
-router.get('/get-python-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']),
-  async (req, res) => {
-    try {
-      const data = await getSheetData('python!A2:F');
-      res.json(data);
-    } catch (error) {
-      console.error('파이썬 데이터 불러오기 오류:', error);
-      res.status(500).json({ error: '파이썬 데이터를 불러오는 중 오류가 발생했습니다.' });
-    }
-  }
-);
-
-// 알고리즘 데이터 API - 새로 추가
-router.get('/get-algorithm-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']),
-  async (req, res) => {
-    try {
-      const data = await getSheetData('algorithm!A2:F');
-      res.json(data);
-    } catch (error) {
-      console.error('알고리즘 데이터 불러오기 오류:', error);
-      res.status(500).json({ error: '알고리즘 데이터를 불러오는 중 오류가 발생했습니다.' });
-    }
-  }
-);
-
-// 자격증 데이터 API - 새로 추가
-router.get('/get-certification-data', 
-  checkRole(['admin', 'teacher', 'manager', 'student']),
-  async (req, res) => {
-    try {
-      const data = await getSheetData('certification!A2:F');
-      res.json(data);
-    } catch (error) {
-      console.error('자격증 데이터 불러오기 오류:', error);
-      res.status(500).json({ error: '자격증 데이터를 불러오는 중 오류가 발생했습니다.' });
-    }
-  }
-);
-
+// 메뉴 데이터 API
 router.get('/get-menu-data', async (req, res) => {
   try {
-    const data = await getSheetData('menulist!A2:C');
+    const data = await getSheetData('python!A2:C');
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '메뉴 데이터를 불러오는 중 오류가 발생했습니다.' });
@@ -163,6 +113,7 @@ router.get('/get-teachermenu-data', async (req, res) => {
   }
 });
 
+// 문제 데이터 API
 router.get('/get-problem-data', async (req, res) => {
   try {
     const data = await getSheetData('problems!A:C');
@@ -179,6 +130,41 @@ router.get('/get-task-data', async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '업무 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// Google Sheets API 사용 데이터
+
+// 파이썬 데이터 API - 추가/수정
+router.get('/get-python-data', async (req, res) => {
+  try {
+    const data = await getSheetData('python!A2:E');
+    res.json(data);
+  } catch (error) {
+    console.error('파이썬 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '파이썬 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// 알고리즘 데이터 API - 추가/수정
+router.get('/get-algorithm-data', async (req, res) => {
+  try {
+    const data = await getSheetData('algorithm!A2:E');
+    res.json(data);
+  } catch (error) {
+    console.error('알고리즘 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '알고리즘 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// 자격증 데이터 API
+router.get('/get-certification-data', async (req, res) => {
+  try {
+    const data = await getSheetData('certification!A2:E'); // E로 변경
+    res.json(data);
+  } catch (error) {
+    console.error('자격증 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '자격증 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 
@@ -205,7 +191,6 @@ router.post('/run-python', (req, res) => {
     res.json({ output: stdout });
   });
 });
-
 
 // 프로필 업로드 디렉토리 설정
 const profileUploadDir = path.join(__dirname, '../public/resource/profiles/uploads');
@@ -286,6 +271,5 @@ router.post('/save-profile-preference', (req, res) => {
         return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
     }
 });
-
 
 module.exports = router;
