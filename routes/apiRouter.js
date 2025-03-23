@@ -97,7 +97,7 @@ router.get('/get-ent-data', async (req, res) => {
 // 메뉴 데이터 API
 router.get('/get-menu-data', async (req, res) => {
   try {
-    const data = await getSheetData('python!A2:C');
+    const data = await getSheetData('pythonmenu!A2:C');
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: '메뉴 데이터를 불러오는 중 오류가 발생했습니다.' });
@@ -138,7 +138,7 @@ router.get('/get-task-data', async (req, res) => {
 // 파이썬 데이터 API - 추가/수정
 router.get('/get-python-data', async (req, res) => {
   try {
-    const data = await getSheetData('python!A2:E');
+    const data = await getSheetData('pythonmenu!A2:E');
     res.json(data);
   } catch (error) {
     console.error('파이썬 데이터 불러오기 오류:', error);
