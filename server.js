@@ -451,27 +451,73 @@ app.get('/api/get-certification-data', async (req, res) => {
 });
 
 // Certification page route
-app.get('/certification', authenticateUser, (req, res) => {
-  console.log('User session:', req.session);  // 세션 정보 로깅
-  res.render('certification', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false
-  });
-});
-
+app.get('/certification', 
+  checkPageAccess('/certification'),
+  (req, res) => {
+    res.render('certification', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
 
 // 앱인벤터 페이지 라우트
-app.get('/appinventor', authenticateUser, (req, res) => {
-  res.render('appinventor', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false,
-    role: req.session.role || 'guest'
-  });
-});
+app.get('/appinventor', 
+  checkPageAccess('/appinventor'),
+  (req, res) => {
+    res.render('appinventor_project', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
 
 // 파이썬 페이지 라우트
-app.get('/python_project', authenticateUser, (req, res) => {
-  res.render('python_project', {
+app.get('/python_project', 
+  checkPageAccess('/python'),
+  (req, res) => {
+    res.render('python_project', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
+
+// 알고리즘 페이지 라우트
+app.get('/algorithm', 
+  checkPageAccess('/algorithm'),
+  (req, res) => {
+    res.render('algorithm', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
+
+// 머신러닝 페이지 라우트
+app.get('/machinelearning', 
+  checkPageAccess('/machinelearning'),
+  (req, res) => {
+    res.render('machinelearning', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
+  }
+);
+
+// 교사교육 사이트
+app.get('/teacher', (req, res) => {
+  res.render('teacher', {
     userID: req.session.userID,
     userRole: req.session.role,
     is_logined: req.session.is_logined,
@@ -479,26 +525,17 @@ app.get('/python_project', authenticateUser, (req, res) => {
   });
 });
 
-// 알고리즘 페이지 라우트
-app.get('/algorithm', authenticateUser, (req, res) => {
-  res.render('algorithm', {
-    userID: req.session.userID || null,
-    is_logined: req.session.is_logined || false,
-    role: req.session.role || 'guest'
-  });
-});
-
-// 교사교육 사이트
-app.get('/teacher', (req, res) => {
-  res.render('teacher');
-});
-
 // 루트 경로
 app.get('/', (req, res) => {
   if (!req.session.is_logined) {
     res.redirect('/auth/login');
   } else {
-    res.render('index');
+    res.render('index', {
+      userID: req.session.userID,
+      userRole: req.session.role,
+      is_logined: req.session.is_logined,
+      centerID: req.session.centerID
+    });
   }
 });
 
@@ -524,7 +561,12 @@ cron.schedule(config.CRON.SUBSCRIPTION_UPDATE, async () => {
 
 // 기본 라우트 (페이지가 없을 때)
 app.get('*', authenticateUser, (req, res) => {
-  res.render('index');
+  res.render('index', {
+    userID: req.session.userID,
+    userRole: req.session.role,
+    is_logined: req.session.is_logined,
+    centerID: req.session.centerID
+  });
 });
 
 // 오류 처리 미들웨어
