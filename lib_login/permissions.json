@@ -39,10 +39,6 @@
             "/algorithm": {
                 "name": "알고리즘 연습",
                 "roles": ["admin", "manager", "teacher", "student"]
-            },
-            "/appinventor_project": {
-                "name": "앱인벤터",
-                "roles": ["admin", "manager", "teacher", "student"]
             }
     },           
         
