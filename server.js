@@ -371,6 +371,7 @@ app.get('/logout', (req, res) => {
 
 // 개발 중인 페이지를 추적하는 목록
 const pagesUnderConstruction = [
+  '/appinventor_project',
   // 필요한 다른 개발 중인 페이지 추가
 ];
 
