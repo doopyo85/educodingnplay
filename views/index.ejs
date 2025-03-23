@@ -14,7 +14,32 @@
             max-width: 80%;  /* 이미지 크기 80%로 축소 */
             object-fit: contain; /* 이미지 비율 유지하며 맞춤 */
         }
-    </style>
+        
+        /* 교육 단계 선택기 스타일 */
+        .education-tabs {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .education-tab {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .education-tab.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .education-tab.inactive {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -27,10 +52,14 @@
         
         <!-- 교육 단계 표시 영역 -->
         <div class="row mb-4">
-            <div class="col-12 text-end">
-                <div id="educationLevel" class="education-level">초등학생 과정</div>
+            <div class="col-12">
+                <div class="education-tabs">
+                    <div id="elementary-tab" class="education-tab active">초등</div>
+                    <div id="secondary-tab" class="education-tab inactive">중고등</div>
+                </div>
             </div>
         </div>
+        
         <div id="categoriesCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
             <!-- 캐러셀 컨트롤 버튼 - 카드 영역 외부에 배치 -->
             <button class="carousel-control-prev carousel-btn-outer" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
@@ -41,11 +70,6 @@
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">다음</span>
             </button>
-            
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="초등"></button>
-                <button type="button" data-bs-target="#categoriesCarousel" data-bs-slide-to="1" aria-label="중/고등"></button>
-            </div>
             
             <div class="carousel-inner">
                 <!-- 초등 카테고리 -->
@@ -190,15 +214,32 @@
                 wrap: true        // 마지막 아이템에서 첫 아이템으로 순환
             });
             
-            // 교육 단계 표시 업데이트
-            const educationLevelEl = document.getElementById('educationLevel');
+            const elementaryTab = document.getElementById('elementary-tab');
+            const secondaryTab = document.getElementById('secondary-tab');
             
-            // 교육 단계 표시기 스타일 업데이트 함수
-            function updateEducationLevel(index) {
+            // 탭 클릭 이벤트 리스너
+            elementaryTab.addEventListener('click', function() {
+                carousel.to(0); // 초등 슬라이드로 이동
+            });
+            
+            secondaryTab.addEventListener('click', function() {
+                carousel.to(1); // 중고등 슬라이드로 이동
+            });
+            
+            // 탭 상태 업데이트 함수
+            function updateTabs(index) {
                 if (index === 0) {
-                    educationLevelEl.textContent = '초등학생 과정';
-                } else if (index === 1) {
-                    educationLevelEl.textContent = '중·고등학생 과정';
+                    // 초등 활성화
+                    elementaryTab.classList.add('active');
+                    elementaryTab.classList.remove('inactive');
+                    secondaryTab.classList.add('inactive');
+                    secondaryTab.classList.remove('active');
+                } else {
+                    // 중고등 활성화
+                    secondaryTab.classList.add('active');
+                    secondaryTab.classList.remove('inactive');
+                    elementaryTab.classList.add('inactive');
+                    elementaryTab.classList.remove('active');
                 }
             }
             
@@ -206,7 +247,7 @@
             document.getElementById('categoriesCarousel').addEventListener('slide.bs.carousel', function(event) {
                 // 다음 슬라이드 인덱스 확인
                 const nextIndex = event.to;
-                updateEducationLevel(nextIndex);
+                updateTabs(nextIndex);
             });
             
             // 다음 버튼 클릭 이벤트 처리
