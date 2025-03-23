@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        await loadComputerData(); // 컴퓨터 데이터를 로드
+        await loadMachinelearningData(); // 머신러닝 데이터를 로드
     } catch (error) {
-        console.error('Error loading computer data:', error);
-        displayErrorMessage("컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.");
-    }
+        console.error('Error loading MachineLearning data', error);
+        displayErrorMessage("머신러닝 데이터를 불러오는 중 오류가 발생했습니다.");
+   }
 });
 
 // 서버 API를 통해 컴퓨터 데이터를 가져오는 함수
-async function loadComputerData() {
+async function loadMachinelearningData() {
     try {
-        const data = await fetch('/api/get-computer-data')  // 서버의 API 호출
+        const data = await fetch('/api/get-ml-data')  // 서버의 API 호출
             .then(res => res.json());
         
         if (data && data.length > 0) {
@@ -20,8 +20,8 @@ async function loadComputerData() {
             displayErrorMessage("스프레드시트에서 데이터를 찾을 수 없습니다.");
         }
     } catch (error) {
-        console.error('Error loading computer data', error);
-        displayErrorMessage("컴퓨터 데이터를 불러오는 중 오류가 발생했습니다.");
+        console.error('Error loading MachineLearning data', error);
+        displayErrorMessage("머신러닝 데이터를 불러오는 중 오류가 발생했습니다.");
     }
 }
 

@@ -53,6 +53,16 @@ router.get('/get-computer-data', async (req, res) => {
   }
 });
 
+// 구글 시트 데이터 API
+router.get('/get-ml-data', async (req, res) => {
+  try {
+    const data = await getSheetData('ml!A2:E'); 
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: '데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 router.get('/get-onlineclass-data', async (req, res) => {
   console.log('GET /api/get-onlineclass-data 요청 받음');
   try {
