@@ -441,6 +441,16 @@ app.get('/appinventor', authenticateUser, (req, res) => {
   });
 });
 
+// 파이썬 페이지 라우트
+app.get('/python_project', authenticateUser, (req, res) => {
+  res.render('python_project', {
+    userID: req.session.userID,
+    userRole: req.session.role,
+    is_logined: req.session.is_logined,
+    centerID: req.session.centerID
+  });
+});
+
 // 알고리즘 페이지 라우트
 app.get('/algorithm', authenticateUser, (req, res) => {
   res.render('algorithm', {
