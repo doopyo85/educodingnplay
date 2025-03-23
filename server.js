@@ -365,6 +365,33 @@ app.get('/logout', (req, res) => {
 });
 
 // =====================================================================
+// 공사중 페이지로 가로채기
+// =====================================================================
+
+
+// 개발 중인 페이지를 추적하는 목록
+const pagesUnderConstruction = [
+  '/algorithm',
+  '/appinventor',
+  // 필요한 다른 개발 중인 페이지 추가
+];
+
+// 공사 중 페이지 미들웨어
+function checkUnderConstruction(req, res, next) {
+  if (pagesUnderConstruction.includes(req.path)) {
+    return res.render('under-construction', {
+      userID: req.session?.userID,
+      userRole: req.session?.role,
+      is_logined: req.session?.is_logined,
+      centerID: req.session?.centerID
+    });
+  }
+  next();
+}
+
+app.use(checkUnderConstruction);
+
+// =====================================================================
 // 페이지 라우트 정의
 // =====================================================================
 
