@@ -94,6 +94,18 @@ router.get('/get-ent-data', async (req, res) => {
   }
 });
 
+// 앱인벤터 관련 API
+router.get('/get-aia-data', async (req, res) => {
+  try {
+    const data = await getSheetData('aia!A2:F');  
+    res.json(data);
+  } catch (error) {
+    console.error('구글 시트 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '앱인벤터 프로젝트 데이터를 불러오는 중 오류 발생' });
+  }
+});
+
+
 // 메뉴 데이터 API
 router.get('/get-menu-data', async (req, res) => {
   try {
