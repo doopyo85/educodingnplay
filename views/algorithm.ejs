@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코딩앤플레이 - 쉽게 배우는 프로그래밍</title>
+
+    <script src="/js/learning-tracker.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS (분리된 파일 적용) -->
+    <link rel="stylesheet" href="/css/test_frame.css">   <!-- 왼쪽 네비게이션 영역 -->
+    <link rel="stylesheet" href="/css/test_problem.css"> <!-- 문제 영역 -->
+    <link rel="stylesheet" href="/css/test_ide.css">    <!-- IDE 영역 -->
+    
+    <!-- 토글 스위치 스타일 -->
+    <style>
+        /* 토글 스위치 컨테이너 스타일 */
+        #ide-toggle-switch {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            background-color: transparent;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        /* "IDE" 텍스트 스타일 */
+        #ide-toggle-switch .toggle-label {
+            color: #444444; /* 짙은 회색 */
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        /* 토글 스위치 스타일 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        /* 실제 체크박스 숨기기 */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        /* 스위치 슬라이더 스타일 */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #aaaaaa; /* 회색 */
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #666666; /* 짙은 회색 */
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 네비게이션 메뉴 너비 고정 */
+        .nav-container {
+            width: 250px !important;
+            min-width: 250px !important;
+            max-width: 250px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* IDE 컨테이너 스타일 */
+        .ide-container {
+            position: relative !important;
+            transition: all 0.3s ease;
+            background-color: #1e1e1e;
+        }
+
+        /* 문제 컨테이너 스타일 */
+        .content-container {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        /* 접힌 상태에서 컨텐츠 숨기기 */
+        .collapsed-editor .ide-container > *:not(#ide-toggle-switch) {
+            display: none !important;
+        }
+
+        .collapsed-editor .ide-container {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            flex: 0 !important;
+        }
+
+        .collapsed-editor .content-container {
+            width: calc(100% - 250px) !important; /* 왼쪽 네비게이션(250px) 고려 */
+            flex: 1 !important;
+        }
+
+        /* 확장된 상태 스타일 */
+        .expanded-editor .ide-container {
+            width: 45% !important;
+            flex: 0.9 !important;
+            padding: 15px !important;
+        }
+
+        .expanded-editor .content-container {
+            width: calc(55% - 250px) !important; /* IDE(45%)와 왼쪽 네비게이션(250px) 고려 */
+            flex: 1.1 !important;
+        }
+    </style>
+
+    <!-- Ace Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <div class="main-container">
+        <!-- Navigation Menu -->
+        <nav class="nav-container">
+            <ul id="navList" class="list-unstyled">
+                <!-- Google Sheets에서 동적으로 메뉴 추가 -->
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="contents">
+            <!-- Problem Area -->
+            <div class="content-container">
+                <!-- IDE 토글 스위치 (문제 영역 우측 상단에 배치) -->
+                <div id="ide-toggle-switch">
+                    <span class="toggle-label">IDE</span>
+                    <label class="switch">
+                        <input type="checkbox" id="ideToggleCheckbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div id="problem-navigation-container"> 
+                    <i class="bi bi-chevron-left" id="prev-problem"></i>
+                    <div id="problem-navigation"></div>
+                    <i class="bi bi-chevron-right" id="next-problem"></i>
+                </div>
+                <div id="problem-title"></div>
+                <div id="problem-container">
+                    <iframe id="iframeContent" src="about:blank"></iframe>
+                </div>
+            </div>
+
+            <!-- IDE Area -->
+            <div class="ide-container">
+                <!-- Theme Change Button -->
+                <div class="theme-buttons mb-3 d-flex justify-content-center">
+                    <button class="btn btn-outline-light me-2" onclick="changeTheme('monokai')">Monokai</button>
+                    <button class="btn btn-outline-light me-2" onclick="changeTheme('github')">GitHub</button>
+                    <button class="btn btn-outline-light" onclick="changeTheme('tomorrow_night')">Tomorrow Night</button>
+                </div>
+                <div class="font-size-controls">
+                    <button id="decreaseFontSize">-</button>
+                    <button id="increaseFontSize">+</button>
+                </div>
+                <!-- Ace Editor -->
+                <div id="editor" class="code-editor" style="height: 400px; width: 100%;"># 여기에 코드를 입력하세요...</div>
+
+                <!-- Run Button and Output -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button id="runCodeBtn" class="btn btn-success">실행</button>
+                    <button id="saveCodeBtn" class="btn btn-warning">저장</button>
+                    <button id="resetCodeBtn" class="btn btn-danger">초기화</button>
+                </div>
+
+                <div id="output-terminal" class="mt-3 p-3">
+                    <h5>실행 결과:</h5>
+                    <pre id="output-content"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script src="python_project.js"></script>
+    <script src="iframe-style-injector.js"></script>
+    <script src="ide-font-control.js"></script> 
+    
+    <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
+    <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
+
+    <!-- Ace Editor Script -->
+    <script>
+        var editor = ace.edit("editor");
+        editor.session.setMode("ace/mode/python");
+        editor.setTheme("ace/theme/tomorrow_night_bright");
+
+        // 테마 변경 함수
+        function changeTheme(themeName) {
+            editor.setTheme("ace/theme/" + themeName);
+        }
+
+        document.getElementById("runCodeBtn").addEventListener("click", function() {
+            var code = editor.getValue();
+            document.getElementById("output-content").textContent = "실행 중...";
+
+            fetch('/run-python', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output-content").textContent = data.output;
+            })
+            .catch(error => {
+                document.getElementById("output-content").textContent = "코드 실행 중 오류 발생: " + error;
+            });
+        });
+
+        document.getElementById("resetCodeBtn").addEventListener("click", function() {
+            editor.setValue("# 여기에 코드를 입력하세요...");
+        });
+
+        document.getElementById("saveCodeBtn").addEventListener("click", function() {
+            alert("코드가 저장되었습니다.");
+        });
+    </script>
+    
+    <!-- IDE 토글 스위치 스크립트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 학습 트래커 초기화
+            const pageTitle = document.title;
+            const contentType = 'python';
+            
+            if (window.learningTracker) {
+                window.learningTracker = new LearningTracker(contentType, pageTitle);
+                window.learningTracker.startTracking();
+            }
+            
+            // IDE 토글 스위치 초기화
+            initIdeToggleSwitch();
+        });
+
+        function initIdeToggleSwitch() {
+            const toggleCheckbox = document.getElementById('ideToggleCheckbox');
+            const ideContainer = document.querySelector('.ide-container');
+            const contentContainer = document.querySelector('.content-container');
+            const contentsDiv = document.querySelector('.contents');
+            
+            if (!toggleCheckbox || !ideContainer || !contentContainer || !contentsDiv) {
+                console.error('Required elements not found for IDE toggle');
+                return;
+            }
+            
+            console.log('Initializing IDE toggle switch');
+            
+            // 초기 상태 설정 (기본 OFF)
+            setCollapsedState();
+            
+            // 체크박스 변경 이벤트 리스너
+            toggleCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // IDE 켜기 (ON)
+                    setExpandedState();
+                } else {
+                    // IDE 끄기 (OFF)
+                    setCollapsedState();
+                }
+                
+                // ACE 에디터 리사이징
+                setTimeout(() => {
+                    if (this.checked) {
+                        try {
+                            const editor = ace.edit("editor");
+                            if (editor) {
+                                editor.resize();
+                                console.log('Ace editor resized');
+                            }
+                        } catch (e) {
+                            console.error('Error resizing editor:', e);
+                        }
+                    }
+                }, 300);
+            });
+            
+            function setExpandedState() {
+                console.log('Setting expanded state (ON)');
+                ideContainer.style.width = '45%';
+                ideContainer.style.minWidth = '45%';
+                ideContainer.style.flex = '0.9';
+                contentContainer.style.width = 'calc(55% - 250px)';
+                contentContainer.style.flex = '1.1';
+                
+                contentsDiv.classList.add('expanded-editor');
+                contentsDiv.classList.remove('collapsed-editor');
+                
+                // IDE 내용 보이기
+                setTimeout(() => {
+                    ideContainer.querySelectorAll('*').forEach(el => {
+                        if (!el.closest('#ide-toggle-switch')) {
+                            el.style.display = '';
+                        }
+                    });
+                    
+                    // 패딩 복원
+                    ideContainer.style.padding = '15px';
+                }, 100);
+            }
+            
+            function setCollapsedState() {
+                console.log('Setting collapsed state (OFF)');
+                ideContainer.style.width = '0';
+                ideContainer.style.minWidth = '0';
+                ideContainer.style.flex = '0';
+                contentContainer.style.width = 'calc(100% - 250px)';
+                contentContainer.style.flex = '1';
+                
+                contentsDiv.classList.remove('expanded-editor');
+                contentsDiv.classList.add('collapsed-editor');
+                
+                // IDE 내용 숨기기
+                ideContainer.querySelectorAll('*').forEach(el => {
+                    if (!el.closest('#ide-toggle-switch')) {
+                        el.style.display = 'none';
+                    }
+                });
+                
+                // 패딩 제거
+                ideContainer.style.padding = '0';
+                
+                // 체크박스 상태 업데이트
+                document.getElementById('ideToggleCheckbox').checked = false;
+            }
+        }
+    </script>
+</body>
+</html>
