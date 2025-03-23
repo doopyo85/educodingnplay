@@ -4,46 +4,63 @@
 var currentProblemNumber = 1;
 var totalProblems = 0;
 var currentExamName = '';
+var menuData = [];
+var problemData = [];
 
-// 구글 API 초기화 및 메뉴 로드
-function initGoogleApi() {
-    const apiKey = document.getElementById('googleApiKey').value;
-    const spreadsheetId = document.getElementById('spreadsheetId').value;
-    
-    gapi.load('client', () => {
-        gapi.client.init({
-            apiKey: apiKey,
-            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
-        }).then(() => {
-            // certification 시트에서 데이터 로드
-            loadCertificationData(spreadsheetId);
-        }).catch(error => {
-            console.error('Error initializing Google API:', error);
-        });
-    });
+// 페이지 초기화
+function initPage() {
+    // 1. 먼저 메뉴 데이터 로드
+    loadMenuData();
 }
 
-// certification 시트에서 데이터 로드
-function loadCertificationData(spreadsheetId) {
-    // certification 시트의 A2:E 범위 데이터 가져오기
-    gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: spreadsheetId,
-        range: 'certification!A2:E'  // certification 시트에서 데이터 가져오기
-    }).then(response => {
-        const data = response.result.values;
-        if (data && data.length > 0) {
-            totalProblems = data.length; // 총 문제 수 저장
-            renderNavigationMenu(data);
-            // 첫 번째 문제 로드
-            if (data[0] && data[0][1]) {
-                loadProblem(data[0][1], 0, data);
+// certification 시트에서 메뉴 데이터 로드
+function loadMenuData() {
+    fetch('/api/get-certification-data')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                menuData = data;
+                renderNavigationMenu(data);
+                
+                // 2. 메뉴 로드 후 문제 데이터 로드
+                loadProblemData();
+            } else {
+                console.log('No menu data found.');
             }
-        } else {
-            console.log('No data found in certification sheet.');
-        }
-    }).catch(error => {
-        console.error('Error loading certification data:', error);
-    });
+        })
+        .catch(error => {
+            console.error('Error loading menu data:', error);
+        });
+}
+
+// problems 시트에서 문제 데이터 로드
+function loadProblemData() {
+    fetch('/api/get-problem-data')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                problemData = data;
+                
+                // 3. 두 데이터 모두 로드 완료 후 첫 번째 메뉴 선택
+                if (menuData && menuData.length > 0) {
+                    // 첫 번째 메뉴 자동 선택
+                    const firstCategory = menuData[0][0];
+                    const firstMenu = {
+                        category: firstCategory,
+                        title: menuData[0][1],
+                        url: menuData[0][2],
+                        index: 0
+                    };
+                    
+                    onMenuSelect(firstMenu);
+                }
+            } else {
+                console.log('No problem data found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading problem data:', error);
+        });
 }
 
 // 네비게이션 메뉴 렌더링 (python_project.js 스타일로 변경)
@@ -67,25 +84,18 @@ function renderNavigationMenu(data) {
             if (!topLevelMenus.has(category)) {
                 topLevelMenus.set(category, []);
             }
-            topLevelMenus.get(category).push({ index, title, url });
+            topLevelMenus.get(category).push({ index, title, url, category });
         }
     });
 
     let index = 0;
-    let firstSubmenu = null;
     
     // 각 상위 메뉴 생성
     topLevelMenus.forEach(function(subMenus, topLevelMenu) {
         const topLevelMenuItem = createTopLevelMenuItem(topLevelMenu, index);
-        const subMenuItems = createSubMenuItems(subMenus, index, data);
+        const subMenuItems = createSubMenuItems(subMenus, index);
         navList.appendChild(topLevelMenuItem);
         navList.appendChild(subMenuItems);
-
-        // 첫 번째 하위 메뉴 저장
-        if (index === 0 && subMenus.length > 0) {
-            firstSubmenu = subMenus[0];
-        }        
-
         index++;
     });
 
@@ -132,11 +142,6 @@ function renderNavigationMenu(data) {
     } else {
         console.warn('Bootstrap not loaded, collapse functionality will not work');
     }
-
-    // 첫 번째 하위 메뉴 자동 선택
-    if (firstSubmenu) {
-        onMenuSelect(firstSubmenu, data);
-    }
 }
 
 // 상위 메뉴 아이템 생성
@@ -159,16 +164,11 @@ function createTopLevelMenuItem(topLevelMenu, index) {
 
     topLevelMenuItem.appendChild(link);
 
-    // 화살표 아이콘 회전을 위한 이벤트 리스너 추가
-    link.addEventListener('click', function() {
-        arrow.classList.toggle('rotate');
-    });
-
     return topLevelMenuItem;
 }
 
 // 하위 메뉴 아이템 생성
-function createSubMenuItems(subMenus, index, allData) {
+function createSubMenuItems(subMenus, index) {
     const subMenuContainer = document.createElement('div');
     subMenuContainer.id = `collapse${index}`;
     subMenuContainer.classList.add('collapse');
@@ -189,7 +189,7 @@ function createSubMenuItems(subMenus, index, allData) {
 
         subMenuItem.addEventListener('click', function(event) {
             event.stopPropagation();
-            onMenuSelect(item, allData);
+            onMenuSelect(item);
             applySubMenuHighlight(subMenuItem);
         });
 
@@ -201,16 +201,25 @@ function createSubMenuItems(subMenus, index, allData) {
 }
 
 // 하위 메뉴 선택 시 처리
-function onMenuSelect(item, allData) {
-    const url = item.url;
-    const index = item.index;
-    
-    // 현재 선택된 메뉴 정보 저장
+function onMenuSelect(item) {
+    // 선택된 메뉴 정보 저장
     currentExamName = item.title;
-    currentProblemNumber = parseInt(index) + 1;
-    
-    // 문제 로드
-    loadProblem(url, index, allData);
+
+    // 현재 선택된 메뉴에 해당하는 문제들 찾기
+    const matchingProblems = problemData.filter(problem => {
+        return problem[0].toLowerCase() === item.category.toLowerCase();
+    });
+
+    // 문제 개수 저장
+    totalProblems = matchingProblems.length;
+
+    // 첫 번째 문제 로드
+    currentProblemNumber = 1;
+    if (totalProblems > 0) {
+        loadProblem(item.url, 0, matchingProblems);
+    } else {
+        console.log('No matching problems found for:', item.title);
+    }
 }
 
 // 아이콘을 변경하는 함수
@@ -230,17 +239,12 @@ function updateToggleIcon(element) {
 // 하위 메뉴 클릭 시 상위 메뉴에 active 클래스 제거, 클릭된 메뉴에 active 클래스 추가
 function applySubMenuHighlight(selectedItem) {
     // 모든 메뉴 아이템에서 active 클래스 제거
-    document.querySelectorAll('.nav-container .menu-item, .nav-container .sub-menu .menu-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
     
     // 선택된 하위 메뉴 아이템에 active 클래스 추가
     selectedItem.classList.add('active');
-    
-    // 상위 메뉴 아이템에 active 클래스 제거
-    let parentCollapse = selectedItem.closest('.collapse');
-    if (parentCollapse) {
-        let parentMenuItem = document.querySelector(`[href="#${parentCollapse.id}"]`).closest('.menu-item');
-        parentMenuItem.classList.remove('active');
-    }
 }
 
 // 문제 로드 및 표시
@@ -249,11 +253,7 @@ function loadProblem(url, index, allData) {
     const problemTitle = document.getElementById('problem-title');
     const problemNavigation = document.getElementById('problem-navigation');
     
-    // 현재 문제 번호 업데이트
-    currentProblemNumber = parseInt(index) + 1;
-    
     // 문제 번호와 총 문제 수 표시
-    totalProblems = allData.length;
     problemNavigation.textContent = `${currentProblemNumber} / ${totalProblems}`;
     
     // 문제 제목 설정
@@ -289,53 +289,60 @@ function renderProblemNavigation() {
     const navContainer = document.getElementById('problem-navigation');
     if (!navContainer) return;
 
-    // 내비게이션 버튼 컨테이너
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'problem-buttons';
-    buttonsContainer.style.display = 'flex';
-    buttonsContainer.style.marginTop = '10px';
-    
-    // 기존 버튼 제거
-    const existingButtons = document.querySelector('.problem-buttons');
-    if (existingButtons) {
-        existingButtons.parentNode.removeChild(existingButtons);
-    }
-
-    for (let i = 1; i <= Math.min(totalProblems, 10); i++) {
-        const problemBtn = document.createElement('i');
-        problemBtn.classList.add('bi', 'problem-icon');
-        
-        if (i === currentProblemNumber) {
-            problemBtn.classList.add(i === 10 ? 'bi-0-circle-fill' : `bi-${i}-circle-fill`);
-        } else {
-            problemBtn.classList.add(i === 10 ? 'bi-0-circle' : `bi-${i}-circle`);
-        }
-        
-        problemBtn.style.margin = '0 5px';
-        problemBtn.style.cursor = 'pointer';
-        problemBtn.style.fontSize = '20px';
-        
-        problemBtn.addEventListener('click', function() {
-            navigateToProblem(i - 1);
-        });
-
-        buttonsContainer.appendChild(problemBtn);
-    }
-
-    // 버튼 컨테이너를 문제 내비게이션 컨테이너에 추가
+    // 기존 버튼 제거하고 컨테이너 초기화
     const navigationContainer = document.getElementById('problem-navigation-container');
     if (navigationContainer) {
+        // 이전/다음 버튼과 문제 번호 표시는 유지
+        const prevButton = document.getElementById('prev-problem');
+        const nextButton = document.getElementById('next-problem');
+        const problemNav = document.getElementById('problem-navigation');
+        
+        // 기존 버튼들 제거
+        navigationContainer.querySelectorAll('.problem-buttons').forEach(el => el.remove());
+        
+        // 새 버튼 컨테이너 생성
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'problem-buttons';
+        
+        // 문제 버튼 생성 (최대 10개)
+        for (let i = 1; i <= Math.min(totalProblems, 10); i++) {
+            const problemBtn = document.createElement('i');
+            problemBtn.classList.add('bi', 'problem-icon');
+            
+            if (i === currentProblemNumber) {
+                problemBtn.classList.add(i === 10 ? 'bi-0-circle-fill' : `bi-${i}-circle-fill`);
+            } else {
+                problemBtn.classList.add(i === 10 ? 'bi-0-circle' : `bi-${i}-circle`);
+            }
+            
+            problemBtn.addEventListener('click', function() {
+                navigateToProblem(i);
+            });
+
+            buttonsContainer.appendChild(problemBtn);
+        }
+        
+        // 새 버튼 컨테이너 추가
         navigationContainer.appendChild(buttonsContainer);
     }
 }
 
 // 특정 문제로 이동
-function navigateToProblem(index) {
-    const items = document.querySelectorAll('.menu-item');
-    for (let i = 0; i < items.length; i++) {
-        if (i === index) {
-            items[i].click();
-            break;
+function navigateToProblem(problemNumber) {
+    currentProblemNumber = problemNumber;
+    
+    // 현재 선택된 카테고리의 문제들 찾기
+    const activeMenuItem = document.querySelector('.menu-item.active');
+    if (activeMenuItem) {
+        const categoryName = activeMenuItem.closest('.collapse').previousElementSibling.textContent.trim();
+        const matchingProblems = problemData.filter(problem => {
+            return problem[0].toLowerCase() === categoryName.toLowerCase();
+        });
+        
+        if (matchingProblems.length >= problemNumber) {
+            const index = problemNumber - 1;
+            const url = matchingProblems[index][2]; // URL은 세 번째 컬럼
+            loadProblem(url, index, matchingProblems);
         }
     }
 }
@@ -346,14 +353,14 @@ function updateNavigationButtons(currentIndex, totalProblems) {
     const nextButton = document.getElementById('next-problem');
     
     // 이전 버튼 비활성화 여부
-    if (currentIndex <= 0) {
+    if (currentProblemNumber <= 1) {
         prevButton.classList.add('disabled');
     } else {
         prevButton.classList.remove('disabled');
     }
     
     // 다음 버튼 비활성화 여부
-    if (currentIndex >= totalProblems - 1) {
+    if (currentProblemNumber >= totalProblems) {
         nextButton.classList.add('disabled');
     } else {
         nextButton.classList.remove('disabled');
@@ -362,62 +369,19 @@ function updateNavigationButtons(currentIndex, totalProblems) {
 
 // 문서 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
-    // Google API 초기화
-    initGoogleApi();
+    // 페이지 초기화
+    initPage();
     
     // 이전/다음 버튼 이벤트 처리
     document.getElementById('prev-problem').addEventListener('click', function() {
         if (currentProblemNumber > 1) {
-            navigateToProblem(currentProblemNumber - 2);
+            navigateToProblem(currentProblemNumber - 1);
         }
     });
     
     document.getElementById('next-problem').addEventListener('click', function() {
         if (currentProblemNumber < totalProblems) {
-            navigateToProblem(currentProblemNumber);
+            navigateToProblem(currentProblemNumber + 1);
         }
     });
-    
-    // 문제 버튼에 CSS 스타일 추가
-    const style = document.createElement('style');
-    style.textContent = `
-        .problem-icon {
-            cursor: pointer;
-            font-size: 24px;
-            margin: 0 5px;
-        }
-        
-        [class*="-circle-fill"] {
-            color: #007bff;
-        }
-        
-        [class*="-circle"]:not([class*="-circle-fill"]) {
-            color: #6c757d;
-        }
-        
-        .problem-icon:hover {
-            opacity: 0.8;
-        }
-        
-        .menu-item {
-            padding: 8px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .menu-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .menu-item.active {
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-        
-        .rotate {
-            transform: rotate(180deg);
-            transition: transform 0.3s ease;
-        }
-    `;
-    document.head.appendChild(style);
 });
