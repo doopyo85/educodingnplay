@@ -1,5 +1,10 @@
 // certification.js - 자격증 취득 페이지 스크립트
 
+// 전역 변수
+var currentProblemNumber = 1;
+var totalProblems = 0;
+var currentExamName = '';
+
 // 구글 API 초기화 및 메뉴 로드
 function initGoogleApi() {
     const apiKey = document.getElementById('googleApiKey').value;
@@ -27,6 +32,7 @@ function loadCertificationData(spreadsheetId) {
     }).then(response => {
         const data = response.result.values;
         if (data && data.length > 0) {
+            totalProblems = data.length; // 총 문제 수 저장
             renderNavigationMenu(data);
             // 첫 번째 문제 로드
             if (data[0] && data[0][1]) {
@@ -112,9 +118,12 @@ function loadProblem(url, index, allData) {
     const problemTitle = document.getElementById('problem-title');
     const problemNavigation = document.getElementById('problem-navigation');
     
+    // 현재 문제 번호 업데이트
+    currentProblemNumber = parseInt(index) + 1;
+    
     // 문제 번호와 총 문제 수 표시
-    const totalProblems = allData.length;
-    problemNavigation.textContent = `${parseInt(index) + 1} / ${totalProblems}`;
+    totalProblems = allData.length;
+    problemNavigation.textContent = `${currentProblemNumber} / ${totalProblems}`;
     
     // 문제 제목 설정
     if (allData[index] && allData[index][1]) {
@@ -139,6 +148,62 @@ function loadProblem(url, index, allData) {
     
     // 이전/다음 버튼 업데이트
     updateNavigationButtons(index, totalProblems);
+    
+    // 문제 내비게이션 버튼 업데이트
+    renderProblemNavigation();
+}
+
+// 문제 내비게이션 렌더링
+function renderProblemNavigation() {
+    const navContainer = document.getElementById('problem-navigation');
+    if (!navContainer) return;
+
+    // 내비게이션 버튼 컨테이너
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'problem-buttons';
+    buttonsContainer.style.display = 'flex';
+    buttonsContainer.style.marginTop = '10px';
+    
+    // 기존 버튼 제거
+    const existingButtons = document.querySelector('.problem-buttons');
+    if (existingButtons) {
+        existingButtons.parentNode.removeChild(existingButtons);
+    }
+
+    for (let i = 1; i <= Math.min(totalProblems, 10); i++) {
+        const problemBtn = document.createElement('i');
+        problemBtn.classList.add('bi', 'problem-icon');
+        
+        if (i === currentProblemNumber) {
+            problemBtn.classList.add(i === 10 ? 'bi-0-circle-fill' : `bi-${i}-circle-fill`);
+        } else {
+            problemBtn.classList.add(i === 10 ? 'bi-0-circle' : `bi-${i}-circle`);
+        }
+        
+        problemBtn.style.margin = '0 5px';
+        problemBtn.style.cursor = 'pointer';
+        problemBtn.style.fontSize = '20px';
+        
+        problemBtn.addEventListener('click', function() {
+            navigateToProblem(i - 1);
+        });
+
+        buttonsContainer.appendChild(problemBtn);
+    }
+
+    // 버튼 컨테이너를 문제 내비게이션 컨테이너에 추가
+    const navigationContainer = document.getElementById('problem-navigation-container');
+    if (navigationContainer) {
+        navigationContainer.appendChild(buttonsContainer);
+    }
+}
+
+// 특정 문제로 이동
+function navigateToProblem(index) {
+    const item = document.querySelector(`.nav-item[data-index="${index}"]`);
+    if (item) {
+        item.click();
+    }
 }
 
 // 이전/다음 버튼 업데이트
@@ -190,4 +255,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
+    // 문제 버튼에 CSS 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+        .problem-icon {
+            cursor: pointer;
+            font-size: 24px;
+            margin: 0 5px;
+        }
+        
+        [class*="-circle-fill"] {
+            color: #007bff;
+        }
+        
+        [class*="-circle"]:not([class*="-circle-fill"]) {
+            color: #6c757d;
+        }
+        
+        .problem-icon:hover {
+            opacity: 0.8;
+        }
+    `;
+    document.head.appendChild(style);
 });
