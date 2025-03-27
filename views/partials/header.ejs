@@ -11,16 +11,21 @@
     <input type="hidden" id="googleApiKey" value="<%= process.env.GOOGLE_API_KEY %>">
     <input type="hidden" id="spreadsheetId" value="<%= process.env.SPREADSHEET_ID %>">
     <input type="hidden" id="discoveryDocs" value="<%= process.env.DISCOVERY_DOCS %>">
+    
+    <!-- 세션 정보를 hidden 필드로 전달 -->
+    <input type="hidden" id="sessionUserID" value="<%= locals.userID %>">
+    <input type="hidden" id="sessionUserRole" value="<%= locals.role %>">
 </head>
 
-<!-- header.ejs 상단에 추가 -->
+<!-- 디버그 정보 - 개발 환경에서만 표시 -->
+<% if (process.env.NODE_ENV === 'development') { %>
 <div style="background-color: #ffeeee; padding: 5px; font-size: 12px;">
     <strong>세션 정보:</strong> 
     userID: <%= JSON.stringify(locals.userID) || '없음' %>, 
     role: <%= JSON.stringify(locals.role) || '없음' %>,
-    userRole: <%= JSON.stringify(locals.userRole) || '없음' %>,
     현재 시간: <%= new Date().toISOString() %>
-  </div>
+</div>
+<% } %>
 
 <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container-fluid">
@@ -36,51 +41,12 @@
             </form>          
             <div class="d-flex align-items-center">
                 <% if (role === 'admin' || role === 'teacher' || role === 'manager') { %>
-                    <div class="nav-item dropdown me-4"> <!-- me-4 클래스 추가하여 오른쪽 여백 추가 -->
+                    <div class="nav-item dropdown me-4">
                         <a class="nav-link dropdown-toggle" href="#" id="teacherResourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             교사 전용페이지
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="teacherResourcesDropdown">
-                            <li>
-                                <a class="dropdown-item" href="https://shop.codingnplay.co.kr/" target="_blank">
-                                    <img src="/resource/imweb.png" alt="교재" width="20" height="20" class="me-2"> 교재몰
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://www.miricanvas.com/workspace/team/drive" target="_blank">
-                                    <img src="/resource/miricanvas.png" alt="홍보" width="20" height="20" class="me-2"> 홍보물
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="http://naver.me/5YwLMZzj" target="_blank">
-                                    <img src="/resource/navermybox.jpg" alt="운영자료" width="20" height="20" class="me-2"> 운영자료
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://edu.codingnplay.co.kr/" target="_blank">
-                                    <img src="/resource/glide.png" alt="지도서 영상보기" width="20" height="20" class="me-2"> 지도서 영상보기
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://app.codingnplay.co.kr/report/books-page">
-                                    <i class="bi bi-clipboard-check me-2"></i> 평가지 출력
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://codingnplay.co.kr/%ec%bd%94%ed%94%8c%ec%86%8c%ec%8b%9d/" target="_blank">
-                                    <i class="bi bi-award me-2"></i> 자격증/행사
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://us02web.zoom.us/j/3566471255?pwd=U3hGeFJ4dVZnYlRVNThTcHVKbUxTUT09" target="_blank">
-                                    <img src="/resource/zoom.png" alt="줌 회의실" width="20" height="20" class="me-2"> 줌 회의실
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="https://app.codingnplay.co.kr/board" target="_blank">
-                                    <img src="/resource/co.ico" alt="일해라너구리" width="20" height="20" class="me-2"> 일해라너구리
-                                </a>
-                            </li>
+                            <!-- 교사용 메뉴 아이템들 -->
                         </ul>
                     </div>
                 <% } %>
@@ -88,21 +54,14 @@
                 <!-- 프로필 드롭다운 -->
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0;">
-                        <img src="/resource/profiles/default.webp" alt="Profile" id="profileImage" class="rounded-circle" style="width: 40px; height: 40px;">
+                        <img src="<%= locals.profileImage || '/resource/profiles/default.webp' %>" alt="Profile" id="profileImage" class="rounded-circle" style="width: 40px; height: 40px;">
                         <span id="userName" class="ms-2"><%= locals.userID || '게스트' %></span>
                     </a>
-
-                    <%
-                    function canAccess(feature) {
-                        const permissions = require('../../lib_login/permissions');
-                        return permissions.hasFeatureAccess(locals.role, feature);
-                    }
-                    %> 
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li class="px-3 py-2 text-muted">
                             <div class="d-flex align-items-center">
-                                <img src="/resource/profiles/default.webp" alt="Profile" id="profileDropdownImage" class="rounded-circle" style="width: 50px; height: 50px;">
+                                <img src="<%= locals.profileImage || '/resource/profiles/default.webp' %>" alt="Profile" id="profileDropdownImage" class="rounded-circle" style="width: 50px; height: 50px;">
                                 <div class="ms-3">
                                     <div id="profileDropdownUserID"><%= locals.userID || '게스트' %></div>
                                     <div class="small text-muted" id="profileDropdownRole"><%= locals.role || 'guest' %></div>
@@ -122,11 +81,11 @@
                         </li>
                     </ul>
                 </div>
-                               
             </div>
         </div>
     </div>
 </header>
+
 <!-- 프로필 선택 모달 -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -141,18 +100,6 @@
                 <div class="d-flex flex-wrap justify-content-center mb-4" id="defaultProfileContainer">
                     <!-- 기본 프로필 이미지들이 JS로 동적으로 추가됩니다 -->
                 </div>
-                
-                <!-- 프로필 이미지 업로드 -->
-                <h6 class="mb-3">프로필 업로드</h6>
-                <form id="profileUploadForm" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <input class="form-control" type="file" id="profileImageUpload" accept="image/*">
-                        <div class="form-text">최대 1MB 크기의 이미지만 업로드 가능합니다.</div>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">업로드</button>
-                    </div>
-                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -161,6 +108,7 @@
         </div>
     </div>
 </div>
+
 <!-- 스크립트 부분 -->
 <script defer src="/header.js"></script>
 <script>
@@ -177,222 +125,10 @@
         }
     }
     setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 로컬 스토리지 강제 초기화
-    localStorage.clear();
     
-    // 세션에서 사용자 정보 사용
-    const sessionUserID = "<%= locals.userID || '게스트' %>";
-    const sessionUserRole = "<%= locals.role || 'guest' %>";
-    
-    console.log('현재 세션 정보 적용:', {
-        userID: sessionUserID,
-        role: sessionUserRole
-    });
-    
-    // 프로필 이미지는 기본 이미지 사용
-    const defaultProfileImage = '/resource/profiles/default.webp';
-    
-    // 프로필 이미지 설정
-    const profileImage = document.getElementById('profileImage');
-    const profileDropdownImage = document.getElementById('profileDropdownImage');
-    
-    if (profileImage) profileImage.src = defaultProfileImage;
-    if (profileDropdownImage) profileDropdownImage.src = defaultProfileImage;
-    
-    // 사용자 이름 설정 - 강제로 세션 값 설정
-    const userNameElement = document.getElementById('userName');
-    const profileDropdownUserID = document.getElementById('profileDropdownUserID');
-    const profileDropdownRole = document.getElementById('profileDropdownRole');
-    
-    // 강제로 세션 값으로 설정하고 변경 방지
-    if (userNameElement) {
-        userNameElement.textContent = sessionUserID;
-        Object.defineProperty(userNameElement, 'textContent', {
-            get: function() { return sessionUserID; },
-            set: function() { return sessionUserID; }
-        });
-    }
-    
-    if (profileDropdownUserID) {
-        profileDropdownUserID.textContent = sessionUserID;
-        Object.defineProperty(profileDropdownUserID, 'textContent', {
-            get: function() { return sessionUserID; },
-            set: function() { return sessionUserID; }
-        });
-    }
-    
-    if (profileDropdownRole) {
-        profileDropdownRole.textContent = sessionUserRole;
-        Object.defineProperty(profileDropdownRole, 'textContent', {
-            get: function() { return sessionUserRole; },
-            set: function() { return sessionUserRole; }
-        });
-    }
-    
-    // API 요청 가로채기
-    const originalFetch = window.fetch;
-    window.fetch = function() {
-        const url = arguments[0];
-        // API 호출을 가로채서 세션 정보로 고정
-        if (typeof url === 'string' && url.includes('/api/get-user-session')) {
-            console.log('사용자 세션 API 호출 감지 - 세션 정보로 강제 응답');
-            return Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({
-                    userID: sessionUserID,
-                    role: sessionUserRole,
-                    is_logined: true
-                })
-            });
-        }
-        return originalFetch.apply(this, arguments);
-    };
-    
-    // 기본 프로필 이미지 목록
-    const defaultProfiles = [
-        '/resource/profiles/default.webp',
-        '/resource/profiles/profile1.webp',
-        '/resource/profiles/profile2.webp',
-        '/resource/profiles/profile3.webp',
-        '/resource/profiles/profile4.webp',
-        '/resource/profiles/profile5.webp'
-    ];
-    
-    // DB에서 현재 프로필 정보 가져오기
-    function loadProfileFromDB() {
-        fetch('/api/get-profile-info', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.profilePath) {
-                // 프로필 이미지 업데이트
-                if (profileImage) profileImage.src = data.profilePath;
-                if (profileDropdownImage) profileDropdownImage.src = data.profilePath;
-                
-                // 프로필 선택 UI에서도 선택 상태 업데이트
-                const profileDivs = document.querySelectorAll('.profile-image-item');
-                profileDivs.forEach(div => {
-                    const isSelected = div.dataset.profile === data.profilePath;
-                    div.classList.toggle('selected', isSelected);
-                    const img = div.querySelector('img');
-                    if (img) {
-                        img.style.border = isSelected ? '3px solid #0d6efd' : 'none';
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('프로필 정보 로드 오류:', error);
-        });
-    }
-    
-    // 페이지 로드 시 DB에서 프로필 정보 가져오기
-    loadProfileFromDB();
-    
-    // 기본 프로필 이미지 로드
-    const defaultProfileContainer = document.getElementById('defaultProfileContainer');
-    
-    if (defaultProfileContainer) {
-        defaultProfileContainer.innerHTML = '';
-        
-        defaultProfiles.forEach(profile => {
-            const profileDiv = document.createElement('div');
-            profileDiv.className = `profile-image-item m-2`;
-            profileDiv.dataset.profile = profile;
-            
-            profileDiv.innerHTML = `
-                <img src="${profile}" alt="Profile" class="rounded-circle" 
-                     style="width: 60px; height: 60px; cursor: pointer;">
-            `;
-            
-            profileDiv.addEventListener('click', function() {
-                // 모든 프로필에서 선택 표시 제거
-                document.querySelectorAll('.profile-image-item').forEach(item => {
-                    item.classList.remove('selected');
-                    item.querySelector('img').style.border = 'none';
-                });
-                
-                // 현재 선택된 프로필에 선택 표시 추가
-                this.classList.add('selected');
-                this.querySelector('img').style.border = '3px solid #0d6efd';
-                
-                // 선택된 프로필을 DB에 저장
-                const selectedProfile = this.dataset.profile;
-                saveProfileToDB(selectedProfile);
-            });
-            
-            defaultProfileContainer.appendChild(profileDiv);
-        });
-    }
-    
-    // 프로필을 DB에 저장하는 함수
-    function saveProfileToDB(profilePath) {
-        fetch('/api/save-profile-to-db', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ profilePath: profilePath })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 프로필 이미지 업데이트
-                if (profileImage) profileImage.src = profilePath;
-                if (profileDropdownImage) profileDropdownImage.src = profilePath;
-                alert('프로필이 저장되었습니다.');
-            } else {
-                alert('프로필 저장 실패: ' + (data.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('프로필 저장 중 오류가 발생했습니다.');
-        });
-    }
-    
-    // 프로필 저장 버튼
-    const saveProfileButton = document.getElementById('saveProfileButton');
-    if (saveProfileButton) {
-        saveProfileButton.addEventListener('click', function() {
-            // 현재 선택된 프로필 찾기
-            const selectedItem = document.querySelector('.profile-image-item.selected');
-            if (selectedItem) {
-                const selectedProfile = selectedItem.dataset.profile;
-                
-                // DB에 저장
-                saveProfileToDB(selectedProfile);
-                
-                // 모달 닫기
-                const modal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
-                if (modal) modal.hide();
-            }
-        });
-    }
-    
-    // 페이지 새로고침할 때 세션 정보 유지하기 위한 조치
-    window.addEventListener('beforeunload', function() {
-        // 로컬 스토리지 초기화
-        localStorage.clear();
-    });
-    
-    // 모든 사용자 활동에 대해 idle 타이머 리셋
+    // 활동 감지
     document.addEventListener('mousemove', resetIdleTimer);
     document.addEventListener('keypress', resetIdleTimer);
     document.addEventListener('click', resetIdleTimer);
     document.addEventListener('scroll', resetIdleTimer);
-    
-    // 5초마다 사용자 정보 재설정 (추가 보호)
-    setInterval(function() {
-        if (userNameElement) userNameElement.textContent = sessionUserID;
-        if (profileDropdownUserID) profileDropdownUserID.textContent = sessionUserID;
-        if (profileDropdownRole) profileDropdownRole.textContent = sessionUserRole;
-    }, 5000);
-});
 </script>

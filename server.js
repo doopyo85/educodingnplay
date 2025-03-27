@@ -180,10 +180,32 @@ const authenticateUser = (req, res, next) => {
 };
 
 // 템플릿 변수 설정 미들웨어
-app.use((req, res, next) => {
-  res.locals.userID = req.session?.userID || null;
-  res.locals.is_logined = req.session?.is_logined || false;
-  res.locals.role = req.session?.role || config.Roles.GUEST;
+app.use(async (req, res, next) => {
+  try {
+    res.locals.userID = req.session?.userID || null;
+    res.locals.is_logined = req.session?.is_logined || false;
+    res.locals.role = req.session?.role || 'guest';
+    res.locals.centerID = req.session?.centerID || null;
+    
+    // 프로필 이미지 정보 추가
+    if (req.session?.userID) {
+      try {
+        const [user] = await db.queryDatabase(
+          'SELECT profile_image FROM Users WHERE userID = ?', 
+          [req.session.userID]
+        );
+        res.locals.profileImage = user?.profile_image || '/resource/profiles/default.webp';
+      } catch (err) {
+        console.error('프로필 이미지 조회 오류:', err);
+        res.locals.profileImage = '/resource/profiles/default.webp';
+      }
+    } else {
+      res.locals.profileImage = '/resource/profiles/default.webp';
+    }
+  } catch (err) {
+    console.error('템플릿 변수 설정 오류:', err);
+  }
+  
   next();
 });
 

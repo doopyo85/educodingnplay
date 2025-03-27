@@ -302,8 +302,7 @@ router.post('/save-profile-preference', (req, res) => {
 });
 
 // apiRouter.js에 추가
-
-// 사용자 프로필 정보 가져오기
+// 프로필 정보 가져오기 API
 router.get('/get-profile-info', (req, res) => {
   try {
       if (!req.session?.userID) {
