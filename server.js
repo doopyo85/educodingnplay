@@ -537,6 +537,19 @@ app.get('/', (req, res) => {
   }
 });
 
+// 디버깅용 엔드포인트 추가 (확인 후 제거 권장)
+app.get('/debug-session', (req, res) => {
+  res.json({
+    session: {
+      userID: req.session?.userID,
+      role: req.session?.role,
+      is_logined: req.session?.is_logined,
+      userType: req.session?.userType,
+      centerID: req.session?.centerID
+    }
+  });
+});
+
 // 정적 자원 제공
 app.use('/resource', express.static(path.join(__dirname, 'public', 'resource')));
 app.use('/node_modules/bootstrap-icons', express.static(path.join(__dirname, 'node_modules/bootstrap-icons')));
