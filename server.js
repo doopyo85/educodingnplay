@@ -309,6 +309,7 @@ app.use('/api', require('./routes/apiRouter'));
 
 // 페이지 라우터 등록 - 여기에서 인증 미들웨어만 적용하고 권한 체크는 각 라우터에서 처리
 Object.entries(routes).forEach(([path, router]) => {
+  console.log(`라우터 등록: ${path}, 타입: ${typeof router}, 인스턴스: ${router instanceof express.Router}`);
   if (path === 'auth') {
     // 인증 라우터는 인증 미들웨어 없이 등록
     app.use(`/${path}`, router);
