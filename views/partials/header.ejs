@@ -161,11 +161,8 @@
         </div>
     </div>
 </div>
-
 <!-- 스크립트 부분 -->
-<!-- 스크립트 부분 -->
-<!-- header.js 완전히 비활성화 -->
-<!-- <script defer src="/header.js"></script> -->
+<script defer src="/header.js"></script>
 <script>
     // 비활동 시간 확인 및 로그아웃 처리
     let idleTime = 0;
@@ -185,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 로컬 스토리지 강제 초기화
     localStorage.clear();
     
-    // 세션에서 사용자 정보 사용 (로컬 스토리지 사용 제거)
+    // 세션에서 사용자 정보 사용
     const sessionUserID = "<%= locals.userID || '게스트' %>";
     const sessionUserRole = "<%= locals.role || 'guest' %>";
     
@@ -263,6 +260,41 @@ document.addEventListener('DOMContentLoaded', function() {
         '/resource/profiles/profile5.webp'
     ];
     
+    // DB에서 현재 프로필 정보 가져오기
+    function loadProfileFromDB() {
+        fetch('/api/get-profile-info', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.profilePath) {
+                // 프로필 이미지 업데이트
+                if (profileImage) profileImage.src = data.profilePath;
+                if (profileDropdownImage) profileDropdownImage.src = data.profilePath;
+                
+                // 프로필 선택 UI에서도 선택 상태 업데이트
+                const profileDivs = document.querySelectorAll('.profile-image-item');
+                profileDivs.forEach(div => {
+                    const isSelected = div.dataset.profile === data.profilePath;
+                    div.classList.toggle('selected', isSelected);
+                    const img = div.querySelector('img');
+                    if (img) {
+                        img.style.border = isSelected ? '3px solid #0d6efd' : 'none';
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('프로필 정보 로드 오류:', error);
+        });
+    }
+    
+    // 페이지 로드 시 DB에서 프로필 정보 가져오기
+    loadProfileFromDB();
+    
     // 기본 프로필 이미지 로드
     const defaultProfileContainer = document.getElementById('defaultProfileContainer');
     
@@ -271,13 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         defaultProfiles.forEach(profile => {
             const profileDiv = document.createElement('div');
-            profileDiv.className = `profile-image-item m-2 ${profile === defaultProfileImage ? 'selected' : ''}`;
+            profileDiv.className = `profile-image-item m-2`;
             profileDiv.dataset.profile = profile;
             
             profileDiv.innerHTML = `
                 <img src="${profile}" alt="Profile" class="rounded-circle" 
-                     style="width: 60px; height: 60px; cursor: pointer; 
-                     ${profile === defaultProfileImage ? 'border: 3px solid #0d6efd;' : ''}">
+                     style="width: 60px; height: 60px; cursor: pointer;">
             `;
             
             profileDiv.addEventListener('click', function() {
@@ -291,18 +322,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('selected');
                 this.querySelector('img').style.border = '3px solid #0d6efd';
                 
-                // 선택된 프로필 저장 (세션에 저장하도록 API 호출)
+                // 선택된 프로필을 DB에 저장
                 const selectedProfile = this.dataset.profile;
-                saveProfileToSession(selectedProfile);
+                saveProfileToDB(selectedProfile);
             });
             
             defaultProfileContainer.appendChild(profileDiv);
         });
     }
     
-    // 세션에 프로필 저장하는 함수
-    function saveProfileToSession(profilePath) {
-        fetch('/api/save-profile-preference', {
+    // 프로필을 DB에 저장하는 함수
+    function saveProfileToDB(profilePath) {
+        fetch('/api/save-profile-to-db', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -315,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 프로필 이미지 업데이트
                 if (profileImage) profileImage.src = profilePath;
                 if (profileDropdownImage) profileDropdownImage.src = profilePath;
+                alert('프로필이 저장되었습니다.');
             } else {
                 alert('프로필 저장 실패: ' + (data.message || '알 수 없는 오류'));
             }
@@ -322,78 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
             alert('프로필 저장 중 오류가 발생했습니다.');
-        });
-    }
-    
-    // 프로필 업로드 처리
-    const profileUploadForm = document.getElementById('profileUploadForm');
-    if (profileUploadForm) {
-        profileUploadForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fileInput = document.getElementById('profileImageUpload');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('파일을 선택해주세요.');
-                return;
-            }
-            
-            // 파일 크기 제한 (1MB)
-            if (file.size > 1024 * 1024) {
-                alert('1MB 이하의 파일만 업로드 가능합니다.');
-                return;
-            }
-            
-            // FormData 생성
-            const formData = new FormData();
-            formData.append('profileImage', file);
-            
-            // 서버에 프로필 이미지 업로드
-            fetch('/api/upload-profile', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // 업로드된 이미지 경로
-                    const uploadedImagePath = data.imagePath;
-                    
-                    // 업로드된 이미지를 선택 옵션에 추가
-                    const profileDiv = document.createElement('div');
-                    profileDiv.className = 'profile-image-item m-2 selected';
-                    profileDiv.dataset.profile = uploadedImagePath;
-                    
-                    profileDiv.innerHTML = `
-                        <img src="${uploadedImagePath}" alt="Uploaded Profile" class="rounded-circle" 
-                             style="width: 60px; height: 60px; cursor: pointer; border: 3px solid #0d6efd;">
-                    `;
-                    
-                    // 모든 프로필에서 선택 표시 제거
-                    document.querySelectorAll('.profile-image-item').forEach(item => {
-                        item.classList.remove('selected');
-                        item.querySelector('img').style.border = 'none';
-                    });
-                    
-                    // 업로드된 이미지를 컨테이너에 추가
-                    defaultProfileContainer.appendChild(profileDiv);
-                    
-                    // 업로드된 이미지를 세션에 저장
-                    saveProfileToSession(uploadedImagePath);
-                    
-                    // 폼 초기화
-                    fileInput.value = '';
-                    
-                    alert('프로필 이미지가 업로드되었습니다.');
-                } else {
-                    alert('업로드 실패: ' + (data.message || '알 수 없는 오류'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('업로드 중 오류가 발생했습니다.');
-            });
         });
     }
     
@@ -406,8 +366,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (selectedItem) {
                 const selectedProfile = selectedItem.dataset.profile;
                 
-                // 세션에 저장
-                saveProfileToSession(selectedProfile);
+                // DB에 저장
+                saveProfileToDB(selectedProfile);
                 
                 // 모달 닫기
                 const modal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
