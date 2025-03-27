@@ -274,24 +274,31 @@ router.post('/upload-profile', upload.single('profileImage'), (req, res) => {
     }
 });
 
-// 프로필 선택 저장 API
+// apiRouter.js에 추가/수정
 router.post('/save-profile-preference', (req, res) => {
-    try {
-        const { profilePath } = req.body;
-        const userId = req.session?.userID;
-        
-        if (!userId) {
-            return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
-        }
-        
-        // 여기서 필요하다면 DB에 사용자의 프로필 이미지 경로 저장
-        // ex: db.queryDatabase('UPDATE Users SET profile_image = ? WHERE userID = ?', [profilePath, userId]);
-        
-        return res.json({ success: true });
-    } catch (error) {
-        console.error('프로필 저장 오류:', error);
-        return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
-    }
+  try {
+      const { profilePath } = req.body;
+      const userId = req.session?.userID;
+      
+      if (!userId) {
+          return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
+      }
+      
+      // 세션에 프로필 이미지 경로 저장
+      req.session.profileImage = profilePath;
+      
+      // 세션 저장
+      req.session.save(err => {
+          if (err) {
+              console.error('세션 저장 오류:', err);
+              return res.status(500).json({ success: false, message: '세션 저장 중 오류가 발생했습니다.' });
+          }
+          return res.json({ success: true, message: '프로필이 저장되었습니다.' });
+      });
+  } catch (error) {
+      console.error('프로필 저장 오류:', error);
+      return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
 });
 
 module.exports = router;
