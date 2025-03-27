@@ -93,8 +93,8 @@
             text-align: center;
         }
         
-            /* 로고 컨테이너 스타일 */
-            .logo-container {
+        /* 로고 컨테이너 스타일 */
+        .logo-container {
             text-align: center;
             margin-bottom: 20px;
             position: relative;
@@ -121,10 +121,6 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo-container">
-            <img src="/resource/favicon.ico" alt="로고">
-        </div>
-        
         <div class="logo-container position-relative">
             <img src="/resource/logo.png" alt="로고">
             <!-- PWA 설치 버튼(작은 아이콘) -->
@@ -156,6 +152,12 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // 툴팁 초기화
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
             $('#loginForm').on('submit', function(e) {
                 e.preventDefault();
                 const userID = $('input[name="userID"]').val();
