@@ -40,7 +40,7 @@ router.get('/login', (req, res) => {
               const formData = new FormData(this);
               const data = Object.fromEntries(formData.entries());
 
-              fetch('/auth/login', {
+              fetch('/auth/login_process', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(data),
@@ -90,6 +90,20 @@ router.post('/login_process', async (req, res) => {
         req.session.is_logined = true;
         req.session.userID = user.userID;
         req.session.role = user.role;
+        req.session.userType = user.role; // userType이 없으면 role값을 사용
+
+        // centerID가 DB에 있으면 사용하고, 없으면 null 설정
+        req.session.centerID = user.centerID || null;
+
+        // 디버깅을 위한 로그 추가
+        console.log('로그인 사용자 정보:', user);
+        console.log('세션에 저장된 데이터:', {
+            is_logined: req.session.is_logined,
+            userID: req.session.userID,
+            role: req.session.role,
+            userType: req.session.userType,
+            centerID: req.session.centerID
+        });
 
         req.session.save(err => {
             if (err) {
