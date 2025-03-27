@@ -1,0 +1,16 @@
+{
+    "name": "코딩2",
+    "short_name": "코딩2",
+    "description": "코딩 교육 플랫폼",
+    "start_url": "/auth/login",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4285F4",
+    "icons": [
+      {
+        "src": "/resource/favicon.ico",
+        "sizes": "48x48",
+        "type": "image/x-icon"
+      }
+    ]
+  }

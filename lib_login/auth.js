@@ -61,7 +61,19 @@ router.get('/login', (req, res) => {
           });
       </script>
     `;
-    const html = template.HTML(title, body);
+
+    // PWA 메타 태그 추가
+    const html = template.HTML(title, body, {
+        additionalHeadTags: `
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="theme-color" content="#4285F4">
+            <link rel="manifest" href="/manifest.json">
+            <link rel="icon" href="/resource/favicon.ico" type="image/x-icon">
+            <link rel="apple-touch-icon" href="/resource/favicon.ico">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+        `
+    });
+        
     res.send(html);
 });
 
