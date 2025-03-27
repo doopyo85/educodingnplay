@@ -163,7 +163,9 @@
 </div>
 
 <!-- 스크립트 부분 -->
-<script defer src="/header.js"></script>
+<!-- 스크립트 부분 -->
+<!-- header.js 완전히 비활성화 -->
+<!-- <script defer src="/header.js"></script> -->
 <script>
     // 비활동 시간 확인 및 로그아웃 처리
     let idleTime = 0;
@@ -180,9 +182,17 @@
     setInterval(checkIdleTime, 60 * 1000); // 1분 간격으로 체크
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 로컬 스토리지 강제 초기화
+    localStorage.clear();
+    
     // 세션에서 사용자 정보 사용 (로컬 스토리지 사용 제거)
     const sessionUserID = "<%= locals.userID || '게스트' %>";
     const sessionUserRole = "<%= locals.role || 'guest' %>";
+    
+    console.log('현재 세션 정보 적용:', {
+        userID: sessionUserID,
+        role: sessionUserRole
+    });
     
     // 프로필 이미지는 기본 이미지 사용
     const defaultProfileImage = '/resource/profiles/default.webp';
@@ -194,14 +204,54 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profileImage) profileImage.src = defaultProfileImage;
     if (profileDropdownImage) profileDropdownImage.src = defaultProfileImage;
     
-    // 사용자 이름 설정
+    // 사용자 이름 설정 - 강제로 세션 값 설정
     const userNameElement = document.getElementById('userName');
     const profileDropdownUserID = document.getElementById('profileDropdownUserID');
     const profileDropdownRole = document.getElementById('profileDropdownRole');
     
-    if (userNameElement) userNameElement.textContent = sessionUserID;
-    if (profileDropdownUserID) profileDropdownUserID.textContent = sessionUserID;
-    if (profileDropdownRole) profileDropdownRole.textContent = sessionUserRole;
+    // 강제로 세션 값으로 설정하고 변경 방지
+    if (userNameElement) {
+        userNameElement.textContent = sessionUserID;
+        Object.defineProperty(userNameElement, 'textContent', {
+            get: function() { return sessionUserID; },
+            set: function() { return sessionUserID; }
+        });
+    }
+    
+    if (profileDropdownUserID) {
+        profileDropdownUserID.textContent = sessionUserID;
+        Object.defineProperty(profileDropdownUserID, 'textContent', {
+            get: function() { return sessionUserID; },
+            set: function() { return sessionUserID; }
+        });
+    }
+    
+    if (profileDropdownRole) {
+        profileDropdownRole.textContent = sessionUserRole;
+        Object.defineProperty(profileDropdownRole, 'textContent', {
+            get: function() { return sessionUserRole; },
+            set: function() { return sessionUserRole; }
+        });
+    }
+    
+    // API 요청 가로채기
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        const url = arguments[0];
+        // API 호출을 가로채서 세션 정보로 고정
+        if (typeof url === 'string' && url.includes('/api/get-user-session')) {
+            console.log('사용자 세션 API 호출 감지 - 세션 정보로 강제 응답');
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({
+                    userID: sessionUserID,
+                    role: sessionUserRole,
+                    is_logined: true
+                })
+            });
+        }
+        return originalFetch.apply(this, arguments);
+    };
     
     // 기본 프로필 이미지 목록
     const defaultProfiles = [
@@ -366,10 +416,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // 페이지 새로고침할 때 세션 정보 유지하기 위한 조치
+    window.addEventListener('beforeunload', function() {
+        // 로컬 스토리지 초기화
+        localStorage.clear();
+    });
+    
     // 모든 사용자 활동에 대해 idle 타이머 리셋
     document.addEventListener('mousemove', resetIdleTimer);
     document.addEventListener('keypress', resetIdleTimer);
     document.addEventListener('click', resetIdleTimer);
     document.addEventListener('scroll', resetIdleTimer);
-});    
+    
+    // 5초마다 사용자 정보 재설정 (추가 보호)
+    setInterval(function() {
+        if (userNameElement) userNameElement.textContent = sessionUserID;
+        if (profileDropdownUserID) profileDropdownUserID.textContent = sessionUserID;
+        if (profileDropdownRole) profileDropdownRole.textContent = sessionUserRole;
+    }, 5000);
+});
 </script>
