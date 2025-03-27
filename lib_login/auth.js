@@ -40,7 +40,7 @@ router.get('/login', (req, res) => {
               const formData = new FormData(this);
               const data = Object.fromEntries(formData.entries());
 
-              fetch('/auth/login_process', {
+              fetch('/auth/login', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(data),
