@@ -16,22 +16,55 @@ async function fetchCentersFromSheet() {
     return response.data.values; // [[id1, name1], [id2, name2], ...]
 }
 
-// 로그인 페이지 렌더링 - EJS 템플릿 방식으로 변경
+// 로그인 페이지 렌더링
 router.get('/login', (req, res) => {
-    if (req.session && req.session.is_logined) {
-        // 이미 로그인 한 경우 메인 페이지로 리다이렉트
-        return res.redirect('/');
-    }
-    
-    res.render('auth/login', {
-        title: '로그인',
-        userRole: req.session?.role || 'guest',
-        is_logined: req.session?.is_logined || false,
-        userID: req.session?.userID || null,
-        centerID: req.session?.centerID || null,
-        errorMessage: req.query.error
-    });
+    const title = '로그인';
+    const body = `
+      <div style="text-align: center;">
+        <img src="/resource/logo.png" alt="로고" style="width: 80px; height: auto; margin-bottom: 20px;"/>
+      </div>
+      <form id="loginForm">
+        <input class="login" type="text" name="userID" placeholder="아이디" required>
+        <input class="login" type="password" name="password" placeholder="비밀번호" required>
+        <input class="btn" type="submit" value="로그인">
+      </form>
+      <p class="register-link">
+        계정이 없으신가요? <a href="/auth/register">회원가입</a>
+      </p>
+
+      <script>
+          // 로그인 폼 제출 처리
+          document.getElementById('loginForm').addEventListener('submit', function(event) {
+              event.preventDefault();
+
+              const formData = new FormData(this);
+              const data = Object.fromEntries(formData.entries());
+
+              fetch('/auth/login_process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.error) {
+                      alert(data.error);
+                  } else {
+                      // 역할별 리다이렉트
+                      window.location.href = data.redirect;
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('로그인 중 오류가 발생했습니다.');
+              });
+          });
+      </script>
+    `;
+    const html = template.HTML(title, body);
+    res.send(html);
 });
+
 
 // 로그인 처리
 router.post('/login_process', async (req, res) => {
@@ -57,7 +90,6 @@ router.post('/login_process', async (req, res) => {
         req.session.is_logined = true;
         req.session.userID = user.userID;
         req.session.role = user.role;
-        if (user.centerID) req.session.centerID = user.centerID;
 
         req.session.save(err => {
             if (err) {
@@ -81,7 +113,7 @@ router.post('/login_process', async (req, res) => {
     }
 });
 
-// 회원가입 페이지 렌더링 - 기존 방식 유지 (나중에 EJS로 변경 가능)
+// 회원가입 페이지 렌더링
 router.get('/register', async (req, res) => {
     const title = '회원가입';
     
