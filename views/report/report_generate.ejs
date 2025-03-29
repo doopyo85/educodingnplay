@@ -1,5 +1,3 @@
-<!-- CSS 파일 참조 추가 -->
-<link rel="stylesheet" href="/css/report.css">
 <%- include('../partials/header') %>
 
 <div class="container my-4">
@@ -9,6 +7,9 @@
       <p class="text-muted" id="reportTitle">...</p>
     </div>
     <div class="col-md-6 text-md-end">
+      <button id="saveBtn" class="btn btn-outline-primary me-2">
+        <i class="bi bi-save"></i> 임시저장
+      </button>
       <a href="/report/books-page" class="btn btn-outline-secondary me-2">
         <i class="bi bi-arrow-left"></i> 목록으로
       </a>
@@ -18,140 +19,116 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">보고서 정보 입력</h5>
-        </div>
-        <div class="card-body">
-          <form id="reportForm">
-            <div class="mb-3">
-              <label for="centerName" class="form-label">센터 이름</label>
-              <input type="text" class="form-control" id="centerName" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="studentName" class="form-label">학생 이름</label>
-              <input type="text" class="form-control" id="studentName" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="teacherName" class="form-label">강사 이름</label>
-              <input type="text" class="form-control" id="teacherName" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="startDate" class="form-label">학습 시작일</label>
-              <input type="date" class="form-control" id="startDate" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="endDate" class="form-label">학습 종료일</label>
-              <input type="date" class="form-control" id="endDate" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="teacherComment" class="form-label">선생님 의견</label>
-              <textarea class="form-control" id="teacherComment" rows="3"></textarea>
-            </div>
-          </form>
-        </div>
-      </div>
+  <div class="card shadow-sm" id="reportPreview">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">리포트</h5>
     </div>
-    
-    <div class="col-md-8">
-      <div class="card shadow-sm" id="reportPreview">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">리포트 미리보기</h5>
+    <div class="card-body">
+      <div id="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
-        <div class="card-body">
-          <div id="loading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+        <p class="mt-2">교재 정보를 불러오는 중...</p>
+      </div>
+      
+      <div id="reportContent" class="d-none">
+        <!-- 리포트 컨텐츠 시작 -->
+        <div id="printableReport" class="a4-page">
+          <div class="text-center mb-4">
+            <h1 class="display-6 fw-bold">Monthly Assessment</h1>
+            <div class="text-end">
+              <h6>센터: <span id="headerCenterName" class="editable" contenteditable="true" data-storage-key="centerName" data-placeholder="센터명 입력"></span></h6>
             </div>
-            <p class="mt-2">교재 정보를 불러오는 중...</p>
           </div>
           
-          <div id="reportContent" class="d-none">
-            <!-- 리포트 컨텐츠 시작 -->
-            <div id="printableReport" class="a4-page">
-              <div class="text-center mb-4">
-                <h1 class="display-6 fw-bold">Monthly Assessment</h1>
-                <div class="text-end">
-                  <h6>센터: <span id="headerCenterName">(입력 필요)</span></h6>
+          <table class="table table-bordered fixed-width">
+            <tr>
+              <th style="width: 15%;" class="text-center bg-light">학습 기간</th>
+              <td style="width: 35%;" id="studyPeriodCell">
+                <div class="d-flex align-items-center">
+                  <input type="date" id="startDate" class="form-control form-control-sm date-input" data-storage-key="startDate">
+                  <span class="mx-1">~</span>
+                  <input type="date" id="endDate" class="form-control form-control-sm date-input" data-storage-key="endDate">
                 </div>
-              </div>
-              
-              <table class="table table-bordered fixed-width">
+              </td>
+              <th style="width: 15%;" class="text-center bg-light">프로그램명</th>
+              <td style="width: 35%;" id="programNameCell"></td>
+            </tr>
+            <tr>
+              <th class="text-center bg-light">학 생 명</th>
+              <td id="studentNameCell" class="editable" contenteditable="true" data-storage-key="studentName" data-placeholder="학생 이름 입력"></td>
+              <th class="text-center bg-light">강 사 명</th>
+              <td id="teacherNameCell" class="editable" contenteditable="true" data-storage-key="teacherName" data-placeholder="강사 이름 입력"></td>
+            </tr>
+          </table>
+
+          <!-- 1. 교재 정보 (순서 변경) -->
+          <div class="mt-4 mb-4">
+            <h5 class="mb-3 text-center" id="contentsTitle"></h5>
+            
+            <table class="table table-bordered fixed-width">
+              <tr>
+                <th class="text-center bg-light" style="width: 15%;">교재</th>
+                <td id="bookThumbnailsCell" class="text-center">
+                  <!-- 썸네일 이미지가 여기에 삽입됩니다 -->
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <!-- 2. 선생님 의견 (순서 변경) -->
+          <div class="mt-4">
+            <h5 class="mb-3">선생님 의견</h5>
+            <div class="teacher-comment-area mb-4 editable" id="teacherCommentCell" contenteditable="true" data-storage-key="teacherComment" data-placeholder="이 학생의 학습 성과와 발전 방향에 대한 의견을 작성해주세요."></div>
+          </div>
+          
+          <!-- 3. CT요소 테이블 (순서 변경) -->
+          <div class="evaluation-container">
+            <table class="table table-bordered mt-4 fixed-width">
+              <colgroup>
+                <col style="width: 5%;">
+                <col style="width: 20%;">
+                <col style="width: 55%;">
+                <col style="width: 6%;">
+                <col style="width: 7%;">
+                <col style="width: 7%;">
+              </colgroup>
+              <thead>
                 <tr>
-                  <th style="width: 15%;" class="text-center bg-light">학습 기간</th>
-                  <td style="width: 35%;" id="studyPeriodCell"></td>
-                  <th style="width: 15%;" class="text-center bg-light">프로그램명</th>
-                  <td style="width: 35%;" id="programNameCell"></td>
+                  <th class="text-center bg-light">항목</th>
+                  <th class="text-center bg-light">
+                    CT<br>
+                    <small>(컴퓨팅 사고력)</small>
+                  </th>
+                  <th class="text-center bg-light">평가 내용</th>
+                  <th class="text-center bg-light">상</th>
+                  <th class="text-center bg-light">중</th>
+                  <th class="text-center bg-light">하</th>
                 </tr>
-                <tr>
-                  <th class="text-center bg-light">학 생 명</th>
-                  <td id="studentNameCell"></td>
-                  <th class="text-center bg-light">강 사 명</th>
-                  <td id="teacherNameCell"></td>
-                </tr>
-              </table>
-              
-              <div class="evaluation-container">
-                <table class="table table-bordered mt-4 fixed-width">
-                  <colgroup>
-                    <col style="width: 5%;">
-                    <col style="width: 20%;">
-                    <col style="width: 55%;">
-                    <col style="width: 6%;">
-                    <col style="width: 7%;">
-                    <col style="width: 7%;">
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th class="text-center bg-light">항목</th>
-                      <th class="text-center bg-light">
-                        CT<br>
-                        <small>(컴퓨팅 사고력)</small>
-                      </th>
-                      <th class="text-center bg-light">평가 내용</th>
-                      <th class="text-center bg-light">상</th>
-                      <th class="text-center bg-light">중</th>
-                      <th class="text-center bg-light">하</th>
-                    </tr>
-                  </thead>
-                  <tbody id="evaluationTableBody">
-                    <!-- 평가 항목이 여기에 동적으로 삽입됩니다 -->
-                  </tbody>
-                </table>
-              </div>
-              
-              <div class="mt-4">
-                <h5 class="mb-3">선생님 의견</h5>
-                <div class="teacher-comment-area mb-4" id="teacherCommentCell"></div>
-              </div>
-              
-              <div class="mt-4 mb-4">
-                <h5 class="mb-3 text-center" id="contentsTitle"></h5>
-                
-                <table class="table table-bordered fixed-width">
-                  <tr>
-                    <th class="text-center bg-light" style="width: 15%;">교재</th>
-                    <td id="bookThumbnailsCell" class="text-center">
-                      <!-- 썸네일 이미지가 여기에 삽입됩니다 -->
-                    </td>
-                  </tr>
-                </table>
-              </div>
-              
-              <div class="text-center mt-4 page-footer">
-                <img src="/resource/codingnplay_logo.png" alt="코딩앤플레이" style="max-width: 80px;" />
-              </div>
-            </div>
-            <!-- 리포트 컨텐츠 끝 -->
+              </thead>
+              <tbody id="evaluationTableBody">
+                <!-- 평가 항목이 여기에 동적으로 삽입됩니다 -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="text-center mt-4 page-footer">
+            <img src="/resource/codingnplay_logo.png" alt="코딩앤플레이" style="max-width: 80px;" />
           </div>
         </div>
+        <!-- 리포트 컨텐츠 끝 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 알림 메시지 영역 -->
+  <div id="notification" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="bi bi-check-circle me-2"></i> <span id="toastMessage"></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     </div>
   </div>
@@ -159,6 +136,45 @@
 <%- include('../partials/footer') %>
 
 <style>
+  /* 편집 가능한 영역 스타일 */
+  .editable {
+    min-height: 1.5em;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .editable:empty::before {
+    content: attr(data-placeholder);
+    color: #aaa;
+    font-style: italic;
+  }
+  
+  .editable:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+  
+  .editable:focus {
+    outline: none;
+    background-color: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  /* 날짜 입력 스타일 조정 */
+  .date-input {
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
+    width: 130px;
+    padding: 2px;
+  }
+  
+  .date-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    background-color: #fff;
+  }
+  
   /* A4 용지 크기에 맞는 스타일 */
   @media screen {
     .a4-page {
@@ -239,10 +255,26 @@
     /* 다음 요소들은 명시적으로 숨김 */
     header, footer, 
     .navbar, .btn, 
-    .card:not(#printableReport),
-    .container > .row,
-    .col-md-4, .col-md-8:not(:has(#printableReport)) {
+    .toast-container,
+    .card-header {
       display: none !important;
+    }
+    
+    /* 편집 가능한 요소 인쇄 스타일 */
+    .editable {
+      border: none !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+    
+    /* 날짜 입력 필드 인쇄 스타일 */
+    .date-input {
+      border: none !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
     }
   }
   
@@ -275,95 +307,31 @@
     const category = decodeURIComponent(pathParts[pathParts.length - 2]);
     const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
     
+    // 알림 토스트 관련 요소
+    const toast = new bootstrap.Toast(document.querySelector('.toast'));
+    const toastMessageElement = document.getElementById('toastMessage');
+    
     // 초기 로딩 상태
     const loadingElement = document.getElementById('loading');
     const reportContentElement = document.getElementById('reportContent');
     
-    // 폼 요소
-    const studentNameInput = document.getElementById('studentName');
-    const teacherNameInput = document.getElementById('teacherName');
-    const centerNameInput = document.getElementById('centerName');
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const teacherCommentInput = document.getElementById('teacherComment');
-  
     // 리포트 요소
     const reportTitleElement = document.getElementById('reportTitle');
-    const studentNameCell = document.getElementById('studentNameCell');
-    const teacherNameCell = document.getElementById('teacherNameCell');
-    const centerNameCell = document.getElementById('centerNameCell');
-    const headerCenterName = document.getElementById('headerCenterName'); // 리포트 상단의 센터명
-    const studyPeriodCell = document.getElementById('studyPeriodCell');
     const programNameCell = document.getElementById('programNameCell');
-    const teacherCommentCell = document.getElementById('teacherCommentCell');
-    const evaluationTableBody = document.getElementById('evaluationTableBody');
     const contentsTitle = document.getElementById('contentsTitle');
     const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
-  
-    // 폼 카드에 적용 버튼 추가
-    const formCard = document.querySelector('.card');
-    if (formCard) {
-      const cardBody = formCard.querySelector('.card-body');
-      
-      if (cardBody) {
-        // 버튼 컨테이너 생성
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'px-3 py-2 d-flex justify-content-end';
-        
-        // 적용 버튼 생성
-        const applyButton = document.createElement('button');
-        applyButton.type = 'button';
-        applyButton.className = 'btn btn-primary';
-        applyButton.id = 'applyFormBtn';
-        applyButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> 정보 적용';
-        // 확대 애니메이션 효과 제거
-        applyButton.style.transition = 'none';
-        
-        // 알림 컨테이너 생성
-        const alertContainer = document.createElement('div');
-        alertContainer.className = 'alert-container mt-2';
-        alertContainer.style.display = 'none';
-        
-        // 버튼 컨테이너에 버튼 추가
-        buttonContainer.appendChild(applyButton);
-        
-        // 카드 헤더와 카드 본문 사이에 버튼 컨테이너 삽입
-        formCard.insertBefore(buttonContainer, cardBody);
-        formCard.insertBefore(alertContainer, cardBody);
-        
-        // 적용 버튼 클릭 이벤트 리스너
-        applyButton.addEventListener('click', function() {
-          updateReportFromForm();
-          
-          // 성공 메시지 표시
-          alertContainer.innerHTML = `
-            <div class="alert alert-success mx-3" role="alert">
-              정보가 보고서에 적용되었습니다!
-            </div>
-          `;
-          alertContainer.style.display = 'block';
-          
-          // 3초 후 알림 사라짐
-          setTimeout(() => {
-            alertContainer.style.display = 'none';
-          }, 3000);
-        });
-      }
-    }
+    const evaluationTableBody = document.getElementById('evaluationTableBody');
     
-    // 날짜 기본값 설정 (오늘 및 1개월 전)
+    // 현재 날짜 설정 (오늘 및 1개월 전)
     const today = new Date();
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(today.getMonth() - 1);
     
-    startDateInput.value = formatDateForInput(oneMonthAgo);
-    endDateInput.value = formatDateForInput(today);
-    
-    // 로컬 스토리지에서 센터명 불러오기
-    const savedCenterName = localStorage.getItem('centerName');
-    if (savedCenterName && centerNameInput) {
-      centerNameInput.value = savedCenterName;
-    }
+    // 저장 버튼 이벤트
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      saveAllData();
+      showNotification('모든 내용이 임시저장되었습니다');
+    });
     
     // 카테고리 이름 매핑 (영문 -> 한글)
     const categoryMapping = {
@@ -414,6 +382,11 @@
         
         data.evaluationItems.forEach((item, index) => {
           const row = document.createElement('tr');
+          
+          // 라디오 버튼의 name은 각 항목별로 고유해야 함
+          const radioName = `evaluation-${index}`;
+          const storageKey = `${category}-${volume}-${radioName}`;
+          
           row.innerHTML = `
             <td class="text-center">${item.id || index + 1}</td>
             <td class="text-center">${item.principle || ''}</td>
@@ -421,30 +394,33 @@
             <td class="text-center">
               <div class="form-check form-check-inline justify-content-center">
                 <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-high" value="상" checked>
+                  name="${radioName}" id="${radioName}-high" value="상" 
+                  data-storage-key="${storageKey}">
               </div>
             </td>
             <td class="text-center">
               <div class="form-check form-check-inline justify-content-center">
                 <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-mid" value="중">
+                  name="${radioName}" id="${radioName}-mid" value="중"
+                  data-storage-key="${storageKey}">
               </div>
             </td>
             <td class="text-center">
               <div class="form-check form-check-inline justify-content-center">
                 <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-low" value="하">
+                  name="${radioName}" id="${radioName}-low" value="하"
+                  data-storage-key="${storageKey}">
               </div>
             </td>
           `;
           evaluationTableBody.appendChild(row);
         });
         
-        // 평가 항목이 불러와졌음을 보여주는 로그
-        console.log(`${data.evaluationItems.length}개의 평가 항목이 표시됨`);
-        
         // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
         handlePageBreaks(data.evaluationItems.length);
+        
+        // 라디오 버튼 이벤트 설정
+        setupRadioButtonEvents();
       } else {
         evaluationTableBody.innerHTML = `
           <tr>
@@ -453,21 +429,20 @@
             </td>
           </tr>
         `;
-        console.log('평가 항목이 없음');
       }
       
       // 로딩 완료 후 컨텐츠 표시
       loadingElement.classList.add('d-none');
       reportContentElement.classList.remove('d-none');
       
-      // 센터명은 불러왔으면 바로 적용
-      if (savedCenterName) {
-        if (centerNameCell) centerNameCell.textContent = savedCenterName;
-        if (headerCenterName) headerCenterName.textContent = savedCenterName;
-      }
+      // 편집 가능한 요소 설정
+      setupEditableElements();
       
-      // 사용자가 입력한 값 저장 로직
-      setupFormListeners();
+      // 날짜 입력 필드 설정
+      setupDateInputs();
+      
+      // 저장된 데이터 불러오기
+      loadSavedData(category, volume);
       
     } catch (error) {
       console.error('Error:', error);
@@ -479,182 +454,165 @@
       `;
     }
     
-    // 폼 입력값 변경시 리포트 업데이트를 위한 이벤트 리스너만 등록
-    function setupFormListeners() {
-      // 센터명 변경 시 로컬 스토리지 저장
-      if (centerNameInput) {
-        centerNameInput.addEventListener('input', function() {
-          if (this.value) {
-            localStorage.setItem('centerName', this.value);
+    // 편집 가능한 요소 설정
+    function setupEditableElements() {
+      const editableElements = document.querySelectorAll('.editable');
+      
+      editableElements.forEach(element => {
+        // 포커스 아웃 시 저장
+        element.addEventListener('blur', function() {
+          const key = this.getAttribute('data-storage-key');
+          if (key) {
+            const reportKey = `${category}-${volume}-${key}`;
+            localStorage.setItem(reportKey, this.innerText);
           }
         });
-      }
-      
-      // 이전 방식의 자동 업데이트는 제거하고 적용 버튼으로만 업데이트하도록 변경
+        
+        // 엔터 키 차단 (줄바꿈 방지)
+        element.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            if (this.id !== 'teacherCommentCell') { // 선생님 의견은 엔터 허용
+              e.preventDefault();
+              this.blur();
+            }
+          }
+        });
+      });
     }
     
-    // 폼 입력값으로 리포트 업데이트
-    function updateReportFromForm() {
-      // 학생 및 강사 이름
-      if (studentNameCell) studentNameCell.textContent = studentNameInput.value || '-';
-      if (teacherNameCell) teacherNameCell.textContent = teacherNameInput.value || '-';
+    // 날짜 입력 필드 설정
+    function setupDateInputs() {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
       
-      // 센터명 업데이트
-      if (centerNameCell && centerNameInput) {
-        centerNameCell.textContent = centerNameInput.value || '-';
-      }
+      // 기본값 설정
+      startDateInput.value = formatDateForInput(oneMonthAgo);
+      endDateInput.value = formatDateForInput(today);
       
-      // 리포트 상단의 센터명 업데이트
-      if (headerCenterName && centerNameInput) {
-        headerCenterName.textContent = centerNameInput.value || '-';
-      }
+      // 변경 이벤트
+      [startDateInput, endDateInput].forEach(input => {
+        input.addEventListener('change', function() {
+          const key = this.getAttribute('data-storage-key');
+          if (key) {
+            const reportKey = `${category}-${volume}-${key}`;
+            localStorage.setItem(reportKey, this.value);
+          }
+        });
+      });
+    }
+    
+    // 라디오 버튼 이벤트 설정
+    function setupRadioButtonEvents() {
+      const radioButtons = document.querySelectorAll('.evaluation-radio');
       
-      // 학습 기간
-      if (studyPeriodCell && startDateInput && endDateInput) {
-        if (startDateInput.value && endDateInput.value) {
-          studyPeriodCell.textContent = formatDateRange(startDateInput.value, endDateInput.value);
-        } else {
-          studyPeriodCell.textContent = '-';
+      radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.checked) {
+            const key = this.getAttribute('data-storage-key');
+            if (key) {
+              localStorage.setItem(key, this.value);
+            }
+          }
+        });
+      });
+    }
+    
+    // 저장된 데이터 불러오기
+    function loadSavedData(category, volume) {
+      // 문자열 데이터 불러오기
+      document.querySelectorAll('.editable[data-storage-key]').forEach(element => {
+        const key = element.getAttribute('data-storage-key');
+        const reportKey = `${category}-${volume}-${key}`;
+        const savedValue = localStorage.getItem(reportKey);
+        
+        if (savedValue) {
+          element.innerText = savedValue;
         }
-      }
+      });
       
-      // 선생님 의견
-      if (teacherCommentCell && teacherCommentInput) {
-        teacherCommentCell.textContent = teacherCommentInput.value || '';
-      }
+      // 날짜 데이터 불러오기
+      document.querySelectorAll('input[type="date"][data-storage-key]').forEach(element => {
+        const key = element.getAttribute('data-storage-key');
+        const reportKey = `${category}-${volume}-${key}`;
+        const savedValue = localStorage.getItem(reportKey);
+        
+        if (savedValue) {
+          element.value = savedValue;
+        }
+      });
       
-      console.log('보고서 정보가 업데이트되었습니다.');
+      // 라디오 버튼 데이터 불러오기
+      document.querySelectorAll('.evaluation-radio').forEach(radio => {
+        const key = radio.getAttribute('data-storage-key');
+        if (key) {
+          const savedValue = localStorage.getItem(key);
+          if (savedValue && radio.value === savedValue) {
+            radio.checked = true;
+          } else if (!savedValue && radio.value === '상') {
+            // 저장된 값이 없으면 기본값으로 '상' 선택
+            radio.checked = true;
+          }
+        }
+      });
+    }
+    
+    // 모든 데이터 저장
+    function saveAllData() {
+      // 편집 가능한 텍스트 저장
+      document.querySelectorAll('.editable[data-storage-key]').forEach(element => {
+        const key = element.getAttribute('data-storage-key');
+        const reportKey = `${category}-${volume}-${key}`;
+        localStorage.setItem(reportKey, element.innerText);
+      });
+      
+      // 날짜 입력 저장
+      document.querySelectorAll('input[type="date"][data-storage-key]').forEach(element => {
+        const key = element.getAttribute('data-storage-key');
+        const reportKey = `${category}-${volume}-${key}`;
+        localStorage.setItem(reportKey, element.value);
+      });
+      
+      // 라디오 버튼 선택 저장
+      document.querySelectorAll('.evaluation-radio:checked').forEach(radio => {
+        const key = radio.getAttribute('data-storage-key');
+        if (key) {
+          localStorage.setItem(key, radio.value);
+        }
+      });
+      
+      // 저장 시각 기록
+      localStorage.setItem(`${category}-${volume}-lastSaved`, new Date().toISOString());
     }
     
     // 평가 항목 수에 따른 페이지 나누기 처리
     function handlePageBreaks(itemCount) {
       // 항목이 많을 경우(예: 7개 이상) 자동으로 페이지 나누기 설정
       if (itemCount > 7) {
-        console.log('평가 항목이 많아 페이지 나누기 처리가 필요합니다.');
-        // 클래스 추가로 인쇄 시 페이지 나누기 힌트 제공
         document.querySelector('.evaluation-container').classList.add('multi-page');
       }
+    }
+    
+    // 알림 표시 함수
+    function showNotification(message) {
+      toastMessageElement.textContent = message;
+      toast.show();
     }
     
     // 인쇄 버튼 이벤트
     const printBtn = document.getElementById('printBtn');
     if (printBtn) {
       printBtn.addEventListener('click', function() {
-        // 인쇄 전 레이아웃 최적화
-        optimizeForPrinting();
+        // 인쇄 전 데이터 저장
+        saveAllData();
         
-        // 인쇄 가능한 상태로 보고서 복제
-        const printContent = document.getElementById('printableReport');
-        const printWindow = window.open('', '_blank');
-        
-        if (printWindow) {
-          printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>학습 리포트</title>
-              <style>
-                @page {
-                  size: A4 portrait;
-                  margin: 1cm;
-                }
-                body {
-                  font-family: 'Noto Sans KR', sans-serif;
-                  line-height: 1.5;
-                  margin: 0;
-                  padding: 0;
-                }
-                .a4-page {
-                  width: 21cm;
-                  min-height: 29.7cm;
-                  padding: 1cm;
-                  margin: 0 auto;
-                  background: white;
-                  box-sizing: border-box;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                  table-layout: fixed;
-                }
-                th, td {
-                  border: 1px solid #dee2e6;
-                  padding: 8px;
-                  word-wrap: break-word;
-                }
-                .bg-light {
-                  background-color: #f8f9fa;
-                }
-                .text-center {
-                  text-align: center;
-                }
-                .teacher-comment-area {
-                  border: 1px solid #dee2e6;
-                  border-radius: 4px;
-                  padding: 1rem;
-                  min-height: 100px;
-                }
-                .book-thumbnail {
-                  max-height: 150px;
-                  max-width: 100%;
-                  object-fit: contain;
-                }
-                .page-footer {
-                  margin-top: 20px;
-                  text-align: center;
-                }
-              </style>
-            </head>
-            <body>
-              ${printContent.outerHTML}
-            </body>
-            </html>
-          `);
-          
-          printWindow.document.close();
-          // 리소스 로딩이 완료된 후 인쇄 실행
-          setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-          }, 500);
-        } else {
-          // 팝업 차단된 경우 기존 방식으로 인쇄
-          console.warn('팝업이 차단되었습니다. 기존 방식으로 인쇄를 시도합니다.');
-          window.print();
-        }
+        // 인쇄 다이얼로그 표시
+        window.print();
       });
-    }
-    
-    // 인쇄를 위한 최적화 함수
-    function optimizeForPrinting() {
-      // 테이블 너비 확인 및 조정
-      const tables = document.querySelectorAll('.fixed-width');
-      tables.forEach(table => {
-        console.log(`테이블 너비: ${table.offsetWidth}px`);
-      });
-      
-      // 선생님 의견이 비어있는지 확인하고 최소 높이 설정
-      const teacherComment = document.getElementById('teacherCommentCell');
-      if (teacherComment && !teacherComment.textContent.trim()) {
-        teacherComment.innerHTML = '&nbsp;'; // 비어있을 경우 공백 추가
-      }
-      
-      console.log('인쇄를 위한 레이아웃을 최적화했습니다.');
     }
     
     // 날짜 포맷 함수 (YYYY-MM-DD)
     function formatDateForInput(date) {
       return date.toISOString().split('T')[0];
-    }
-    
-    // 날짜 범위 포맷 함수 (YYYY.MM.DD ~ YYYY.MM.DD)
-    function formatDateRange(start, end) {
-      const formatDate = (dateStr) => {
-        const parts = dateStr.split('-');
-        return `${parts[0]}.${parts[1]}.${parts[2]}`;
-      };
-      
-      return `${formatDate(start)} ~ ${formatDate(end)}`;
     }
   });
 </script>
