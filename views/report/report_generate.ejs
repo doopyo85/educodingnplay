@@ -307,6 +307,8 @@
     const category = decodeURIComponent(pathParts[pathParts.length - 2]);
     const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
     
+    console.log("리포트 생성 페이지 로드:", { 경로: window.location.pathname, 카테고리: category, 볼륨: volume });
+    
     // 알림 토스트 관련 요소
     const toast = new bootstrap.Toast(document.querySelector('.toast'));
     const toastMessageElement = document.getElementById('toastMessage');
@@ -344,14 +346,17 @@
     };
     
     try {
-      // 교재 정보 가져오기
+      // 교재 정보 가져오기 - 원래 API 경로 유지
+      console.log(`API 호출: /report/book/${category}/${volume}`);
       const response = await fetch(`/report/book/${category}/${volume}`);
       
       if (!response.ok) {
-        throw new Error('교재 정보를 불러오는데 실패했습니다.');
+        console.error(`API 응답 오류: ${response.status} ${response.statusText}`);
+        throw new Error(`교재 정보를 불러오는데 실패했습니다. 상태 코드: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log("API 응답 데이터:", data);
       
       // 리포트 제목 설정
       const displayCategory = categoryMapping[category] || category;
@@ -364,68 +369,86 @@
       contentsTitle.textContent = `${displayCategory} CT컴퓨팅 사고력 신규확장 콘텐츠`;
       
       // 썸네일 이미지 표시
-      if (data.book.thumbnail) {
+      if (data.book && data.book.thumbnail) {
         bookThumbnailsCell.innerHTML = `
           <img src="${data.book.thumbnail}" alt="${data.book.title}" class="book-thumbnail">
           <p class="small mt-2">${data.book.title}</p>
         `;
-      } else {
+      } else if (data.book) {
         bookThumbnailsCell.innerHTML = `
           <p class="text-muted small">이미지 없음</p>
           <p class="small mt-2">${data.book.title}</p>
         `;
+      } else {
+        console.error("교재 정보가 올바르지 않습니다:", data);
+        bookThumbnailsCell.innerHTML = `
+          <p class="text-danger">교재 정보를 불러올 수 없습니다</p>
+        `;
       }
       
       // 평가 항목 테이블 생성
-      if (data.evaluationItems && data.evaluationItems.length > 0) {
-        evaluationTableBody.innerHTML = '';
-        
-        data.evaluationItems.forEach((item, index) => {
-          const row = document.createElement('tr');
+      try {
+        if (data.evaluationItems && Array.isArray(data.evaluationItems) && data.evaluationItems.length > 0) {
+          console.log("평가 항목 수:", data.evaluationItems.length);
+          evaluationTableBody.innerHTML = '';
           
-          // 라디오 버튼의 name은 각 항목별로 고유해야 함
-          const radioName = `evaluation-${index}`;
-          const storageKey = `${category}-${volume}-${radioName}`;
+          data.evaluationItems.forEach((item, index) => {
+            const row = document.createElement('tr');
+            
+            // 라디오 버튼의 name은 각 항목별로 고유해야 함
+            const radioName = `evaluation-${index}`;
+            const storageKey = `${category}-${volume}-${radioName}`;
+            
+            row.innerHTML = `
+              <td class="text-center">${item.id || index + 1}</td>
+              <td class="text-center">${item.principle || ''}</td>
+              <td>${item.description || ''}</td>
+              <td class="text-center">
+                <div class="form-check form-check-inline justify-content-center">
+                  <input class="form-check-input evaluation-radio" type="radio" 
+                    name="${radioName}" id="${radioName}-high" value="상" 
+                    data-storage-key="${storageKey}">
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-check form-check-inline justify-content-center">
+                  <input class="form-check-input evaluation-radio" type="radio" 
+                    name="${radioName}" id="${radioName}-mid" value="중"
+                    data-storage-key="${storageKey}">
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-check form-check-inline justify-content-center">
+                  <input class="form-check-input evaluation-radio" type="radio" 
+                    name="${radioName}" id="${radioName}-low" value="하"
+                    data-storage-key="${storageKey}">
+                </div>
+              </td>
+            `;
+            evaluationTableBody.appendChild(row);
+          });
           
-          row.innerHTML = `
-            <td class="text-center">${item.id || index + 1}</td>
-            <td class="text-center">${item.principle || ''}</td>
-            <td>${item.description || ''}</td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="${radioName}" id="${radioName}-high" value="상" 
-                  data-storage-key="${storageKey}">
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="${radioName}" id="${radioName}-mid" value="중"
-                  data-storage-key="${storageKey}">
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="${radioName}" id="${radioName}-low" value="하"
-                  data-storage-key="${storageKey}">
-              </div>
-            </td>
+          // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
+          handlePageBreaks(data.evaluationItems.length);
+          
+          // 라디오 버튼 이벤트 설정
+          setupRadioButtonEvents();
+        } else {
+          console.warn("평가 항목이 없거나 올바른 형식이 아닙니다:", data.evaluationItems);
+          evaluationTableBody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-muted py-3">
+                평가 항목이 없습니다.
+              </td>
+            </tr>
           `;
-          evaluationTableBody.appendChild(row);
-        });
-        
-        // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
-        handlePageBreaks(data.evaluationItems.length);
-        
-        // 라디오 버튼 이벤트 설정
-        setupRadioButtonEvents();
-      } else {
+        }
+      } catch (err) {
+        console.error("평가 항목 처리 중 오류 발생:", err);
         evaluationTableBody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center text-muted py-3">
-              평가 항목이 없습니다.
+            <td colspan="6" class="text-center text-danger">
+              <i class="bi bi-exclamation-triangle me-2"></i>평가 항목을 처리하는 중 오류가 발생했습니다.
             </td>
           </tr>
         `;
@@ -443,6 +466,12 @@
       
       // 저장된 데이터 불러오기
       loadSavedData(category, volume);
+      
+      console.log("교재 정보 로딩 완료:", {
+        제목: data.book.title,
+        카테고리: displayCategory,
+        평가항목수: data.evaluationItems ? data.evaluationItems.length : 0
+      });
       
     } catch (error) {
       console.error('Error:', error);
