@@ -37,6 +37,16 @@
     min-width: 60px;
     margin: 3px;
     font-size: 0.85rem;
+    font-weight: normal;
+    background-color: white;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+    white-space: nowrap;
+  }
+  
+  .book-button:hover {
+    background-color: #e7f1ff;
+    color: #0d6efd;
   }
   
   .category-row {
@@ -91,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 테이블 생성
     const table = document.createElement('table');
     table.className = 'books-table';
-    
+  
     // 테이블 헤더 생성 (1호 ~ 12호)
     const headerRow = document.createElement('tr');
     
@@ -127,7 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (i <= category.volumes) {
           // 현재 카테고리의 유효한 호수면 버튼 생성
           const button = document.createElement('button');
-          button.className = 'btn btn-sm btn-primary book-button';
+          
+          button.className = 'btn btn-sm btn-outline-primary book-button';
           button.textContent = `${i}호`;
           
           // 버튼 클릭 이벤트: 리포트 생성 페이지로 이동
