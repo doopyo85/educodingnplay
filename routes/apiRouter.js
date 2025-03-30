@@ -214,42 +214,50 @@ router.post('/run-python', (req, res) => {
   });
 });
 
+// Books data API - new endpoint for the books sheet
+router.get('/get-books-data', async (req, res) => {
+  try {
+    const data = await getSheetData('books!A2:F'); // Adjust column range A-F for the books sheet
+    res.json(data);
+  } catch (error) {
+    console.error('교재 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '교재 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// CT elements data API - endpoint for the report sheet
+router.get('/get-report-data', async (req, res) => {
+  try {
+    const data = await getSheetData('report!A2:G'); // Adjust column range A-G for the report sheet
+    res.json(data);
+  } catch (error) {
+    console.error('CT요소 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// Fetch CT elements for a specific book
 router.get('/get-book-ct-elements/:category/:issue', async (req, res) => {
   try {
     const { category, issue } = req.params;
     
-    // 교재 호수에서 교재 레벨과 호수를 분리 (예: "프리스쿨1-1" -> level: "1", issue: "1")
-    const levelMatch = issue.match(/(\d+)-(\d+)/);
-    if (!levelMatch) {
-      return res.status(400).json({ error: '올바르지 않은 교재 형식입니다.' });
-    }
+    // Get all CT elements from the report sheet
+    const allElements = await getSheetData('report!A2:G');
     
-    const level = levelMatch[1]; // 레벨 (예: "1", "2")
-    const issueNumber = levelMatch[2]; // 호수 (예: "1", "2")
+    // Filter elements for the specific book
+    const bookElements = allElements.filter(row => 
+      row[1] === category && row[2] === issue // Adjust indexes based on the sheet structure
+    );
     
-    // ct요소 테이블에서 데이터 가져오기
-    const data = await getSheetData('ct요소!A2:G');
+    // Transform to the expected format
+    const formattedElements = bookElements.map(row => ({
+      차시: row[3] || '',      // 차시명 column index
+      차시명: row[4] || '',    // 차시 column index
+      CT요소: row[5] || '',    // CT요소 column index
+      평가항목: row[6] || ''   // 평가항목 column index
+    }));
     
-    // 필터링 조건: 교재카테고리와 교재레벨호가 일치하는 항목만 선택
-    const formattedData = data
-      .filter(row => {
-        const rowCategory = row[0]; // 교재카테고리 (예: "프리스쿨 LV1")
-        const rowBookIssue = row[1]; // 교재레벨호 (예: "프리스쿨1-1")
-        
-        // 정확한 카테고리와 호수 매칭
-        return rowCategory === category && rowBookIssue === issue;
-      })
-      .map(row => ({
-        차시: row[2] || '',
-        차시명: row[3] || '',
-        CT요소: row[5] || '', // 차시CT요소 열
-        평가항목: row[6] || ''
-      }));
-    
-    // 차시 순으로 정렬
-    formattedData.sort((a, b) => parseInt(a.차시) - parseInt(b.차시));
-    
-    res.json(formattedData);
+    res.json(formattedElements);
   } catch (error) {
     console.error('CT요소 데이터 불러오기 오류:', error);
     res.status(500).json({ error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });

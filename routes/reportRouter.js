@@ -5,28 +5,48 @@ const { getSheetData } = require('../server'); // server.js에서 내보낸 함�
 const { authenticateUser } = require('../lib_login/authMiddleware');
 
 // 캐시 저장소
+let booksDataCache = null;
 let reportDataCache = null;
 let lastCacheUpdate = null;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간(1일) 캐시 유효기간
 
 // 캐시 업데이트 함수
-async function updateReportCache() {
+async function updateCaches() {
     try {
-        console.log('Updating report data cache from Google Sheets...');
-        const sheetData = await getSheetData('report!A1:Z1000'); // 전체 데이터 범위 가져오기
+        console.log('Updating books and report data cache from Google Sheets...');
         
-        if (!sheetData || !Array.isArray(sheetData) || sheetData.length === 0) {
+        // 1. books 시트에서 교재 정보 가져오기
+        const booksData = await getSheetData('books!A1:F1000');
+        
+        if (!booksData || !Array.isArray(booksData) || booksData.length === 0) {
+            console.error('Failed to fetch books data: Empty or invalid response');
+            return false;
+        }
+        
+        // 2. report 시트에서 CT요소 정보 가져오기
+        const reportData = await getSheetData('report!A1:G1000');
+        
+        if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
             console.error('Failed to fetch report data: Empty or invalid response');
             return false;
         }
         
         // 헤더 행 추출
-        const headers = sheetData[0];
+        const booksHeaders = booksData[0];
+        const reportHeaders = reportData[0];
         
         // 데이터 객체로 변환 (헤더를 키로 사용)
-        const parsedData = sheetData.slice(1).map(row => {
+        const parsedBooksData = booksData.slice(1).map(row => {
             const item = {};
-            headers.forEach((header, index) => {
+            booksHeaders.forEach((header, index) => {
+                item[header] = row[index] || '';
+            });
+            return item;
+        });
+        
+        const parsedReportData = reportData.slice(1).map(row => {
+            const item = {};
+            reportHeaders.forEach((header, index) => {
                 item[header] = row[index] || '';
             });
             return item;
@@ -46,14 +66,14 @@ async function updateReportCache() {
         };
         
         // 데이터를 카테고리별로 정리
-        const categorizedData = {};
+        const categorizedBooks = {};
         
         // 먼저 고정된 교재 카테고리 생성
         Object.keys(fixedBooks).forEach(category => {
-            categorizedData[category] = [];
+            categorizedBooks[category] = [];
             // 각 카테고리별 호수 생성
             for (let i = 1; i <= fixedBooks[category]; i++) {
-                categorizedData[category].push({
+                categorizedBooks[category].push({
                     category: category,
                     volume: i.toString(),
                     title: `${category} ${i}호`,
@@ -62,48 +82,68 @@ async function updateReportCache() {
             }
         });
         
-        // 구글 시트 데이터로 추가 정보 업데이트 (썸네일 URL 등)
-        parsedData.forEach(item => {
-            // 구글 시트의 컬럼명을 확인
+        // books 시트 데이터로 추가 정보 업데이트 (썸네일 URL 등)
+        parsedBooksData.forEach(item => {
+            // 시트의 컬럼명을 확인
             const category = item['교재카테고리'] || '기타';
+            const volume = item['교재레벨-호'] || '';
+            const title = item['교재제목'] || '';
+            const thumbnail = item['URL'] || '';
             
-            // 레벨-호 형식에서 볼륨(호수) 추출
-            let volume = '1';
-            if (item['교재레벨-호']) {
-                const parts = item['교재레벨-호'].split('-');
-                if (parts.length > 1) {
-                    volume = parts[1];
-                }
+            // 해당 카테고리가 없는 경우 새로 생성
+            if (!categorizedBooks[category]) {
+                categorizedBooks[category] = [];
             }
             
-            // 썸네일 URL 업데이트
-            if (categorizedData[category]) {
-                const existingVolume = categorizedData[category].find(book => 
-                    book.volume === volume
-                );
-                
-                if (existingVolume && item['thumbnail_url']) {
-                    existingVolume.thumbnail_url = item['thumbnail_url'];
-                }
+            // 기존 항목 찾기
+            const existingVolumeIndex = categorizedBooks[category].findIndex(book => 
+                book.volume === volume
+            );
+            
+            if (existingVolumeIndex >= 0) {
+                // 기존 항목 업데이트
+                categorizedBooks[category][existingVolumeIndex].title = title;
+                categorizedBooks[category][existingVolumeIndex].thumbnail_url = thumbnail;
+            } else {
+                // 새 항목 추가
+                categorizedBooks[category].push({
+                    category: category,
+                    volume: volume,
+                    title: title,
+                    thumbnail_url: thumbnail
+                });
             }
         });
         
         // 캐시 저장 및 타임스탬프 업데이트
-        reportDataCache = categorizedData;
+        booksDataCache = categorizedBooks;
+        reportDataCache = parsedReportData;
         lastCacheUpdate = Date.now();
-        console.log(`Report data cache updated with fixed book counts`);
+        console.log(`Books and report data cache updated successfully`);
         return true;
     } catch (error) {
-        console.error('Error updating report cache:', error);
+        console.error('Error updating caches:', error);
         return false;
     }
 }
 
 // 캐시된 데이터 가져오기
-async function getReportData() {
+async function getBooksData() {
+    // 캐시가 없거나 만료된 경우 업데이트
+    if (!booksDataCache || !lastCacheUpdate || (Date.now() - lastCacheUpdate) > CACHE_TTL) {
+        const success = await updateCaches();
+        if (!success && !booksDataCache) {
+            throw new Error('Failed to initialize books data cache');
+        }
+    }
+    
+    return booksDataCache;
+}
+
+async function getReportElements() {
     // 캐시가 없거나 만료된 경우 업데이트
     if (!reportDataCache || !lastCacheUpdate || (Date.now() - lastCacheUpdate) > CACHE_TTL) {
-        const success = await updateReportCache();
+        const success = await updateCaches();
         if (!success && !reportDataCache) {
             throw new Error('Failed to initialize report data cache');
         }
@@ -113,7 +153,7 @@ async function getReportData() {
 }
 
 // 서버 시작 시 캐시 초기화
-updateReportCache().catch(err => {
+updateCaches().catch(err => {
     console.error('Initial cache update failed:', err);
 });
 
@@ -122,7 +162,7 @@ setInterval(async () => {
     const now = new Date();
     if (now.getHours() === 4 && now.getMinutes() === 0) {
         console.log('Scheduled cache update...');
-        await updateReportCache();
+        await updateCaches();
     }
 }, 60000); // 1분마다 확인
 
@@ -139,8 +179,8 @@ router.get('/books-page', authenticateUser, (req, res) => {
 // API 엔드포인트: 교재 카테고리 및 목록 가져오기
 router.get('/books', authenticateUser, async (req, res) => {
     try {
-        const reportData = await getReportData();
-        res.json(reportData);
+        const booksData = await getBooksData();
+        res.json(booksData);
     } catch (error) {
         console.error('Error fetching book list:', error);
         res.status(500).json({ error: '교재 목록을 불러오는 중 오류가 발생했습니다.' });
@@ -154,28 +194,43 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
     try {
         const { category, volume } = req.params;
         
-        // 시트 데이터 가져오기
-        const sheetData = await getSheetData('report!A1:H1000');
-        console.log(`시트 데이터 수신: ${sheetData ? sheetData.length : 0}행`);
+        // 교재 정보 가져오기 (books 시트)
+        const booksData = await getSheetData('books!A2:F1000');
+        console.log(`교재 데이터 수신: ${booksData ? booksData.length : 0}행`);
         
-        if (!sheetData || !Array.isArray(sheetData) || sheetData.length <= 1) {
-            console.error('시트 데이터가 없거나 불충분합니다');
-            return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
+        // CT요소 정보 가져오기 (report 시트)
+        const reportData = await getSheetData('report!A2:G1000');
+        console.log(`CT요소 데이터 수신: ${reportData ? reportData.length : 0}행`);
+        
+        if (!booksData || !Array.isArray(booksData) || booksData.length === 0) {
+            console.error('교재 데이터가 없거나 불충분합니다');
+            return res.status(404).json({ error: '교재 데이터를 찾을 수 없습니다.' });
         }
         
-        // 인덱스 설정
-        const noIndex = 0;  // 'NO' 열 (A열)
-        const categoryIndex = 1;  // '교재카테고리' 열 (B열)
-        const volumeIndex = 2;  // '교재레벨-호' 열 (C열)
-        const lessonNameIndex = 3;  // '차시명' 열 (D열)
-        const thumbnailIndex = 4;  // 'thumbnail_url' 열 (E열)
-        const ctElementIndex = 6;  // '차시CT요소' 열 (G열)
-        const evalItemIndex = 7;  // '평가항목' 열 (H열)
+        if (!reportData || !Array.isArray(reportData) || reportData.length === 0) {
+            console.error('CT요소 데이터가 없거나 불충분합니다');
+            return res.status(404).json({ error: 'CT요소 데이터를 찾을 수 없습니다.' });
+        }
         
-        // 구글 시트 데이터에서 해당 카테고리/볼륨 필터링
-        let targetCategory = '';
+        // 인덱스 설정 - books 시트
+        const bookNoIndex = 0;         // 'NO' 열 (A열)
+        const bookCategoryIndex = 1;   // '교재카테고리' 열 (B열)
+        const bookVolumeIndex = 2;     // '교재레벨-호' 열 (C열)
+        const bookTitleIndex = 3;      // '교재제목' 열 (D열)
+        const bookDescIndex = 4;       // '교재요약' 열 (E열)
+        const bookThumbnailIndex = 5;  // 'URL' 열 (F열)
+        
+        // 인덱스 설정 - report 시트
+        const reportNoIndex = 0;         // 'NO' 열 (A열)
+        const reportCategoryIndex = 1;   // '교재카테고리' 열 (B열)
+        const reportVolumeIndex = 2;     // '교재레벨-호' 열 (C열)
+        const reportChapterIndex = 3;    // '차시' 열 (D열)
+        const reportChapterNameIndex = 4;// '차시명' 열 (E열)
+        const reportCTElementIndex = 5;  // 'CT요소' 열 (F열)
+        const reportEvalItemIndex = 6;   // '평가항목' 열 (G열)
         
         // 카테고리 매핑
+        let targetCategory = '';
         if (category.toLowerCase() === 'preschool') {
             targetCategory = '프리스쿨 LV';
         } else if (category.toLowerCase() === 'junior') {
@@ -194,73 +249,95 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         
         console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${volume}"`);
         
-        // 필터링 - 다양한 패턴 지원
-        const filteredRows = sheetData.slice(1).filter(row => {
-            if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
+        // 교재 정보 찾기
+        const bookInfo = booksData.find(row => {
+            if (!row || row.length <= Math.max(bookCategoryIndex, bookVolumeIndex)) {
                 return false;
             }
             
-            const rowCategory = row[categoryIndex] || '';
-            const rowVolume = row[volumeIndex] || '';
+            const rowCategory = row[bookCategoryIndex] || '';
+            const rowVolume = row[bookVolumeIndex] || '';
             
             // 카테고리 매칭
             const categoryMatch = rowCategory.includes(targetCategory);
             
-            // 다양한 볼륨 패턴 매칭 시도
+            // 볼륨 매칭 (다양한 패턴 지원)
             let volumeMatch = false;
             
-            if (categoryMatch && rowVolume) {
-                console.log(`검사 중: 카테고리=${rowCategory}, 볼륨=${rowVolume}`);
-                
-                // 패턴 1: "카테고리-숫자" (예: "cps-5")
-                if (rowVolume.includes(`-${volume}`)) {
+            if (rowVolume === volume) {
+                volumeMatch = true;
+            } else if (rowVolume.includes(`-${volume}`)) {
+                volumeMatch = true;
+            } else {
+                // 숫자 추출 시도
+                const numbers = rowVolume.match(/\d+/g);
+                if (numbers && numbers.includes(volume)) {
                     volumeMatch = true;
-                    console.log(`패턴1 매칭: ${rowVolume}`);
-                }
-                // 패턴 2: "카테고리이름숫자" (예: "CPScps5")
-                else if (rowVolume.includes(`${targetCategory.toLowerCase()}${volume}`)) {
-                    volumeMatch = true;
-                    console.log(`패턴2 매칭: ${rowVolume}`);
-                }
-                // 패턴 3: 직접 숫자 추출 시도
-                else {
-                    // 모든 숫자를 추출하여 일치하는지 확인
-                    const numbers = rowVolume.match(/\d+/g);
-                    if (numbers && numbers.includes(volume)) {
-                        volumeMatch = true;
-                        console.log(`패턴3 매칭: ${rowVolume}, 추출된 숫자=${numbers.join(',')}`);
-                    }
                 }
             }
             
             return categoryMatch && volumeMatch;
         });
         
-        console.log(`필터링 결과: ${filteredRows.length}개 행 일치`);
+        // 기본 교재 정보 설정
+        const bookData = {
+            category: category,
+            volume: volume,
+            title: `${targetCategory} ${volume}호`,
+            thumbnail: ''
+        };
         
-        // 첫 번째 일치 항목 로깅
-        if (filteredRows.length > 0) {
-            console.log('첫 번째 일치 항목:', filteredRows[0]);
+        // 교재 정보가 있으면 업데이트
+        if (bookInfo) {
+            bookData.title = bookInfo[bookTitleIndex] || bookData.title;
+            bookData.thumbnail = bookInfo[bookThumbnailIndex] || '';
+            console.log(`교재 정보 찾음: ${bookData.title}`);
+        } else {
+            console.log(`교재 정보를 찾을 수 없음. 기본값 사용: ${bookData.title}`);
         }
         
-        if (filteredRows.length === 0) {
-            return res.status(404).json({ error: '해당 교재의 CT요소 정보를 찾을 수 없습니다.' });
-        }
+        // CT요소 및 평가 항목 필터링
+        const filteredReportData = reportData.filter(row => {
+            if (!row || row.length <= Math.max(reportCategoryIndex, reportVolumeIndex)) {
+                return false;
+            }
+            
+            const rowCategory = row[reportCategoryIndex] || '';
+            const rowVolume = row[reportVolumeIndex] || '';
+            
+            // 카테고리 매칭
+            const categoryMatch = rowCategory.includes(targetCategory);
+            
+            // 볼륨 매칭 (다양한 패턴 지원)
+            let volumeMatch = false;
+            
+            if (rowVolume === volume) {
+                volumeMatch = true;
+            } else if (rowVolume.includes(`-${volume}`)) {
+                volumeMatch = true;
+            } else {
+                // 숫자 추출 시도
+                const numbers = rowVolume.match(/\d+/g);
+                if (numbers && numbers.includes(volume)) {
+                    volumeMatch = true;
+                }
+            }
+            
+            return categoryMatch && volumeMatch;
+        });
         
-        // 썸네일 URL 가져오기
-        let thumbnailUrl = '';
-        if (filteredRows.length > 0 && thumbnailIndex < filteredRows[0].length) {
-            thumbnailUrl = filteredRows[0][thumbnailIndex] || '';
-        }
+        console.log(`필터링된 CT요소 데이터: ${filteredReportData.length}개 행`);
         
         // 평가 항목 추출
         const evaluationItems = [];
         const processedItems = new Set();
         
-        filteredRows.forEach(row => {
-            if (row.length > Math.max(ctElementIndex, evalItemIndex)) {
-                const ctElement = row[ctElementIndex];
-                const evalItem = row[evalItemIndex];
+        filteredReportData.forEach(row => {
+            if (row.length > Math.max(reportCTElementIndex, reportEvalItemIndex)) {
+                const chapter = row[reportChapterIndex] || '';
+                const chapterName = row[reportChapterNameIndex] || '';
+                const ctElement = row[reportCTElementIndex] || '';
+                const evalItem = row[reportEvalItemIndex] || '';
                 
                 if (ctElement && evalItem) {
                     const itemKey = `${ctElement}-${evalItem}`;
@@ -269,25 +346,29 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
                         processedItems.add(itemKey);
                         evaluationItems.push({
                             id: evaluationItems.length + 1,
+                            chapter: chapter,
+                            chapterName: chapterName,
                             principle: ctElement,
                             description: evalItem
                         });
-                        console.log(`평가항목 추가: ${ctElement} - ${evalItem}`);
+                        console.log(`평가항목 추가: 차시=${chapter}, CT요소=${ctElement}`);
                     }
                 }
             }
+        });
+        
+        // 차시 순으로 정렬
+        evaluationItems.sort((a, b) => {
+            const chapterA = parseInt(a.chapter) || 0;
+            const chapterB = parseInt(b.chapter) || 0;
+            return chapterA - chapterB;
         });
         
         console.log(`평가 항목 추출: ${evaluationItems.length}개`);
         
         // 응답 데이터
         const responseData = {
-            book: {
-                category: category,
-                volume: volume,
-                title: `${category} ${volume}호`,
-                thumbnail: thumbnailUrl
-            },
+            book: bookData,
             evaluationItems: evaluationItems
         };
         
@@ -308,6 +389,96 @@ router.get('/generate/:category/:volume', authenticateUser, (req, res) => {
         category: req.params.category,
         volume: req.params.volume
     });
+});
+
+// CT요소 API - 특정 교재의 CT요소만 가져오기
+router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, res) => {
+    try {
+        const { category, volume } = req.params;
+        
+        // report 시트에서 CT요소 정보 가져오기
+        const reportData = await getSheetData('report!A2:G1000');
+        
+        if (!reportData || !Array.isArray(reportData)) {
+            return res.status(404).json({ error: 'CT요소 데이터를 찾을 수 없습니다.' });
+        }
+        
+        // 카테고리 매핑
+        let targetCategory = '';
+        if (category.toLowerCase() === 'preschool') {
+            targetCategory = '프리스쿨 LV';
+        } else if (category.toLowerCase() === 'junior') {
+            targetCategory = '주니어 LV';
+        } else if (category.toLowerCase() === 'cps') {
+            targetCategory = 'CPS';
+        } else if (category.toLowerCase() === 'cpa') {
+            targetCategory = 'CPA';
+        } else if (category.toLowerCase() === 'ctr_appinventor') {
+            targetCategory = '앱인벤터';
+        } else if (category.toLowerCase() === 'ctr_python') {
+            targetCategory = '파이썬';
+        } else {
+            targetCategory = category;
+        }
+        
+        // 인덱스 설정
+        const categoryIndex = 1;   // '교재카테고리' 열 (B열)
+        const volumeIndex = 2;     // '교재레벨-호' 열 (C열)
+        const chapterIndex = 3;    // '차시' 열 (D열)
+        const chapterNameIndex = 4;// '차시명' 열 (E열)
+        const ctElementIndex = 5;  // 'CT요소' 열 (F열)
+        const evalItemIndex = 6;   // '평가항목' 열 (G열)
+        
+        // 해당 교재의 CT요소만 필터링
+        const filteredElements = reportData.filter(row => {
+            if (!row || row.length <= Math.max(categoryIndex, volumeIndex)) {
+                return false;
+            }
+            
+            const rowCategory = row[categoryIndex] || '';
+            const rowVolume = row[volumeIndex] || '';
+            
+            // 카테고리 매칭
+            const categoryMatch = rowCategory.includes(targetCategory);
+            
+            // 볼륨 매칭
+            let volumeMatch = false;
+            
+            if (rowVolume === volume) {
+                volumeMatch = true;
+            } else if (rowVolume.includes(`-${volume}`)) {
+                volumeMatch = true;
+            } else {
+                // 숫자 추출 시도
+                const numbers = rowVolume.match(/\d+/g);
+                if (numbers && numbers.includes(volume)) {
+                    volumeMatch = true;
+                }
+            }
+            
+            return categoryMatch && volumeMatch;
+        });
+        
+        // 결과 포맷팅
+        const ctElements = filteredElements.map(row => ({
+            차시: row[chapterIndex] || '',
+            차시명: row[chapterNameIndex] || '',
+            CT요소: row[ctElementIndex] || '',
+            평가항목: row[evalItemIndex] || ''
+        }));
+        
+        // 차시 순으로 정렬
+        ctElements.sort((a, b) => {
+            const chapterA = parseInt(a.차시) || 0;
+            const chapterB = parseInt(b.차시) || 0;
+            return chapterA - chapterB;
+        });
+        
+        res.json(ctElements);
+    } catch (error) {
+        console.error('CT요소 데이터 로딩 중 오류:', error);
+        res.status(500).json({ error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+    }
 });
 
 module.exports = router;
