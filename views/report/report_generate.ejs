@@ -764,4 +764,412 @@
       return `${formatDate(start)} ~ ${formatDate(end)}`;
     }
   });
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // CT요소를 표시할 컨테이너 확인
+    const ctElementsContainer = document.getElementById('ct-elements-container');
+    if (!ctElementsContainer) {
+      console.warn('CT요소를 표시할 컨테이너가 존재하지 않습니다');
+      return;
+    }
+  
+    // 교재 선택 드롭다운 요소 가져오기
+    const bookSelector = document.getElementById('book-selector');
+    if (bookSelector) {
+      // 교재 선택 변경 이벤트 리스너
+      bookSelector.addEventListener('change', function() {
+        loadCtElementsForSelectedBook(this.value);
+      });
+      
+      // 페이지 로드 시 초기 선택된 교재에 대한 CT요소 로드
+      if (bookSelector.value) {
+        loadCtElementsForSelectedBook(bookSelector.value);
+      }
+    }
+    
+    /**
+     * 선택된 교재의 CT요소를 로드하는 함수
+     * @param {string} selectedBook - 선택된 교재 (예: "프리스쿨 LV1-프리스쿨1-1")
+     */
+    function loadCtElementsForSelectedBook(selectedBook) {
+      if (!selectedBook) return;
+      
+      // 교재 정보 파싱
+      const bookInfo = parseBookInfo(selectedBook);
+      if (!bookInfo) {
+        console.error('교재 정보 파싱 실패:', selectedBook);
+        return;
+      }
+      
+      const { category, issue } = bookInfo;
+      
+      // 로딩 표시
+      ctElementsContainer.innerHTML = '<p class="text-center"><i class="bi bi-hourglass-split"></i> CT요소 로딩 중...</p>';
+      
+      // API 호출하여 해당 교재의 CT요소 가져오기
+      fetchCtElementsForBook(category, issue);
+    }
+    
+    /**
+     * 교재 선택 문자열을 카테고리와 호수로 파싱
+     * @param {string} selectedBook - "프리스쿨 LV1-프리스쿨1-1" 형식의 문자열
+     * @returns {Object|null} 카테고리와 호수 정보를 포함하는 객체
+     */
+    function parseBookInfo(selectedBook) {
+      // 입력 문자열이 유효한지 확인
+      if (!selectedBook || typeof selectedBook !== 'string') {
+        return null;
+      }
+      
+      // 파싱 패턴: "카테고리-호수" (예: "프리스쿨 LV1-프리스쿨1-1")
+      const parts = selectedBook.split('-');
+      
+      // 정확하게 파싱되었는지 확인
+      if (parts.length < 2) {
+        console.error('교재 정보 형식이 올바르지 않습니다:', selectedBook);
+        return null;
+      }
+      
+      // 카테고리는 첫 번째 부분
+      let category = parts[0].trim();
+      
+      // 호수는 나머지 부분들을 결합 (경우에 따라 '-'가 호수 내에 포함될 수 있음)
+      const issue = parts.slice(1).join('-').trim();
+      
+      return { category, issue };
+    }
+    
+    /**
+     * 특정 교재의 CT요소를 API를 통해 가져오는 함수
+     * @param {string} category - 교재 카테고리 (예: "프리스쿨 LV1")
+     * @param {string} issue - 교재 호수 (예: "프리스쿨1-1")
+     */
+    async function fetchCtElementsForBook(category, issue) {
+      try {
+        const response = await fetch(`/api/get-book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(issue)}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '서버 오류');
+        }
+        
+        const ctElements = await response.json();
+        
+        // CT요소 표시
+        displayCtElements(ctElements, category, issue);
+        
+      } catch (error) {
+        console.error('CT요소 로딩 중 오류:', error);
+        ctElementsContainer.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> CT요소를 로드하는 중 오류가 발생했습니다: ${error.message}
+          </div>
+        `;
+      }
+    }
+    
+    /**
+     * CT요소를 UI에 표시하는 함수
+     * @param {Array} ctElements - 표시할 CT요소 목록
+     * @param {string} category - 교재 카테고리
+     * @param {string} issue - 교재 호수
+     */
+    function displayCtElements(ctElements, category, issue) {
+      if (!ctElementsContainer) return;
+      
+      ctElementsContainer.innerHTML = '';
+      
+      // 제목 추가
+      const titleElement = document.createElement('h5');
+      titleElement.className = 'mb-3';
+      titleElement.innerHTML = `<i class="bi bi-list-check"></i> ${category} ${issue} CT요소`;
+      ctElementsContainer.appendChild(titleElement);
+      
+      if (ctElements.length === 0) {
+        ctElementsContainer.innerHTML += `
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 해당 교재에 등록된 CT요소가 없습니다.
+          </div>
+        `;
+        return;
+      }
+      
+      // 테이블 생성
+      const table = document.createElement('table');
+      table.className = 'table table-bordered table-hover';
+      
+      // 테이블 헤더
+      const thead = document.createElement('thead');
+      thead.className = 'table-light';
+      thead.innerHTML = `
+        <tr>
+          <th width="10%" class="text-center">차시</th>
+          <th width="35%" class="text-center">차시명</th>
+          <th width="25%" class="text-center">CT요소</th>
+          <th width="30%" class="text-center">평가항목</th>
+        </tr>
+      `;
+      
+      // 테이블 바디
+      const tbody = document.createElement('tbody');
+      
+      ctElements.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${item.차시}</td>
+          <td>${item.차시명 || '-'}</td>
+          <td>${item.CT요소 || '-'}</td>
+          <td>${item.평가항목 || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      ctElementsContainer.appendChild(table);
+      
+      // 차시 수 표시
+      const countInfo = document.createElement('p');
+      countInfo.className = 'text-muted mt-2';
+      countInfo.innerHTML = `<small>총 ${ctElements.length}개의 CT요소가 있습니다.</small>`;
+      ctElementsContainer.appendChild(countInfo);
+    }
+  });
+
+
+  // 추가: CT요소 컨테이너를 동적으로 생성
+  const createCtElementsContainer = () => {
+    // 이미 존재하는지 확인
+    if (document.getElementById('ct-elements-container')) {
+      return;
+    }
+    
+    // 리포트 컨텐츠 내에 CT요소 섹션 추가
+    const reportContent = document.getElementById('reportContent');
+    if (!reportContent) return;
+    
+    // 평가 컨테이너 찾기
+    const evaluationContainer = reportContent.querySelector('.evaluation-container');
+    if (!evaluationContainer) return;
+    
+    // CT요소 컨테이너를 평가 컨테이너 앞에 추가
+    const ctContainer = document.createElement('div');
+    ctContainer.id = 'ct-elements-container';
+    ctContainer.className = 'ct-elements-section mb-4';
+    evaluationContainer.parentNode.insertBefore(ctContainer, evaluationContainer);
+    
+    // CT요소 섹션 제목 추가
+    const ctTitle = document.createElement('h5');
+    ctTitle.className = 'mb-3';
+    ctTitle.innerHTML = 'CT요소 목록';
+    ctContainer.appendChild(ctTitle);
+    
+    return ctContainer;
+  };
+
+  // URL에서 교재 정보 파싱
+  const parseBookInfoFromURL = () => {
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.length < 2) return null;
+    
+    // report/book/category/volume 경로에서 category와 volume 추출
+    const category = decodeURIComponent(pathParts[pathParts.length - 2]);
+    const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+    
+    // 프리스쿨과 주니어 과정의 경우 레벨 정보 처리
+    let bookCategory = category;
+    if (category === 'preschool') {
+      const levelMatch = volume.match(/LV(\d+)/i);
+      if (levelMatch) {
+        bookCategory = `프리스쿨 LV${levelMatch[1]}`;
+      } else {
+        bookCategory = '프리스쿨 LV1'; // 기본값
+      }
+    } else if (category === 'junior') {
+      const levelMatch = volume.match(/LV(\d+)/i);
+      if (levelMatch) {
+        bookCategory = `주니어 LV${levelMatch[1]}`;
+      } else {
+        bookCategory = '주니어 LV1'; // 기본값
+      }
+    }
+    
+    // 호수 정보 추출
+    let bookIssue = '';
+    if (category === 'preschool') {
+      const issueMatch = volume.match(/LV\d+-(\d+)호/i);
+      if (issueMatch) {
+        const issueNum = issueMatch[1];
+        bookIssue = `프리스쿨${volume.match(/LV(\d+)/i)[1]}-${issueNum}`;
+      }
+    } else if (category === 'junior') {
+      const issueMatch = volume.match(/LV\d+-(\d+)호/i);
+      if (issueMatch) {
+        const issueNum = issueMatch[1];
+        bookIssue = `주니어${volume.match(/LV(\d+)/i)[1]}-${issueNum}`;
+      }
+    }
+    
+    return { category: bookCategory, issue: bookIssue };
+  };
+
+  // 로딩 완료 후 CT요소 자동 로드 함수
+  const loadCtElementsAutomatic = () => {
+    // CT요소 컨테이너 생성
+    const ctContainer = createCtElementsContainer();
+    if (!ctContainer) {
+      console.warn('CT요소 컨테이너를 생성할 수 없습니다.');
+      return;
+    }
+    
+    // URL에서 교재 정보 파싱
+    const bookInfo = parseBookInfoFromURL();
+    if (!bookInfo || !bookInfo.category || !bookInfo.issue) {
+      console.warn('URL에서 교재 정보를 파싱할 수 없습니다.');
+      ctContainer.innerHTML = `
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-circle"></i> 교재 정보를 확인할 수 없습니다.
+        </div>
+      `;
+      return;
+    }
+    
+    console.log('교재 정보 파싱됨:', bookInfo);
+    
+    // 로딩 표시
+    ctContainer.innerHTML = '<p class="text-center"><i class="bi bi-hourglass-split"></i> CT요소 로딩 중...</p>';
+    
+    // CT요소 API 호출
+    fetch(`/api/get-book-ct-elements/${encodeURIComponent(bookInfo.category)}/${encodeURIComponent(bookInfo.issue)}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('API 응답 오류');
+        }
+        return response.json();
+      })
+      .then(ctElements => {
+        // CT요소 표시
+        displayCtElements(ctElements, bookInfo.category, bookInfo.issue, ctContainer);
+      })
+      .catch(error => {
+        console.error('CT요소 로딩 중 오류:', error);
+        ctContainer.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> CT요소를 로드하는 중 오류가 발생했습니다: ${error.message}
+          </div>
+        `;
+      });
+  };
+
+  // CT요소를 UI에 표시하는 함수
+  const displayCtElements = (ctElements, category, issue, container) => {
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // 제목 추가
+    const titleElement = document.createElement('h5');
+    titleElement.className = 'mb-3';
+    titleElement.innerHTML = `<i class="bi bi-list-check"></i> ${category} ${issue} CT요소`;
+    container.appendChild(titleElement);
+    
+    if (!ctElements || ctElements.length === 0) {
+      container.innerHTML += `
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> 해당 교재에 등록된 CT요소가 없습니다.
+        </div>
+      `;
+      return;
+    }
+    
+    // 테이블 생성
+    const table = document.createElement('table');
+    table.className = 'table table-bordered table-hover';
+    
+    // 테이블 헤더
+    const thead = document.createElement('thead');
+    thead.className = 'table-light';
+    thead.innerHTML = `
+      <tr>
+        <th width="10%" class="text-center">차시</th>
+        <th width="35%" class="text-center">차시명</th>
+        <th width="25%" class="text-center">CT요소</th>
+        <th width="30%" class="text-center">평가항목</th>
+      </tr>
+    `;
+    
+    // 테이블 바디
+    const tbody = document.createElement('tbody');
+    
+    // CT요소를 차시 순으로 정렬
+    const sortedElements = [...ctElements].sort((a, b) => parseInt(a.차시 || '0') - parseInt(b.차시 || '0'));
+    
+    sortedElements.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-center">${item.차시 || '-'}</td>
+        <td>${item.차시명 || '-'}</td>
+        <td>${item.CT요소 || '-'}</td>
+        <td>${item.평가항목 || '-'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    container.appendChild(table);
+    
+    // 차시 수 표시
+    const countInfo = document.createElement('p');
+    countInfo.className = 'text-muted mt-2';
+    countInfo.innerHTML = `<small>총 ${sortedElements.length}개의 CT요소가 있습니다.</small>`;
+    container.appendChild(countInfo);
+    
+    // 인쇄 시 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+      @media print {
+        #ct-elements-container {
+          page-break-inside: avoid;
+        }
+        #ct-elements-container table {
+          font-size: 11px;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  };
+
+  // 리포트 컨텐츠가 로드된 후 CT요소 자동 로드
+  document.addEventListener('reportContentLoaded', loadCtElementsAutomatic);
+
+  // 리포트 컨텐츠 로드 완료 이벤트 체크
+  const checkReportContentLoaded = () => {
+    const reportContent = document.getElementById('reportContent');
+    if (reportContent && !reportContent.classList.contains('d-none')) {
+      // 이벤트 발생
+      document.dispatchEvent(new CustomEvent('reportContentLoaded'));
+    }
+  };
+
+  // MutationObserver로 reportContent의 클래스 변경 감지
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        checkReportContentLoaded();
+      }
+    });
+  });
+
+  const reportContent = document.getElementById('reportContent');
+  if (reportContent) {
+    observer.observe(reportContent, { attributes: true });
+    
+    // 초기 상태 확인 (이미 로드되어 있을 수 있음)
+    if (!reportContent.classList.contains('d-none')) {
+      setTimeout(loadCtElementsAutomatic, 500);
+    }
+  };
+
 </script>

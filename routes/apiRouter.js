@@ -214,6 +214,74 @@ router.post('/run-python', (req, res) => {
   });
 });
 
+router.get('/get-book-ct-elements/:category/:issue', async (req, res) => {
+  try {
+    const { category, issue } = req.params;
+    
+    // 교재 호수에서 교재 레벨과 호수를 분리 (예: "프리스쿨1-1" -> level: "1", issue: "1")
+    const levelMatch = issue.match(/(\d+)-(\d+)/);
+    if (!levelMatch) {
+      return res.status(400).json({ error: '올바르지 않은 교재 형식입니다.' });
+    }
+    
+    const level = levelMatch[1]; // 레벨 (예: "1", "2")
+    const issueNumber = levelMatch[2]; // 호수 (예: "1", "2")
+    
+    // ct요소 테이블에서 데이터 가져오기
+    const data = await getSheetData('ct요소!A2:G');
+    
+    // 필터링 조건: 교재카테고리와 교재레벨호가 일치하는 항목만 선택
+    const formattedData = data
+      .filter(row => {
+        const rowCategory = row[0]; // 교재카테고리 (예: "프리스쿨 LV1")
+        const rowBookIssue = row[1]; // 교재레벨호 (예: "프리스쿨1-1")
+        
+        // 정확한 카테고리와 호수 매칭
+        return rowCategory === category && rowBookIssue === issue;
+      })
+      .map(row => ({
+        차시: row[2] || '',
+        차시명: row[3] || '',
+        CT요소: row[5] || '', // 차시CT요소 열
+        평가항목: row[6] || ''
+      }));
+    
+    // 차시 순으로 정렬
+    formattedData.sort((a, b) => parseInt(a.차시) - parseInt(b.차시));
+    
+    res.json(formattedData);
+  } catch (error) {
+    console.error('CT요소 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
+// 특정 레벨의 모든 CT요소 가져오기 (디버깅용)
+router.get('/get-level-ct-elements/:category', async (req, res) => {
+  try {
+    const { category } = req.params;
+    
+    // ct요소 테이블에서 데이터 가져오기
+    const data = await getSheetData('ct요소!A2:G');
+    
+    // 필터링 조건: 교재카테고리가 일치하는 항목만 선택
+    const formattedData = data
+      .filter(row => row[0] === category)
+      .map(row => ({
+        교재레벨호: row[1] || '',
+        차시: row[2] || '',
+        차시명: row[3] || '',
+        CT요소: row[5] || '',
+        평가항목: row[6] || ''
+      }));
+    
+    res.json(formattedData);
+  } catch (error) {
+    console.error('레벨 CT요소 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: '레벨 CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+  }
+});
+
 // 프로필 업로드 디렉토리 설정
 const profileUploadDir = path.join(__dirname, '../public/resource/profiles/uploads');
 
