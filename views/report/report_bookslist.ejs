@@ -131,40 +131,51 @@ document.addEventListener('DOMContentLoaded', function() {
       row.appendChild(categoryCell);
       
       // 호수 버튼 생성 (1호 ~ category.volumes까지)
-      for (let i = 1; i <= 12; i++) {
-        const volumeCell = document.createElement('td');
-        
-        if (i <= category.volumes) {
-          // 현재 카테고리의 유효한 호수면 버튼 생성
-          const button = document.createElement('button');
+      // 교재 카드 렌더링 함수 업데이트 - 버튼 생성 부분 수정
+// 호수 버튼 생성 (1호 ~ category.volumes까지)
+for (let i = 1; i <= 12; i++) {
+  const volumeCell = document.createElement('td');
+  
+  if (i <= category.volumes) {
+    // 현재 카테고리의 유효한 호수면 버튼 생성
+    const button = document.createElement('button');
+    button.className = 'btn btn-sm btn-outline-primary book-button';
+    button.textContent = `${i}호`;
+    
+    // 버튼 클릭 이벤트: 리포트 생성 페이지로 이동
+    button.addEventListener('click', function() {
+      let volume = `${i}호`;
+      let categoryId = category.id; // 카테고리 ID 기본값
+      
+      // 프리스쿨/주니어의 경우 LV 정보 추가
+      if (category.name.includes('프리스쿨') || category.name.includes('주니어')) {
+        const lvMatch = category.name.match(/LV(\d+)/i);
+        if (lvMatch) {
+          volume = `LV${lvMatch[1]}-${i}호`;
           
-          button.className = 'btn btn-sm btn-outline-primary book-button';
-          button.textContent = `${i}호`;
-          
-          // 버튼 클릭 이벤트: 리포트 생성 페이지로 이동
-          button.addEventListener('click', function() {
-            let volume = `${i}호`;
-            
-            // 프리스쿨/주니어의 경우 LV 정보 추가
-            if (category.name.includes('프리스쿨') || category.name.includes('주니어')) {
-              const lvMatch = category.name.match(/LV(\d+)/i);
-              if (lvMatch) {
-                volume = `LV${lvMatch[1]}-${i}호`;
-              }
-            }
-            
-            // 리포트 생성 페이지로 이동
-            window.location.href = `/report/generate/${encodeURIComponent(category.id)}/${encodeURIComponent(volume)}`;
-          });
-          
-          volumeCell.appendChild(button);
-        } else {
-          // 유효하지 않은 호수인 경우 빈 셀
-          volumeCell.innerHTML = '&nbsp;';
+          // URL 용 카테고리 ID 설정 (소문자)
+          if (category.name.includes('프리스쿨')) {
+            categoryId = 'preschool';
+          } else if (category.name.includes('주니어')) {
+            categoryId = 'junior';
+          }
         }
-        
-        row.appendChild(volumeCell);
       }
+      
+      console.log(`리포트 생성: 카테고리=${categoryId}, 볼륨=${volume}`);
+      
+      // 리포트 생성 페이지로 이동
+      window.location.href = `/report/generate/${encodeURIComponent(categoryId)}/${encodeURIComponent(volume)}`;
+    });
+    
+    volumeCell.appendChild(button);
+  } else {
+    // 유효하지 않은 호수인 경우 빈 셀
+    volumeCell.innerHTML = '&nbsp;';
+  }
+  
+  row.appendChild(volumeCell);
+}
       
       table.appendChild(row);
     });

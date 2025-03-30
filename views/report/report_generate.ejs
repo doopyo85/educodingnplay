@@ -764,4 +764,90 @@
       return `${formatDate(start)} ~ ${formatDate(end)}`;
     }
   });
+
+  // 로딩 완료 후 CT요소 자동 로드 함수 수정
+const loadCtElementsAutomatic = () => {
+  // CT요소 컨테이너 생성
+  const ctContainer = createCtElementsContainer();
+  if (!ctContainer) {
+    console.warn('CT요소 컨테이너를 생성할 수 없습니다.');
+    return;
+  }
+  
+  // URL에서 카테고리와 볼륨 파싱
+  const pathParts = window.location.pathname.split('/');
+  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
+  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+  
+  console.log(`CT요소 로딩 시작: 카테고리=${category}, 볼륨=${volume}`);
+  
+  // 로딩 표시
+  ctContainer.innerHTML = '<p class="text-center"><i class="bi bi-hourglass-split"></i> CT요소 로딩 중...</p>';
+  
+  // 새로운 API 엔드포인트를 사용하여 CT요소 데이터 가져오기
+  fetch(`/report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`API 응답 오류: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(ctElements => {
+      console.log(`로드된 CT요소: ${ctElements.length}개`);
+      
+      // 카테고리 이름 매핑 (영문 -> 한글)
+      const categoryMapping = {
+        'preschool': '프리스쿨',
+        'junior': '주니어',
+        'cps': 'CPS',
+        'cpa': 'CPA',
+        'ctr_appinventor': 'CTR앱인벤터',
+        'ctr_python': 'CTR파이썬'
+      };
+      
+      const displayCategory = categoryMapping[category] || category;
+      let levelInfo = '';
+      
+      // 프리스쿨과 주니어 과정의 경우 레벨 정보 추출
+      if (category === 'preschool' || category === 'junior') {
+        const levelMatch = volume.match(/LV(\d+)/i);
+        if (levelMatch) {
+          levelInfo = ` LV${levelMatch[1]}`;
+        }
+      }
+      
+      // 실제 호수 부분 추출 (LV 정보 제외)
+      let volumeNumber = volume;
+      if (category === 'preschool' || category === 'junior') {
+        const volumeMatch = volume.match(/[-_](\d+)호$/);
+        if (volumeMatch) {
+          volumeNumber = volumeMatch[1] + '호';
+        }
+      } else if (!volume.endsWith('호')) {
+        volumeNumber = volume + '호';
+      }
+      
+      // CT요소 표시
+      displayCtElements(ctElements, `${displayCategory}${levelInfo}`, volumeNumber, ctContainer);
+    })
+    .catch(error => {
+      console.error('CT요소 로딩 중 오류:', error);
+      ctContainer.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i> CT요소를 로드하는 중 오류가 발생했습니다: ${error.message}
+        </div>
+      `;
+    });
+};
+
+// 디버깅용 로그 추가 - API 요청 경로 정확히 표시
+document.addEventListener('reportContentLoaded', () => {
+  // URL에서 카테고리와 볼륨 파싱
+  const pathParts = window.location.pathname.split('/');
+  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
+  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+  
+  console.log(`CT요소 API 호출 예정: /report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`);
+  loadCtElementsAutomatic();
+});
 </script>
