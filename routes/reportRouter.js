@@ -57,6 +57,12 @@ async function updateCaches() {
         reportDataCache = parsedReportData;
         lastCacheUpdate = Date.now();
         console.log(`Books and report data cache updated successfully`);
+        
+        // 디버깅용 - 데이터 샘플 출력
+        if (parsedReportData.length > 0) {
+            console.log("Report 데이터 샘플:", JSON.stringify(parsedReportData[0]));
+        }
+        
         return true;
     } catch (error) {
         console.error('Error updating caches:', error);
@@ -131,25 +137,84 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             await updateCaches();
         }
         
-        // 카테고리 매핑
+        // 카테고리 매핑 및 레벨 정보 추출
         let targetCategory = '';
+        let levelNum = '';
+        let volumeNum = '';
+        
         if (category.toLowerCase() === 'preschool') {
-            targetCategory = '프리스쿨 LV';
+            // 볼륨에서 레벨 정보 추출 (예: 'LV1-3호'에서 'LV1')
+            const levelMatch = volume.match(/LV(\d+)/i);
+            if (levelMatch) {
+                levelNum = levelMatch[1];
+                targetCategory = `프리스쿨 LV${levelNum}`;
+                
+                // 볼륨 번호 추출 (예: 'LV1-3호'에서 '3')
+                const volumeMatch = volume.match(/[-_](\d+)호$/);
+                if (volumeMatch) {
+                    volumeNum = volumeMatch[1];
+                }
+            } else {
+                targetCategory = '프리스쿨 LV1'; // 기본값
+            }
         } else if (category.toLowerCase() === 'junior') {
-            targetCategory = '주니어 LV';
+            // 볼륨에서 레벨 정보 추출
+            const levelMatch = volume.match(/LV(\d+)/i);
+            if (levelMatch) {
+                levelNum = levelMatch[1];
+                targetCategory = `주니어 LV${levelNum}`;
+                
+                // 볼륨 번호 추출
+                const volumeMatch = volume.match(/[-_](\d+)호$/);
+                if (volumeMatch) {
+                    volumeNum = volumeMatch[1];
+                }
+            } else {
+                targetCategory = '주니어 LV1'; // 기본값
+            }
         } else if (category.toLowerCase() === 'cps') {
             targetCategory = 'CPS';
+            
+            // 볼륨 번호 추출 (예: '1호'에서 '1')
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
         } else if (category.toLowerCase() === 'cpa') {
             targetCategory = 'CPA';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
         } else if (category.toLowerCase() === 'ctr_appinventor') {
             targetCategory = '앱인벤터';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
         } else if (category.toLowerCase() === 'ctr_python') {
             targetCategory = '파이썬';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
         } else {
             targetCategory = category;
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
         }
         
-        console.log(`목표 검색: 카테고리="${targetCategory}", 볼륨="${volume}"`);
+        console.log(`변환된 검색 조건: 카테고리="${targetCategory}", 볼륨번호="${volumeNum}"`);
         
         // 교재 정보 찾기
         const bookInfo = booksDataCache.find(book => {
@@ -157,24 +222,38 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             const bookVolume = book['교재레벨-호'] || '';
             
             // 카테고리 매칭
-            const categoryMatch = bookCategory.includes(targetCategory);
+            const categoryMatch = bookCategory === targetCategory;
             
             // 볼륨 매칭 (다양한 패턴 지원)
             let volumeMatch = false;
             
-            if (bookVolume === volume) {
-                volumeMatch = true;
-            } else if (bookVolume.includes(`-${volume}`)) {
-                volumeMatch = true;
-            } else {
-                // 숫자 추출 시도
-                const numbers = bookVolume.match(/\d+/g);
-                if (numbers && numbers.includes(volume.replace(/호$/, ''))) {
+            if (category.toLowerCase() === 'preschool' || category.toLowerCase() === 'junior') {
+                // 프리스쿨/주니어 경우 특별 처리
+                const bookPrefix = category.toLowerCase() === 'preschool' ? '프리스쿨' : '주니어';
+                const expectedVolume = `${bookPrefix}${levelNum}-${volumeNum}`;
+                
+                if (bookVolume === expectedVolume) {
                     volumeMatch = true;
+                    console.log(`정확한 볼륨 매칭: ${bookVolume} == ${expectedVolume}`);
+                }
+            } else {
+                // 일반 교재 처리
+                if (bookVolume === volumeNum || bookVolume === `${volumeNum}호`) {
+                    volumeMatch = true;
+                } else {
+                    // 숫자 추출 시도
+                    const numbers = bookVolume.match(/\d+/g);
+                    if (numbers && numbers.includes(volumeNum)) {
+                        volumeMatch = true;
+                    }
                 }
             }
             
-            return categoryMatch && volumeMatch;
+            const result = categoryMatch && volumeMatch;
+            if (result) {
+                console.log(`교재 매칭 성공: 카테고리=${bookCategory}, 볼륨=${bookVolume}`);
+            }
+            return result;
         });
         
         // 기본 교재 정보 설정
@@ -200,24 +279,40 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             const itemVolume = item['교재레벨-호'] || '';
             
             // 카테고리 매칭
-            const categoryMatch = itemCategory.includes(targetCategory);
+            const categoryMatch = itemCategory === targetCategory;
             
-            // 볼륨 매칭 (다양한 패턴 지원)
+            // 볼륨 매칭 (프리스쿨/주니어와 기타 카테고리 구분)
             let volumeMatch = false;
             
-            if (itemVolume === volume) {
-                volumeMatch = true;
-            } else if (itemVolume.includes(`-${volume}`)) {
-                volumeMatch = true;
+            if (category.toLowerCase() === 'preschool' || category.toLowerCase() === 'junior') {
+                if (volumeNum) {
+                    // 프리스쿨/주니어 항목은 "프리스쿨1-1" 또는 "주니어1-1" 형식
+                    const prefix = category.toLowerCase() === 'preschool' ? '프리스쿨' : '주니어';
+                    const expectedVolume = `${prefix}${levelNum}-${volumeNum}`;
+                    
+                    if (itemVolume === expectedVolume) {
+                        volumeMatch = true;
+                        console.log(`정확한 볼륨 매칭: ${itemVolume} == ${expectedVolume}`);
+                    }
+                }
             } else {
-                // 숫자 추출 시도
-                const numbers = itemVolume.match(/\d+/g);
-                if (numbers && numbers.includes(volume.replace(/호$/, ''))) {
+                // 기타 카테고리는 단순 번호 비교
+                if (itemVolume === volumeNum || itemVolume === `${volumeNum}호`) {
                     volumeMatch = true;
+                } else {
+                    // 숫자 추출 시도
+                    const numbers = itemVolume.match(/\d+/g);
+                    if (numbers && numbers.includes(volumeNum)) {
+                        volumeMatch = true;
+                    }
                 }
             }
             
-            return categoryMatch && volumeMatch;
+            const match = categoryMatch && volumeMatch;
+            if (match) {
+                console.log(`CT요소 매칭: 카테고리=${itemCategory}, 볼륨=${itemVolume}`);
+            }
+            return match;
         });
         
         console.log(`필터링된 CT요소 데이터: ${filteredReportData.length}개 행`);
@@ -283,7 +378,6 @@ router.get('/generate/:category/:volume', authenticateUser, (req, res) => {
 });
 
 // CT요소 API - 특정 교재의 CT요소만 가져오기
-
 router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, res) => {
     try {
         const { category, volume } = req.params;
@@ -295,9 +389,10 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
 
         console.log(`CT 요소 검색: 카테고리=${category}, 볼륨=${volume}`);
         
-        // 카테고리 매핑
+        // 카테고리 매핑 및 레벨 정보 추출
         let targetCategory = '';
         let levelNum = '';
+        let volumeNum = '';
         
         if (category.toLowerCase() === 'preschool') {
             // 볼륨에서 레벨 정보 추출 (예: 'LV1-3호'에서 'LV1')
@@ -305,6 +400,12 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
             if (levelMatch) {
                 levelNum = levelMatch[1];
                 targetCategory = `프리스쿨 LV${levelNum}`;
+                
+                // 볼륨 번호 추출 (예: 'LV1-3호'에서 '3')
+                const volumeMatch = volume.match(/[-_](\d+)호$/);
+                if (volumeMatch) {
+                    volumeNum = volumeMatch[1];
+                }
             } else {
                 targetCategory = '프리스쿨 LV1'; // 기본값
             }
@@ -314,66 +415,91 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
             if (levelMatch) {
                 levelNum = levelMatch[1];
                 targetCategory = `주니어 LV${levelNum}`;
+                
+                // 볼륨 번호 추출
+                const volumeMatch = volume.match(/[-_](\d+)호$/);
+                if (volumeMatch) {
+                    volumeNum = volumeMatch[1];
+                }
             } else {
                 targetCategory = '주니어 LV1'; // 기본값
             }
         } else if (category.toLowerCase() === 'cps') {
             targetCategory = 'CPS';
-        } else if (category.toLowerCase() === 'cpa') {
-            targetCategory = 'CPA';
-        } else if (category.toLowerCase() === 'ctr_appinventor') {
-            targetCategory = '앱인벤터';
-        } else if (category.toLowerCase() === 'ctr_python') {
-            targetCategory = '파이썬';
-        } else {
-            targetCategory = category;
-        }
-        
-        console.log(`변환된 검색 조건: 카테고리="${targetCategory}"`);
-        
-        // 볼륨 번호 추출 (예: 'LV1-3호'에서 '3')
-        let volumeNum = '';
-        if (volume.includes('LV')) {
-            const volumeMatch = volume.match(/[-_](\d+)호$/);
-            if (volumeMatch) {
-                volumeNum = volumeMatch[1];
-                console.log(`추출된 볼륨 번호: ${volumeNum}`);
-            }
-        } else {
-            // 'LV' 없는 경우, 숫자만 추출
+            
+            // 볼륨 번호 추출 (예: '1호'에서 '1')
             const numMatch = volume.match(/(\d+)/);
             if (numMatch) {
                 volumeNum = numMatch[1];
-                console.log(`추출된 볼륨 번호: ${volumeNum}`);
+            }
+        } else if (category.toLowerCase() === 'cpa') {
+            targetCategory = 'CPA';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
+        } else if (category.toLowerCase() === 'ctr_appinventor') {
+            targetCategory = '앱인벤터';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
+        } else if (category.toLowerCase() === 'ctr_python') {
+            targetCategory = '파이썬';
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
+            }
+        } else {
+            targetCategory = category;
+            
+            // 볼륨 번호 추출
+            const numMatch = volume.match(/(\d+)/);
+            if (numMatch) {
+                volumeNum = numMatch[1];
             }
         }
+        
+        console.log(`변환된 검색 조건: 카테고리="${targetCategory}", 볼륨번호="${volumeNum}"`);
+        
+        // 데이터 구조 디버깅 - 첫 5개 항목 출력
+        const sampleItems = reportDataCache.slice(0, 5);
+        console.log("데이터 샘플 (처음 5개 항목):");
+        sampleItems.forEach((item, index) => {
+            console.log(`항목 ${index}: 카테고리=${item['교재카테고리']}, 볼륨=${item['교재레벨-호']}`);
+        });
         
         // 해당 교재의 CT요소만 필터링
         const filteredElements = reportDataCache.filter(item => {
             const itemCategory = item['교재카테고리'] || '';
             const itemVolume = item['교재레벨-호'] || '';
             
-            // 카테고리 매칭 - 정확한 일치로 확인
+            // 카테고리 매칭
             const categoryMatch = itemCategory === targetCategory;
             
             // 볼륨 매칭 - 프리스쿨/주니어와 기타 카테고리 구분
             let volumeMatch = false;
             
             if (category.toLowerCase() === 'preschool' || category.toLowerCase() === 'junior') {
-                // 프리스쿨/주니어의 경우 '프리스쿨1-N' 또는 '주니어1-N' 형식 확인
-                if (itemVolume && volumeNum) {
-                    // 정확한 볼륨 번호만 추출 시도
-                    const itemVolNumMatch = itemVolume.match(/(\d+)[-_](\d+)/);
-                    if (itemVolNumMatch && itemVolNumMatch[2] === volumeNum) {
+                if (volumeNum) {
+                    // 프리스쿨/주니어 항목은 "프리스쿨1-1" 또는 "주니어1-1" 형식
+                    const prefix = category.toLowerCase() === 'preschool' ? '프리스쿨' : '주니어';
+                    const expectedVolume = `${prefix}${levelNum}-${volumeNum}`;
+                    
+                    if (itemVolume === expectedVolume) {
                         volumeMatch = true;
-                        console.log(`볼륨 매칭 성공: ${itemVolume} 매치 ${volumeNum}`);
+                        console.log(`정확한 볼륨 매칭: ${itemVolume} == ${expectedVolume}`);
                     }
                 }
             } else {
-                // 기타 카테고리는 기존 로직 유지
-                if (itemVolume === volume) {
-                    volumeMatch = true;
-                } else if (itemVolume.includes(`-${volumeNum}`)) {
+                // 기타 카테고리는 단순 번호 비교
+                if (itemVolume === volumeNum || itemVolume === `${volumeNum}호`) {
                     volumeMatch = true;
                 } else {
                     // 숫자 추출 시도
@@ -386,12 +512,53 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
             
             const match = categoryMatch && volumeMatch;
             if (match) {
-                console.log(`매칭 항목 발견: 카테고리=${itemCategory}, 볼륨=${itemVolume}`);
+                console.log(`CT요소 매칭: 카테고리=${itemCategory}, 볼륨=${itemVolume}`);
             }
             return match;
         });
         
         console.log(`필터링된 CT요소 데이터: ${filteredElements.length}개 행`);
+        
+        // 만약 결과가 없으면 targetCategory를 부분 일치로 재시도
+        if (filteredElements.length === 0) {
+            console.log("정확한 매칭 결과 없음, 부분 일치로 재시도");
+            
+            const alternativeElements = reportDataCache.filter(item => {
+                const itemCategory = item['교재카테고리'] || '';
+                const itemVolume = item['교재레벨-호'] || '';
+                
+                // 카테고리 부분 일치 (contains)
+                const categoryPartialMatch = itemCategory.includes(targetCategory.split(" ")[0]);
+                
+                // 볼륨 매칭 (contains volumeNum)
+                let volumePartialMatch = false;
+                if (volumeNum && itemVolume.includes(volumeNum)) {
+                    volumePartialMatch = true;
+                }
+                
+                return categoryPartialMatch && volumePartialMatch;
+            });
+            
+            console.log(`부분 일치 필터링: ${alternativeElements.length}개 행`);
+            
+            if (alternativeElements.length > 0) {
+                const ctElements = alternativeElements.map(item => ({
+                    차시: item['차시'] || '',
+                    차시명: item['차시명'] || '',
+                    CT요소: item['CT요소'] || '',
+                    평가항목: item['평가항목'] || ''
+                }));
+                
+                // 차시 순으로 정렬
+                ctElements.sort((a, b) => {
+                    const chapterA = parseInt(a.차시) || 0;
+                    const chapterB = parseInt(b.차시) || 0;
+                    return chapterA - chapterB;
+                });
+                
+                return res.json(ctElements);
+            }
+        }
         
         // 결과 포맷팅
         const ctElements = filteredElements.map(item => ({
