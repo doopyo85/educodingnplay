@@ -7,35 +7,165 @@
 
 <div class="container mt-5"> 
   <div class="row mb-4">
-    <div class="col-md-8 offset-md-2">
-      <h1 class="text-center fw-bold mb-2">월간 학습리포트 POD</h1>
-      <p class="text-center text-muted">교재 카테고리와 호수를 선택하여 학습 리포트를 생성하세요</p>
-    </div>
-  </div>
-  
-  <div class="row">
     <div class="col-md-10 offset-md-1">
-      <!-- 코스 컨테이너 -->
+      <h1 class="text-center fw-bold mb-2">월간 학습리포트 POD</h1>
+      <p class="text-center text-muted mb-4">교재 카테고리와 호수를 선택하여 학습 리포트를 생성하세요</p>
+      
+      <!-- 테이블 형식의 교재 선택 UI -->
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">교재 선택</h4>
         </div>
-        <div class="card-body p-3" id="categoryContainer">
-          <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+        <div class="card-body p-4">
+          <div id="booksTableContainer">
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">교재 정보를 불러오는 중...</p>
             </div>
-            <p class="mt-2">교재 정보를 불러오는 중...</p>
           </div>
         </div>
       </div>
     </div>
-    <div class="mb-5"></div>
   </div>
 </div>
 
-<!-- Bootstrap JavaScript 명시적 로드 추가 -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/report_bookslist.js"></script>
+<!-- 커스텀 스타일 추가 -->
+<style>
+  .book-button {
+    min-width: 60px;
+    margin: 3px;
+    font-size: 0.85rem;
+  }
+  
+  .category-row {
+    background-color: #f8f9fa;
+  }
+  
+  .category-name {
+    font-weight: bold;
+    min-width: 120px;
+  }
+  
+  .books-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 3px;
+  }
+  
+  .books-table th {
+    text-align: center;
+    background-color: #e9ecef;
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  .books-table td {
+    padding: 5px;
+    vertical-align: middle;
+  }
+</style>
+
+<!-- 자바스크립트 코드 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 교재 테이블 컨테이너
+  const booksTableContainer = document.getElementById('booksTableContainer');
+  
+  // 고정된 교재 정보
+  const fixedCategories = [
+    { id: 'preschool', name: '프리스쿨 LV1', volumes: 12 },
+    { id: 'preschool', name: '프리스쿨 LV2', volumes: 12 },
+    { id: 'preschool', name: '프리스쿨 LV3', volumes: 12 },
+    { id: 'junior', name: '주니어 LV1', volumes: 12 },
+    { id: 'junior', name: '주니어 LV2', volumes: 12 },
+    { id: 'cps', name: 'CPS', volumes: 6 },
+    { id: 'cpa', name: 'CPA', volumes: 3 },
+    { id: 'ctr_appinventor', name: 'CTR앱인벤터', volumes: 5 },
+    { id: 'ctr_python', name: 'CTR파이썬', volumes: 3 }
+  ];
+  
+  // 교재 데이터 로드 및 표시 함수
+  function renderBooksTable() {
+    // 테이블 생성
+    const table = document.createElement('table');
+    table.className = 'books-table';
+    
+    // 테이블 헤더 생성 (1호 ~ 12호)
+    const headerRow = document.createElement('tr');
+    
+    // 첫 번째 셀은 빈 셀
+    const emptyHeaderCell = document.createElement('th');
+    emptyHeaderCell.textContent = '교재 카테고리';
+    headerRow.appendChild(emptyHeaderCell);
+    
+    // 호수 헤더 (1호 ~ 12호)
+    for (let i = 1; i <= 12; i++) {
+      const headerCell = document.createElement('th');
+      headerCell.textContent = `${i}호`;
+      headerRow.appendChild(headerCell);
+    }
+    
+    table.appendChild(headerRow);
+    
+    // 카테고리별 행 생성
+    fixedCategories.forEach(category => {
+      const row = document.createElement('tr');
+      row.className = 'category-row';
+      
+      // 카테고리 이름 셀
+      const categoryCell = document.createElement('td');
+      categoryCell.className = 'category-name';
+      categoryCell.textContent = category.name;
+      row.appendChild(categoryCell);
+      
+      // 호수 버튼 생성 (1호 ~ category.volumes까지)
+      for (let i = 1; i <= 12; i++) {
+        const volumeCell = document.createElement('td');
+        
+        if (i <= category.volumes) {
+          // 현재 카테고리의 유효한 호수면 버튼 생성
+          const button = document.createElement('button');
+          button.className = 'btn btn-sm btn-primary book-button';
+          button.textContent = `${i}호`;
+          
+          // 버튼 클릭 이벤트: 리포트 생성 페이지로 이동
+          button.addEventListener('click', function() {
+            let volume = `${i}호`;
+            
+            // 프리스쿨/주니어의 경우 LV 정보 추가
+            if (category.name.includes('프리스쿨') || category.name.includes('주니어')) {
+              const lvMatch = category.name.match(/LV(\d+)/i);
+              if (lvMatch) {
+                volume = `LV${lvMatch[1]}-${i}호`;
+              }
+            }
+            
+            // 리포트 생성 페이지로 이동
+            window.location.href = `/report/generate/${encodeURIComponent(category.id)}/${encodeURIComponent(volume)}`;
+          });
+          
+          volumeCell.appendChild(button);
+        } else {
+          // 유효하지 않은 호수인 경우 빈 셀
+          volumeCell.innerHTML = '&nbsp;';
+        }
+        
+        row.appendChild(volumeCell);
+      }
+      
+      table.appendChild(row);
+    });
+    
+    // 컨테이너에 테이블 추가
+    booksTableContainer.innerHTML = '';
+    booksTableContainer.appendChild(table);
+  }
+  
+  // 초기 로드
+  renderBooksTable();
+});
+</script>
 
 <%- include('../partials/footer') %>
