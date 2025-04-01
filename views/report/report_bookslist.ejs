@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
       row.appendChild(categoryCell);
       
       // 호수 버튼 생성 (1호 ~ category.volumes까지)
+      // report_bookslist.ejs 파일의 버튼 클릭 이벤트 수정 코드
       for (let i = 1; i <= 12; i++) {
         const volumeCell = document.createElement('td');
         
@@ -142,30 +143,45 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // 버튼 클릭 이벤트: 리포트 생성 페이지로 이동
           button.addEventListener('click', function() {
-            let categoryId = category.id; // 카테고리 ID 기본값
-            let volumeId = `${i}호`;  // 볼륨 ID 기본값
+            // B열 값으로 카테고리 설정 (교재카테고리)
+            let categoryId = category.name; // B열 값(예: '주니어 LV1')
             
-            // 프리스쿨/주니어의 경우 LV 정보 추가
-            if (category.name.includes('프리스쿨') || category.name.includes('주니어')) {
+            // C열 값으로 볼륨 설정 (교재레벨-호)
+            let bookId = '';
+            
+            // 프리스쿨/주니어의 경우 C열 값 형성
+            if (category.name.includes('프리스쿨')) {
               const lvMatch = category.name.match(/LV(\d+)/i);
               if (lvMatch) {
                 const levelNum = lvMatch[1];
-                
-                // URL 용 카테고리 ID 설정 (소문자)
-                if (category.name.includes('프리스쿨')) {
-                  categoryId = 'preschool';
-                  volumeId = `${levelNum}-${i}`;  // 예: "1-4"
-                } else if (category.name.includes('주니어')) {
-                  categoryId = 'junior';
-                  volumeId = `${levelNum}-${i}`;  // 예: "1-4"
-                }
+                bookId = `프리스쿨${levelNum}-${i}`;
+              } else {
+                bookId = `프리스쿨1-${i}`;
               }
+            } else if (category.name.includes('주니어')) {
+              const lvMatch = category.name.match(/LV(\d+)/i);
+              if (lvMatch) {
+                const levelNum = lvMatch[1];
+                bookId = `주니어${levelNum}-${i}`;
+              } else {
+                bookId = `주니어1-${i}`;
+              }
+            } else if (category.name.includes('CPS')) {
+              bookId = `cps${i}`;
+            } else if (category.name.includes('CPA')) {
+              bookId = `cpa${i}`;
+            } else if (category.name.includes('앱인벤터')) {
+              bookId = `ctr앱인벤터${i}`;
+            } else if (category.name.includes('파이썬')) {
+              bookId = `ctr파이썬${i}`;
+            } else {
+              bookId = `${category.id}${i}`;
             }
             
-            console.log(`리포트 생성: 카테고리=${categoryId}, 볼륨=${volumeId}`);
+            console.log(`리포트 생성: B열=${encodeURIComponent(categoryId)}, C열=${encodeURIComponent(bookId)}`);
             
-            // 리포트 생성 페이지로 이동
-            window.location.href = `/report/generate/${encodeURIComponent(categoryId)}/${encodeURIComponent(volumeId)}`;
+            // 리포트 생성 페이지로 이동 - B열/C열 값 직접 사용
+            window.location.href = `/report/generate/${encodeURIComponent(categoryId)}/${encodeURIComponent(bookId)}`;
           });
           
           volumeCell.appendChild(button);

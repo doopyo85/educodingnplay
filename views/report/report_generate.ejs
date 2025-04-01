@@ -307,7 +307,7 @@
     const category = decodeURIComponent(pathParts[pathParts.length - 2]);
     const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
     
-    console.log(`리포트 생성 페이지 로드: 카테고리=${category}, 볼륨=${volume}`);
+    console.log(`리포트 생성 페이지 로드: B열=${category}, C열=${volume}`);
     
     // 초기 로딩 상태
     const loadingElement = document.getElementById('loading');
@@ -350,59 +350,6 @@
     // 초기 포맷팅 실행
     updateFormattedPeriod();
     
-    // 카테고리 이름 매핑 (영문 -> 한글)
-    const categoryMapping = {
-      'preschool': '프리스쿨',
-      'junior': '주니어',
-      'cps': 'CPS',
-      'cpa': 'CPA',
-      'ctr_appinventor': 'CTR앱인벤터',
-      'ctr_python': 'CTR파이썬'
-    };
-    
-    // 정규화된 카테고리 및 볼륨 정보 추출
-    let displayCategory = categoryMapping[category.toLowerCase()] || category;
-    let levelInfo = '';
-    let volumeNumber = volume;
-    let bookId = '';
-    
-    // 볼륨 형식 파싱
-    if (category.toLowerCase() === 'preschool' || category.toLowerCase() === 'junior') {
-      // 프리스쿨/주니어의 경우 레벨과 호수 추출
-      const parts = volume.split('-');
-      if (parts.length === 2) {
-        levelInfo = ` LV${parts[0]}`;
-        volumeNumber = `${parts[1]}호`;
-        // 실제 C열에 해당하는 bookId 형식으로 변환
-        const prefix = category.toLowerCase() === 'preschool' ? '프리스쿨' : '주니어';
-        bookId = `${prefix}${parts[0]}-${parts[1]}`;
-      }
-    } else if (category.toLowerCase() === 'cps') {
-      const numMatch = volume.match(/(\d+)/);
-      if (numMatch) {
-        volumeNumber = `${numMatch[1]}호`;
-        bookId = `cps${numMatch[1]}`;
-      }
-    } else if (category.toLowerCase() === 'cpa') {
-      const numMatch = volume.match(/(\d+)/);
-      if (numMatch) {
-        volumeNumber = `${numMatch[1]}호`;
-        bookId = `cpa${numMatch[1]}`;
-      }
-    } else if (category.toLowerCase() === 'ctr_appinventor') {
-      const numMatch = volume.match(/(\d+)/);
-      if (numMatch) {
-        volumeNumber = `${numMatch[1]}호`;
-        bookId = `ctr앱인벤터${numMatch[1]}`;
-      }
-    } else if (category.toLowerCase() === 'ctr_python') {
-      const numMatch = volume.match(/(\d+)/);
-      if (numMatch) {
-        volumeNumber = `${numMatch[1]}호`;
-        bookId = `ctr파이썬${numMatch[1]}`;
-      }
-    }
-    
     // 보고서 저장 키 생성
     const reportStorageKey = `report_${category}_${volume}`;
     
@@ -410,7 +357,7 @@
     loadSavedReportData();
     
     try {
-      // 교재 정보 및 CT요소 가져오기
+      // 교재 정보 및 CT요소 가져오기 - B열/C열 값 직접 전달
       const response = await fetch(`/report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`);
       
       if (!response.ok) {
@@ -420,14 +367,30 @@
       const data = await response.json();
       console.log('불러온 데이터:', data);
       
+      // 카테고리 표시 값 (B열) 및 볼륨 표시 값 (C열에서 파싱)
+      let displayCategory = category;
+      let displayVolume = volume;
+      
+      // 볼륨에서 호수 부분 추출 (C열 값 파싱)
+      const volumeMatch = volume.match(/(\d+)(?:-(\d+))?/);
+      if (volumeMatch) {
+        if (volumeMatch[2]) {
+          // '1-2' 형식인 경우
+          displayVolume = `${volumeMatch[2]}호`;
+        } else {
+          // '2' 형식인 경우
+          displayVolume = `${volumeMatch[1]}호`;
+        }
+      }
+      
       // 리포트 제목 설정
-      reportTitleElement.textContent = `${displayCategory}${levelInfo} ${volumeNumber}`;
+      reportTitleElement.textContent = `${displayCategory} ${displayVolume}`;
       
       // 프로그램 이름 설정
-      programNameCell.textContent = `${displayCategory}${levelInfo}`;
+      programNameCell.textContent = `${displayCategory}`;
       
       // 컨텐츠 타이틀 설정
-      contentsTitle.textContent = `${displayCategory}${levelInfo} CT컴퓨팅 사고력 신규확장 콘텐츠`;
+      contentsTitle.textContent = `${displayCategory} CT컴퓨팅 사고력 신규확장 콘텐츠`;
       
       // 썸네일 이미지 표시
       if (data.book && data.book.thumbnail) {
@@ -488,7 +451,7 @@
         evaluationTableBody.innerHTML = `
           <tr>
             <td colspan="6" class="text-center text-muted py-3">
-              해당 교재에 대한 평가 항목이 없습니다.
+              해당 교재에 대한 평가 항목이 없습니다. (${volume})
             </td>
           </tr>
         `;

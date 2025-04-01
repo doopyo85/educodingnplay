@@ -162,10 +162,10 @@ router.get('/books', authenticateUser, async (req, res) => {
     }
 });
 
-// CT요소 API - 특정 교재의 CT요소만 가져오기 - 수정된 부분
-// CT요소 API - 특정 교재의 CT요소만 가져오기 - 단순화된 버전
+// CT요소 API - 특정 교재의 CT요소만 가져오기 - B열/C열 기반 개선 버전
 router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, res) => {
     try {
+        // URL에서 카테고리(B열)와 볼륨(C열) 값 추출
         const { category, volume } = req.params;
         
         // 캐시 확인 및 업데이트
@@ -173,74 +173,20 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
             await updateCaches();
         }
 
-        console.log(`CT 요소 검색: 카테고리=${category}, 볼륨=${volume}`);
+        console.log(`CT 요소 검색: B열(교재카테고리)=${category}, C열(교재레벨-호)=${volume}`);
         
-        // 정규화된 카테고리 및 볼륨 형식 확인
-        let targetBookId = '';
-        
-        if (category.toLowerCase() === 'preschool') {
-            // 프리스쿨의 경우 볼륨에서 레벨과 호수 추출
-            const levelMatch = volume.match(/lv(\d+)/i);
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            
-            if (levelMatch && volumeMatch) {
-                targetBookId = `프리스쿨${levelMatch[1]}-${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume; // 기본값
-            }
-        } else if (category.toLowerCase() === 'junior') {
-            // 주니어의 경우 볼륨에서 레벨과 호수 추출
-            const levelMatch = volume.match(/lv(\d+)/i);
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            
-            if (levelMatch && volumeMatch) {
-                targetBookId = `주니어${levelMatch[1]}-${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume; // 기본값
-            }
-        } else if (category.toLowerCase() === 'cps') {
-            // CPS의 경우 호수만 추출
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            if (volumeMatch) {
-                targetBookId = `cps${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume;
-            }
-        } else if (category.toLowerCase() === 'cpa') {
-            // CPA의 경우 호수만 추출
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            if (volumeMatch) {
-                targetBookId = `cpa${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume;
-            }
-        } else if (category.toLowerCase() === 'ctr_appinventor') {
-            // 앱인벤터의 경우 호수만 추출
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            if (volumeMatch) {
-                targetBookId = `ctr앱인벤터${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume;
-            }
-        } else if (category.toLowerCase() === 'ctr_python') {
-            // 파이썬의 경우 호수만 추출
-            const volumeMatch = volume.match(/(\d+)호$/) || volume.match(/(\d+)$/);
-            if (volumeMatch) {
-                targetBookId = `ctr파이썬${volumeMatch[1]}`;
-            } else {
-                targetBookId = volume;
-            }
-        } else {
-            targetBookId = volume;
-        }
-        
-        console.log(`타겟 교재 ID(C열 기준): "${targetBookId}"`);
-        
-        // 교재 정보 찾기 - C열 기준으로 직접 검색
+        // 교재 정보 찾기 - 정확히 B열과 C열이 일치하는 항목
         const bookInfo = booksDataCache.find(book => {
-            // C열(교재레벨-호)이 타겟 ID와 일치하는지 확인
-            return book['교재레벨-호'] === targetBookId;
+            // 카테고리(B열)와 볼륨(C열) 모두 정확히 일치하는지 확인
+            return book['교재카테고리'] === category && book['교재레벨-호'] === volume;
         });
+        
+        // 교재 정보를 찾지 못한 경우, C열만으로 재시도
+        let foundBookInfo = bookInfo;
+        if (!foundBookInfo) {
+            foundBookInfo = booksDataCache.find(book => book['교재레벨-호'] === volume);
+            console.log(`B열+C열로 찾지 못해 C열만으로 검색: ${foundBookInfo ? '성공' : '실패'}`);
+        }
         
         // 기본 교재 정보 설정
         const bookData = {
@@ -251,30 +197,37 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
         };
         
         // 교재 정보가 있으면 업데이트
-        if (bookInfo) {
-            bookData.category = bookInfo['교재카테고리'] || category;
-            bookData.title = bookInfo['교재제목'] || bookData.title;
-            bookData.thumbnail = bookInfo['URL'] || '';
+        if (foundBookInfo) {
+            bookData.category = foundBookInfo['교재카테고리'] || category;
+            bookData.title = foundBookInfo['교재제목'] || `${category} ${volume}`;
+            bookData.thumbnail = foundBookInfo['URL'] || '';
             console.log(`교재 정보 찾음: ${bookData.title}`);
+        } else {
+            console.log(`교재 정보를 찾을 수 없음. 기본 정보 사용: ${bookData.title}`);
         }
         
-        // 해당 교재의 CT요소만 필터링 - C열 기준으로 직접 필터링
-        const filteredElements = reportDataCache.filter(item => {
-            // C열(교재레벨-호)이 타겟 ID와 정확히 일치하는지 확인
-            return item['교재레벨-호'] === targetBookId;
-        });
+        // C열 기준으로 CT요소 직접 필터링
+        const ctElements = reportDataCache
+            .filter(item => item['교재레벨-호'] === volume)
+            .map(item => ({
+                id: item['NO'] || '',
+                category: item['교재카테고리'] || '',
+                volume: item['교재레벨-호'] || '',
+                lessonName: item['차시명'] || '',
+                ctElement: item['CT요소'] || '',
+                evaluationItem: item['평가항목'] || ''
+            }));
         
-        console.log(`필터링된 CT요소 데이터: ${filteredElements.length}개 행`);
+        console.log(`C열 기준으로 찾은 CT요소 데이터: ${ctElements.length}개`);
         
-        // 결과 포맷팅
-        const ctElements = filteredElements.map(item => ({
-            id: item['NO'] || '',
-            category: item['교재카테고리'] || '',
-            volume: item['교재레벨-호'] || '',
-            lessonName: item['차시명'] || '',
-            ctElement: item['CT요소'] || '',
-            evaluationItem: item['평가항목'] || ''
-        }));
+        // CT요소가 없다면 디버그 정보 출력
+        if (ctElements.length === 0) {
+            console.log('CT요소를 찾을 수 없어 데이터 샘플 출력:');
+            const sampleItems = reportDataCache.slice(0, 5);
+            sampleItems.forEach(item => {
+                console.log(`- 교재카테고리: "${item['교재카테고리']}", 교재레벨-호: "${item['교재레벨-호']}"`);
+            });
+        }
         
         // 차시 순으로 정렬
         ctElements.sort((a, b) => {
@@ -288,8 +241,9 @@ router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, 
             book: bookData,
             ctElements: ctElements,
             meta: {
-                category: category,
-                bookId: targetBookId
+                categoryFromUrl: category,
+                volumeFromUrl: volume,
+                elementsFound: ctElements.length
             }
         };
         
