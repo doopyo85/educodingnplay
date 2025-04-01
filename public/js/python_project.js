@@ -134,7 +134,7 @@ function setupEventListeners() {
 function fetchUserData() {
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
-        fetch('/get-user', { credentials: 'include' })
+        fetch('/api/get-user', { credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

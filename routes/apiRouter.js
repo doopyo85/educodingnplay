@@ -11,7 +11,7 @@ const fs = require('fs');
 const { getSheetData } = require('../server');
 
 // 사용자 관련 API
-router.get('/get-user', (req, res) => {
+router.get('/api/get-user', (req, res) => {
   if (req.session && req.session.userID) {
     res.json({ username: req.session.userID });
   } else {
@@ -19,7 +19,7 @@ router.get('/get-user', (req, res) => {
   }
 });
 
-router.get('/get-user-type', (req, res) => {
+router.get('/api/get-user-type', (req, res) => {
   if (req.session && req.session.userID) {
     res.json({ userType: req.session.userType });
   } else {
@@ -27,7 +27,7 @@ router.get('/get-user-type', (req, res) => {
   }
 });
 
-router.get('/get-user-session', (req, res) => {
+router.get('/api/get-user-session', (req, res) => {
   if (req.session && req.session.is_logined) {
     res.json({
       userID: req.session.userID,
