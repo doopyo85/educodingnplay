@@ -162,10 +162,8 @@ router.get('/books', authenticateUser, async (req, res) => {
     }
 });
 
-// API 엔드포인트: 특정 교재 정보 및 평가 항목 가져오기
-router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
-    console.log(`교재 정보 요청 받음: 카테고리=${req.params.category}, 볼륨=${req.params.volume}`);
-    
+// CT요소 API - 특정 교재의 CT요소만 가져오기 - 수정된 부분
+router.get('/book-ct-elements/:category/:volume', authenticateUser, async (req, res) => {
     try {
         const { category, volume } = req.params;
         
@@ -173,6 +171,8 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         if (!booksDataCache || !reportDataCache || !lastCacheUpdate || (Date.now() - lastCacheUpdate) > CACHE_TTL) {
             await updateCaches();
         }
+
+        console.log(`CT 요소 검색: 카테고리=${category}, 볼륨=${volume}`);
         
         // 볼륨 정보 파싱
         const requestedVolume = parseVolume(volume);
@@ -185,6 +185,16 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
         let targetCategory = '';
         let levelNum = requestedVolume.level || '';
         let volumeNum = requestedVolume.issueNumber || '';
+        
+        // URL에서 전달된 카테고리가 "주니어 LV1"과 같은 형식인 경우 파싱
+        let urlLevelMatch = null;
+        if (normalizedReqCategory === '주니어' || normalizedReqCategory === '프리스쿨') {
+            urlLevelMatch = category.match(/lv(\d+)/i);
+            if (urlLevelMatch) {
+                levelNum = parseInt(urlLevelMatch[1]);
+                console.log(`URL에서 추출한 레벨: LV${levelNum}`);
+            }
+        }
         
         if (normalizedReqCategory === '프리스쿨') {
             targetCategory = `프리스쿨 LV${levelNum}`;
@@ -210,20 +220,19 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             const bookVolume = book['교재레벨-호'] || '';
             const parsedBookVolume = parseVolume(bookVolume);
             
-            // 카테고리 확인
-            const categoryMatch = bookCategory === targetCategory || 
-                                  normalizeCategory(bookCategory) === normalizedReqCategory;
+            // 카테고리 확인 (완전 일치)
+            const categoryMatch = bookCategory === targetCategory;
             
             // 볼륨 매칭
             let volumeMatch = false;
             
             if (normalizedReqCategory === '프리스쿨' || normalizedReqCategory === '주니어') {
-                // 프리스쿨/주니어의 경우 LV와 호수 모두 확인
-                volumeMatch = parsedBookVolume.level === requestedVolume.level && 
-                             parsedBookVolume.issueNumber === requestedVolume.issueNumber;
+                // 프리스쿨/주니어의 경우 레벨과 호수 모두 확인 (레벨 정확히 일치)
+                volumeMatch = parsedBookVolume.level === levelNum && 
+                             parsedBookVolume.issueNumber === volumeNum;
             } else {
                 // 다른 교재의 경우 호수만 확인
-                volumeMatch = parsedBookVolume.issueNumber === requestedVolume.issueNumber;
+                volumeMatch = parsedBookVolume.issueNumber === volumeNum;
             }
             
             const result = categoryMatch && volumeMatch;
@@ -246,87 +255,73 @@ router.get('/book/:category/:volume', authenticateUser, async (req, res) => {
             bookData.title = bookInfo['교재제목'] || bookData.title;
             bookData.thumbnail = bookInfo['URL'] || '';
             console.log(`교재 정보 찾음: ${bookData.title}`);
-        } else {
-            console.log(`교재 정보를 찾을 수 없음. 기본값 사용: ${bookData.title}`);
         }
         
-        // CT요소 및 평가 항목 필터링
-        const filteredReportData = reportDataCache.filter(item => {
+        // 해당 교재의 CT요소만 필터링
+        const filteredElements = reportDataCache.filter(item => {
             const itemCategory = item['교재카테고리'] || '';
             const itemVolume = item['교재레벨-호'] || '';
             const parsedItemVolume = parseVolume(itemVolume);
             
-            // 카테고리 확인
-            const categoryMatch = itemCategory === targetCategory || 
-                                 normalizeCategory(itemCategory) === normalizedReqCategory;
+            // 카테고리 확인 (정확한 일치 - 레벨 포함)
+            const categoryMatch = itemCategory === targetCategory;
             
             // 볼륨 매칭
             let volumeMatch = false;
             
             if (normalizedReqCategory === '프리스쿨' || normalizedReqCategory === '주니어') {
-                // 프리스쿨/주니어의 경우 LV와 호수 모두 확인
-                volumeMatch = parsedItemVolume.level === requestedVolume.level && 
-                             parsedItemVolume.issueNumber === requestedVolume.issueNumber;
+                // 프리스쿨/주니어의 경우 레벨과 호수 모두 확인
+                volumeMatch = parsedItemVolume.level === levelNum && 
+                             parsedItemVolume.issueNumber === volumeNum;
             } else {
                 // 다른 교재의 경우 호수만 확인
-                volumeMatch = parsedItemVolume.issueNumber === requestedVolume.issueNumber;
+                volumeMatch = parsedItemVolume.issueNumber === volumeNum;
             }
             
             const match = categoryMatch && volumeMatch;
             if (match) {
-                console.log(`CT요소 매칭: 카테고리=${itemCategory}, 볼륨=${itemVolume}`);
+                console.log(`CT요소 매칭: 카테고리=${itemCategory}, 볼륨=${itemVolume}, 차시=${item['차시']}, CT요소=${item['CT요소']}`);
             }
             return match;
         });
         
-        console.log(`필터링된 CT요소 데이터: ${filteredReportData.length}개 행`);
+        console.log(`필터링된 CT요소 데이터: ${filteredElements.length}개 행`);
         
-        // 평가 항목 추출
-        const evaluationItems = [];
-        const processedItems = new Set();
-        
-        filteredReportData.forEach((item, index) => {
-            const chapter = item['차시'] || '';
-            const chapterName = item['차시명'] || '';
-            const ctElement = item['CT요소'] || '';
-            const evalItem = item['평가항목'] || '';
-            
-            if (ctElement && evalItem) {
-                const itemKey = `${ctElement}-${evalItem}`;
-                
-                if (!processedItems.has(itemKey)) {
-                    processedItems.add(itemKey);
-                    evaluationItems.push({
-                        id: index + 1,
-                        chapter: chapter,
-                        chapterName: chapterName,
-                        principle: ctElement,
-                        description: evalItem
-                    });
-                }
-            }
-        });
+        // 결과 포맷팅
+        const ctElements = filteredElements.map(item => ({
+            id: item['NO'] || '',
+            category: item['교재카테고리'] || '',
+            volume: item['교재레벨-호'] || '',
+            lessonName: item['차시명'] || '',
+            ctElement: item['CT요소'] || '',
+            evaluationItem: item['평가항목'] || ''
+        }));
         
         // 차시 순으로 정렬
-        evaluationItems.sort((a, b) => {
-            const chapterA = parseInt(a.chapter) || 0;
-            const chapterB = parseInt(b.chapter) || 0;
+        ctElements.sort((a, b) => {
+            const chapterA = parseInt(a.id) || 0;
+            const chapterB = parseInt(b.id) || 0;
             return chapterA - chapterB;
         });
         
-        console.log(`평가 항목 추출: ${evaluationItems.length}개`);
-        
-        // 응답 데이터
-        const responseData = {
+        // 응답 구성
+        const response = {
             book: bookData,
-            evaluationItems: evaluationItems
+            ctElements: ctElements,
+            meta: {
+                category: normalizedReqCategory,
+                level: levelNum,
+                issueNumber: volumeNum
+            }
         };
         
-        console.log('응답 데이터 준비 완료');
-        res.json(responseData);
+        res.json(response);
     } catch (error) {
-        console.error('에러 발생:', error);
-        res.status(500).json({ error: '교재 정보를 불러오는 중 오류가 발생했습니다.' });
+        console.error('CT요소 데이터 로딩 중 오류:', error);
+        res.status(500).json({ 
+            error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.',
+            message: error.message
+        });
     }
 });
 
