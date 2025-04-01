@@ -237,56 +237,242 @@ router.get('/get-report-data', async (req, res) => {
 });
 
 // Fetch CT elements for a specific book
-router.get('/get-book-ct-elements/:category/:issue', async (req, res) => {
+// apiRouter.js에 추가할 새 API 엔드포인트
+// 교재별 CT요소 데이터 API
+router.get('/get-ct-elements/:category/:volume', async (req, res) => {
   try {
-    const { category, issue } = req.params;
+    const { category, volume } = req.params;
     
-    // Get all CT elements from the report sheet
-    const allElements = await getSheetData('report!A2:G');
+    // Google Sheets에서 데이터 가져오기
+    const data = await getSheetData('report!A2:F');
     
-    // Filter elements for the specific book
-    const bookElements = allElements.filter(row => 
-      row[1] === category && row[2] === issue // Adjust indexes based on the sheet structure
-    );
+    // 카테고리 정규화 함수
+    const normalizeCategory = (cat) => {
+      if (cat.toLowerCase().includes('preschool') || cat.toLowerCase().includes('프리스쿨')) {
+        return '프리스쿨';
+      } else if (cat.toLowerCase().includes('junior') || cat.toLowerCase().includes('주니어')) {
+        return '주니어';
+      }
+      return cat;
+    };
     
-    // Transform to the expected format
-    const formattedElements = bookElements.map(row => ({
-      차시: row[3] || '',      // 차시명 column index
-      차시명: row[4] || '',    // 차시 column index
-      CT요소: row[5] || '',    // CT요소 column index
-      평가항목: row[6] || ''   // 평가항목 column index
+    // 볼륨 정규화 및 파싱 (LV 및 호수 추출)
+    const parseVolume = (vol) => {
+      // LV 숫자 추출
+      let level = null;
+      const lvMatch = vol.match(/lv(\d+)/i);
+      if (lvMatch) {
+        level = parseInt(lvMatch[1]);
+      }
+      
+      // 호수 추출
+      let issueNumber = null;
+      let issueMatch = vol.match(/[-_](\d+)호$/);
+      if (!issueMatch) {
+        issueMatch = vol.match(/(\d+)호$/);
+      }
+      if (!issueMatch) {
+        issueMatch = vol.match(/(\d+)$/);
+      }
+      
+      if (issueMatch) {
+        issueNumber = parseInt(issueMatch[1]);
+      }
+      
+      return { level, issueNumber };
+    };
+    
+    // 요청된 볼륨 파싱
+    const requestedVolume = parseVolume(volume);
+    console.log(`요청된 볼륨 파싱 결과: LV ${requestedVolume.level}, ${requestedVolume.issueNumber}호`);
+    
+    // 정규화된 카테고리
+    const normalizedCategory = normalizeCategory(category);
+    
+    // 카테고리와 볼륨에 맞는 항목 필터링
+    const filteredItems = data.filter(item => {
+      // 항목의 카테고리와 볼륨 파싱
+      const itemCategory = normalizeCategory(item[1] || '');
+      const itemVolume = parseVolume(item[2] || '');
+      
+      // 로그로 확인
+      // console.log(`항목: ${itemCategory} LV${itemVolume.level}-${itemVolume.issueNumber}호 vs 요청: ${normalizedCategory} LV${requestedVolume.level}-${requestedVolume.issueNumber}호`);
+      
+      // 카테고리 확인 (프리스쿨/주니어의 경우 LV도 확인)
+      const categoryMatch = itemCategory.includes(normalizedCategory);
+      
+      // 프리스쿨/주니어의 경우 LV와 호수 모두 확인
+      if (normalizedCategory === '프리스쿨' || normalizedCategory === '주니어') {
+        return categoryMatch && 
+               itemVolume.level === requestedVolume.level && 
+               itemVolume.issueNumber === requestedVolume.issueNumber;
+      }
+      
+      // 다른 교재의 경우 호수만 확인
+      return categoryMatch && itemVolume.issueNumber === requestedVolume.issueNumber;
+    });
+    
+    // 결과 구성
+    const result = filteredItems.map(item => ({
+      id: item[0],
+      category: item[1],
+      volume: item[2],
+      lessonName: item[3],
+      ctElement: item[4],
+      evaluationItem: item[5]
     }));
     
-    res.json(formattedElements);
+    console.log(`CT 요소 데이터 API 응답: ${result.length}개 항목 찾음`);
+    res.json(result);
   } catch (error) {
-    console.error('CT요소 데이터 불러오기 오류:', error);
-    res.status(500).json({ error: 'CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+    console.error('CT 요소 데이터 불러오기 오류:', error);
+    res.status(500).json({ error: 'CT 요소 데이터를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 
-// 특정 레벨의 모든 CT요소 가져오기 (디버깅용)
-router.get('/get-level-ct-elements/:category', async (req, res) => {
+// 교재 정보와 함께 CT요소 데이터 제공 API
+router.get('/book-ct-elements/:category/:volume', async (req, res) => {
   try {
-    const { category } = req.params;
+    const { category, volume } = req.params;
     
-    // ct요소 테이블에서 데이터 가져오기
-    const data = await getSheetData('ct요소!A2:G');
+    // 1. 교재 정보 가져오기
+    const booksData = await getSheetData('books!A2:F');
     
-    // 필터링 조건: 교재카테고리가 일치하는 항목만 선택
-    const formattedData = data
-      .filter(row => row[0] === category)
-      .map(row => ({
-        교재레벨호: row[1] || '',
-        차시: row[2] || '',
-        차시명: row[3] || '',
-        CT요소: row[5] || '',
-        평가항목: row[6] || ''
-      }));
+    // 볼륨 정규화 및 파싱 함수
+    const parseVolume = (vol) => {
+      // LV 숫자 추출
+      let level = null;
+      const lvMatch = vol.match(/lv(\d+)/i);
+      if (lvMatch) {
+        level = parseInt(lvMatch[1]);
+      }
+      
+      // 호수 추출
+      let issueNumber = null;
+      let issueMatch = vol.match(/[-_](\d+)호$/);
+      if (!issueMatch) {
+        issueMatch = vol.match(/(\d+)호$/);
+      }
+      if (!issueMatch) {
+        issueMatch = vol.match(/(\d+)$/);
+      }
+      
+      if (issueMatch) {
+        issueNumber = parseInt(issueMatch[1]);
+      }
+      
+      return { level, issueNumber };
+    };
     
-    res.json(formattedData);
+    // 카테고리 정규화 함수
+    const normalizeCategory = (cat) => {
+      if (cat.toLowerCase().includes('preschool') || cat.toLowerCase().includes('프리스쿨')) {
+        return '프리스쿨';
+      } else if (cat.toLowerCase().includes('junior') || cat.toLowerCase().includes('주니어')) {
+        return '주니어';
+      }
+      return cat;
+    };
+    
+    // 요청된 볼륨 파싱
+    const requestedVolume = parseVolume(volume);
+    
+    // 정규화된 카테고리
+    const normalizedReqCategory = normalizeCategory(category);
+    
+    // 교재 정보 찾기
+    let bookInfo = null;
+    
+    for (const book of booksData) {
+      const bookCategory = normalizeCategory(book[1] || '');
+      const bookVolume = parseVolume(book[2] || '');
+      
+      // 로그로 일치 여부 확인
+      // console.log(`교재: ${bookCategory} LV${bookVolume.level}-${bookVolume.issueNumber}호 vs 요청: ${normalizedReqCategory} LV${requestedVolume.level}-${requestedVolume.issueNumber}호`);
+      
+      if (bookCategory.includes(normalizedReqCategory)) {
+        // 프리스쿨/주니어의 경우 LV와 호수 모두 확인
+        if (normalizedReqCategory === '프리스쿨' || normalizedReqCategory === '주니어') {
+          if (bookVolume.level === requestedVolume.level && 
+              bookVolume.issueNumber === requestedVolume.issueNumber) {
+            bookInfo = {
+              id: book[0],
+              category: book[1],
+              volume: book[2],
+              title: book[3],
+              description: book[4],
+              thumbnail: book[5]
+            };
+            break;
+          }
+        } else {
+          // 다른 교재의 경우 호수만 확인
+          if (bookVolume.issueNumber === requestedVolume.issueNumber) {
+            bookInfo = {
+              id: book[0],
+              category: book[1],
+              volume: book[2],
+              title: book[3],
+              description: book[4],
+              thumbnail: book[5]
+            };
+            break;
+          }
+        }
+      }
+    }
+    
+    // 2. CT 요소 데이터 가져오기
+    const ctData = await getSheetData('report!A2:F');
+    
+    // CT 요소 필터링
+    const ctElements = ctData.filter(item => {
+      const itemCategory = normalizeCategory(item[1] || '');
+      const itemVolume = parseVolume(item[2] || '');
+      
+      // 로그로 확인
+      // console.log(`CT항목: ${itemCategory} LV${itemVolume.level}-${itemVolume.issueNumber}호 vs 요청: ${normalizedReqCategory} LV${requestedVolume.level}-${requestedVolume.issueNumber}호`);
+      
+      // 카테고리 확인
+      const categoryMatch = itemCategory.includes(normalizedReqCategory);
+      
+      // 프리스쿨/주니어의 경우 LV와 호수 모두 확인
+      if (normalizedReqCategory === '프리스쿨' || normalizedReqCategory === '주니어') {
+        return categoryMatch && 
+               itemVolume.level === requestedVolume.level && 
+               itemVolume.issueNumber === requestedVolume.issueNumber;
+      }
+      
+      // 다른 교재의 경우 호수만 확인
+      return categoryMatch && itemVolume.issueNumber === requestedVolume.issueNumber;
+    }).map(item => ({
+      id: item[0],
+      category: item[1],
+      volume: item[2],
+      lessonName: item[3],
+      ctElement: item[4],
+      evaluationItem: item[5]
+    }));
+    
+    // 3. 응답 데이터 구성
+    const response = {
+      book: bookInfo || { title: '정보 없음', thumbnail: null },
+      ctElements: ctElements,
+      meta: {
+        category: normalizedReqCategory,
+        level: requestedVolume.level,
+        issueNumber: requestedVolume.issueNumber
+      }
+    };
+    
+    console.log(`교재 및 CT 요소 데이터 API 응답: ${ctElements.length}개 항목 찾음`);
+    res.json(response);
   } catch (error) {
-    console.error('레벨 CT요소 데이터 불러오기 오류:', error);
-    res.status(500).json({ error: '레벨 CT요소 데이터를 불러오는 중 오류가 발생했습니다.' });
+    console.error('교재 및 CT 요소 데이터 불러오기 오류:', error);
+    res.status(500).json({ 
+      error: '교재 및 CT 요소 데이터를 불러오는 중 오류가 발생했습니다.',
+      message: error.message 
+    });
   }
 });
 

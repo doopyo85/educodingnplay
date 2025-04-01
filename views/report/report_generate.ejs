@@ -301,553 +301,349 @@
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', async function() {
-    // URL에서 카테고리와 볼륨 값 가져오기
-    const pathParts = window.location.pathname.split('/');
-    const category = decodeURIComponent(pathParts[pathParts.length - 2]);
-    const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
-    
-    // 초기 로딩 상태
-    const loadingElement = document.getElementById('loading');
-    const reportContentElement = document.getElementById('reportContent');
-    const saveAlertElement = document.getElementById('saveAlert');
-    
-    // 리포트 요소
-    const reportTitleElement = document.getElementById('reportTitle');
-    const studentNameCell = document.getElementById('studentNameCell');
-    const teacherNameCell = document.getElementById('teacherNameCell');
-    const headerCenterName = document.getElementById('headerCenterName');
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const studyPeriodCell = document.getElementById('studyPeriodCell');
-    const programNameCell = document.getElementById('programNameCell');
-    const teacherCommentCell = document.getElementById('teacherCommentCell');
-    const evaluationTableBody = document.getElementById('evaluationTableBody');
-    const contentsTitle = document.getElementById('contentsTitle');
-    const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
-    
-    // 날짜 기본값 설정 (오늘 및 1개월 전)
-    const today = new Date();
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(today.getMonth() - 1);
-    
-    startDateInput.value = formatDateForInput(oneMonthAgo);
-    endDateInput.value = formatDateForInput(today);
-    
-    // 날짜 변경 시 기간 포맷팅
-    function updateFormattedPeriod() {
-      if (startDateInput.value && endDateInput.value) {
-        const formattedPeriod = formatDateRange(startDateInput.value, endDateInput.value);
-        studyPeriodCell.setAttribute('data-formatted-period', formattedPeriod);
-      }
-    }
-    
-    startDateInput.addEventListener('change', updateFormattedPeriod);
-    endDateInput.addEventListener('change', updateFormattedPeriod);
-    
-    // 초기 포맷팅 실행
-    updateFormattedPeriod();
-    
-    // 카테고리 이름 매핑 (영문 -> 한글)
-    const categoryMapping = {
-      'preschool': '프리스쿨',
-      'junior': '주니어',
-      'cps': 'CPS',
-      'cpa': 'CPA',
-      'ctr_appinventor': 'CTR앱인벤터',
-      'ctr_python': 'CTR파이썬'
-    };
-    
-    // 보고서 저장 키 생성 (볼륨 형식 통일)
-    let normalizedVolume = volume;
-    // 프리스쿨/주니어의 경우 LV 정보와 호수 정보를 정규화하여 저장 키로 사용
-    if (category === 'preschool' || category === 'junior') {
-      const levelMatch = volume.match(/LV(\d+)/i);
-      const volumeMatch = volume.match(/[-_](\d+)호$/);
-      if (levelMatch && volumeMatch) {
-        normalizedVolume = `LV${levelMatch[1]}-${volumeMatch[1]}호`;
-      }
-    }
-    const reportStorageKey = `report_${category}_${normalizedVolume}`;
-    
-    // 저장된 데이터 불러오기
-    loadSavedReportData();
-    
-    try {
-      // 교재 정보 가져오기
-      const response = await fetch(`/report/book/${category}/${volume}`);
-      
-      if (!response.ok) {
-        throw new Error('교재 정보를 불러오는데 실패했습니다.');
-      }
-      
-      const data = await response.json();
-      
-      // 레벨 포함 여부에 따른 표시 조정
-      const displayCategory = categoryMapping[category] || category;
-      let levelInfo = '';
-      
-      // 프리스쿨과 주니어 과정의 경우 레벨 정보 추출
-      if (category === 'preschool' || category === 'junior') {
-        // 볼륨에서 레벨 정보 추출 (예: 'LV1-3'에서 'LV1' 추출)
-        const levelMatch = volume.match(/LV(\d+)/i);
-        if (levelMatch) {
-          levelInfo = ` LV${levelMatch[1]}`;
-        }
-      }
-      
-      // 실제 호수 부분 추출 (LV 정보 제외)
-      let volumeNumber = volume;
-      if (category === 'preschool' || category === 'junior') {
-        const volumeMatch = volume.match(/[-_](\d+)호$/);
-        if (volumeMatch) {
-          volumeNumber = volumeMatch[1] + '호';
-        }
-      } else if (!volume.endsWith('호')) {
-        volumeNumber = volume + '호';
-      }
-      
-      // 리포트 제목 설정
-      reportTitleElement.textContent = `${displayCategory}${levelInfo} ${volumeNumber}`;
-      
-      // 프로그램 이름 설정
-      programNameCell.textContent = `${displayCategory}${levelInfo}`;
-      
-      // 컨텐츠 타이틀 설정
-      contentsTitle.textContent = `${displayCategory}${levelInfo} CT컴퓨팅 사고력 신규확장 콘텐츠`;
-      
-      // 썸네일 이미지 표시
-      if (data.book.thumbnail) {
-        bookThumbnailsCell.innerHTML = `
-          <img src="${data.book.thumbnail}" alt="${data.book.title}" class="book-thumbnail">
-          <p class="small mt-2">${data.book.title}</p>
-        `;
-      } else {
-        bookThumbnailsCell.innerHTML = `
-          <p class="text-muted small">이미지 없음</p>
-          <p class="small mt-2">${data.book.title}</p>
-        `;
-      }
-      
-      // 호수에 해당하는 평가 항목만 필터링
-      let filteredEvaluationItems = data.evaluationItems;
-      
-      // 레벨이 있는 교재(프리스쿨, 주니어)의 경우 볼륨에 맞는 CT 요소만 필터링
-      if ((category === 'preschool' || category === 'junior') && data.evaluationItems) {
-        // 볼륨에서 숫자만 추출 (예: 'LV1-3호'에서 '3' 추출)
-        const volumeNumMatch = volume.match(/[-_](\d+)호$/);
-        const volumeNum = volumeNumMatch ? parseInt(volumeNumMatch[1]) : null;
-        
-        if (volumeNum !== null) {
-          // 각 항목에 volume 정보가 있는 경우 (예: item.volume = "3" 또는 item.volumeNumber = "3")
-          filteredEvaluationItems = data.evaluationItems.filter(item => {
-            // 여러 가능한 속성 이름을 검사 (백엔드 구현에 따라 다를 수 있음)
-            const itemVolume = item.volume || item.volumeNumber || item.volumeNum || item.호수;
-            return itemVolume == volumeNum || itemVolume == volumeNum.toString();
-          });
-          
-          console.log(`${volumeNum}호에 해당하는 평가 항목 ${filteredEvaluationItems.length}개 필터링됨`);
-        }
-      }
-      
-      // 평가 항목 테이블 생성
-      if (filteredEvaluationItems && filteredEvaluationItems.length > 0) {
-        evaluationTableBody.innerHTML = '';
-        
-        filteredEvaluationItems.forEach((item, index) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td class="text-center">${item.id || index + 1}</td>
-            <td class="text-center">${item.principle || ''}</td>
-            <td>${item.description || ''}</td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-high" value="상" checked>
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-mid" value="중">
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="form-check form-check-inline justify-content-center">
-                <input class="form-check-input evaluation-radio" type="radio" 
-                  name="evaluation-${index}" id="eval-${index}-low" value="하">
-              </div>
-            </td>
-          `;
-          evaluationTableBody.appendChild(row);
-        });
-        
-        // 평가 항목이 불러와졌음을 보여주는 로그
-        console.log(`${filteredEvaluationItems.length}개의 평가 항목이 표시됨`);
-        
-        // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
-        handlePageBreaks(filteredEvaluationItems.length);
-        
-        // 저장된 평가 데이터 복원
-        restoreEvaluationData();
-      } else {
-        evaluationTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="text-center text-muted py-3">
-              ${category === 'preschool' || category === 'junior' ? 
-                '해당 호수에 맞는 평가 항목이 없습니다.' : 
-                '평가 항목이 없습니다.'}
-            </td>
-          </tr>
-        `;
-        console.log('표시할 평가 항목이 없음');
-      }
-      
-      // 로딩 완료 후 컨텐츠 표시
-      loadingElement.classList.add('d-none');
-      reportContentElement.classList.remove('d-none');
-      
-      // 자동 저장 설정
-      setupAutoSave();
-      
-    } catch (error) {
-      console.error('Error:', error);
-      loadingElement.innerHTML = `
-        <div class="alert alert-danger">
-          <i class="bi bi-exclamation-circle me-2"></i>
-          교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
-        </div>
-      `;
-    }
-    
-    // 저장된 리포트 데이터 불러오기
-    function loadSavedReportData() {
-      try {
-        const savedData = localStorage.getItem(reportStorageKey);
-        if (savedData) {
-          const data = JSON.parse(savedData);
-          
-          // 데이터 복원
-          if (data.centerName) headerCenterName.innerText = data.centerName;
-          if (data.studentName) studentNameCell.innerText = data.studentName;
-          if (data.teacherName) teacherNameCell.innerText = data.teacherName;
-          if (data.teacherComment) teacherCommentCell.innerText = data.teacherComment;
-          if (data.startDate) startDateInput.value = data.startDate;
-          if (data.endDate) endDateInput.value = data.endDate;
-          
-          console.log('저장된 리포트 데이터를 불러왔습니다.');
-        }
-      } catch (error) {
-        console.error('저장된 데이터 불러오기 오류:', error);
-      }
-    }
-    
-    // 저장된 평가 데이터 복원
-    function restoreEvaluationData() {
-      try {
-        const savedData = localStorage.getItem(reportStorageKey);
-        if (savedData) {
-          const data = JSON.parse(savedData);
-          
-          if (data.evaluations) {
-            data.evaluations.forEach((value, index) => {
-              const radioSelector = `input[name="evaluation-${index}"][value="${value}"]`;
-              const radio = document.querySelector(radioSelector);
-              if (radio) radio.checked = true;
-            });
-          }
-        }
-      } catch (error) {
-        console.error('평가 데이터 복원 오류:', error);
-      }
-    }
-    
-    // 자동 저장 설정
-    function setupAutoSave() {
-      // 편집 가능 요소에 이벤트 리스너 추가
-      document.querySelectorAll('.editable').forEach(el => {
-        el.addEventListener('blur', saveReportData);
-      });
-      
-      // 날짜 입력 필드에 이벤트 리스너 추가
-      startDateInput.addEventListener('change', saveReportData);
-      endDateInput.addEventListener('change', saveReportData);
-      
-      // 라디오 버튼 변경 이벤트 리스너 추가
-      document.querySelectorAll('.evaluation-radio').forEach(radio => {
-        radio.addEventListener('change', saveReportData);
-      });
-      
-      // 저장 버튼 클릭 이벤트
-      document.getElementById('saveReportBtn').addEventListener('click', function() {
-        saveReportData();
-        showSaveAlert();
-      });
-    }
-    
-    // 리포트 데이터 저장 함수
-    function saveReportData() {
-      const reportData = {
-        centerName: headerCenterName.innerText,
-        studentName: studentNameCell.innerText,
-        teacherName: teacherNameCell.innerText,
-        teacherComment: teacherCommentCell.innerText,
-        startDate: startDateInput.value,
-        endDate: endDateInput.value,
-        evaluations: []
-      };
-      
-      // 평가 항목 값 수집
-      document.querySelectorAll('[name^="evaluation-"]').forEach((input, groupIndex) => {
-        if (input.checked) {
-          const groupName = input.name;
-          const index = parseInt(groupName.split('-')[1]);
-          reportData.evaluations[index] = input.value;
-        }
-      });
-      
-      // 로컬 스토리지에 저장
-      localStorage.setItem(reportStorageKey, JSON.stringify(reportData));
-      console.log('리포트 데이터가 자동 저장되었습니다.');
-    }
-    
-    // 저장 알림 표시
-    function showSaveAlert() {
-      saveAlertElement.classList.remove('d-none');
-      
-      // 6초 후 알림 숨기기
-      setTimeout(() => {
-        saveAlertElement.classList.add('d-none');
-      }, 6000);
-    }
-    
-    // 평가 항목 수에 따른 페이지 나누기 처리
-    function handlePageBreaks(itemCount) {
-      // 항목이 많을 경우(예: 7개 이상) 자동으로 페이지 나누기 설정
-      if (itemCount > 7) {
-        console.log('평가 항목이 많아 페이지 나누기 처리가 필요합니다.');
-        // 클래스 추가로 인쇄 시 페이지 나누기 힌트 제공
-        document.querySelector('.evaluation-container').classList.add('multi-page');
-      }
-    }
-    
-    // 인쇄 버튼 이벤트
-    const printBtn = document.getElementById('printBtn');
-    if (printBtn) {
-      printBtn.addEventListener('click', function() {
-        // 인쇄 전 레이아웃 최적화
-        optimizeForPrinting();
-        
-        // 인쇄 가능한 상태로 보고서 복제
-        const printContent = document.getElementById('printableReport');
-        const printWindow = window.open('', '_blank');
-        
-        if (printWindow) {
-          printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>학습 리포트</title>
-              <style>
-                @page {
-                  size: A4 portrait;
-                  margin: 1cm;
-                }
-                body {
-                  font-family: 'Noto Sans KR', sans-serif;
-                  line-height: 1.5;
-                  margin: 0;
-                  padding: 0;
-                }
-                .a4-page {
-                  width: 21cm;
-                  min-height: 29.7cm;
-                  padding: 1cm;
-                  margin: 0 auto;
-                  background: white;
-                  box-sizing: border-box;
-                }
-                table {
-                  width: 100%;
-                  border-collapse: collapse;
-                  table-layout: fixed;
-                }
-                th, td {
-                  border: 1px solid #dee2e6;
-                  padding: 8px;
-                  word-wrap: break-word;
-                }
-                .bg-light {
-                  background-color: #f8f9fa;
-                }
-                .text-center {
-                  text-align: center;
-                }
-                .teacher-comment-area {
-                  border: 1px solid #dee2e6;
-                  border-radius: 4px;
-                  padding: 1rem;
-                  min-height: 100px;
-                }
-                .book-thumbnail {
-                  max-height: 150px;
-                  max-width: 100%;
-                  object-fit: contain;
-                }
-                .page-footer {
-                  margin-top: 20px;
-                  text-align: center;
-                }
-                .editable {
-                  border: none;
-                }
-                #studyPeriodCell:before {
-                  content: "${formatDateRange(startDateInput.value, endDateInput.value)}";
-                }
-                #studyPeriodCell input, #studyPeriodCell .align-self-center {
-                  display: none;
-                }
-              </style>
-            </head>
-            <body>
-              ${printContent.outerHTML}
-            </body>
-            </html>
-          `);
-          
-          printWindow.document.close();
-          // 리소스 로딩이 완료된 후 인쇄 실행
-          setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-          }, 500);
-        } else {
-          // 팝업 차단된 경우 기존 방식으로 인쇄
-          console.warn('팝업이 차단되었습니다. 기존 방식으로 인쇄를 시도합니다.');
-          window.print();
-        }
-      });
-    }
-    
-    // 인쇄를 위한 최적화 함수
-    function optimizeForPrinting() {
-      // 테이블 너비 확인 및 조정
-      const tables = document.querySelectorAll('.fixed-width');
-      tables.forEach(table => {
-        console.log(`테이블 너비: ${table.offsetWidth}px`);
-      });
-      
-      // 선생님 의견이 비어있는지 확인하고 최소 높이 설정
-      const teacherComment = document.getElementById('teacherCommentCell');
-      if (teacherComment && (!teacherComment.textContent.trim() || teacherComment.textContent === '학생의 성취와 발전 사항, 개선이 필요한 부분, 향후 학습 방향에 대해 의견을 작성하세요.')) {
-        teacherComment.innerHTML = '&nbsp;'; // 비어있을 경우 공백 추가
-      }
-      
-      // 학습 기간 표시를 위한 속성 업데이트
-      studyPeriodCell.setAttribute('data-formatted-period', formatDateRange(startDateInput.value, endDateInput.value));
-      
-      console.log('인쇄를 위한 레이아웃을 최적화했습니다.');
-    }
-    
-    // 날짜 포맷 함수 (YYYY-MM-DD)
-    function formatDateForInput(date) {
-      return date.toISOString().split('T')[0];
-    }
-    
-    // 날짜 범위 포맷 함수 (YYYY.MM.DD ~ YYYY.MM.DD)
-    function formatDateRange(start, end) {
-      const formatDate = (dateStr) => {
-        const parts = dateStr.split('-');
-        return `${parts[0]}.${parts[1]}.${parts[2]}`;
-      };
-      
-      return `${formatDate(start)} ~ ${formatDate(end)}`;
-    }
-  });
+// report_generate.ejs 파일에서 script 태그 내부에 넣을 수정된 스크립트
 
-  // 로딩 완료 후 CT요소 자동 로드 함수 수정
-const loadCtElementsAutomatic = () => {
-  // CT요소 컨테이너 생성
-  const ctContainer = createCtElementsContainer();
-  if (!ctContainer) {
-    console.warn('CT요소 컨테이너를 생성할 수 없습니다.');
-    return;
+document.addEventListener('DOMContentLoaded', async function() {
+  // URL에서 카테고리와 볼륨 값 가져오기
+  const pathParts = window.location.pathname.split('/');
+  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
+  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+  
+  console.log(`리포트 생성 페이지 로드: 카테고리=${category}, 볼륨=${volume}`);
+  
+  // 초기 로딩 상태
+  const loadingElement = document.getElementById('loading');
+  const reportContentElement = document.getElementById('reportContent');
+  const saveAlertElement = document.getElementById('saveAlert');
+  
+  // 리포트 요소
+  const reportTitleElement = document.getElementById('reportTitle');
+  const studentNameCell = document.getElementById('studentNameCell');
+  const teacherNameCell = document.getElementById('teacherNameCell');
+  const headerCenterName = document.getElementById('headerCenterName');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const studyPeriodCell = document.getElementById('studyPeriodCell');
+  const programNameCell = document.getElementById('programNameCell');
+  const teacherCommentCell = document.getElementById('teacherCommentCell');
+  const evaluationTableBody = document.getElementById('evaluationTableBody');
+  const contentsTitle = document.getElementById('contentsTitle');
+  const bookThumbnailsCell = document.getElementById('bookThumbnailsCell');
+  
+  // 날짜 기본값 설정 (오늘 및 1개월 전)
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+  
+  startDateInput.value = formatDateForInput(oneMonthAgo);
+  endDateInput.value = formatDateForInput(today);
+  
+  // 날짜 변경 시 기간 포맷팅
+  function updateFormattedPeriod() {
+    if (startDateInput.value && endDateInput.value) {
+      const formattedPeriod = formatDateRange(startDateInput.value, endDateInput.value);
+      studyPeriodCell.setAttribute('data-formatted-period', formattedPeriod);
+    }
   }
   
-  // URL에서 카테고리와 볼륨 파싱
-  const pathParts = window.location.pathname.split('/');
-  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
-  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+  startDateInput.addEventListener('change', updateFormattedPeriod);
+  endDateInput.addEventListener('change', updateFormattedPeriod);
   
-  console.log(`CT요소 로딩 시작: 카테고리=${category}, 볼륨=${volume}`);
+  // 초기 포맷팅 실행
+  updateFormattedPeriod();
   
-  // 로딩 표시
-  ctContainer.innerHTML = '<p class="text-center"><i class="bi bi-hourglass-split"></i> CT요소 로딩 중...</p>';
+  // 카테고리 이름 매핑 (영문 -> 한글)
+  const categoryMapping = {
+    'preschool': '프리스쿨',
+    'junior': '주니어',
+    'cps': 'CPS',
+    'cpa': 'CPA',
+    'ctr_appinventor': 'CTR앱인벤터',
+    'ctr_python': 'CTR파이썬'
+  };
   
-  // 새로운 API 엔드포인트를 사용하여 CT요소 데이터 가져오기
-  fetch(`/report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`API 응답 오류: ${response.status}`);
+  // 보고서 저장 키 생성 (볼륨 형식 통일)
+  let normalizedVolume = volume;
+  // 프리스쿨/주니어의 경우 LV 정보와 호수 정보를 정규화하여 저장 키로 사용
+  if (category === 'preschool' || category === 'junior') {
+    const levelMatch = volume.match(/LV(\d+)/i);
+    const volumeMatch = volume.match(/[-_](\d+)호$/);
+    if (levelMatch && volumeMatch) {
+      normalizedVolume = `LV${levelMatch[1]}-${volumeMatch[1]}호`;
+    }
+  }
+  const reportStorageKey = `report_${category}_${normalizedVolume}`;
+  
+  // 저장된 데이터 불러오기
+  loadSavedReportData();
+  
+  try {
+    // 교재 정보 및 CT요소 가져오기 (새 API 엔드포인트 사용)
+    const response = await fetch(`/report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`);
+    
+    if (!response.ok) {
+      throw new Error('교재 정보를 불러오는데 실패했습니다.');
+    }
+    
+    const data = await response.json();
+    console.log('불러온 데이터:', data);
+    
+    // 레벨 포함 여부에 따른 표시 조정
+    const displayCategory = categoryMapping[category] || category;
+    let levelInfo = '';
+    
+    // 프리스쿨과 주니어 과정의 경우 레벨 정보 추출
+    if (category === 'preschool' || category === 'junior') {
+      // 볼륨에서 레벨 정보 추출 (예: 'LV1-3호'에서 'LV1' 추출)
+      const levelMatch = volume.match(/LV(\d+)/i);
+      if (levelMatch) {
+        levelInfo = ` LV${levelMatch[1]}`;
       }
-      return response.json();
-    })
-    .then(ctElements => {
-      console.log(`로드된 CT요소: ${ctElements.length}개`);
-      
-      // 카테고리 이름 매핑 (영문 -> 한글)
-      const categoryMapping = {
-        'preschool': '프리스쿨',
-        'junior': '주니어',
-        'cps': 'CPS',
-        'cpa': 'CPA',
-        'ctr_appinventor': 'CTR앱인벤터',
-        'ctr_python': 'CTR파이썬'
-      };
-      
-      const displayCategory = categoryMapping[category] || category;
-      let levelInfo = '';
-      
-      // 프리스쿨과 주니어 과정의 경우 레벨 정보 추출
-      if (category === 'preschool' || category === 'junior') {
-        const levelMatch = volume.match(/LV(\d+)/i);
-        if (levelMatch) {
-          levelInfo = ` LV${levelMatch[1]}`;
-        }
+    }
+    
+    // 실제 호수 부분 추출 (LV 정보 제외)
+    let volumeNumber = volume;
+    if (category === 'preschool' || category === 'junior') {
+      const volumeMatch = volume.match(/[-_](\d+)호$/);
+      if (volumeMatch) {
+        volumeNumber = volumeMatch[1] + '호';
       }
-      
-      // 실제 호수 부분 추출 (LV 정보 제외)
-      let volumeNumber = volume;
-      if (category === 'preschool' || category === 'junior') {
-        const volumeMatch = volume.match(/[-_](\d+)호$/);
-        if (volumeMatch) {
-          volumeNumber = volumeMatch[1] + '호';
-        }
-      } else if (!volume.endsWith('호')) {
-        volumeNumber = volume + '호';
-      }
-      
-      // CT요소 표시
-      displayCtElements(ctElements, `${displayCategory}${levelInfo}`, volumeNumber, ctContainer);
-    })
-    .catch(error => {
-      console.error('CT요소 로딩 중 오류:', error);
-      ctContainer.innerHTML = `
-        <div class="alert alert-danger">
-          <i class="bi bi-exclamation-triangle-fill"></i> CT요소를 로드하는 중 오류가 발생했습니다: ${error.message}
-        </div>
+    } else if (!volume.endsWith('호')) {
+      volumeNumber = volume + '호';
+    }
+    
+    // 리포트 제목 설정
+    reportTitleElement.textContent = `${displayCategory}${levelInfo} ${volumeNumber}`;
+    
+    // 프로그램 이름 설정
+    programNameCell.textContent = `${displayCategory}${levelInfo}`;
+    
+    // 컨텐츠 타이틀 설정
+    contentsTitle.textContent = `${displayCategory}${levelInfo} CT컴퓨팅 사고력 신규확장 콘텐츠`;
+    
+    // 썸네일 이미지 표시
+    if (data.book && data.book.thumbnail) {
+      bookThumbnailsCell.innerHTML = `
+        <img src="${data.book.thumbnail}" alt="${data.book.title}" class="book-thumbnail">
+        <p class="small mt-2">${data.book.title}</p>
       `;
-    });
-};
-
-// 디버깅용 로그 추가 - API 요청 경로 정확히 표시
-document.addEventListener('reportContentLoaded', () => {
-  // URL에서 카테고리와 볼륨 파싱
-  const pathParts = window.location.pathname.split('/');
-  const category = decodeURIComponent(pathParts[pathParts.length - 2]);
-  const volume = decodeURIComponent(pathParts[pathParts.length - 1]);
+    } else {
+      bookThumbnailsCell.innerHTML = `
+        <p class="text-muted small">이미지 없음</p>
+        <p class="small mt-2">${data.book?.title || '교재 정보 없음'}</p>
+      `;
+    }
+    
+    // CT 요소 평가 테이블 초기화
+    evaluationTableBody.innerHTML = '';
+    
+    // 평가 항목 표시
+    if (data.ctElements && data.ctElements.length > 0) {
+      data.ctElements.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-center">${item.ctElement || ''}</td>
+          <td>${item.evaluationItem || ''}</td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-high" value="상" checked>
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-mid" value="중">
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="form-check form-check-inline justify-content-center">
+              <input class="form-check-input evaluation-radio" type="radio" 
+                name="evaluation-${index}" id="eval-${index}-low" value="하">
+            </div>
+          </td>
+        `;
+        evaluationTableBody.appendChild(row);
+      });
+      
+      // 평가 항목이 많을 경우 페이지 나누기를 위한 처리
+      if (data.ctElements.length > 7) {
+        document.querySelector('.evaluation-container').classList.add('multi-page');
+      }
+      
+      console.log(`${data.ctElements.length}개의 평가 항목이.표시됨`);
+      
+      // 저장된 평가 데이터 복원
+      restoreEvaluationData();
+    } else {
+      evaluationTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted py-3">
+            ${category === 'preschool' || category === 'junior' ? 
+              '해당 호수에 맞는 평가 항목이 없습니다.' : 
+              '평가 항목이 없습니다.'}
+          </td>
+        </tr>
+      `;
+      console.log('표시할 평가 항목이 없음');
+    }
+    
+    // 로딩 완료 후 컨텐츠 표시
+    loadingElement.classList.add('d-none');
+    reportContentElement.classList.remove('d-none');
+    
+    // 자동 저장 설정
+    setupAutoSave();
+    
+  } catch (error) {
+    console.error('Error:', error);
+    loadingElement.innerHTML = `
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        교재 정보를 불러오는 중 오류가 발생했습니다: ${error.message}
+      </div>
+    `;
+  }
   
-  console.log(`CT요소 API 호출 예정: /report/book-ct-elements/${encodeURIComponent(category)}/${encodeURIComponent(volume)}`);
-  loadCtElementsAutomatic();
+  // 저장된 리포트 데이터 불러오기
+  function loadSavedReportData() {
+    try {
+      const savedData = localStorage.getItem(reportStorageKey);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        
+        // 데이터 복원
+        if (data.centerName) headerCenterName.innerText = data.centerName;
+        if (data.studentName) studentNameCell.innerText = data.studentName;
+        if (data.teacherName) teacherNameCell.innerText = data.teacherName;
+        if (data.teacherComment) teacherCommentCell.innerText = data.teacherComment;
+        if (data.startDate) startDateInput.value = data.startDate;
+        if (data.endDate) endDateInput.value = data.endDate;
+        
+        console.log('저장된 리포트 데이터를 불러왔습니다.');
+      }
+    } catch (error) {
+      console.error('저장된 데이터 불러오기 오류:', error);
+    }
+  }
+  
+  // 저장된 평가 데이터 복원
+  function restoreEvaluationData() {
+    try {
+      const savedData = localStorage.getItem(reportStorageKey);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        
+        if (data.evaluations) {
+          data.evaluations.forEach((value, index) => {
+            const radioSelector = `input[name="evaluation-${index}"][value="${value}"]`;
+            const radio = document.querySelector(radioSelector);
+            if (radio) radio.checked = true;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('평가 데이터 복원 오류:', error);
+    }
+  }
+  
+  // 자동 저장 설정
+  function setupAutoSave() {
+    // 편집 가능 요소에 이벤트 리스너 추가
+    document.querySelectorAll('.editable').forEach(el => {
+      el.addEventListener('blur', saveReportData);
+    });
+    
+    // 날짜 입력 필드에 이벤트 리스너 추가
+    startDateInput.addEventListener('change', saveReportData);
+    endDateInput.addEventListener('change', saveReportData);
+    
+    // 라디오 버튼 변경 이벤트 리스너 추가
+    document.querySelectorAll('.evaluation-radio').forEach(radio => {
+      radio.addEventListener('change', saveReportData);
+    });
+    
+    // 저장 버튼 클릭 이벤트
+    document.getElementById('saveReportBtn').addEventListener('click', function() {
+      saveReportData();
+      showSaveAlert();
+    });
+  }
+  
+  // 리포트 데이터 저장 함수
+  function saveReportData() {
+    const reportData = {
+      centerName: headerCenterName.innerText,
+      studentName: studentNameCell.innerText,
+      teacherName: teacherNameCell.innerText,
+      teacherComment: teacherCommentCell.innerText,
+      startDate: startDateInput.value,
+      endDate: endDateInput.value,
+      evaluations: []
+    };
+    
+    // 평가 항목 값 수집
+    document.querySelectorAll('[name^="evaluation-"]').forEach((input, groupIndex) => {
+      if (input.checked) {
+        const groupName = input.name;
+        const index = parseInt(groupName.split('-')[1]);
+        reportData.evaluations[index] = input.value;
+      }
+    });
+    
+    // 로컬 스토리지에 저장
+    localStorage.setItem(reportStorageKey, JSON.stringify(reportData));
+    console.log('리포트 데이터가 자동 저장되었습니다.');
+  }
+  
+  // 저장 알림 표시
+  function showSaveAlert() {
+    saveAlertElement.classList.remove('d-none');
+    
+    // 6초 후 알림 숨기기
+    setTimeout(() => {
+      saveAlertElement.classList.add('d-none');
+    }, 6000);
+  }
+  
+  // 인쇄 버튼 이벤트
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', function() {
+      // 인쇄 전 레이아웃 최적화
+      optimizeForPrinting();
+      window.print();
+    });
+  }
+  
+  // 인쇄를 위한 최적화 함수
+  function optimizeForPrinting() {
+    // 학습 기간 표시를 위한 속성 업데이트
+    studyPeriodCell.setAttribute('data-formatted-period', formatDateRange(startDateInput.value, endDateInput.value));
+    
+    // 선생님 의견이 비어있는지 확인하고 최소 높이 설정
+    const teacherComment = document.getElementById('teacherCommentCell');
+    if (teacherComment && (!teacherComment.textContent.trim() || teacherComment.textContent === '학생의 성취와 발전 사항, 개선이 필요한 부분, 향후 학습 방향에 대해 의견을 작성하세요.')) {
+      teacherComment.innerHTML = '&nbsp;'; // 비어있을 경우 공백 추가
+    }
+    
+    console.log('인쇄를 위한 레이아웃을 최적화했습니다.');
+  }
+  
+  // 날짜 포맷 함수 (YYYY-MM-DD)
+  function formatDateForInput(date) {
+    return date.toISOString().split('T')[0];
+  }
+  
+  // 날짜 범위 포맷 함수 (YYYY.MM.DD ~ YYYY.MM.DD)
+  function formatDateRange(start, end) {
+    const formatDate = (dateStr) => {
+      const parts = dateStr.split('-');
+      return `${parts[0]}.${parts[1]}.${parts[2]}`;
+    };
+    
+    return `${formatDate(start)} ~ ${formatDate(end)}`;
+  }
 });
 </script>
