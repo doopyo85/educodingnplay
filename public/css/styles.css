@@ -230,7 +230,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: 30px; /* 제목과 본문 간격 확보 */
+    padding-top: 10px; /* 제목과 본문 간격 확보 */
     align-items: center;
     text-align: center;
     flex-grow: 1;
@@ -238,7 +238,7 @@ p {
 
 /* 메인 페이지 카드 수정 */
 .card-img-box {
-    flex: 0 0 60%;
+    flex: 0 0 40%;
     overflow: hidden;
     display: flex;
     align-items: center;
