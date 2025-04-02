@@ -179,24 +179,25 @@ p {
     cursor: pointer; /* 포인터 커서 추가 */
 }
 
-/* 카드 제목 */
+/* 카드 제목 (이미지 위에 배치) */
 .card-title {
-    position: relative; /* 기존 absolute 제거 */
-    top: unset;
-    left: unset;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
     font-size: 1.1rem;
     font-weight: bold;
-    text-align: left;
-    margin-bottom: 10px;
-    min-height: 48px;
-    max-width: 100%;
+    text-align: center;
+    background: rgba(255,255,255,0.85);
+    padding: 8px 12px;
+    border-radius: 10px;
+    z-index: 2;
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     word-break: break-word;
-    padding: 0 0 5px 0; /* 패딩 수정 */
 }
 
 /* PPT 버튼 */
@@ -206,9 +207,8 @@ p {
     right: 10px;
     font-size: 11px;
     padding: 4px 8px;
-    z-index: 1; /* 다른 요소 위로 */
+    z-index: 3; /* 제목보다 위에 배치 */
 }
-
 
 /* 카드 텍스트 */
 .card-text {
@@ -226,6 +226,7 @@ p {
     display: block;
     max-width: 100%;
     max-height: 180px; /* 높이 조정 */
+    z-index: 1;
 }
 
 /* 카드 본문 */
@@ -241,12 +242,13 @@ p {
 
 /* 메인 페이지 카드 수정 */
 .card-img-box {
-    flex: 0 0 60%;
+    position: relative;
+    width: 100%;
+    height: 180px;
     overflow: hidden;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 10px; /* 이미지 사방에 패딩 추가 */
+    align-items: center;
 }
 
 .card-text-box {
