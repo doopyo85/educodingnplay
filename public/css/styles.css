@@ -170,26 +170,25 @@ p {
     flex-direction: column;
     justify-content: space-between;
     padding: 10px;
-    min-height: 120px; /* 카드 높이 안정적 유지 */
+    min-height: 120px;
     position: relative;
 }
 
 .card:hover {
     transform: scale(1.05);
-    cursor: pointer; /* 포인터 커서 추가 */
+    cursor: pointer;
 }
 
-/* 카드 제목 (이미지 위에 배치) */
+/* 카드 제목 (왼쪽 상단에 배치) */
 .card-title {
     position: absolute;
     top: 10px;
     left: 10px;
-    right: 10px;
     font-size: 1.1rem;
     font-weight: bold;
-    text-align: center;
+    text-align: left;
     background: rgba(255,255,255,0.85);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 10px;
     z-index: 2;
     white-space: normal;
@@ -207,7 +206,7 @@ p {
     right: 10px;
     font-size: 11px;
     padding: 4px 8px;
-    z-index: 3; /* 제목보다 위에 배치 */
+    z-index: 3;
 }
 
 /* 카드 텍스트 */
@@ -215,17 +214,17 @@ p {
     font-size: 0.9rem;
     color: #6c757d;
     text-align: left;
-    margin-bottom: 10px; /* 버튼과의 간격 최소화 */
+    margin-bottom: 10px;
 }
 
 /* 카드 이미지 */
 .card-img-top, .card-img-entry {
     object-fit: contain;
-    padding: 10px; /* 모든 방향 동일 여백 */
+    padding: 10px;
     margin-top: 30px;
     display: block;
     max-width: 100%;
-    max-height: 180px; /* 높이 조정 */
+    max-height: 180px;
     z-index: 1;
 }
 
@@ -234,7 +233,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: 10px; /* 제목과 본문 간격 확보 */
+    padding-top: 10px;
     align-items: center;
     text-align: center;
     flex-grow: 1;
@@ -256,7 +255,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
+    padding: 10px;
 }
 
 /* =============================================
