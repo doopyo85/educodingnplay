@@ -230,7 +230,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: 40px; /* 제목과 본문 간격 확보 */
+    padding-top: 30px; /* 제목과 본문 간격 확보 */
     align-items: center;
     text-align: center;
     flex-grow: 1;
