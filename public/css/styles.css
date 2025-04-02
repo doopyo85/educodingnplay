@@ -238,7 +238,7 @@ p {
 
 /* 메인 페이지 카드 수정 */
 .card-img-box {
-    flex: 0 0 40%;
+    flex: 0 0 60%;
     overflow: hidden;
     display: flex;
     align-items: center;
