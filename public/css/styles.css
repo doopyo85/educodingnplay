@@ -213,6 +213,9 @@ p {
     color: #6c757d;
     text-align: left;
     margin-bottom: 10px; /* 버튼과의 간격 최소화 */
+    min-height: 40px; /* 텍스트 영역 높이 고정 */
+    display: flex;
+    align-items: center;
 }
 
 /* 카드 이미지 */
@@ -220,6 +223,7 @@ p {
     object-fit: contain;
     padding: 10px; /* 모든 방향 동일 여백 */
     margin-top: 30px;
+    margin-bottom: 15px; /* 이미지 하단 여백 추가 */
     display: block;
     max-width: 100%;
     max-height: 180px; /* 높이 조정 */
@@ -229,8 +233,9 @@ p {
 .card-body {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding-top: 60px; /* 제목과 본문 간격 확보 */
+    justify-content: flex-start; /* space-between에서 flex-start로 변경 */
+    gap: 10px; /* 요소 간 간격 조절 */
+    padding-top: 40px; /* 제목과 본문 간격 조정 (60px에서 40px로 줄임) */
     align-items: center;
     text-align: center;
     flex-grow: 1;
@@ -252,6 +257,7 @@ p {
     flex-direction: column;
     justify-content: space-between;
     padding: 10px; /* 텍스트+버튼 부분 사방에 패딩 추가 */
+    margin-top: -10px; /* 텍스트 박스를 위로 당김 */
 }
 
 /* =============================================
