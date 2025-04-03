@@ -17,28 +17,28 @@ html, body {
 }
 
 main {
-    flex-grow: 1;  /* 콘텐츠가 부족해도 footer를 하단으로 밀기 위한 설정 */
+    flex-grow: 1;
 }
 
 footer {
     background-color: #f8f9fa;
     padding: 10px 20px;
     text-align: center;
-    position: fixed; /* 화면 하단에 고정 */
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 1000; /* 다른 요소들 위에 오도록 */
+    z-index: 1000;
 }
 
 /* =============================================
    📌 헤더와 내비게이션 스타일
    ============================================= */
 .multicolor-text {
-    font-size: 2.5rem; /* 적절한 폰트 크기 */
-    font-weight: bold; /* 굵은 폰트 */
-    background: linear-gradient(to right, #4a90e2, #e94e77); /* 파란색에서 분홍색으로 그라디언트 */
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #4a90e2, #e94e77);
     -webkit-background-clip: text;
     color: transparent;
 }
@@ -61,15 +61,14 @@ footer {
     color: #495057;
 }
 
-/* 내비게이션 바 */
 nav {
     position: fixed;
     left: 0;
-    width: 200px; /* 기존 너비 유지 */
-    height: calc(100% - 50px); /* 헤더를 제외한 높이 */
+    width: 200px;
+    height: calc(100% - 50px);
     background-color: #f8f9fa;
-    z-index: 1000; /* header보다 낮게 설정 */
-    padding-top: 10px; /* 내부 여백 */
+    z-index: 1000;
+    padding-top: 10px;
 }
 
 #navList {
@@ -99,7 +98,7 @@ nav {
 }
 
 .sub-menu .menu-item:hover {
-    background-color: #dcdcdc; /* 원하는 롤오버 색상으로 변경 */
+    background-color: #dcdcdc;
     color: #000;
 }
 
@@ -117,7 +116,7 @@ nav {
 }
 
 #content {
-    margin-left: 220px; /* 네비게이션 바 너비만큼 마진 추가 */
+    margin-left: 220px;
     padding: 20px;
 }
 
@@ -153,13 +152,12 @@ p {
 .col-lg-3, .col-md-4, .col-sm-6 {
     padding-left: 8px;
     padding-right: 8px;
-    margin-bottom: 15px; 
+    margin-bottom: 15px;
 }
 
 /* =============================================
    📌 카드 스타일
    ============================================= */
-/* 메인 화면 카드 */
 .card {
     border: none;
     border-radius: 15px;
@@ -179,7 +177,6 @@ p {
     cursor: pointer;
 }
 
-/* 카드 제목 (왼쪽 상단에 배치) */
 .card-title {
     position: absolute;
     top: 10px;
@@ -199,7 +196,6 @@ p {
     word-break: break-word;
 }
 
-/* PPT 버튼 */
 .ppt-btn {
     position: absolute;
     top: 10px;
@@ -209,7 +205,6 @@ p {
     z-index: 3;
 }
 
-/* 카드 텍스트 */
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
@@ -217,7 +212,6 @@ p {
     margin-bottom: 10px;
 }
 
-/* 카드 이미지 */
 .card-img-top, .card-img-entry {
     object-fit: contain;
     padding: 10px;
@@ -228,18 +222,16 @@ p {
     z-index: 1;
 }
 
-/* 카드 본문 */
 .card-body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-top: 10px;
+    padding-top: 60px; /* 제목, 버튼과 겹치지 않도록 공간 확보 */
     align-items: center;
     text-align: center;
     flex-grow: 1;
 }
 
-/* 메인 페이지 카드 수정 */
 .card-img-box {
     position: relative;
     width: 100%;
@@ -261,13 +253,12 @@ p {
 /* =============================================
    📌 버튼 스타일
    ============================================= */
-/* 파란 버튼 (주 버튼) - 카드의 가운데 정렬 */
 .btn-primary {
-    border-radius: 50px; /* 캡슐형 */
+    border-radius: 50px;
     padding: 10px 24px;
     font-size: 1rem;
     text-align: center;
-    width: auto; /* 내용에 맞게 크기 조정 */
+    width: auto;
     min-width: 160px;
     max-width: 200px;
     height: 42px;
@@ -275,33 +266,31 @@ p {
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    margin: 0 auto; /* 가운데 정렬 */
+    margin: 0 auto;
 }
 
-/* 버튼 그룹 - 한 줄 정렬 */
 .btn-group {
     display: flex;
     justify-content: center;
-    flex-wrap: nowrap; /* 줄바꿈 방지 */
-    gap: 1px; /* 버튼 간 간격 최소화 */
-    width: auto; /* 카드 너비 내에서 자동 조정 */
+    flex-wrap: nowrap;
+    gap: 1px;
+    width: auto;
 }
 
-/* 회색 버튼 (기본/확장1/확장2) */
 .btn-secondary {
     border-radius: 50px;
     padding: 5px 8px;
     font-size: 0.85rem;
     text-align: center;
-    width: auto; /* 내용 크기에 맞게 조정 */
-    min-width: 60px; /* 최소 너비 제한 */
-    max-width: 90px; /* 최대 너비 제한 */
-    height: 28px; /* 버튼 높이 균일 */
+    width: auto;
+    min-width: 60px;
+    max-width: 90px;
+    height: 28px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: normal;
-    white-space: nowrap; /* 줄바꿈 방지 */
+    white-space: nowrap;
 }
 
 /* =============================================
@@ -315,7 +304,6 @@ p {
 /* =============================================
    📌 캐러셀 스타일
    ============================================= */
-/* 캐러셀 컨트롤 스타일 */
 .carousel-control-prev, .carousel-control-next {
     width: 50px;
     height: 50px;
@@ -328,7 +316,6 @@ p {
     z-index: 20;
 }
 
-/* 외부에 배치된 화살표 버튼 */
 .carousel-btn-outer.carousel-control-prev {
     left: 0;
 }
@@ -337,7 +324,6 @@ p {
     right: 0;
 }
 
-/* 캐러셀 컨테이너 상대 위치 설정 및 여백 */
 #categoriesCarousel {
     position: relative;
     overflow: visible;
@@ -377,7 +363,9 @@ p {
     background-color: #007bff;
 }
 
-/* 교육 단계 표시 */
+/* =============================================
+   📌 교육 단계 표시
+   ============================================= */
 #educationLevel, .education-level {
     background-color: #007bff !important;
     color: white !important;
@@ -392,10 +380,12 @@ p {
     min-width: 180px !important;
 }
 
-/* 캐러셀 컨테이너 설정 */
+/* =============================================
+   📌 캐러셀 컨테이너 설정
+   ============================================= */
 .carousel-container {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 80px; /* 좌우 화살표 버튼을 위한 공간 */
+    padding: 0 80px;
 }
