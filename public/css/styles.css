@@ -262,11 +262,21 @@ p {
 }
 
 .btn-group {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%; /* 카드 너비의 60% */
     display: flex;
-    justify-content: center;
-    flex-wrap: nowrap;
-    gap: 1px;
-    width: auto;
+    justify-content: space-between;
+    gap: 5px; /* 버튼 사이 여백 */
+}
+
+.btn-group .btn-secondary {
+flex: 0 0 30%;
+min-width: unset;
+max-width: unset;
+width: 30%; /* 정확하게 제한 */
 }
 
 .btn-secondary {
