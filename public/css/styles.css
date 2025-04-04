@@ -219,8 +219,10 @@ p {
 
 .card-body {
     padding-top: 10px;
+    padding-bottom: 40px; /* 버튼 그룹을 위한 공간 확보 */
     align-items: flex-start;
     text-align: left;
+    position: relative; /* 버튼 그룹의 기준점 */
 }
 
 .card-img-top, .card-img-entry {
@@ -265,10 +267,12 @@ p {
 }
 
 .btn-group {
-    position: relative;
+    position: absolute;
     display: inline-flex;
     vertical-align: middle;
-    margin-bottom: 15px; /* 간격 추가 */
+    bottom: 15%; /* 카드 하단에서 15% 위치에 고정 */
+    left: 50%; /* 왼쪽 가장자리에서 50% 위치 */
+    transform: translateX(-50%); /* 가운데 정렬을 위한 조정 */
     border-radius: 25px; /* 캡슐형 모양 */
     overflow: hidden; /* 내부 버튼 모서리 숨김 */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 그림자 효과 */
@@ -328,9 +332,9 @@ p {
 
 /* PPT 버튼 스타일 */
 .ppt-btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
+    background-color: white;
+    color: #6c757d;
+    border: 1px solid #6c757d;
     padding: 4px 8px;
     font-size: 0.8rem;
     cursor: pointer;
@@ -339,10 +343,18 @@ p {
     bottom: 10px;
     right: 10px;
     z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 26px;
+    line-height: 1;
+    box-sizing: border-box;
 }
 
 .ppt-btn:hover {
-    background-color: #218838;
+    background-color: #f8f9fa;
+    color: #495057;
 }
 
 /* =============================================
