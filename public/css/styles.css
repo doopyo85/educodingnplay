@@ -178,7 +178,7 @@ p {
 }
 
 .card-title {
-    position: relative; /* 기존 absolute 제거 */
+    position: relative;
     top: auto;
     left: auto;
     margin-bottom: 10px;
@@ -205,12 +205,16 @@ p {
     z-index: 3;
 }
 
-
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
     text-align: left;
-    margin-bottom: 10px;
+    margin-bottom: 15px; /* 간격 늘림 */
+    position: relative;
+    z-index: 2; /* z-index 추가 */
+    background-color: rgba(255, 255, 255, 0.8); /* 배경 추가 */
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .card-body {
@@ -220,9 +224,8 @@ p {
 }
 
 .card-img-top, .card-img-entry {
-    margin-top: 10px; /* 이미지와 타이틀 간 여백 확보 */
+    margin-top: 10px;
 }
-
 
 .card-img-box {
     position: relative;
@@ -243,7 +246,7 @@ p {
 }
 
 /* =============================================
-   📌 버튼 스타일
+   📌 버튼 스타일 - 기존 구조 유지
    ============================================= */
 .btn-primary {
     border-radius: 50px;
@@ -262,21 +265,35 @@ p {
 }
 
 .btn-group {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%; /* 카드 너비의 60% */
-    display: flex;
-    justify-content: space-between;
-    gap: 5px; /* 버튼 사이 여백 */
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    margin-bottom: 15px; /* 간격 추가 */
+    border-radius: 25px; /* 캡슐형 모양 */
+    overflow: hidden; /* 내부 버튼 모서리 숨김 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 그림자 효과 */
+    z-index: 3; /* 다른 요소 위에 표시 */
 }
 
-.btn-group .btn-secondary {
-flex: 0 0 30%;
-min-width: unset;
-max-width: unset;
-width: 30%; /* 정확하게 제한 */
+.btn-group > .btn:not(:first-child),
+.btn-group > .btn-group:not(:first-child) {
+    margin-left: -1px; /* 버튼 사이 경계선 처리 */
+}
+
+.btn-group > .btn {
+    position: relative;
+    flex: 1 1 auto;
+    border-radius: 0; /* 내부 버튼 모서리 제거 */
+}
+
+.btn-group > .btn:first-child {
+    border-top-left-radius: 25px; /* 첫 버튼 왼쪽 모서리 */
+    border-bottom-left-radius: 25px;
+}
+
+.btn-group > .btn:last-child {
+    border-top-right-radius: 25px; /* 마지막 버튼 오른쪽 모서리 */
+    border-bottom-right-radius: 25px;
 }
 
 .btn-secondary {
@@ -286,13 +303,46 @@ width: 30%; /* 정확하게 제한 */
     text-align: center;
     width: auto;
     min-width: 60px;
-    max-width: 90px;
-    height: 28px;
+    max-width: 100px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: normal;
     white-space: nowrap;
+    color: white;
+    background-color: #495057; /* 배경색 지정 */
+    border: 1px solid #495057;
+}
+
+/* 첫 번째 버튼 (기본) 차별화 */
+.btn-group > .btn-secondary:first-child {
+    background-color: #6c757d;
+}
+
+/* 마우스 오버 효과 */
+.btn-secondary:hover {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+/* PPT 버튼 스타일 */
+.ppt-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 25px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 3;
+}
+
+.ppt-btn:hover {
+    background-color: #218838;
 }
 
 /* =============================================
@@ -369,17 +419,17 @@ width: 30%; /* 정확하게 제한 */
    📌 교육 단계 표시
    ============================================= */
 #educationLevel, .education-level {
-    background-color: #007bff !important;
-    color: white !important;
-    padding: 10px 25px !important;
-    border-radius: 25px !important;
-    font-weight: bold !important;
-    font-size: 1.2rem !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-    display: inline-block !important;
-    margin-right: 15px !important;
-    text-align: center !important;
-    min-width: 180px !important;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: inline-block;
+    margin-right: 15px;
+    text-align: center;
+    min-width: 180px;
 }
 
 /* =============================================
@@ -390,4 +440,17 @@ width: 30%; /* 정확하게 제한 */
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 80px;
+}
+
+/* CT 학습 요소 표시 개선 */
+.card-text .bi-cpu {
+    margin-right: 5px;
+    color: #4169e1;
+}
+
+/* 기존 동적 카드 스타일 유지 */
+.col-lg-3 .card, 
+.col-md-4 .card, 
+.col-sm-6 .card {
+    margin-bottom: 15px;
 }
