@@ -178,7 +178,7 @@ p {
 }
 
 .card-title {
-    position: relative;
+    position: relative; /* 기존 absolute 제거 */
     top: auto;
     left: auto;
     margin-bottom: 10px;
@@ -205,6 +205,7 @@ p {
     z-index: 3;
 }
 
+
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
@@ -219,8 +220,9 @@ p {
 }
 
 .card-img-top, .card-img-entry {
-    margin-top: 10px;
+    margin-top: 10px; /* 이미지와 타이틀 간 여백 확보 */
 }
+
 
 .card-img-box {
     position: relative;
@@ -259,83 +261,38 @@ p {
     margin: 0 auto;
 }
 
-/* =============================================
-   📌 CT 요소와 버튼 그룹 스타일 수정
-   ============================================= */
-.ct-info {
-    margin-bottom: 15px;
-    line-height: 1.5;
-    min-height: 45px;
+.btn-group {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%; /* 카드 너비의 60% */
     display: flex;
+    justify-content: space-between;
+    gap: 5px; /* 버튼 사이 여백 */
+}
+
+.btn-group .btn-secondary {
+flex: 0 0 30%;
+min-width: unset;
+max-width: unset;
+width: 30%; /* 정확하게 제한 */
+}
+
+.btn-secondary {
+    border-radius: 50px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    width: auto;
+    min-width: 60px;
+    max-width: 90px;
+    height: 28px;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
-}
-
-.button-group-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.button-capsule {
-    display: inline-flex;
-    background: #f1f3f5;
-    border-radius: 25px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
-.button-capsule button {
-    border: none;
-    background: transparent;
-    padding: 8px 15px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.button-capsule button:first-child {
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
-}
-
-.button-capsule button:last-child {
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
-}
-
-.button-capsule button:not(:last-child) {
-    border-right: 1px solid #dee2e6;
-}
-
-.button-capsule .kihon {
-    background-color: #6c757d;
-    color: white;
-}
-
-.button-capsule .hakshup {
-    background-color: #495057;
-    color: white;
-}
-
-.ppt-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 8px;
-}
-
-.ppt-button:hover {
-    background-color: #218838;
+    font-weight: normal;
+    white-space: nowrap;
 }
 
 /* =============================================
@@ -412,17 +369,17 @@ p {
    📌 교육 단계 표시
    ============================================= */
 #educationLevel, .education-level {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 25px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: inline-block;
-    margin-right: 15px;
-    text-align: center;
-    min-width: 180px;
+    background-color: #007bff !important;
+    color: white !important;
+    padding: 10px 25px !important;
+    border-radius: 25px !important;
+    font-weight: bold !important;
+    font-size: 1.2rem !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    display: inline-block !important;
+    margin-right: 15px !important;
+    text-align: center !important;
+    min-width: 180px !important;
 }
 
 /* =============================================
@@ -433,28 +390,4 @@ p {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 80px;
-}
-
-/* =============================================
-   📌 프로젝트 카드 레이아웃
-   ============================================= */
-.project-card {
-    margin-bottom: 25px;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    padding: 20px;
-    background: white;
-}
-
-.project-title {
-    font-size: 1.4rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.project-description {
-    margin-bottom: 15px;
-    color: #666;
 }
