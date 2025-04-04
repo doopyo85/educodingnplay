@@ -178,22 +178,22 @@ p {
 }
 
 .card-title {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    text-align: left;
-    background: rgba(255,255,255,0.85);
+    position: relative; /* 기존 absolute 제거 */
+    top: auto;
+    left: auto;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.85);
     padding: 6px 10px;
     border-radius: 10px;
-    z-index: 2;
+    font-size: 1.1rem;
+    font-weight: bold;
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     word-break: break-word;
+    z-index: 2;
 }
 
 .ppt-btn {
@@ -213,24 +213,14 @@ p {
     margin-bottom: 10px;
 }
 
-.card-img-top, .card-img-entry {
-    object-fit: contain;
-    padding: 10px;
-    margin-top: 40px; /* 기존 30px → 40px로 증가시켜 타이틀과 간격 확보 */
-    display: block;
-    max-width: 100%;
-    max-height: 180px;
-    z-index: 1;
+.card-body {
+    padding-top: 10px;
+    align-items: flex-start;
+    text-align: left;
 }
 
-.card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding-top: 20px; /* 기존 60px → 20px (불필요하게 높았음) */
-    align-items: center;
-    text-align: center;
-    flex-grow: 1;
+.card-img-top, .card-img-entry {
+    margin-top: 10px; /* 이미지와 타이틀 간 여백 확보 */
 }
 
 
