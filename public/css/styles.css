@@ -167,7 +167,7 @@ p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 15px;
+    padding: 10px;
     min-height: 120px;
     position: relative;
 }
@@ -178,7 +178,7 @@ p {
 }
 
 .card-title {
-    position: relative;
+    position: relative; /* 기존 absolute 제거 */
     top: auto;
     left: auto;
     margin-bottom: 10px;
@@ -203,36 +203,26 @@ p {
     font-size: 11px;
     padding: 4px 8px;
     z-index: 3;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.ppt-btn:hover {
-    background-color: #218838;
-}
 
 .card-text {
     font-size: 0.9rem;
     color: #6c757d;
     text-align: left;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .card-body {
     padding-top: 10px;
     align-items: flex-start;
     text-align: left;
-    display: flex;
-    flex-direction: column;
 }
 
 .card-img-top, .card-img-entry {
-    margin-top: 10px;
+    margin-top: 10px; /* 이미지와 타이틀 간 여백 확보 */
 }
+
 
 .card-img-box {
     position: relative;
@@ -272,48 +262,21 @@ p {
 }
 
 .btn-group {
-    display: inline-flex;
-    background: #f1f3f5;
-    border-radius: 25px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-right: 10px;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 5;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%; /* 카드 너비의 60% */
+    display: flex;
+    justify-content: space-between;
+    gap: 5px; /* 버튼 사이 여백 */
 }
 
 .btn-group .btn-secondary {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 8px 15px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    border-radius: 0;
-    color: #495057;
-}
-
-.btn-group .btn-secondary:first-child {
-    border-top-left-radius: 25px;
-    border-bottom-left-radius: 25px;
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-group .btn-secondary:last-child {
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
-}
-
-.btn-group .btn-secondary:not(:last-child) {
-    border-right: 1px solid #dee2e6;
-}
-
-.btn-group .btn-secondary:hover {
-    background-color: #495057;
-    color: white;
+flex: 0 0 30%;
+min-width: unset;
+max-width: unset;
+width: 30%; /* 정확하게 제한 */
 }
 
 .btn-secondary {
@@ -321,32 +284,15 @@ p {
     padding: 5px 8px;
     font-size: 0.85rem;
     text-align: center;
+    width: auto;
     min-width: 60px;
-    height: 32px;
+    max-width: 90px;
+    height: 28px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: normal;
     white-space: nowrap;
-    background-color: #495057;
-    color: white;
-}
-
-/* CT 정보 스타일 */
-[class^="C.T 학습 요소"] {
-    margin-bottom: 15px;
-    line-height: 1.5;
-    min-height: 30px;
-    display: block;
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 5px;
-    padding-right: 10px;
-    position: relative;
-    z-index: 3;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 5px 8px;
-    border-radius: 4px;
 }
 
 /* =============================================
@@ -423,17 +369,17 @@ p {
    📌 교육 단계 표시
    ============================================= */
 #educationLevel, .education-level {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 25px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: inline-block;
-    margin-right: 15px;
-    text-align: center;
-    min-width: 180px;
+    background-color: #007bff !important;
+    color: white !important;
+    padding: 10px 25px !important;
+    border-radius: 25px !important;
+    font-weight: bold !important;
+    font-size: 1.2rem !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    display: inline-block !important;
+    margin-right: 15px !important;
+    text-align: center !important;
+    min-width: 180px !important;
 }
 
 /* =============================================
@@ -444,36 +390,4 @@ p {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 80px;
-}
-
-/* =============================================
-   📌 프로젝트 카드 추가 스타일링
-   ============================================= */
-h2, h3, h4 {
-    position: relative;
-    z-index: 4;
-}
-
-/* 기존 클래스에 대한 추가 스타일 설정 */
-.기본, .학습1, .학습2 {
-    margin-right: 0;
-    border-radius: 0;
-}
-
-.기본 {
-    background-color: #6c757d;
-    color: white;
-}
-
-.학습1, .학습2 {
-    background-color: #495057;
-    color: white;
-}
-
-.PPT {
-    background-color: #28a745;
-    color: white;
-    border-radius: 25px;
-    padding: 6px 12px;
-    margin-left: 8px;
 }
